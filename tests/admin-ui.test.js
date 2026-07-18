@@ -12,3 +12,10 @@ test("hidden admin panels stay out of the layout", function () {
   assert.match(css, /\[hidden\]\s*\{\s*display:\s*none\s*!important;\s*\}/);
   assert.match(html, /assets\/css\/admin\.css\?v=\d+/);
 });
+
+test("opening the admin page as a local file redirects to production", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+
+  assert.match(html, /window\.location\.protocol\s*===\s*["']file:["']/);
+  assert.match(html, /window\.location\.replace\(["']https:\/\/legitbodyfix\.vercel\.app\/admin\.html["']\)/);
+});
