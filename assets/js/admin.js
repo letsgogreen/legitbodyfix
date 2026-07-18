@@ -47,9 +47,8 @@
     }
   }
 
-  function requestJson(url, options, skipSuccessBody) {
+  function requestJson(url, options) {
     return fetch(url, options).then(function (response) {
-      if (response.ok && skipSuccessBody) return {};
       return response.json().catch(function () { return {}; }).then(function (data) {
         if (!response.ok) {
           var error = new Error(data.error || "Request failed");
@@ -60,6 +59,16 @@
         }
         return data;
       });
+    });
+  }
+
+  function requestStatus(url, options) {
+    return fetch(url, options).then(function (response) {
+      if (!response.ok) {
+        var error = new Error("Request failed");
+        error.status = response.status;
+        throw error;
+      }
     });
   }
 
@@ -251,12 +260,12 @@
     loginButton.disabled = true;
     setAuthStatus("Signing in…");
 
-    requestJson(LOGIN_URL, {
+    requestStatus(LOGIN_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
       body: JSON.stringify({ password: passwordInput.value })
-    }, true).then(function () {
+    }).then(function () {
       passwordInput.value = "";
       showEditor();
     }).catch(function (error) {
@@ -271,7 +280,7 @@
 
   logoutButton.addEventListener("click", function () {
     logoutButton.disabled = true;
-    requestJson(LOGOUT_URL, {
+    requestStatus(LOGOUT_URL, {
       method: "POST",
       credentials: "same-origin"
     }).catch(function () {
@@ -312,13 +321,12 @@
       });
   }
 
-  requestJson(SESSION_URL, {
+  requestStatus(SESSION_URL, {
     method: "GET",
     credentials: "same-origin",
     cache: "no-store"
-  }).then(function (data) {
-    if (data.authenticated) showEditor();
-    else showLogin();
+  }).then(function () {
+    showEditor();
   }).catch(function (error) {
     if (error.status === 401) showLogin();
     else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
