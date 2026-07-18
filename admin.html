@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260718-4">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260718-5">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to editor</a>
@@ -125,6 +125,14 @@
           <input name="videoUrl" type="url" placeholder="https://…">
         </label>
         <label class="field field-wide">
+          <span>Upload video file</span>
+          <span class="upload-row">
+            <input class="video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a video file">
+            <button class="button button-secondary upload-video" type="button">Upload to R2</button>
+          </span>
+          <span class="field-hint">MP4 is recommended. Files upload directly to R2 using a temporary, secure upload link.</span>
+        </label>
+        <label class="field field-wide">
           <span>Thumbnail URL</span>
           <input name="thumbnailUrl" type="url" placeholder="https://…">
         </label>
@@ -136,6 +144,6 @@
     </article>
   </template>
 
-  <script src="assets/js/admin.js?v=20260718-4" defer></script>
+  <script src="assets/js/admin.js?v=20260718-5" defer></script>
 </body>
 </html>
