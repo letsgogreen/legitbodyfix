@@ -458,62 +458,9 @@
         <h2 id="program-heading">A course library for better movement</h2>
         <p>Each module includes a guided movement protocol you can revisit anytime within your program.</p>
       </div>
-      <div class="course-grid">
-
-        <article class="course-card reveal">
-          <div class="course-media"><span class="tag mono">FOUNDATIONAL</span><div class="play-mark" aria-hidden="true"></div></div>
-          <div class="course-info">
-            <span class="lvl mono">MODULE 01</span>
-            <h4>Neck Alignment</h4>
-            <span class="len">12 min · Bodyweight</span>
-          </div>
-        </article>
-
-        <article class="course-card reveal">
-          <div class="course-media"><span class="tag mono">INTERMEDIATE</span><div class="play-mark" aria-hidden="true"></div></div>
-          <div class="course-info">
-            <span class="lvl mono">MODULE 02</span>
-            <h4>Shoulder Reset</h4>
-            <span class="len">14 min · Resistance band</span>
-          </div>
-        </article>
-
-        <article class="course-card reveal">
-          <div class="course-media"><span class="tag mono">FOUNDATIONAL</span><div class="play-mark" aria-hidden="true"></div></div>
-          <div class="course-info">
-            <span class="lvl mono">MODULE 03</span>
-            <h4>Pelvic Balance</h4>
-            <span class="len">15 min · Bodyweight</span>
-          </div>
-        </article>
-
-        <article class="course-card reveal">
-          <div class="course-media"><span class="tag mono">FOUNDATIONAL</span><div class="play-mark" aria-hidden="true"></div></div>
-          <div class="course-info">
-            <span class="lvl mono">MODULE 04</span>
-            <h4>Foot Mechanics</h4>
-            <span class="len">10 min · Bodyweight</span>
-          </div>
-        </article>
-
-        <article class="course-card reveal">
-          <div class="course-media"><span class="tag mono">INTERMEDIATE</span><div class="play-mark" aria-hidden="true"></div></div>
-          <div class="course-info">
-            <span class="lvl mono">MODULE 05</span>
-            <h4>Walking Mechanics</h4>
-            <span class="len">18 min · Bodyweight</span>
-          </div>
-        </article>
-
-        <article class="course-card reveal">
-          <div class="course-media"><span class="tag mono">FOUNDATIONAL</span><div class="play-mark" aria-hidden="true"></div></div>
-          <div class="course-info">
-            <span class="lvl mono">MODULE 06</span>
-            <h4>Breathing Fundamentals</h4>
-            <span class="len">8 min · Guided</span>
-          </div>
-        </article>
-
+      <div class="course-grid" id="courseGrid" aria-live="polite" aria-busy="true">
+        <p id="courseStatus">Loading the movement library…</p>
+        <noscript>Please enable JavaScript to view the movement library.</noscript>
       </div>
     </div>
   </section>
@@ -763,6 +710,7 @@
   });
 })();
 </script>
+<script src="assets/js/videos.js" defer></script>
 
 </body>
 </html>
