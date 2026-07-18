@@ -47,8 +47,9 @@
     }
   }
 
-  function requestJson(url, options) {
+  function requestJson(url, options, skipSuccessBody) {
     return fetch(url, options).then(function (response) {
+      if (response.ok && skipSuccessBody) return {};
       return response.json().catch(function () { return {}; }).then(function (data) {
         if (!response.ok) {
           var error = new Error(data.error || "Request failed");
@@ -255,7 +256,7 @@
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
       body: JSON.stringify({ password: passwordInput.value })
-    }).then(function () {
+    }, true).then(function () {
       passwordInput.value = "";
       showEditor();
     }).catch(function (error) {
