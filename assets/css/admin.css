@@ -27,6 +27,7 @@ body {
 button, input, textarea, select { font: inherit; }
 button, label[for] { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+[hidden] { display: none !important; }
 
 .skip-link {
   position: fixed;
