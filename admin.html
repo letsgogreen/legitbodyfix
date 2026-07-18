@@ -46,7 +46,7 @@
       <div>
         <p class="eyebrow">Video management</p>
         <h1 id="page-title">Movement library editor</h1>
-        <p class="lede">Edit course metadata, reorder modules, and prepare the JSON used by the public website.</p>
+        <p class="lede">Edit course metadata, reorder modules, and publish the video library used by the public website.</p>
       </div>
       <div class="summary" aria-live="polite">
         <span><strong id="videoCount">0</strong> videos</span>
@@ -55,8 +55,8 @@
     </section>
 
     <div class="notice" role="note">
-      <strong>Prototype only.</strong>
-      Changes are kept as a draft in this browser. They do not update the live website until the downloaded JSON is reviewed and committed.
+      <strong>Drafts stay private until you publish.</strong>
+      Changes are saved in this browser. Publishing creates a versioned GitHub update and Vercel then rebuilds the live website.
     </div>
 
     <section class="toolbar" aria-label="Editor actions">
@@ -67,7 +67,8 @@
       </div>
       <div class="toolbar-group">
         <button class="button button-quiet" id="resetDraft" type="button">Reset draft</button>
-        <button class="button button-primary" id="downloadJson" type="button">Download JSON</button>
+        <button class="button button-secondary" id="downloadJson" type="button">Download JSON</button>
+        <button class="button button-primary" id="publishChanges" type="button">Publish changes</button>
       </div>
     </section>
 
