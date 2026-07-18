@@ -1,0 +1,50 @@
+[
+  {
+    "id": "neck-alignment",
+    "level": "FOUNDATIONAL",
+    "moduleNumber": 1,
+    "title": "Neck Alignment",
+    "durationMinutes": 12,
+    "equipment": "Bodyweight"
+  },
+  {
+    "id": "shoulder-reset",
+    "level": "INTERMEDIATE",
+    "moduleNumber": 2,
+    "title": "Shoulder Reset",
+    "durationMinutes": 14,
+    "equipment": "Resistance band"
+  },
+  {
+    "id": "pelvic-balance",
+    "level": "FOUNDATIONAL",
+    "moduleNumber": 3,
+    "title": "Pelvic Balance",
+    "durationMinutes": 15,
+    "equipment": "Bodyweight"
+  },
+  {
+    "id": "foot-mechanics",
+    "level": "FOUNDATIONAL",
+    "moduleNumber": 4,
+    "title": "Foot Mechanics",
+    "durationMinutes": 10,
+    "equipment": "Bodyweight"
+  },
+  {
+    "id": "walking-mechanics",
+    "level": "INTERMEDIATE",
+    "moduleNumber": 5,
+    "title": "Walking Mechanics",
+    "durationMinutes": 18,
+    "equipment": "Bodyweight"
+  },
+  {
+    "id": "breathing-fundamentals",
+    "level": "FOUNDATIONAL",
+    "moduleNumber": 6,
+    "title": "Breathing Fundamentals",
+    "durationMinutes": 8,
+    "equipment": "Guided"
+  }
+]
