@@ -73,6 +73,16 @@
     grid.setAttribute("aria-busy", "false");
   }
 
+  function showEmpty() {
+    var message = createElement(
+      "p",
+      "course-status",
+      "New movement protocols are being prepared. Please check back soon."
+    );
+    grid.replaceChildren(message);
+    grid.setAttribute("aria-busy", "false");
+  }
+
   fetch("assets/data/videos.json", { cache: "no-cache" })
     .then(function (response) {
       if (!response.ok) throw new Error("Unable to load video data");
@@ -83,8 +93,14 @@
         throw new Error("Invalid video data");
       }
 
+      var publishedVideos = videos.filter(function (video) { return video.published !== false; });
+      if (publishedVideos.length === 0) {
+        showEmpty();
+        return;
+      }
+
       var fragment = document.createDocumentFragment();
-      videos
+      publishedVideos
         .slice()
         .sort(function (a, b) { return a.moduleNumber - b.moduleNumber; })
         .forEach(function (video) { fragment.appendChild(createCard(video)); });
