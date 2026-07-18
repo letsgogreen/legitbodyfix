@@ -7,6 +7,7 @@
   var LOGIN_URL = "/api/admin/login";
   var LOGOUT_URL = "/api/admin/logout";
   var PUBLISH_URL = "/api/admin/videos";
+  var UPLOAD_URL = "/api/admin/uploads";
   var authGate = document.getElementById("authGate");
   var authStatus = document.getElementById("authStatus");
   var loginForm = document.getElementById("loginForm");
@@ -22,6 +23,7 @@
   var publishButton = document.getElementById("publishChanges");
   var videos = [];
   var editorStarted = false;
+  var activeUploads = 0;
 
   function setAuthStatus(message, state) {
     authStatus.textContent = message;
@@ -162,6 +164,9 @@
         render();
         saveDraft();
       });
+      editor.querySelector(".upload-video").addEventListener("click", function () {
+        uploadVideo(editor, index);
+      });
       editor.addEventListener("input", function () { readEditor(editor, index); });
       editor.addEventListener("change", function () { readEditor(editor, index); });
       list.appendChild(editor);
@@ -174,6 +179,87 @@
   function makeId(title) {
     var slug = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     return (slug || "video") + "-" + Date.now();
+  }
+
+  function uploadContentType(file) {
+    var type = String(file.type || "").toLowerCase();
+    if (["video/mp4", "video/webm", "video/quicktime"].indexOf(type) !== -1) return type;
+
+    var name = String(file.name || "").toLowerCase();
+    if (/\.mp4$/.test(name)) return "video/mp4";
+    if (/\.webm$/.test(name)) return "video/webm";
+    if (/\.mov$/.test(name)) return "video/quicktime";
+    return "";
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(bytes >= 1024 * 1024 * 1024 ? 0 : 1) + " MB";
+  }
+
+  function uploadVideo(editor, index) {
+    var fileInput = editor.querySelector(".video-file");
+    var uploadButton = editor.querySelector(".upload-video");
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) {
+      setStatus("Choose an MP4, WebM, or MOV video file before uploading.", "error");
+      return;
+    }
+
+    var contentType = uploadContentType(file);
+    if (!contentType) {
+      setStatus("Only MP4, WebM, and MOV video files can be uploaded.", "error");
+      return;
+    }
+
+    uploadButton.disabled = true;
+    activeUploads += 1;
+    setStatus("Preparing a secure upload for " + file.name + "…");
+
+    var uploadDetails;
+    requestJson(UPLOAD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType: contentType,
+        size: file.size
+      })
+    }).then(function (details) {
+      uploadDetails = details;
+      setStatus("Uploading " + file.name + " (" + formatFileSize(file.size) + ") directly to R2…");
+      return fetch(uploadDetails.uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": uploadDetails.contentType },
+        body: file
+      });
+    }).then(function (response) {
+      if (!response.ok) throw new Error("R2 rejected the upload.");
+
+      videos[index].videoUrl = uploadDetails.videoUrl;
+      editor.querySelector('[name="videoUrl"]').value = uploadDetails.videoUrl;
+      fileInput.value = "";
+      readEditor(editor, index);
+      setStatus("Upload complete. Review the video URL, then click Publish changes to update the live website.", "success");
+    }).catch(function (error) {
+      if (error.status === 401) {
+        showLogin("Your session expired. Sign in again, then retry the upload.", "error");
+      } else if (error.code === "r2_upload_not_configured") {
+        setStatus("R2 upload is not configured yet. Add the R2 public URL and CORS policy before uploading.", "error");
+      } else if (error.code === "uploads_disabled_in_preview") {
+        setStatus("Uploads are disabled on preview deployments. Use the production admin page.", "error");
+      } else if (error.code === "unsupported_video_type" || error.code === "invalid_file_size") {
+        setStatus("This video file is not supported. Use MP4, WebM, or MOV files up to 2 GB.", "error");
+      } else if (error instanceof TypeError) {
+        setStatus("The upload was blocked. Check the R2 CORS policy, then try again.", "error");
+      } else {
+        setStatus("Upload failed. Your browser draft is still safe; please try again.", "error");
+      }
+    }).finally(function () {
+      activeUploads -= 1;
+      uploadButton.disabled = false;
+    });
   }
 
   document.getElementById("addVideo").addEventListener("click", function () {
@@ -203,6 +289,10 @@
 
   publishButton.addEventListener("click", function () {
     renumber();
+    if (activeUploads > 0) {
+      setStatus("Wait for the current video upload to finish before publishing.", "error");
+      return;
+    }
     if (!window.confirm("Publish these changes to the live website? Vercel will redeploy automatically.")) return;
 
     publishButton.disabled = true;
