@@ -6,6 +6,7 @@
   var SESSION_URL = "/api/admin/session";
   var LOGIN_URL = "/api/admin/login";
   var LOGOUT_URL = "/api/admin/logout";
+  var PUBLISH_URL = "/api/admin/videos";
   var authGate = document.getElementById("authGate");
   var authStatus = document.getElementById("authStatus");
   var loginForm = document.getElementById("loginForm");
@@ -18,6 +19,7 @@
   var status = document.getElementById("editorStatus");
   var videoCount = document.getElementById("videoCount");
   var publishedCount = document.getElementById("publishedCount");
+  var publishButton = document.getElementById("publishChanges");
   var videos = [];
   var editorStarted = false;
 
@@ -51,6 +53,8 @@
         if (!response.ok) {
           var error = new Error(data.error || "Request failed");
           error.status = response.status;
+          error.code = data.error;
+          error.details = Array.isArray(data.details) ? data.details : [];
           throw error;
         }
         return data;
@@ -58,8 +62,10 @@
     });
   }
 
-  function setStatus(message) {
+  function setStatus(message, state) {
     status.textContent = message;
+    if (state) status.dataset.state = state;
+    else delete status.dataset.state;
   }
 
   function normalizeVideo(video, index) {
@@ -183,6 +189,44 @@
     link.click();
     URL.revokeObjectURL(url);
     setStatus("JSON downloaded. Review it before replacing the live data file.");
+  });
+
+  publishButton.addEventListener("click", function () {
+    renumber();
+    if (!window.confirm("Publish these changes to the live website? Vercel will redeploy automatically.")) return;
+
+    publishButton.disabled = true;
+    setStatus("Publishing changes…");
+
+    requestJson(PUBLISH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ videos: videos })
+    }).then(function (data) {
+      localStorage.removeItem(DRAFT_KEY);
+      if (data.unchanged) {
+        setStatus("Everything is already up to date on the live website.", "success");
+        return;
+      }
+
+      var shortSha = typeof data.commitSha === "string" ? data.commitSha.slice(0, 7) : "created";
+      setStatus("Published as commit " + shortSha + ". Vercel is updating the live website.", "success");
+    }).catch(function (error) {
+      if (error.status === 401) {
+        showLogin("Your session expired. Sign in again, then publish the saved draft.", "error");
+      } else if (error.code === "publishing_disabled_in_preview") {
+        setStatus("Publishing is disabled on preview deployments. Use the production admin page.", "error");
+      } else if (error.code === "github_publishing_not_configured") {
+        setStatus("GitHub publishing is not configured yet.", "error");
+      } else if (error.code === "invalid_video_data") {
+        setStatus(error.details[0] || "Please correct the invalid video data and try again.", "error");
+      } else {
+        setStatus("Publishing failed. Your browser draft is still safe; please try again.", "error");
+      }
+    }).finally(function () {
+      publishButton.disabled = false;
+    });
   });
 
   document.getElementById("importJson").addEventListener("change", function (event) {
