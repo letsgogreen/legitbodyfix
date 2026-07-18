@@ -3,12 +3,60 @@
 
   var DATA_URL = "assets/data/videos.json";
   var DRAFT_KEY = "legitbodyfix.videoDraft.v1";
+  var SESSION_URL = "/api/admin/session";
+  var LOGIN_URL = "/api/admin/login";
+  var LOGOUT_URL = "/api/admin/logout";
+  var authGate = document.getElementById("authGate");
+  var authStatus = document.getElementById("authStatus");
+  var loginForm = document.getElementById("loginForm");
+  var loginButton = document.getElementById("loginButton");
+  var passwordInput = document.getElementById("adminPassword");
+  var logoutButton = document.getElementById("logoutButton");
+  var adminShell = document.getElementById("main");
   var list = document.getElementById("editorList");
   var template = document.getElementById("videoEditorTemplate");
   var status = document.getElementById("editorStatus");
   var videoCount = document.getElementById("videoCount");
   var publishedCount = document.getElementById("publishedCount");
   var videos = [];
+  var editorStarted = false;
+
+  function setAuthStatus(message, state) {
+    authStatus.textContent = message;
+    if (state) authStatus.dataset.state = state;
+    else delete authStatus.dataset.state;
+  }
+
+  function showLogin(message, state) {
+    authGate.hidden = false;
+    adminShell.hidden = true;
+    logoutButton.hidden = true;
+    setAuthStatus(message || "Enter the administrator password.", state);
+    if (message) passwordInput.focus();
+  }
+
+  function showEditor() {
+    authGate.hidden = true;
+    adminShell.hidden = false;
+    logoutButton.hidden = false;
+    if (!editorStarted) {
+      editorStarted = true;
+      load();
+    }
+  }
+
+  function requestJson(url, options) {
+    return fetch(url, options).then(function (response) {
+      return response.json().catch(function () { return {}; }).then(function (data) {
+        if (!response.ok) {
+          var error = new Error(data.error || "Request failed");
+          error.status = response.status;
+          throw error;
+        }
+        return data;
+      });
+    });
+  }
 
   function setStatus(message) {
     status.textContent = message;
@@ -153,6 +201,42 @@
     event.target.value = "";
   });
 
+  loginForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    loginButton.disabled = true;
+    setAuthStatus("Signing in…");
+
+    requestJson(LOGIN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ password: passwordInput.value })
+    }).then(function () {
+      passwordInput.value = "";
+      showEditor();
+    }).catch(function (error) {
+      if (error.status === 401) showLogin("The password is incorrect.", "error");
+      else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
+      else showLogin("The login service is unavailable. Please try again.", "error");
+      passwordInput.select();
+    }).finally(function () {
+      loginButton.disabled = false;
+    });
+  });
+
+  logoutButton.addEventListener("click", function () {
+    logoutButton.disabled = true;
+    requestJson(LOGOUT_URL, {
+      method: "POST",
+      credentials: "same-origin"
+    }).catch(function () {
+      return null;
+    }).finally(function () {
+      logoutButton.disabled = false;
+      showLogin("You have signed out.");
+    });
+  });
+
   function load() {
     var draft = localStorage.getItem(DRAFT_KEY);
     if (draft) {
@@ -183,5 +267,16 @@
       });
   }
 
-  load();
+  requestJson(SESSION_URL, {
+    method: "GET",
+    credentials: "same-origin",
+    cache: "no-store"
+  }).then(function (data) {
+    if (data.authenticated) showEditor();
+    else showLogin();
+  }).catch(function (error) {
+    if (error.status === 401) showLogin();
+    else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
+    else showLogin("The login service is unavailable. Please try again.", "error");
+  });
 })();

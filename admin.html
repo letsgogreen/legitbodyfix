@@ -16,12 +16,32 @@
   <header class="admin-header">
     <div>
       <a class="brand" href="index.html">legit<span>body</span>fix</a>
-      <span class="environment">Admin prototype</span>
+      <span class="environment">Secure admin</span>
     </div>
-    <a class="site-link" href="index.html" target="_blank" rel="noopener">View website ↗</a>
+    <div class="header-actions">
+      <button class="text-button" id="logoutButton" type="button" hidden>Sign out</button>
+      <a class="site-link" href="index.html" target="_blank" rel="noopener">View website ↗</a>
+    </div>
   </header>
 
-  <main id="main" class="admin-shell">
+  <main id="authGate" class="auth-shell" aria-labelledby="authTitle">
+    <section class="auth-card">
+      <p class="eyebrow">Administrator access</p>
+      <h1 id="authTitle">Sign in to manage videos.</h1>
+      <p class="lede">The password is checked securely by the server and is never stored in this page.</p>
+
+      <form class="auth-form" id="loginForm">
+        <label class="field">
+          <span>Admin password</span>
+          <input id="adminPassword" name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="button button-primary" id="loginButton" type="submit">Sign in</button>
+      </form>
+      <p class="auth-status" id="authStatus" role="status" aria-live="polite">Checking your session…</p>
+    </section>
+  </main>
+
+  <main id="main" class="admin-shell" hidden>
     <section class="intro" aria-labelledby="page-title">
       <div>
         <p class="eyebrow">Video management</p>
