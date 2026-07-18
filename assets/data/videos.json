@@ -4,47 +4,71 @@
     "level": "FOUNDATIONAL",
     "moduleNumber": 1,
     "title": "Neck Alignment",
+    "description": "A guided protocol for restoring comfortable neck position and control.",
     "durationMinutes": 12,
-    "equipment": "Bodyweight"
+    "equipment": "Bodyweight",
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "published": true
   },
   {
     "id": "shoulder-reset",
     "level": "INTERMEDIATE",
     "moduleNumber": 2,
     "title": "Shoulder Reset",
+    "description": "Improve shoulder positioning with a focused resistance-band sequence.",
     "durationMinutes": 14,
-    "equipment": "Resistance band"
+    "equipment": "Resistance band",
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "published": true
   },
   {
     "id": "pelvic-balance",
     "level": "FOUNDATIONAL",
     "moduleNumber": 3,
     "title": "Pelvic Balance",
+    "description": "Build awareness and control around the pelvis using bodyweight drills.",
     "durationMinutes": 15,
-    "equipment": "Bodyweight"
+    "equipment": "Bodyweight",
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "published": true
   },
   {
     "id": "foot-mechanics",
     "level": "FOUNDATIONAL",
     "moduleNumber": 4,
     "title": "Foot Mechanics",
+    "description": "Practice foot pressure, stability, and movement from the ground up.",
     "durationMinutes": 10,
-    "equipment": "Bodyweight"
+    "equipment": "Bodyweight",
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "published": true
   },
   {
     "id": "walking-mechanics",
     "level": "INTERMEDIATE",
     "moduleNumber": 5,
     "title": "Walking Mechanics",
+    "description": "Connect posture, balance, and rhythm in a practical walking session.",
     "durationMinutes": 18,
-    "equipment": "Bodyweight"
+    "equipment": "Bodyweight",
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "published": true
   },
   {
     "id": "breathing-fundamentals",
     "level": "FOUNDATIONAL",
     "moduleNumber": 6,
     "title": "Breathing Fundamentals",
+    "description": "Use guided breathing to support alignment, recovery, and control.",
     "durationMinutes": 8,
-    "equipment": "Guided"
+    "equipment": "Guided",
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "published": true
   }
 ]

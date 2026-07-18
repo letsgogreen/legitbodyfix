@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Library Admin — legitbodyfix</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to editor</a>
+
+  <header class="admin-header">
+    <div>
+      <a class="brand" href="index.html">legit<span>body</span>fix</a>
+      <span class="environment">Admin prototype</span>
+    </div>
+    <a class="site-link" href="index.html" target="_blank" rel="noopener">View website ↗</a>
+  </header>
+
+  <main id="main" class="admin-shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Video management</p>
+        <h1 id="page-title">Movement library editor</h1>
+        <p class="lede">Edit course metadata, reorder modules, and prepare the JSON used by the public website.</p>
+      </div>
+      <div class="summary" aria-live="polite">
+        <span><strong id="videoCount">0</strong> videos</span>
+        <span><strong id="publishedCount">0</strong> published</span>
+      </div>
+    </section>
+
+    <div class="notice" role="note">
+      <strong>Prototype only.</strong>
+      Changes are kept as a draft in this browser. They do not update the live website until the downloaded JSON is reviewed and committed.
+    </div>
+
+    <section class="toolbar" aria-label="Editor actions">
+      <div class="toolbar-group">
+        <button class="button button-primary" id="addVideo" type="button">+ Add video</button>
+        <label class="button button-secondary" for="importJson">Import JSON</label>
+        <input id="importJson" type="file" accept="application/json,.json" hidden>
+      </div>
+      <div class="toolbar-group">
+        <button class="button button-quiet" id="resetDraft" type="button">Reset draft</button>
+        <button class="button button-primary" id="downloadJson" type="button">Download JSON</button>
+      </div>
+    </section>
+
+    <p class="status" id="editorStatus" role="status" aria-live="polite">Loading video data…</p>
+    <section class="editor-list" id="editorList" aria-label="Video modules" aria-busy="true"></section>
+  </main>
+
+  <template id="videoEditorTemplate">
+    <article class="video-editor">
+      <div class="editor-heading">
+        <div>
+          <span class="module-chip"></span>
+          <h2 class="editor-title"></h2>
+        </div>
+        <div class="row-actions" aria-label="Module actions">
+          <button class="icon-button move-up" type="button" aria-label="Move module up">↑</button>
+          <button class="icon-button move-down" type="button" aria-label="Move module down">↓</button>
+          <button class="icon-button danger remove-video" type="button" aria-label="Remove module">Remove</button>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label class="field field-wide">
+          <span>Title</span>
+          <input name="title" type="text" required maxlength="80">
+        </label>
+        <label class="field">
+          <span>Level</span>
+          <select name="level">
+            <option value="FOUNDATIONAL">Foundational</option>
+            <option value="INTERMEDIATE">Intermediate</option>
+            <option value="ADVANCED">Advanced</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Duration (minutes)</span>
+          <input name="durationMinutes" type="number" required min="1" max="600">
+        </label>
+        <label class="field">
+          <span>Equipment</span>
+          <input name="equipment" type="text" required maxlength="80">
+        </label>
+        <label class="field field-wide">
+          <span>Description</span>
+          <textarea name="description" rows="3" maxlength="240"></textarea>
+        </label>
+        <label class="field field-wide">
+          <span>Video URL</span>
+          <input name="videoUrl" type="url" placeholder="https://…">
+        </label>
+        <label class="field field-wide">
+          <span>Thumbnail URL</span>
+          <input name="thumbnailUrl" type="url" placeholder="https://…">
+        </label>
+        <label class="toggle-field">
+          <input name="published" type="checkbox">
+          <span>Published on website</span>
+        </label>
+      </div>
+    </article>
+  </template>
+
+  <script src="assets/js/admin.js" defer></script>
+</body>
+</html>
