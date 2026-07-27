@@ -26,7 +26,12 @@ module.exports = async function handler(request, response) {
   }
 
   var uploadConfig = r2Upload.getUploadConfig();
-  if (!uploadConfig) return response.status(503).json({ error: "r2_upload_not_configured" });
+  if (!uploadConfig) {
+    return response.status(503).json({
+      error: "r2_upload_not_configured",
+      details: r2Upload.getUploadConfigIssues()
+    });
+  }
 
   var body;
   try {

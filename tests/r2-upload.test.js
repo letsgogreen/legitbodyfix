@@ -47,6 +47,24 @@ test("creates a short-lived signed R2 upload URL and public playback URL", funct
   assert.equal(result.contentType, "video/mp4");
 });
 
+test("reports only invalid R2 configuration variable names", function () {
+  var environment = uploadEnvironment();
+  environment.R2_ACCOUNT_ID = "not-an-account-id";
+  environment.R2_ACCESS_KEY_ID = "";
+  environment.R2_SECRET_ACCESS_KEY = "";
+  environment.R2_BUCKET = "x";
+  environment.R2_PUBLIC_BASE_URL = "http://not-https.example.com";
+
+  assert.deepEqual(r2Upload.getUploadConfigIssues(environment), [
+    "R2_ACCOUNT_ID",
+    "R2_ACCESS_KEY_ID",
+    "R2_SECRET_ACCESS_KEY",
+    "R2_BUCKET",
+    "R2_PUBLIC_BASE_URL"
+  ]);
+  assert.equal(r2Upload.getUploadConfig(environment), null);
+});
+
 test("rejects unsupported formats and oversized video uploads", function () {
   var config = r2Upload.getUploadConfig(uploadEnvironment());
 
