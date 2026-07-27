@@ -47,6 +47,24 @@ test("creates a short-lived signed R2 upload URL and public playback URL", funct
   assert.equal(result.contentType, "video/mp4");
 });
 
+test("creates a thumbnail upload URL in the thumbnails prefix", function () {
+  var config = r2Upload.getUploadConfig(uploadEnvironment());
+  var result = r2Upload.createPresignedUpload(config, {
+    kind: "thumbnail",
+    fileName: "Neck alignment cover.png",
+    contentType: "image/png",
+    size: 1024
+  }, {
+    now: new Date("2026-07-18T05:00:00Z"),
+    nonce: "thumbnailnonce"
+  });
+
+  assert.match(result.objectKey, /^thumbnails\/2026-07\//);
+  assert.match(result.assetUrl, /^https:\/\/media\.example\.com\/thumbnails\//);
+  assert.equal(result.kind, "thumbnail");
+  assert.equal(result.contentType, "image/png");
+});
+
 test("reports only invalid R2 configuration variable names", function () {
   var environment = uploadEnvironment();
   environment.R2_ACCOUNT_ID = "not-an-account-id";
@@ -83,6 +101,28 @@ test("rejects unsupported formats and oversized video uploads", function () {
       size: r2Upload.MAX_UPLOAD_BYTES + 1
     });
   }, function (error) { return error.code === "invalid_file_size"; });
+});
+
+test("rejects non-image and oversized thumbnail uploads", function () {
+  var config = r2Upload.getUploadConfig(uploadEnvironment());
+
+  assert.throws(function () {
+    r2Upload.createPresignedUpload(config, {
+      kind: "thumbnail",
+      fileName: "cover.gif",
+      contentType: "image/gif",
+      size: 10
+    });
+  }, function (error) { return error.code === "unsupported_thumbnail_type"; });
+
+  assert.throws(function () {
+    r2Upload.createPresignedUpload(config, {
+      kind: "thumbnail",
+      fileName: "large-cover.jpg",
+      contentType: "image/jpeg",
+      size: r2Upload.MAX_THUMBNAIL_BYTES + 1
+    });
+  }, function (error) { return error.code === "invalid_thumbnail_size"; });
 });
 
 test("upload URL API requires an authenticated production administrator", async function () {
@@ -124,4 +164,5 @@ test("public video cards link only to valid HTTPS video URLs", function () {
   assert.match(script, /function playableUrl\(value\)/);
   assert.match(script, /card\.href = videoUrl/);
   assert.match(script, /card\.target = "_blank"/);
+  assert.match(script, /thumbnail\.className = "course-thumbnail"/);
 });

@@ -167,6 +167,9 @@
       editor.querySelector(".upload-video").addEventListener("click", function () {
         uploadVideo(editor, index);
       });
+      editor.querySelector(".upload-thumbnail").addEventListener("click", function () {
+        uploadThumbnail(editor, index);
+      });
       editor.addEventListener("input", function () { readEditor(editor, index); });
       editor.addEventListener("change", function () { readEditor(editor, index); });
       list.appendChild(editor);
@@ -192,29 +195,40 @@
     return "";
   }
 
+  function thumbnailContentType(file) {
+    var type = String(file.type || "").toLowerCase();
+    if (["image/jpeg", "image/png", "image/webp"].indexOf(type) !== -1) return type;
+
+    var name = String(file.name || "").toLowerCase();
+    if (/\.(jpg|jpeg)$/.test(name)) return "image/jpeg";
+    if (/\.png$/.test(name)) return "image/png";
+    if (/\.webp$/.test(name)) return "image/webp";
+    return "";
+  }
+
   function formatFileSize(bytes) {
     if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + " KB";
     return (bytes / (1024 * 1024)).toFixed(bytes >= 1024 * 1024 * 1024 ? 0 : 1) + " MB";
   }
 
-  function uploadVideo(editor, index) {
-    var fileInput = editor.querySelector(".video-file");
-    var uploadButton = editor.querySelector(".upload-video");
+  function uploadAsset(editor, index, options) {
+    var fileInput = editor.querySelector(options.fileInputSelector);
+    var uploadButton = editor.querySelector(options.buttonSelector);
     var file = fileInput.files && fileInput.files[0];
     if (!file) {
-      setStatus("Choose an MP4, WebM, or MOV video file before uploading.", "error");
+      setStatus(options.chooseMessage, "error");
       return;
     }
 
-    var contentType = uploadContentType(file);
+    var contentType = options.contentType(file);
     if (!contentType) {
-      setStatus("Only MP4, WebM, and MOV video files can be uploaded.", "error");
+      setStatus(options.invalidMessage, "error");
       return;
     }
 
     uploadButton.disabled = true;
     activeUploads += 1;
-    setStatus("Preparing a secure upload for " + file.name + "…");
+    setStatus("Preparing a secure " + options.label + " upload for " + file.name + "…");
 
     var uploadDetails;
     requestJson(UPLOAD_URL, {
@@ -224,11 +238,12 @@
       body: JSON.stringify({
         fileName: file.name,
         contentType: contentType,
-        size: file.size
+        size: file.size,
+        kind: options.kind
       })
     }).then(function (details) {
       uploadDetails = details;
-      setStatus("Uploading " + file.name + " (" + formatFileSize(file.size) + ") directly to R2…");
+      setStatus("Uploading " + options.label + " " + file.name + " (" + formatFileSize(file.size) + ") directly to R2…");
       return fetch(uploadDetails.uploadUrl, {
         method: "PUT",
         headers: { "Content-Type": uploadDetails.contentType },
@@ -237,11 +252,11 @@
     }).then(function (response) {
       if (!response.ok) throw new Error("R2 rejected the upload.");
 
-      videos[index].videoUrl = uploadDetails.videoUrl;
-      editor.querySelector('[name="videoUrl"]').value = uploadDetails.videoUrl;
+      videos[index][options.urlField] = uploadDetails.assetUrl || uploadDetails.videoUrl;
+      editor.querySelector('[name="' + options.urlField + '"]').value = videos[index][options.urlField];
       fileInput.value = "";
       readEditor(editor, index);
-      setStatus("Upload complete. Review the video URL, then click Publish changes to update the live website.", "success");
+      setStatus(options.completeMessage, "success");
     }).catch(function (error) {
       if (error.status === 401) {
         showLogin("Your session expired. Sign in again, then retry the upload.", "error");
@@ -250,8 +265,9 @@
         setStatus("R2 upload is not configured yet." + details, "error");
       } else if (error.code === "uploads_disabled_in_preview") {
         setStatus("Uploads are disabled on preview deployments. Use the production admin page.", "error");
-      } else if (error.code === "unsupported_video_type" || error.code === "invalid_file_size") {
-        setStatus("This video file is not supported. Use MP4, WebM, or MOV files up to 2 GB.", "error");
+      } else if (error.code === "unsupported_video_type" || error.code === "invalid_file_size" ||
+          error.code === "unsupported_thumbnail_type" || error.code === "invalid_thumbnail_size") {
+        setStatus(options.invalidMessage, "error");
       } else if (error instanceof TypeError) {
         setStatus("The upload was blocked. Check the R2 CORS policy, then try again.", "error");
       } else {
@@ -260,6 +276,34 @@
     }).finally(function () {
       activeUploads -= 1;
       uploadButton.disabled = false;
+    });
+  }
+
+  function uploadVideo(editor, index) {
+    uploadAsset(editor, index, {
+      kind: "video",
+      label: "video",
+      fileInputSelector: ".video-file",
+      buttonSelector: ".upload-video",
+      urlField: "videoUrl",
+      contentType: uploadContentType,
+      chooseMessage: "Choose an MP4, WebM, or MOV video file before uploading.",
+      invalidMessage: "This video file is not supported. Use MP4, WebM, or MOV files up to 2 GB.",
+      completeMessage: "Upload complete. Review the video URL, then click Publish changes to update the live website."
+    });
+  }
+
+  function uploadThumbnail(editor, index) {
+    uploadAsset(editor, index, {
+      kind: "thumbnail",
+      label: "thumbnail",
+      fileInputSelector: ".thumbnail-file",
+      buttonSelector: ".upload-thumbnail",
+      urlField: "thumbnailUrl",
+      contentType: thumbnailContentType,
+      chooseMessage: "Choose a JPG, PNG, or WebP thumbnail image before uploading.",
+      invalidMessage: "This thumbnail is not supported. Use JPG, PNG, or WebP files up to 10 MB.",
+      completeMessage: "Thumbnail upload complete. Review the thumbnail URL, then click Publish changes to update the live website."
     });
   }
 

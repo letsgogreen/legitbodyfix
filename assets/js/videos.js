@@ -33,6 +33,7 @@
 
   function createCard(video) {
     var videoUrl = playableUrl(video.videoUrl);
+    var thumbnailUrl = playableUrl(video.thumbnailUrl);
     var card = createElement(videoUrl ? "a" : "article", "course-card reveal");
     card.dataset.videoId = video.id;
     if (videoUrl) {
@@ -43,6 +44,15 @@
     }
 
     var media = createElement("div", "course-media");
+    if (thumbnailUrl) {
+      var thumbnail = document.createElement("img");
+      thumbnail.className = "course-thumbnail";
+      thumbnail.src = thumbnailUrl;
+      thumbnail.alt = "";
+      thumbnail.loading = "lazy";
+      thumbnail.decoding = "async";
+      media.appendChild(thumbnail);
+    }
     var tag = createElement("span", "tag mono", video.level);
     var playMark = createElement("div", "play-mark");
     playMark.setAttribute("aria-hidden", "true");
