@@ -165,10 +165,10 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="#method">Method</a></li>
         <li><a href="#library-preview">Library</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-        <li><button class="button" type="button" data-coming-soon>Log in</button></li>
+        <li><a href="#pricing">Programs</a></li>
+        <li><a href="#method">How it works</a></li>
       </ul>
-      <a class="button nav-cta" href="#pricing">Start fixing <span aria-hidden="true">↗</span></a>
+      <a class="button nav-cta" href="#pricing">Browse programs <span aria-hidden="true">↗</span></a>
       <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">☰</button>
     </nav>
   </header>
@@ -183,7 +183,7 @@
           <a class="button button-dark" href="#pricing">Start your reset <span aria-hidden="true">↗</span></a>
           <a class="button" href="#library-preview">See the library</a>
         </div>
-        <div class="proof-list" aria-label="Membership highlights"><span>Built for real bodies</span><span>New sessions monthly</span><span>Cancel anytime</span></div>
+        <div class="proof-list" aria-label="Program highlights"><span>Built for real bodies</span><span>Go at your own pace</span><span>One-time purchase</span></div>
       </div>
       <div class="body-map" aria-label="Corrective movement body map showing shoulder, hip, and knee focus areas" role="img">
         <span class="map-axis" aria-hidden="true"></span><span class="map-label shoulder">01 / shoulder</span><span class="map-label hip">02 / hip</span><span class="map-label knee">03 / knee</span><span class="map-side-label">mobility / stability / strength</span>
@@ -208,7 +208,7 @@
       <div class="wrap">
         <div class="library-header">
           <div><p class="section-label">Inside the library</p><h2 class="section-title" id="library-title">SHORT SESSIONS.<br />SERIOUS INTENT.</h2><p class="section-intro">Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.</p></div>
-          <a class="library-link" href="#pricing">Full membership access →</a>
+          <a class="library-link" href="#pricing">Choose a program →</a>
         </div>
         <div class="course-grid" id="courseGrid" aria-live="polite" aria-busy="true"><p class="course-status">Loading the movement library…</p><noscript>Please enable JavaScript to view the movement library.</noscript></div>
       </div>
@@ -219,11 +219,11 @@
     <section class="section" id="pricing" aria-labelledby="pricing-title">
       <div class="wrap membership">
         <div>
-          <p class="section-label">Simple membership</p>
+          <p class="section-label">Start with one focused reset</p>
           <h2 class="section-title" id="pricing-title">YOUR BODY IS<br />WORTH THE WORK.</h2>
-          <ul class="membership-list"><li>Full corrective video library</li><li>New focused sessions every month</li><li>Progress tracking across lessons</li><li>Cancel whenever you need</li></ul>
+          <ul class="membership-list"><li>4-week guided video program</li><li>Clear exercise sequence and progression</li><li>Replay every session at your own pace</li><li>Lifetime access after purchase</li></ul>
         </div>
-        <aside class="price-panel" aria-label="Membership pricing"><p>Membership</p><div><div class="price">$19<span>/ month</span></div><small>Checkout and member sign-in will be connected next. Until then, explore the library and build your first reset.</small></div><button class="button" type="button" data-coming-soon>Start fixing <span aria-hidden="true">↗</span></button></aside>
+        <aside class="price-panel" aria-label="Program pricing"><p>First program</p><div><div class="price">$49<span> one-time</span></div><small>Start with a focused Neck &amp; Shoulder Reset. No subscription, no recurring charge — complete the program on your own schedule.</small></div><button class="button" type="button" data-coming-soon>Choose program <span aria-hidden="true">↗</span></button></aside>
       </div>
     </section>
   </main>
@@ -255,7 +255,7 @@
       });
 
       document.querySelectorAll("[data-coming-soon]").forEach(function (button) {
-        button.addEventListener("click", function () { showToast("Member sign-in and checkout are the next step. Your video library is ready."); });
+        button.addEventListener("click", function () { showToast("Checkout is being prepared. Your first guided reset program is coming soon."); });
       });
     })();
   </script>
