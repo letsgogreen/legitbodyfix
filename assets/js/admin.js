@@ -246,7 +246,8 @@
       if (error.status === 401) {
         showLogin("Your session expired. Sign in again, then retry the upload.", "error");
       } else if (error.code === "r2_upload_not_configured") {
-        setStatus("R2 upload is not configured yet. Add the R2 public URL and CORS policy before uploading.", "error");
+        var details = Array.isArray(error.details) && error.details.length ? " Check: " + error.details.join(", ") + "." : "";
+        setStatus("R2 upload is not configured yet." + details, "error");
       } else if (error.code === "uploads_disabled_in_preview") {
         setStatus("Uploads are disabled on preview deployments. Use the production admin page.", "error");
       } else if (error.code === "unsupported_video_type" || error.code === "invalid_file_size") {
