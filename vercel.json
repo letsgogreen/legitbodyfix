@@ -19,6 +19,15 @@
       ]
     },
     {
+      "source": "/assets/js/videos.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
       "source": "/assets/css/admin.css",
       "headers": [
         {

@@ -21,9 +21,26 @@
       typeof video.equipment === "string";
   }
 
+  function playableUrl(value) {
+    if (typeof value !== "string" || !value.trim()) return "";
+    try {
+      var parsed = new URL(value);
+      return parsed.protocol === "https:" ? parsed.toString() : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
   function createCard(video) {
-    var card = createElement("article", "course-card reveal");
+    var videoUrl = playableUrl(video.videoUrl);
+    var card = createElement(videoUrl ? "a" : "article", "course-card reveal");
     card.dataset.videoId = video.id;
+    if (videoUrl) {
+      card.href = videoUrl;
+      card.target = "_blank";
+      card.rel = "noopener";
+      card.setAttribute("aria-label", "Play " + video.title);
+    }
 
     var media = createElement("div", "course-media");
     var tag = createElement("span", "tag mono", video.level);
