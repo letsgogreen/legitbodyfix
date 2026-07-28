@@ -133,6 +133,7 @@ form.addEventListener("submit", async function (event) {
     if (result.error) throw result.error;
     setAuthMessage("Check your email and open the secure sign-in link. You can close this page after opening it.", false);
   } catch (error) {
+    console.error("Magic-link request failed:", error && error.message ? error.message : error);
     setAuthMessage("We could not send the sign-in link. Please try again in a moment.", true);
   } finally {
     button.disabled = false;
