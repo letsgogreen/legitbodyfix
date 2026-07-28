@@ -46,7 +46,8 @@ module.exports = async function handler(request, response) {
     if (error instanceof access.AccessError) {
       console.error("[access/library] request failed", {
         code: error.code,
-        statusCode: error.statusCode
+        statusCode: error.statusCode,
+        provider: error.details
       });
       return response.status(error.statusCode).json({ error: error.code });
     }
