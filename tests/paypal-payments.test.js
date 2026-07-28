@@ -58,3 +58,43 @@ test("accepts only a completed matching order for entitlement creation", functio
     paypal.validateCompletedOrder({ status: "COMPLETED", purchase_units: [] });
   }, /could not be verified/);
 });
+
+test("captures first, then validates the complete order representation", async function () {
+  var calls = [];
+  var fetcher = async function (url, options) {
+    calls.push({ url: url, options: options });
+    if (url.endsWith("/v1/oauth2/token")) {
+      return { ok: true, status: 200, json: async function () { return { access_token: "test-token" }; } };
+    }
+    if (url.endsWith("/capture")) {
+      return {
+        ok: true,
+        status: 201,
+        json: async function () {
+          return { id: "5O190127TN364715T", status: "COMPLETED" };
+        }
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async function () {
+        return {
+          id: "5O190127TN364715T",
+          status: "COMPLETED",
+          payer: { email_address: "Buyer@Example.com" },
+          purchase_units: [{
+            custom_id: "neck-shoulder-reset",
+            amount: { currency_code: "USD", value: "49.00" },
+            payments: { captures: [{ id: "3GG79435FJ124315M", status: "COMPLETED", create_time: "2026-07-28T00:00:00Z" }] }
+          }]
+        };
+      }
+    };
+  };
+
+  var payment = await paypal.captureOrder(paypal.getConfig(environment()), "5O190127TN364715T", fetcher);
+  assert.equal(payment.providerCaptureId, "3GG79435FJ124315M");
+  assert.equal(calls.some(function (call) { return call.url.endsWith("/capture"); }), true);
+  assert.equal(calls.some(function (call) { return call.url.endsWith("/v2/checkout/orders/5O190127TN364715T"); }), true);
+});

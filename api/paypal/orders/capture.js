@@ -35,6 +35,12 @@ module.exports = async function handler(request, response) {
   try {
     var payment = await paypal.captureOrder(paypalConfig, body.orderId);
     var result = await entitlements.recordPurchase(storeConfig, payment);
+    console.info("[paypal/orders/capture] verified payment", {
+      programId: payment.programId,
+      amount: payment.amount,
+      currency: payment.currency,
+      duplicate: result.duplicate
+    });
     return response.status(200).json({
       completed: true,
       duplicate: result.duplicate,
