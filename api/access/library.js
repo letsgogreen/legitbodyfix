@@ -25,9 +25,13 @@ module.exports = async function handler(request, response) {
 
   var config = access.getServerConfig();
   if (!config) {
+    var configurationIssues = access.getServerConfigIssues();
+    console.error("[access/library] server configuration is invalid", {
+      issues: configurationIssues
+    });
     return response.status(503).json({
       error: "access_service_not_configured",
-      details: access.getServerConfigIssues()
+      details: configurationIssues
     });
   }
 
@@ -40,8 +44,15 @@ module.exports = async function handler(request, response) {
     return response.status(200).json({ email: user.email, programs: programs });
   } catch (error) {
     if (error instanceof access.AccessError) {
+      console.error("[access/library] request failed", {
+        code: error.code,
+        statusCode: error.statusCode
+      });
       return response.status(error.statusCode).json({ error: error.code });
     }
+    console.error("[access/library] unexpected failure", {
+      message: error && error.message ? error.message : String(error)
+    });
     return response.status(500).json({ error: "access_library_unavailable" });
   }
 };
