@@ -19,3 +19,14 @@ test("opening the admin page as a local file redirects to production", function 
   assert.match(html, /window\.location\.protocol\s*===\s*["']file:["']/);
   assert.match(html, /window\.location\.replace\(["']https:\/\/legitbodyfix\.vercel\.app\/admin\.html["']\)/);
 });
+
+test("admin offers protected Stream uploads and does not present R2 as the buyer-video path", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+
+  assert.match(html, /Upload to Stream/);
+  assert.match(html, /Check processing/);
+  assert.match(html, /Legacy public video file/);
+  assert.match(javascript, /uploads\?kind=stream/);
+  assert.match(javascript, /uploadTusFile/);
+});

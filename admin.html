@@ -125,12 +125,22 @@
           <input name="videoUrl" type="url" placeholder="https://…">
         </label>
         <label class="field field-wide">
-          <span>Upload video file</span>
+          <span>Protected Stream video</span>
+          <span class="upload-row">
+            <input class="stream-video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a protected video file">
+            <button class="button button-primary upload-stream-video" type="button">Upload to Stream</button>
+            <button class="button button-secondary check-stream-status" type="button">Check processing</button>
+          </span>
+          <span class="field-hint stream-status">No protected Stream video has been uploaded yet.</span>
+          <span class="field-hint">Videos are uploaded privately. Files over 200 MB use a resumable upload so a brief connection loss does not restart the whole file.</span>
+        </label>
+        <label class="field field-wide">
+          <span>Legacy public video file</span>
           <span class="upload-row">
             <input class="video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a video file">
             <button class="button button-secondary upload-video" type="button">Upload to R2</button>
           </span>
-          <span class="field-hint">MP4 is recommended. Files upload directly to R2 using a temporary, secure upload link.</span>
+          <span class="field-hint">Only use this for temporary public previews. For buyer videos, use Protected Stream video above.</span>
         </label>
         <label class="field field-wide">
           <span>Thumbnail URL</span>
@@ -152,6 +162,6 @@
     </article>
   </template>
 
-  <script src="assets/js/admin.js?v=20260727-1" defer></script>
+  <script src="assets/js/admin.js?v=20260730-1" defer></script>
 </body>
 </html>

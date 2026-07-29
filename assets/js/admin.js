@@ -8,6 +8,8 @@
   var LOGOUT_URL = "/api/admin/logout";
   var PUBLISH_URL = "/api/admin/videos";
   var UPLOAD_URL = "/api/admin/uploads";
+  var STREAM_UPLOAD_URL = "/api/admin/uploads?kind=stream";
+  var STREAM_STATUS_URL = "/api/admin/uploads?kind=stream-status";
   var authGate = document.getElementById("authGate");
   var authStatus = document.getElementById("authStatus");
   var loginForm = document.getElementById("loginForm");
@@ -89,6 +91,9 @@
       description: typeof video.description === "string" ? video.description : "",
       durationMinutes: Number.isFinite(Number(video.durationMinutes)) ? Number(video.durationMinutes) : 1,
       equipment: typeof video.equipment === "string" ? video.equipment : "Bodyweight",
+      programId: typeof video.programId === "string" && video.programId ? video.programId : "neck-shoulder-reset",
+      streamVideoId: typeof video.streamVideoId === "string" ? video.streamVideoId : "",
+      streamReady: video.streamReady === true,
       videoUrl: typeof video.videoUrl === "string" ? video.videoUrl : "",
       thumbnailUrl: typeof video.thumbnailUrl === "string" ? video.thumbnailUrl : "",
       published: video.published !== false
@@ -123,6 +128,21 @@
     editor.querySelector(".editor-title").textContent = video.title || "Untitled video";
     updateSummary();
     saveDraft();
+  }
+
+  function updateStreamStatus(editor, video) {
+    var message = editor.querySelector(".stream-status");
+    if (!message) return;
+    if (video.streamReady && video.streamVideoId) {
+      message.textContent = "Protected Stream video is ready for buyers.";
+      message.dataset.state = "success";
+    } else if (video.streamVideoId) {
+      message.textContent = "Cloudflare is preparing this protected video. Check processing when it is ready.";
+      message.dataset.state = "pending";
+    } else {
+      message.textContent = "No protected Stream video has been uploaded yet.";
+      delete message.dataset.state;
+    }
   }
 
   function render() {
@@ -167,11 +187,18 @@
       editor.querySelector(".upload-video").addEventListener("click", function () {
         uploadVideo(editor, index);
       });
+      editor.querySelector(".upload-stream-video").addEventListener("click", function () {
+        uploadStreamVideo(editor, index);
+      });
+      editor.querySelector(".check-stream-status").addEventListener("click", function () {
+        checkStreamStatus(editor, index);
+      });
       editor.querySelector(".upload-thumbnail").addEventListener("click", function () {
         uploadThumbnail(editor, index);
       });
       editor.addEventListener("input", function () { readEditor(editor, index); });
       editor.addEventListener("change", function () { readEditor(editor, index); });
+      updateStreamStatus(editor, video);
       list.appendChild(editor);
     });
 
@@ -290,6 +317,157 @@
       chooseMessage: "Choose an MP4, WebM, or MOV video file before uploading.",
       invalidMessage: "This video file is not supported. Use MP4, WebM, or MOV files up to 2 GB.",
       completeMessage: "Upload complete. Review the video URL, then click Publish changes to update the live website."
+    });
+  }
+
+  function uploadTusFile(file, uploadUrl, progress) {
+    var chunkSize = 50 * 1024 * 1024;
+    var headers = { "Tus-Resumable": "1.0.0" };
+
+    return fetch(uploadUrl, { method: "HEAD", headers: headers }).then(function (response) {
+      if (!response.ok) throw new Error("Cloudflare Stream could not resume the upload.");
+      var offset = Number(response.headers.get("Upload-Offset"));
+      if (!Number.isSafeInteger(offset) || offset < 0 || offset > file.size) {
+        throw new Error("Cloudflare Stream returned an invalid upload position.");
+      }
+
+      function uploadNext() {
+        if (offset >= file.size) return Promise.resolve();
+        var end = Math.min(offset + chunkSize, file.size);
+        var chunk = file.slice(offset, end);
+        progress(end, file.size);
+        return fetch(uploadUrl, {
+          method: "PATCH",
+          headers: {
+            "Tus-Resumable": "1.0.0",
+            "Upload-Offset": String(offset),
+            "Content-Type": "application/offset+octet-stream"
+          },
+          body: chunk
+        }).then(function (response) {
+          if (!response.ok) throw new Error("Cloudflare Stream rejected the upload.");
+          var nextOffset = Number(response.headers.get("Upload-Offset"));
+          if (!Number.isSafeInteger(nextOffset) || nextOffset <= offset || nextOffset > file.size) {
+            throw new Error("Cloudflare Stream did not confirm the uploaded chunk.");
+          }
+          offset = nextOffset;
+          return uploadNext();
+        });
+      }
+
+      return uploadNext();
+    });
+  }
+
+  function uploadToStream(file, uploadDetails) {
+    if (uploadDetails.protocol === "tus") {
+      return uploadTusFile(file, uploadDetails.uploadUrl, function (uploaded, total) {
+        setStatus("Uploading protected video " + file.name + " (" + Math.round(uploaded / total * 100) + "%)...");
+      });
+    }
+
+    var form = new FormData();
+    form.append("file", file, file.name);
+    return fetch(uploadDetails.uploadUrl, { method: "POST", body: form }).then(function (response) {
+      if (!response.ok) throw new Error("Cloudflare Stream rejected the upload.");
+    });
+  }
+
+  function streamErrorMessage(error) {
+    if (error.status === 401) {
+      showLogin("Your session expired. Sign in again, then retry the upload.", "error");
+      return "";
+    }
+    if (error.code === "stream_upload_not_configured") {
+      var details = Array.isArray(error.details) && error.details.length ? " Check: " + error.details.join(", ") + "." : "";
+      return "Cloudflare Stream is not configured yet." + details;
+    }
+    if (error.code === "uploads_disabled_in_preview") {
+      return "Uploads are disabled on preview deployments. Use the production admin page.";
+    }
+    if (error.code === "invalid_upload_size") {
+      return "This video file is too large or empty. Choose a video smaller than 30 GB.";
+    }
+    if (error instanceof TypeError) {
+      return "The protected upload was blocked. Check your connection and try again.";
+    }
+    return "Protected video upload failed. Your browser draft is still safe; please try again.";
+  }
+
+  function uploadStreamVideo(editor, index) {
+    var fileInput = editor.querySelector(".stream-video-file");
+    var uploadButton = editor.querySelector(".upload-stream-video");
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) {
+      setStatus("Choose an MP4, WebM, or MOV video file before uploading.", "error");
+      return;
+    }
+
+    var contentType = uploadContentType(file);
+    if (!contentType) {
+      setStatus("This video file is not supported. Use MP4, WebM, or MOV.", "error");
+      return;
+    }
+
+    uploadButton.disabled = true;
+    activeUploads += 1;
+    setStatus("Preparing a protected Stream upload for " + file.name + "...");
+
+    var uploadDetails;
+    requestJson(STREAM_UPLOAD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ fileName: file.name, contentType: contentType, size: file.size })
+    }).then(function (details) {
+      uploadDetails = details;
+      setStatus("Uploading protected video " + file.name + " (" + formatFileSize(file.size) + ") to Cloudflare Stream...");
+      return uploadToStream(file, uploadDetails);
+    }).then(function () {
+      videos[index].streamVideoId = uploadDetails.streamVideoId;
+      videos[index].streamReady = false;
+      videos[index].videoUrl = "";
+      var legacyUrl = editor.querySelector('[name="videoUrl"]');
+      if (legacyUrl) legacyUrl.value = "";
+      fileInput.value = "";
+      updateStreamStatus(editor, videos[index]);
+      saveDraft();
+      setStatus("Upload received. Cloudflare is preparing the protected video. Click Check processing until it is ready.", "success");
+    }).catch(function (error) {
+      var message = streamErrorMessage(error);
+      if (message) setStatus(message, "error");
+    }).finally(function () {
+      activeUploads -= 1;
+      uploadButton.disabled = false;
+    });
+  }
+
+  function checkStreamStatus(editor, index) {
+    var video = videos[index];
+    var button = editor.querySelector(".check-stream-status");
+    if (!video.streamVideoId) {
+      setStatus("Upload a protected Stream video before checking its processing status.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    requestJson(STREAM_STATUS_URL + "&streamVideoId=" + encodeURIComponent(video.streamVideoId), {
+      method: "GET",
+      credentials: "same-origin"
+    }).then(function (details) {
+      video.streamReady = details.ready === true;
+      updateStreamStatus(editor, video);
+      saveDraft();
+      if (video.streamReady) {
+        setStatus("Protected video is ready. Click Publish changes when you want buyers to see it.", "success");
+      } else {
+        setStatus("Cloudflare is still processing this video (" + (details.state || "pending") + "). Try again shortly.");
+      }
+    }).catch(function (error) {
+      var message = streamErrorMessage(error);
+      if (message) setStatus(message, "error");
+    }).finally(function () {
+      button.disabled = false;
     });
   }
 
