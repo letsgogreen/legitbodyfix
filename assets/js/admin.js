@@ -89,6 +89,8 @@
       description: typeof video.description === "string" ? video.description : "",
       durationMinutes: Number.isFinite(Number(video.durationMinutes)) ? Number(video.durationMinutes) : 1,
       equipment: typeof video.equipment === "string" ? video.equipment : "Bodyweight",
+      programId: typeof video.programId === "string" && video.programId ? video.programId : "neck-shoulder-reset",
+      streamVideoId: typeof video.streamVideoId === "string" ? video.streamVideoId : "",
       videoUrl: typeof video.videoUrl === "string" ? video.videoUrl : "",
       thumbnailUrl: typeof video.thumbnailUrl === "string" ? video.thumbnailUrl : "",
       published: video.published !== false

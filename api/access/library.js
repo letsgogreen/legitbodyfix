@@ -1,6 +1,7 @@
 "use strict";
 
 var access = require("../../lib/supabase-access");
+var videoLibrary = require("../../lib/video-library");
 
 function setHeaders(response) {
   response.setHeader("Cache-Control", "no-store");
@@ -41,7 +42,11 @@ module.exports = async function handler(request, response) {
   try {
     var user = await access.getUser(config, token);
     var programs = await access.listEntitlements(config, user.email);
-    return response.status(200).json({ email: user.email, programs: programs });
+    return response.status(200).json({
+      email: user.email,
+      programs: programs,
+      videos: videoLibrary.listAccessibleVideos(programs)
+    });
   } catch (error) {
     if (error instanceof access.AccessError) {
       console.error("[access/library] request failed", {

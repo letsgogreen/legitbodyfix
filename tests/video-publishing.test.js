@@ -15,6 +15,8 @@ function sampleVideo(overrides) {
     description: "A guided protocol.",
     durationMinutes: 12,
     equipment: "Bodyweight",
+    programId: "neck-shoulder-reset",
+    streamVideoId: "fedcba9876543210fedcba9876543210",
     videoUrl: "https://videos.example.com/neck.mp4",
     thumbnailUrl: "https://images.example.com/neck.jpg",
     published: true
@@ -48,6 +50,8 @@ test("video validation normalizes trusted fields and module order", function () 
 
   assert.equal(videos[0].title, "Neck Alignment");
   assert.equal(videos[0].moduleNumber, 1);
+  assert.equal(videos[0].programId, "neck-shoulder-reset");
+  assert.equal(videos[0].streamVideoId, "fedcba9876543210fedcba9876543210");
   assert.equal(videos[1].moduleNumber, 2);
   assert.equal(videos[0].videoUrl, "https://videos.example.com/neck.mp4");
 });

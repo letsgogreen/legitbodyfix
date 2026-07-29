@@ -1,6 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 var client;
+var activeSession;
 var loadingPanel = document.getElementById("loadingPanel");
 var authPanel = document.getElementById("authPanel");
 var libraryPanel = document.getElementById("libraryPanel");
@@ -9,6 +10,12 @@ var emailInput = document.getElementById("email");
 var authMessage = document.getElementById("authMessage");
 var buyerEmail = document.getElementById("buyerEmail");
 var programGrid = document.getElementById("programGrid");
+var sessionSection = document.getElementById("sessionSection");
+var sessionGrid = document.getElementById("sessionGrid");
+var playbackPanel = document.getElementById("playbackPanel");
+var playbackTitle = document.getElementById("playbackTitle");
+var playerFrame = document.getElementById("playerFrame");
+var closePlayerButton = document.getElementById("closePlayerButton");
 var libraryStatus = document.getElementById("libraryStatus");
 var signOutButton = document.getElementById("signOutButton");
 
@@ -48,11 +55,20 @@ function displayPrice(program) {
   }
 }
 
+function closePlayback() {
+  playerFrame.removeAttribute("src");
+  playbackPanel.hidden = true;
+  playbackTitle.textContent = "";
+}
+
 function renderPrograms(programs) {
   programGrid.replaceChildren();
   if (!Array.isArray(programs) || programs.length === 0) {
-    var empty = createElement("p", "empty-state", "No purchased programs are linked to this email yet. After a verified payment, your program will appear here automatically.");
-    programGrid.appendChild(empty);
+    programGrid.appendChild(createElement(
+      "p",
+      "empty-state",
+      "No purchased programs are linked to this email yet. After a verified payment, your program will appear here automatically."
+    ));
     return;
   }
 
@@ -62,13 +78,96 @@ function renderPrograms(programs) {
     top.append(
       createElement("p", "eyebrow", "PURCHASED PROGRAM"),
       createElement("h2", "", program.title || "Your program"),
-      createElement("p", "", "Your protected video library will appear here after purchase access is confirmed.")
+      createElement("p", "", "Your protected movement sessions are available below.")
     );
     var meta = createElement("div", "program-meta");
     meta.append(createElement("span", "", displayPrice(program)), createElement("span", "", "Access active"));
     card.append(top, meta);
     programGrid.appendChild(card);
   });
+}
+
+function sessionMeta(video) {
+  var details = [];
+  if (Number.isFinite(video.durationMinutes)) details.push(video.durationMinutes + " min");
+  if (video.equipment) details.push(video.equipment);
+  return details.join(" · ");
+}
+
+function renderSessions(videos) {
+  sessionGrid.replaceChildren();
+  sessionSection.hidden = !Array.isArray(videos) || videos.length === 0;
+  if (sessionSection.hidden) return;
+
+  videos.forEach(function (video) {
+    var card = createElement("article", "session-card");
+    if (video.thumbnailUrl) {
+      var thumbnail = document.createElement("img");
+      thumbnail.className = "session-thumbnail";
+      thumbnail.src = video.thumbnailUrl;
+      thumbnail.alt = "";
+      thumbnail.loading = "lazy";
+      card.appendChild(thumbnail);
+    }
+
+    var details = createElement("div", "session-details");
+    details.append(
+      createElement("p", "eyebrow", "SESSION"),
+      createElement("h3", "", video.title || "Movement session"),
+      createElement("p", "session-description", video.description || "A guided movement session."),
+      createElement("p", "session-meta", sessionMeta(video))
+    );
+
+    var action = document.createElement("button");
+    action.type = "button";
+    action.className = "button button-dark session-button";
+    if (!video.ready) {
+      action.disabled = true;
+      action.textContent = "Preparing video";
+      action.title = "This session is being prepared for protected playback.";
+    } else {
+      action.textContent = "Watch session";
+      action.addEventListener("click", function () { openPlayback(video, action); });
+    }
+    details.appendChild(action);
+    card.appendChild(details);
+    sessionGrid.appendChild(card);
+  });
+}
+
+async function openPlayback(video, button) {
+  if (!activeSession || !video || !video.id) return;
+  closePlayback();
+  button.disabled = true;
+  setLibraryStatus("Opening your protected session…", false);
+
+  try {
+    var response = await fetch("/api/access/playback?videoId=" + encodeURIComponent(video.id), {
+      cache: "no-store",
+      headers: { "Authorization": "Bearer " + activeSession.access_token }
+    });
+    var payload = await response.json().catch(function () { return {}; });
+    if (response.status === 401) {
+      await client.auth.signOut({ scope: "local" });
+      setVisible(authPanel);
+      setAuthMessage("Your sign-in link has expired. Please request a new one.", true);
+      return;
+    }
+    if (!response.ok || !payload.playerUrl) {
+      throw new Error("This video is not available right now. Please try again shortly.");
+    }
+
+    playbackTitle.textContent = video.title || "Movement session";
+    playerFrame.src = payload.playerUrl;
+    playbackPanel.hidden = false;
+    playbackPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    setLibraryStatus("", false);
+  } catch (error) {
+    console.error("Protected playback failed:", error && error.message ? error.message : error);
+    setLibraryStatus(error && error.message ? error.message : "This video is not available right now. Please try again shortly.", true);
+  } finally {
+    button.disabled = false;
+  }
 }
 
 async function getConfig() {
@@ -83,6 +182,10 @@ async function getConfig() {
 async function loadLibrary(session) {
   setLibraryStatus("Loading your purchased programs…", false);
   programGrid.replaceChildren();
+  sessionGrid.replaceChildren();
+  sessionSection.hidden = true;
+  closePlayback();
+
   var response = await fetch("/api/access/library", {
     cache: "no-store",
     headers: { "Authorization": "Bearer " + session.access_token }
@@ -99,6 +202,7 @@ async function loadLibrary(session) {
 
   buyerEmail.textContent = payload.email || session.user.email || "";
   renderPrograms(payload.programs);
+  renderSessions(payload.videos);
   setLibraryStatus("", false);
 }
 
@@ -108,6 +212,7 @@ async function showSession(session) {
     emailInput.focus();
     return;
   }
+  activeSession = session;
   setVisible(libraryPanel);
   buyerEmail.textContent = session.user.email || "";
   await loadLibrary(session);
@@ -140,10 +245,15 @@ form.addEventListener("submit", async function (event) {
   }
 });
 
+closePlayerButton.addEventListener("click", closePlayback);
+
 signOutButton.addEventListener("click", async function () {
   signOutButton.disabled = true;
+  closePlayback();
+  activeSession = null;
   await client.auth.signOut({ scope: "local" });
   programGrid.replaceChildren();
+  sessionGrid.replaceChildren();
   setVisible(authPanel);
   setAuthMessage("You have been signed out.", false);
   signOutButton.disabled = false;

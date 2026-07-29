@@ -38,6 +38,14 @@
       <div class="library-heading"><div><p class="eyebrow">MY LIBRARY</p><h1 id="libraryTitle">MOVE WITH<br />INTENT.</h1><p class="intro">Signed in as <strong id="buyerEmail"></strong>.</p></div><button class="text-button" id="signOutButton" type="button">Sign out</button></div>
       <div class="library-status" id="libraryStatus" role="status" aria-live="polite"></div>
       <div class="program-grid" id="programGrid"></div>
+      <section class="session-section" id="sessionSection" hidden aria-labelledby="sessionHeading">
+        <div class="section-heading"><div><p class="eyebrow">YOUR SESSIONS</p><h2 id="sessionHeading">KEEP MOVING.</h2></div><p>Protected playback is available only while you are signed in.</p></div>
+        <div class="session-grid" id="sessionGrid"></div>
+      </section>
+      <section class="playback-panel" id="playbackPanel" hidden aria-labelledby="playbackTitle">
+        <div class="playback-heading"><div><p class="eyebrow">NOW PLAYING</p><h2 id="playbackTitle"></h2></div><button class="text-button" id="closePlayerButton" type="button">Close player</button></div>
+        <div class="player-frame"><iframe id="playerFrame" title="Protected movement session" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+      </section>
       <div class="library-help"><p>Need help with a purchase? Contact us with the email used at checkout.</p><a class="button" href="index.html#pricing">Browse programs</a></div>
     </section>
   </main>

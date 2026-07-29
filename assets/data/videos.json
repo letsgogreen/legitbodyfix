@@ -7,6 +7,8 @@
     "description": "A guided protocol for restoring comfortable neck position and control.",
     "durationMinutes": 12,
     "equipment": "Bodyweight",
+    "programId": "neck-shoulder-reset",
+    "streamVideoId": "",
     "videoUrl": "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/videos/2026-07/1785139862035-dcf24dc9bdf4f262f444cc96-20240525-125721-20240525125720.mp4",
     "thumbnailUrl": "",
     "published": true
@@ -19,6 +21,8 @@
     "description": "Improve shoulder positioning with a focused resistance-band sequence.",
     "durationMinutes": 14,
     "equipment": "Resistance band",
+    "programId": "neck-shoulder-reset",
+    "streamVideoId": "",
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
@@ -31,6 +35,8 @@
     "description": "Build awareness and control around the pelvis using bodyweight drills.",
     "durationMinutes": 15,
     "equipment": "Bodyweight",
+    "programId": "neck-shoulder-reset",
+    "streamVideoId": "",
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
@@ -43,6 +49,8 @@
     "description": "Practice foot pressure, stability, and movement from the ground up.",
     "durationMinutes": 10,
     "equipment": "Bodyweight",
+    "programId": "neck-shoulder-reset",
+    "streamVideoId": "",
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
@@ -55,6 +63,8 @@
     "description": "Connect posture, balance, and rhythm in a practical walking session.",
     "durationMinutes": 18,
     "equipment": "Bodyweight",
+    "programId": "neck-shoulder-reset",
+    "streamVideoId": "",
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
@@ -67,6 +77,8 @@
     "description": "Use guided breathing to support alignment, recovery, and control.",
     "durationMinutes": 8,
     "equipment": "Guided",
+    "programId": "neck-shoulder-reset",
+    "streamVideoId": "",
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
