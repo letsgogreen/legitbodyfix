@@ -42,7 +42,7 @@ module.exports = async function handler(request, response) {
     var programs = await access.listEntitlements(accessConfig, user.email);
     var video = videoLibrary.getAccessibleVideo(programs, getVideoId(request));
     if (!video) return response.status(403).json({ error: "video_not_in_library" });
-    if (!video.streamVideoId) return response.status(409).json({ error: "video_not_ready" });
+    if (!video.streamVideoId || !video.streamReady) return response.status(409).json({ error: "video_not_ready" });
 
     var streamConfig = stream.getStreamConfig();
     if (!streamConfig) {

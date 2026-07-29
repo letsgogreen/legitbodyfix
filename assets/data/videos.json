@@ -9,6 +9,7 @@
     "equipment": "Bodyweight",
     "programId": "neck-shoulder-reset",
     "streamVideoId": "",
+    "streamReady": false,
     "videoUrl": "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/videos/2026-07/1785139862035-dcf24dc9bdf4f262f444cc96-20240525-125721-20240525125720.mp4",
     "thumbnailUrl": "",
     "published": true
@@ -23,6 +24,7 @@
     "equipment": "Resistance band",
     "programId": "neck-shoulder-reset",
     "streamVideoId": "",
+    "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
@@ -37,6 +39,7 @@
     "equipment": "Bodyweight",
     "programId": "neck-shoulder-reset",
     "streamVideoId": "",
+    "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
@@ -51,6 +54,7 @@
     "equipment": "Bodyweight",
     "programId": "neck-shoulder-reset",
     "streamVideoId": "",
+    "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
@@ -65,6 +69,7 @@
     "equipment": "Bodyweight",
     "programId": "neck-shoulder-reset",
     "streamVideoId": "",
+    "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
@@ -79,6 +84,7 @@
     "equipment": "Guided",
     "programId": "neck-shoulder-reset",
     "streamVideoId": "",
+    "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true
