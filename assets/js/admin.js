@@ -8,8 +8,8 @@
   var LOGOUT_URL = "/api/admin/logout";
   var PUBLISH_URL = "/api/admin/videos";
   var UPLOAD_URL = "/api/admin/uploads";
-  var STREAM_UPLOAD_URL = "/api/admin/stream-uploads";
-  var STREAM_STATUS_URL = "/api/admin/stream-status";
+  var STREAM_UPLOAD_URL = "/api/admin/uploads?kind=stream";
+  var STREAM_STATUS_URL = "/api/admin/uploads?kind=stream-status";
   var authGate = document.getElementById("authGate");
   var authStatus = document.getElementById("authStatus");
   var loginForm = document.getElementById("loginForm");
@@ -451,7 +451,7 @@
     }
 
     button.disabled = true;
-    requestJson(STREAM_STATUS_URL + "?streamVideoId=" + encodeURIComponent(video.streamVideoId), {
+    requestJson(STREAM_STATUS_URL + "&streamVideoId=" + encodeURIComponent(video.streamVideoId), {
       method: "GET",
       credentials: "same-origin"
     }).then(function (details) {

@@ -158,6 +158,59 @@ test("upload URL API requires an authenticated production administrator", async 
   }
 });
 
+test("the existing upload API also creates one-time protected Stream upload URLs", async function () {
+  var names = [
+    "ADMIN_PASSWORD", "ADMIN_SESSION_SECRET", "VERCEL_ENV", "CLOUDFLARE_STREAM_ACCOUNT_ID",
+    "CLOUDFLARE_STREAM_API_TOKEN", "CLOUDFLARE_STREAM_CUSTOMER_CODE"
+  ];
+  var previous = {};
+  var originalFetch = globalThis.fetch;
+  names.forEach(function (name) { previous[name] = process.env[name]; });
+
+  try {
+    process.env.ADMIN_PASSWORD = "correct-horse-battery-staple";
+    process.env.ADMIN_SESSION_SECRET = "a-very-long-test-session-secret-value-123456";
+    process.env.VERCEL_ENV = "production";
+    process.env.CLOUDFLARE_STREAM_ACCOUNT_ID = "0123456789abcdef0123456789abcdef";
+    process.env.CLOUDFLARE_STREAM_API_TOKEN = "stream-api-token-with-enough-safe-characters";
+    globalThis.fetch = async function () {
+      return {
+        ok: true,
+        status: 200,
+        json: async function () {
+          return {
+            success: true,
+            result: {
+              uid: "fedcba9876543210fedcba9876543210",
+              uploadURL: "https://upload.videodelivery.net/fedcba9876543210fedcba9876543210"
+            }
+          };
+        }
+      };
+    };
+    var cookie = auth.createSessionCookie(auth.createSessionToken(process.env.ADMIN_SESSION_SECRET)).split(";")[0];
+    var response = createResponse();
+
+    await uploadsApi({
+      method: "POST",
+      headers: { cookie: cookie },
+      query: { kind: "stream" },
+      body: { fileName: "routine.mp4", contentType: "video/mp4", size: 2048 }
+    }, response);
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.protocol, "multipart");
+    assert.equal(response.body.streamVideoId, "fedcba9876543210fedcba9876543210");
+    assert.equal(JSON.stringify(response.body).includes("api-token"), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    names.forEach(function (name) {
+      if (previous[name] === undefined) delete process.env[name];
+      else process.env[name] = previous[name];
+    });
+  }
+});
+
 test("public video cards link only to valid HTTPS video URLs", function () {
   var script = fs.readFileSync(path.join(__dirname, "../assets/js/videos.js"), "utf8");
 
