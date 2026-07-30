@@ -7,13 +7,13 @@
     "title": "Neck Alignment",
     "description": "A guided protocol for restoring comfortable neck position and control.\n Often times our neck start hurting or put in a forward head posture. \nIn this video, we will treat it so we can have meaningful restoration.",
     "durationMinutes": 12,
-    "equipment": "Bodyweight",
+    "equipment": "massage ball, stability ball, light dbs",
     "streamVideoId": "0b4823cc2d39b38006ddaa3efe3927bc",
     "streamReady": true,
     "videoUrl": "",
     "thumbnailUrl": "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/thumbnails/2026-07/1785162514945-a92a560beb9397100d6dfc71-neck.png",
     "published": true,
-    "price": 12
+    "price": null
   },
   {
     "id": "shoulder-reset",
@@ -29,7 +29,7 @@
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true,
-    "price": 14
+    "price": null
   },
   {
     "id": "pelvic-balance",
@@ -45,23 +45,23 @@
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true,
-    "price": 15
+    "price": null
   },
   {
     "id": "foot-mechanics",
     "programId": "neck-shoulder-reset",
     "level": "FOUNDATIONAL",
     "moduleNumber": 4,
-    "title": "Foot Mechanics",
-    "description": "Practice foot pressure, stability, and movement from the ground up.",
+    "title": "Ankle rehabilitation protocol",
+    "description": "In this program we focus on step-by-step what to do when we rolled our ankle for faster comeback.",
     "durationMinutes": 10,
     "equipment": "Bodyweight",
-    "streamVideoId": "",
+    "streamVideoId": "e5bcf92df1248c944e0cf41529b85ea2",
     "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true,
-    "price": 10
+    "price": null
   },
   {
     "id": "walking-mechanics",
@@ -77,7 +77,7 @@
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true,
-    "price": 16
+    "price": null
   },
   {
     "id": "breathing-fundamentals",
@@ -93,6 +93,6 @@
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true,
-    "price": 8
+    "price": null
   }
 ]
