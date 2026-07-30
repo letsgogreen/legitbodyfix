@@ -30,3 +30,13 @@ test("admin offers protected Stream uploads and does not present R2 as the buyer
   assert.match(javascript, /uploads\?kind=stream/);
   assert.match(javascript, /uploadTusFile/);
 });
+
+test("admin offers an authenticated buyer-access grant control", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+
+  assert.match(html, /id="accessGrantForm"/);
+  assert.match(html, /Grant library access/);
+  assert.match(javascript, /api\/admin\/videos/);
+  assert.match(javascript, /action: "grant-access"/);
+});

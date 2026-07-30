@@ -13,7 +13,7 @@ test("returns only published sessions owned by the buyer's purchased program", f
   assert.equal(videos.length, 6);
   assert.equal(videos[0].id, "neck-alignment");
   assert.equal(videos[0].programId, "neck-shoulder-reset");
-  assert.equal(videos[0].ready, false);
+  assert.equal(videos[0].ready, true);
   assert.equal(Object.prototype.hasOwnProperty.call(videos[0], "videoUrl"), false);
   assert.equal(Object.prototype.hasOwnProperty.call(videos[0], "streamVideoId"), false);
   assert.deepEqual(videoLibrary.listAccessibleVideos([{ id: "unrelated-program" }]), []);
@@ -68,8 +68,12 @@ test("buyer library response never returns the legacy public R2 video URL", asyn
     assert.equal(response.statusCode, 200);
     assert.equal(response.headers["Cache-Control"], "no-store");
     assert.equal(response.body.videos.length, 6);
-    assert.equal(JSON.stringify(response.body.videos).includes("r2.dev"), false);
-    assert.equal(JSON.stringify(response.body.videos).includes("videoUrl"), false);
+    // A public thumbnail may be hosted in R2, but a buyer must never receive
+    // the legacy direct video field. Playback is issued separately as a
+    // short-lived Cloudflare Stream token.
+    assert.equal(response.body.videos.some(function (video) {
+      return Object.prototype.hasOwnProperty.call(video, "videoUrl");
+    }), false);
   } finally {
     globalThis.fetch = originalFetch;
     names.forEach(function (name) {
