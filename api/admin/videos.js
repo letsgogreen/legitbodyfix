@@ -12,9 +12,10 @@ function readBody(request) {
 }
 
 async function grantLibraryAccess(response, body) {
-  // There is one paid program today. Keep this allowlist server-side so an
-  // administrator cannot accidentally grant access to an arbitrary identifier.
-  if (body.programId !== paypal.PROGRAM.id) {
+  // Access can only be granted for something in the real catalog (the full
+  // program bundle or one specific priced video) so an administrator cannot
+  // accidentally grant access to an arbitrary identifier.
+  if (!paypal.getProduct(body.programId)) {
     return response.status(422).json({ error: "unknown_program" });
   }
 

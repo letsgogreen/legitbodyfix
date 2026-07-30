@@ -2,10 +2,51 @@
 
 var statusElement = document.getElementById("checkoutStatus");
 var buttonContainer = document.getElementById("paypalButtonContainer");
+var labelElement = document.getElementById("productLabel");
+var nameElement = document.getElementById("productName");
+var priceElement = document.getElementById("productPrice");
+var introElement = document.getElementById("checkoutIntro");
+var BUNDLE_ID = "neck-shoulder-reset";
 
 function setStatus(message, isError) {
   statusElement.textContent = message || "";
   statusElement.classList.toggle("error", Boolean(isError));
+}
+
+function getRequestedProductId() {
+  try {
+    var value = new URLSearchParams(window.location.search).get("product");
+    return typeof value === "string" ? value.trim() : "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function chooseProduct(catalog) {
+  var products = Array.isArray(catalog) ? catalog : [];
+  var requestedId = getRequestedProductId();
+  return products.find(function (item) { return item.id === requestedId; }) ||
+    products.find(function (item) { return item.id === BUNDLE_ID; }) ||
+    products[0] || null;
+}
+
+function formatPrice(product) {
+  var amount = Number(product.amount);
+  if (!Number.isFinite(amount)) return "$" + product.amount;
+  return "$" + (Number.isInteger(amount) ? amount : amount.toFixed(2));
+}
+
+function applyProduct(product) {
+  var isBundle = product.id === BUNDLE_ID;
+  var sessionTitle = product.title.replace(/\s*—\s*Single Session$/, "");
+  labelElement.textContent = isBundle ? "NECK & SHOULDER RESET" : sessionTitle.toUpperCase();
+  nameElement.textContent = isBundle ? "4-Week Movement Program" : "Single Session — Lifetime Access";
+  priceElement.innerHTML = formatPrice(product) + "<span> " + product.currency + " / one-time</span>";
+  if (introElement) {
+    introElement.textContent = isBundle
+      ? "Get lifetime access to the Neck & Shoulder Reset movement program. There is no subscription and no recurring charge."
+      : "Get lifetime access to \u201c" + sessionTitle + "\u201d. There is no subscription and no recurring charge.";
+  }
 }
 
 function request(url, options) {
@@ -37,12 +78,20 @@ async function beginCheckout() {
   setStatus("Loading secure checkout…", false);
   try {
     var config = await request("/api/paypal/config", { cache: "no-store" });
+    var product = chooseProduct(config.catalog);
+    if (!product) throw new Error("no_products_available");
+    applyProduct(product);
+
     var paypal = await loadPaypalSdk(config);
     buttonContainer.replaceChildren();
     paypal.Buttons({
       style: { layout: "vertical", color: "gold", shape: "rect", label: "pay" },
       createOrder: async function () {
-        var payload = await request("/api/paypal/orders/create", { method: "POST" });
+        var payload = await request("/api/paypal/orders/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: product.id })
+        });
         return payload.orderId;
       },
       onApprove: async function (data) {
