@@ -8,6 +8,12 @@ function setHeaders(response) {
   response.setHeader("X-Content-Type-Options", "nosniff");
 }
 
+function readBody(request) {
+  if (typeof request.body === "string") return JSON.parse(request.body || "{}");
+  if (Buffer.isBuffer(request.body)) return JSON.parse(request.body.toString("utf8") || "{}");
+  return request.body || {};
+}
+
 module.exports = async function handler(request, response) {
   setHeaders(response);
   response.setHeader("Allow", "POST");
@@ -16,8 +22,20 @@ module.exports = async function handler(request, response) {
   var config = paypal.getConfig();
   if (!config) return response.status(503).json({ error: "payment_service_not_configured" });
 
+  var body;
   try {
-    var order = await paypal.createOrder(config);
+    body = readBody(request);
+  } catch (error) {
+    return response.status(400).json({ error: "invalid_json" });
+  }
+
+  var productId = typeof body.productId === "string" ? body.productId.trim() : "";
+  if (!productId || !paypal.getProduct(productId)) {
+    return response.status(400).json({ error: "invalid_product" });
+  }
+
+  try {
+    var order = await paypal.createOrder(config, productId);
     return response.status(201).json({ orderId: order.id });
   } catch (error) {
     if (error instanceof paypal.PaypalError) {

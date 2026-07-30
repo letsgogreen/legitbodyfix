@@ -12,7 +12,8 @@
     "streamReady": true,
     "videoUrl": "",
     "thumbnailUrl": "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/thumbnails/2026-07/1785162514945-a92a560beb9397100d6dfc71-neck.png",
-    "published": true
+    "published": true,
+    "price": 12
   },
   {
     "id": "shoulder-reset",
@@ -27,7 +28,8 @@
     "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
-    "published": true
+    "published": true,
+    "price": 14
   },
   {
     "id": "pelvic-balance",
@@ -42,7 +44,8 @@
     "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
-    "published": true
+    "published": true,
+    "price": 15
   },
   {
     "id": "foot-mechanics",
@@ -57,7 +60,8 @@
     "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
-    "published": true
+    "published": true,
+    "price": 10
   },
   {
     "id": "walking-mechanics",
@@ -72,7 +76,8 @@
     "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
-    "published": true
+    "published": true,
+    "price": 16
   },
   {
     "id": "breathing-fundamentals",
@@ -87,6 +92,7 @@
     "streamReady": false,
     "videoUrl": "",
     "thumbnailUrl": "",
-    "published": true
+    "published": true,
+    "price": 8
   }
 ]

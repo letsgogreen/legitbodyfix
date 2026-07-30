@@ -31,17 +31,25 @@
     }
   }
 
+  function isPurchasablePrice(value) {
+    return typeof value === "number" && Number.isFinite(value) && value > 0;
+  }
+
+  function formatPrice(value) {
+    return "$" + (Number.isInteger(value) ? value : value.toFixed(2));
+  }
+
   function createCard(video) {
-    var videoUrl = playableUrl(video.videoUrl);
     var thumbnailUrl = playableUrl(video.thumbnailUrl);
-    var card = createElement(videoUrl ? "a" : "article", "course-card reveal");
+    var hasOwnPrice = isPurchasablePrice(video.price);
+    // Every card leads to checkout for that specific session — never straight
+    // to the raw video — so a visitor can buy the one session they clicked
+    // instead of only having the full-program purchase available.
+    var checkoutProductId = hasOwnPrice ? video.id : "neck-shoulder-reset";
+    var card = createElement("a", "course-card reveal");
     card.dataset.videoId = video.id;
-    if (videoUrl) {
-      card.href = videoUrl;
-      card.target = "_blank";
-      card.rel = "noopener";
-      card.setAttribute("aria-label", "Play " + video.title);
-    }
+    card.href = "checkout.html?product=" + encodeURIComponent(checkoutProductId);
+    card.setAttribute("aria-label", "Buy " + video.title);
 
     var media = createElement("div", "course-media");
     if (thumbnailUrl) {
@@ -60,10 +68,12 @@
 
     var info = createElement("div", "course-info");
     var moduleLabel = "MODULE " + String(video.moduleNumber).padStart(2, "0");
+    var lengthText = video.durationMinutes + " min · " + video.equipment;
+    lengthText += hasOwnPrice ? " · " + formatPrice(video.price) : " · in $49 program";
     info.append(
       createElement("span", "lvl mono", moduleLabel),
       createElement("h4", "", video.title),
-      createElement("span", "len", video.durationMinutes + " min · " + video.equipment)
+      createElement("span", "len", lengthText)
     );
 
     card.append(media, info);
