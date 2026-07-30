@@ -636,7 +636,7 @@
     }).catch(function (error) {
       if (error.status === 401) showLogin("The password is incorrect.", "error");
       else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
-      else showLogin("The login service is unavailable. Please try again.");
+      else showLogin("The login service is unavailable. Please try again.", "error");
       passwordInput.select();
     }).finally(function () {
       loginButton.disabled = false;
@@ -695,6 +695,6 @@
   }).catch(function (error) {
     if (error.status === 401) showLogin();
     else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
-    else showLogin("The login service is unavailable. Please try again.");
+    else showLogin("The login service is unavailable. Please try again.", "error");
   });
 })();
