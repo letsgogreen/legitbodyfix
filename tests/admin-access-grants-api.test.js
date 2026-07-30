@@ -3,7 +3,7 @@
 var test = require("node:test");
 var assert = require("node:assert/strict");
 var auth = require("../lib/admin-auth");
-var handler = require("../api/admin/access-grants");
+var handler = require("../api/admin/videos");
 
 function createResponse() {
   return {
@@ -58,7 +58,7 @@ test("access grants require an authenticated production administrator", async fu
       await handler({
         method: "POST",
         headers: { cookie: cookie },
-        body: { email: "Buyer@Example.com", programId: "neck-shoulder-reset" }
+      body: { action: "grant-access", email: "Buyer@Example.com", programId: "neck-shoulder-reset" }
       }, response);
 
       assert.equal(response.statusCode, 200);
@@ -87,7 +87,7 @@ test("access grants are unavailable outside the production deployment", async fu
     await handler({
       method: "POST",
       headers: { cookie: cookie },
-      body: { email: "buyer@example.com", programId: "neck-shoulder-reset" }
+      body: { action: "grant-access", email: "buyer@example.com", programId: "neck-shoulder-reset" }
     }, response);
 
     assert.equal(response.statusCode, 409);

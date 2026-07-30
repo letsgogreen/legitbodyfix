@@ -10,7 +10,7 @@
   var UPLOAD_URL = "/api/admin/uploads";
   var STREAM_UPLOAD_URL = "/api/admin/uploads?kind=stream";
   var STREAM_STATUS_URL = "/api/admin/uploads?kind=stream-status";
-  var ACCESS_GRANT_URL = "/api/admin/access-grants";
+  var ACCESS_GRANT_URL = "/api/admin/videos";
   var authGate = document.getElementById("authGate");
   var authStatus = document.getElementById("authStatus");
   var loginForm = document.getElementById("loginForm");
@@ -532,6 +532,7 @@
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
       body: JSON.stringify({
+        action: "grant-access",
         email: accessGrantEmail.value,
         programId: accessGrantProgram.value
       })

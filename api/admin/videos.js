@@ -2,10 +2,61 @@
 
 var auth = require("../../lib/admin-auth");
 var publishing = require("../../lib/video-publishing");
+var grants = require("../../lib/admin-access-grants");
+var paypal = require("../../lib/paypal-payments");
+var access = require("../../lib/supabase-access");
 
 function readBody(request) {
   if (typeof request.body === "string") return JSON.parse(request.body);
   return request.body || {};
+}
+
+async function grantLibraryAccess(response, body) {
+  // There is one paid program today. Keep this allowlist server-side so an
+  // administrator cannot accidentally grant access to an arbitrary identifier.
+  if (body.programId !== paypal.PROGRAM.id) {
+    return response.status(422).json({ error: "unknown_program" });
+  }
+
+  var accessConfig = access.getServerConfig();
+  if (!accessConfig) {
+    return response.status(503).json({
+      error: "access_service_not_configured",
+      details: access.getServerConfigIssues()
+    });
+  }
+
+  try {
+    var grant = await grants.grantAccess(accessConfig, {
+      email: body.email,
+      programId: body.programId
+    });
+
+    console.info("[admin/videos] granted library access", {
+      programId: grant.programId,
+      emailDomain: grant.email.split("@")[1] || ""
+    });
+
+    return response.status(200).json({
+      granted: true,
+      email: grant.email,
+      programId: grant.programId
+    });
+  } catch (error) {
+    if (error instanceof grants.AccessGrantError) {
+      console.error("[admin/videos] access grant failed", {
+        code: error.code,
+        statusCode: error.statusCode,
+        provider: error.details
+      });
+      return response.status(error.statusCode).json({ error: error.code });
+    }
+
+    console.error("[admin/videos] access grant unexpected failure", {
+      message: error && error.message ? error.message : String(error)
+    });
+    return response.status(500).json({ error: "access_grant_unavailable" });
+  }
 }
 
 module.exports = async function handler(request, response) {
@@ -22,6 +73,20 @@ module.exports = async function handler(request, response) {
     return response.status(401).json({ error: "authentication_required" });
   }
 
+  var body;
+  try {
+    body = readBody(request);
+  } catch (error) {
+    return response.status(400).json({ error: "invalid_json" });
+  }
+
+  if (body.action === "grant-access") {
+    if (process.env.VERCEL_ENV !== "production") {
+      return response.status(409).json({ error: "access_grants_disabled_in_preview" });
+    }
+    return grantLibraryAccess(response, body);
+  }
+
   if (process.env.VERCEL_ENV !== "production") {
     return response.status(409).json({ error: "publishing_disabled_in_preview" });
   }
@@ -29,13 +94,6 @@ module.exports = async function handler(request, response) {
   var publishingConfig = publishing.getPublishingConfig();
   if (!publishingConfig) {
     return response.status(503).json({ error: "github_publishing_not_configured" });
-  }
-
-  var body;
-  try {
-    body = readBody(request);
-  } catch (error) {
-    return response.status(400).json({ error: "invalid_json" });
   }
 
   try {
