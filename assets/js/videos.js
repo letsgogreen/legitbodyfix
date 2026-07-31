@@ -42,14 +42,12 @@
   function createCard(video) {
     var thumbnailUrl = playableUrl(video.thumbnailUrl);
     var hasOwnPrice = isPurchasablePrice(video.price);
-    // Every card leads to checkout for that specific session — never straight
-    // to the raw video — so a visitor can buy the one session they clicked
-    // instead of only having the full-program purchase available.
-    var checkoutProductId = hasOwnPrice ? video.id : "neck-shoulder-reset";
+    // Every card opens its own persuasive session page. Protected playback
+    // remains available only inside the authenticated buyer library.
     var card = createElement("a", "course-card reveal");
     card.dataset.videoId = video.id;
-    card.href = "checkout.html?product=" + encodeURIComponent(checkoutProductId);
-    card.setAttribute("aria-label", "Buy " + video.title);
+    card.href = "video.html?id=" + encodeURIComponent(video.id);
+    card.setAttribute("aria-label", "Learn more about " + video.title);
 
     var media = createElement("div", "course-media");
     if (thumbnailUrl) {

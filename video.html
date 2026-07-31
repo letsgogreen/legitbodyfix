@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explore a focused LegitBodyFix movement session." id="metaDescription" />
+  <title>Movement session — LegitBodyFix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/video-sales.css?v=20260801-1" />
+  <script src="assets/js/video-sales.js?v=20260801-1" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="LegitBodyFix home"><span class="brand-mark">LBF</span><span>LegitBodyFix</span></a>
+    <nav aria-label="Primary navigation"><a href="index.html#library-preview">All sessions</a><a class="nav-button" href="library.html">My library</a></nav>
+  </header>
+
+  <main>
+    <section class="loading-state" id="loadingState" aria-live="polite">Preparing session details…</section>
+    <section class="unavailable-state" id="unavailableState" hidden>
+      <p class="eyebrow">Session unavailable</p><h1>This movement page is not ready yet.</h1>
+      <p>The session may still be in preparation. Browse the currently available programs instead.</p>
+      <a class="button button-dark" href="index.html#library-preview">Browse sessions</a>
+    </section>
+
+    <article id="salesPage" hidden>
+      <section class="hero">
+        <div class="hero-copy">
+          <a class="back-link" href="index.html#library-preview">← All movement sessions</a>
+          <p class="eyebrow" id="landingEyebrow"></p>
+          <h1 id="landingHeadline"></h1>
+          <p class="hero-summary" id="landingSummary"></p>
+          <ul class="session-meta" aria-label="Session details">
+            <li><span>Time</span><strong id="duration"></strong></li>
+            <li><span>Level</span><strong id="level"></strong></li>
+            <li><span>Equipment</span><strong id="equipment"></strong></li>
+          </ul>
+          <div class="purchase-row"><a class="button button-lime checkout-link" href="checkout.html">Get this session <span aria-hidden="true">→</span></a><div><strong id="price"></strong><span id="paymentNote"></span></div></div>
+        </div>
+        <div class="preview-panel">
+          <div class="preview-art" id="previewArt">
+            <img id="thumbnail" alt="" hidden />
+            <div class="preview-placeholder" id="previewPlaceholder"><span id="moduleNumber"></span><strong id="previewTitle"></strong></div>
+            <span class="preview-chip">Session preview</span>
+          </div>
+          <div class="preview-note"><span class="lock-icon" aria-hidden="true">●</span><p><strong>Protected full session</strong>The complete instructional video unlocks in your personal library after purchase.</p></div>
+        </div>
+      </section>
+
+      <section class="outcomes section-rule">
+        <div class="section-intro"><p class="eyebrow">Inside the session</p><h2>A focused path to better movement.</h2><p id="description"></p></div>
+        <ol class="benefit-grid"><li><span>01</span><p id="benefit1"></p></li><li><span>02</span><p id="benefit2"></p></li><li><span>03</span><p id="benefit3"></p></li></ol>
+      </section>
+
+      <section class="audience section-rule">
+        <div><p class="eyebrow">Who it is for</p><h2>Make the session fit your movement—not the other way around.</h2></div>
+        <div class="audience-card"><p id="audience"></p><p class="clinical-note">Movement education is not medical diagnosis or treatment. If you have an acute injury, severe symptoms, or uncertainty about exercising, consult a qualified clinician first.</p></div>
+      </section>
+
+      <section class="trust-strip" aria-label="Purchase benefits">
+        <div><span>01</span><strong>One-time purchase</strong><p>No recurring subscription.</p></div>
+        <div><span>02</span><strong>Personal access</strong><p>Sign in securely by email.</p></div>
+        <div><span>03</span><strong>Protected streaming</strong><p>Watch inside your buyer library.</p></div>
+      </section>
+
+      <section class="final-cta">
+        <p class="eyebrow">Ready when you are</p><h2 id="finalHeadline"></h2><p id="reassurance"></p>
+        <a class="button button-lime checkout-link" href="checkout.html">Start this session <span aria-hidden="true">→</span></a>
+      </section>
+    </article>
+  </main>
+  <footer><span>LegitBodyFix</span><span>Movement education with intent.</span></footer>
+</body>
+</html>
