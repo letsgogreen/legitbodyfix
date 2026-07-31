@@ -959,15 +959,11 @@
 
   function load() {
     var draft = localStorage.getItem(DRAFT_KEY);
-    if (draft) {
-      try {
-        videos = JSON.parse(draft).map(normalizeVideo);
-        render();
-        setStatus("Browser draft restored. Reset it to reload repository data.");
-        return;
-      } catch (error) {
-        localStorage.removeItem(DRAFT_KEY);
-      }
+    var draftVideos = null;
+    if (draft) try {
+      draftVideos = JSON.parse(draft).map(normalizeVideo);
+    } catch (error) {
+      localStorage.removeItem(DRAFT_KEY);
     }
 
     fetch(DATA_URL, { cache: "no-cache" })
@@ -977,11 +973,28 @@
       })
       .then(function (data) {
         if (!Array.isArray(data)) throw new Error("Invalid video data");
-        videos = data.map(normalizeVideo);
+        var repositoryVideos = data.map(normalizeVideo);
+        if (draftVideos && window.LegitAdminVideoDraft) {
+          var reconciled = window.LegitAdminVideoDraft.reconcile(repositoryVideos, draftVideos);
+          videos = reconciled.videos.map(normalizeVideo);
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(videos));
+          render();
+          setStatus(reconciled.recovered > 0
+            ? "Browser draft restored and synced with the saved protected video."
+            : "Browser draft restored. Reset it to reload all repository data.");
+          return;
+        }
+        videos = repositoryVideos;
         render();
         setStatus("Repository data loaded. Start editing to create a browser draft.");
       })
       .catch(function () {
+        if (draftVideos) {
+          videos = draftVideos;
+          render();
+          setStatus("Browser draft restored. Saved repository data could not be checked.", "error");
+          return;
+        }
         list.setAttribute("aria-busy", "false");
         setStatus("Video data could not be loaded. Open this page through a local web server.");
       });
