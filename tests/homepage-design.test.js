@@ -12,25 +12,26 @@ test("homepage keeps the approved movement-library design and live product path"
   assert.match(html, /data-content="hero\.titleLines\.0">MOVE/);
   assert.match(html, /class="body-map"/);
   assert.match(html, /id="courseGrid"/);
-  assert.match(html, /href="library\.html">My library<\/a>/);
+  assert.match(html, /href="library\.html" data-content="navigation\.myLibrary">My library<\/a>/);
   assert.match(html, /Full Body Restoration Package/);
   assert.match(html, /data-content="pricing\.displayPrice">\$170/);
-  assert.match(html, /href="checkout\.html"><span data-content="pricing\.buttonLabel">Choose program/);
+  assert.match(html, /href="checkout\.html" data-content-href="pricing\.buttonHref"><span data-content="pricing\.buttonLabel">Choose program/);
   assert.match(html, /assets\/js\/videos\.js/);
   assert.match(html, /assets\/js\/site-content\.js/);
-  assert.match(html, /id="customSections"/);
-  assert.match(html, /assets\/js\/page-sections\.js/);
+  assert.match(html, /data-site-section="hero"/);
+  assert.match(html, /assets\/css\/site-editor-public\.css/);
 
   assert.doesNotMatch(html, /payment buttons \(UI placeholder/);
   assert.doesNotMatch(html, /class="pay-btn"/);
 });
 
-test("homepage content loader only applies text and cannot replace fixed checkout links", function () {
+test("homepage content loader applies validated content without injecting HTML", function () {
   var html = fs.readFileSync(path.join(__dirname, "../index.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/site-content.js"), "utf8");
 
   assert.match(html, /href="checkout\.html"/);
   assert.match(javascript, /element\.textContent = value/);
+  assert.match(javascript, /safeLink/);
+  assert.match(javascript, /data-site-section/);
   assert.doesNotMatch(javascript, /innerHTML/);
-  assert.doesNotMatch(javascript, /setAttribute\(["']href/);
 });

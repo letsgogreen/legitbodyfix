@@ -1,11 +1,35 @@
 {
+  "version": 2,
+  "settings": {
+    "theme": "lime",
+    "density": "spacious"
+  },
+  "navigation": {
+    "method": "Method",
+    "library": "Library",
+    "myLibrary": "My library",
+    "programs": "Programs",
+    "howItWorks": "How it works",
+    "browsePrograms": "Browse programs"
+  },
+  "layout": [
+    { "id": "hero", "kind": "core", "visible": true },
+    { "id": "method", "kind": "core", "visible": true },
+    { "id": "library", "kind": "core", "visible": true },
+    { "id": "standard", "kind": "core", "visible": true },
+    { "id": "pricing", "kind": "core", "visible": true }
+  ],
   "hero": {
     "kicker": "Corrective movement. No fluff.",
     "titleLines": ["MOVE", "BETTER.", "HURT", "LESS."],
     "description": "Follow clear corrective exercise sessions that help you understand your body, rebuild weak links, and move with confidence again.",
     "primaryButton": "Start your reset",
+    "primaryHref": "#pricing",
     "secondaryButton": "See the library",
-    "proofPoints": ["Built for real bodies", "Go at your own pace", "One-time purchase"]
+    "secondaryHref": "#library-preview",
+    "proofPoints": ["Built for real bodies", "Go at your own pace", "One-time purchase"],
+    "imageUrl": "",
+    "imageAlt": "Corrective movement body map showing shoulder, hip, and knee focus areas"
   },
   "method": {
     "label": "The LegitBodyFix method",
@@ -21,7 +45,8 @@
     "label": "Inside the library",
     "titleLines": ["SHORT SESSIONS.", "SERIOUS INTENT."],
     "intro": "Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.",
-    "linkLabel": "Choose a program"
+    "linkLabel": "Choose a program",
+    "linkHref": "#pricing"
   },
   "standard": {
     "quote": "The goal is not to chase perfect posture. It is to build a body that has options.",
@@ -40,10 +65,12 @@
     "displayPrice": "$170",
     "priceSuffix": "one-time",
     "description": "Get lifetime access to the complete corrective movement package. No subscription and no recurring charge.",
-    "buttonLabel": "Choose program"
+    "buttonLabel": "Choose program",
+    "buttonHref": "checkout.html"
   },
   "footer": {
     "tagline": "Move with more options.",
     "legal": "Educational movement content, not medical diagnosis or treatment."
-  }
+  },
+  "customSections": []
 }

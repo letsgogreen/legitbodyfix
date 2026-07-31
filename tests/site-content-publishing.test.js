@@ -23,8 +23,45 @@ test("website content validation returns only approved plain-text fields", funct
 
   assert.equal(content.hero.extraHtml, undefined);
   assert.equal(content.pricing.checkoutUrl, undefined);
+  assert.equal(content.version, 2);
+  assert.equal(content.layout.length, 5);
+  assert.deepEqual(content.customSections, []);
   assert.equal(content.hero.titleLines.length, 4);
   assert.equal(content.method.steps.length, 3);
+});
+
+test("website content validation rejects unsafe destinations and broken layouts", function () {
+  var input = currentContent();
+  input.hero.primaryHref = "javascript:alert(1)";
+  input.layout.pop();
+
+  assert.throws(function () { publishing.validateSiteContent(input); }, function (error) {
+    assert.equal(error.code, "invalid_site_content");
+    assert.match(error.details.join(" "), /hero\.primaryHref/);
+    assert.match(error.details.join(" "), /layout/);
+    return true;
+  });
+});
+
+test("website content validation accepts safe custom sections", function () {
+  var input = currentContent();
+  input.customSections.push({
+    id: "custom-story",
+    type: "split",
+    theme: "paper",
+    eyebrow: "Our story",
+    title: "Built for steady progress.",
+    body: "A focused approach to sustainable movement practice.",
+    imageUrl: "assets/images/story.jpg",
+    imageAlt: "Movement coaching session",
+    buttonLabel: "See the program",
+    buttonHref: "#program"
+  });
+  input.layout.push({ id: "custom-story", kind: "custom", visible: true });
+
+  var content = publishing.validateSiteContent(input);
+  assert.equal(content.customSections[0].type, "split");
+  assert.equal(content.customSections[0].buttonHref, "#program");
 });
 
 test("website content validation rejects missing, oversized, and malformed fields", function () {
@@ -59,7 +96,7 @@ test("website publishing updates only the site content data file", async functio
   assert.equal(requests.length, 2);
   assert.match(requests[0].url, /assets\/data\/site-content\.json\?ref=main$/);
   assert.equal(requests[1].options.method, "PUT");
-  assert.equal(JSON.parse(requests[1].options.body).message, "Update website text from admin");
+  assert.equal(JSON.parse(requests[1].options.body).message, "Update website from admin");
   assert.equal(result.commitSha, "new-sha");
 });
 

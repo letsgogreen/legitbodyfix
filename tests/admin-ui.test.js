@@ -20,6 +20,13 @@ test("opening the admin page as a local file redirects to production", function 
   assert.match(html, /window\.location\.replace\(["']https:\/\/legitbodyfix\.vercel\.app\/admin\.html["']\)/);
 });
 
+test("local design preview is restricted to localhost", function () {
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+
+  assert.match(javascript, /\["127\.0\.0\.1", "localhost"\]/);
+  assert.match(javascript, /get\("design-preview"\) === "1"/);
+});
+
 test("admin offers protected Stream uploads and does not present R2 as the buyer-video path", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
@@ -32,53 +39,60 @@ test("admin offers protected Stream uploads and does not present R2 as the buyer
   assert.match(javascript, /uploadTusFile/);
 });
 
-test("admin offers an authenticated buyer-access grant control", function () {
+test("admin offers an authenticated customer-access grant control", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
 
   assert.match(html, /id="accessGrantForm"/);
-  assert.match(html, /Buyer access/);
+  assert.match(html, /Customer access/);
   assert.match(javascript, /api\/admin\/videos/);
   assert.match(javascript, /action: "grant-access"/);
 });
 
 test("admin presents the rebuilt control room workspaces", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin-interface.js"), "utf8");
 
   assert.match(html, /class="control-room"/);
   assert.match(html, /id="site-copy"/);
   assert.match(html, /id="buyer-access"/);
   assert.match(html, /id="video-library"/);
-  assert.match(html, /CONTROL<br \/>THE WORK/);
+  assert.match(html, /data-workspace-target="overview"/);
+  assert.match(html, /data-workspace-target="site-copy"/);
+  assert.match(html, /data-workspace-target="buyer-access"/);
+  assert.match(html, /data-workspace-target="video-library"/);
+  assert.match(html, /What would you like to do\?/);
+  assert.match(html, /id="videoSearch"/);
+  assert.match(javascript, /showWorkspace/);
+  assert.match(javascript, /filterVideos/);
 });
 
-test("admin offers a locked homepage text editor with draft preview and publishing", function () {
+test("admin offers one complete site editor with safe layout controls", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
 
   assert.match(html, /id="siteContentForm"/);
+  assert.match(html, /id="siteSectionType"/);
+  assert.match(html, /id="addSiteSection"/);
   assert.match(html, /id="previewSiteContent"/);
   assert.match(html, /id="publishSiteContent"/);
-  assert.match(javascript, /legitbodyfix\.siteContentDraft\.v1/);
+  assert.match(html, /assets\/js\/site-editor\.js/);
+  assert.match(html, /Section templates/);
+  assert.match(html, /Add to your homepage/);
+  assert.match(html, /href="checkout\.html" target="_blank"/);
+  assert.match(html, /data-add-site-section="hero"/);
+  assert.match(html, /data-add-site-section="split"/);
+  assert.match(html, /data-add-site-section="benefits"/);
+  assert.match(html, /data-add-site-section="testimonials"/);
+  assert.match(html, /data-add-site-section="faq"/);
+  assert.match(html, /data-add-site-section="cta"/);
+  assert.match(javascript, /legitbodyfix\.siteContentDraft\.v2/);
+  assert.match(javascript, /site-editor-footer/);
+  assert.match(javascript, /data-add-site-section/);
   assert.match(javascript, /action: "publish-site-content"/);
+  assert.match(javascript, /customSections/);
+  assert.match(javascript, /Move section down/);
   assert.doesNotMatch(javascript, /contenteditable/);
+  assert.doesNotMatch(javascript, /innerHTML/);
 });
 
-test("admin offers a controlled template-based page builder", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/page-builder.js"), "utf8");
-
-  assert.match(html, /id="page-builder"/);
-  assert.match(html, /id="pageSectionType"/);
-  assert.match(html, /Campaign hero/);
-  assert.match(html, /Text and image/);
-  assert.match(html, /Benefits grid/);
-  assert.match(html, /Testimonials/);
-  assert.match(html, /FAQ/);
-  assert.match(html, /Call to action/);
-  assert.match(html, /id="previewPageSections"/);
-  assert.match(html, /id="publishPageSections"/);
-  assert.match(javascript, /duplicate-section/);
-  assert.match(javascript, /publish-page-sections/);
-  assert.doesNotMatch(javascript, /contenteditable/);
-});
