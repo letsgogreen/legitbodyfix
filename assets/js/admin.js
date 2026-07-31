@@ -13,6 +13,7 @@
   var UPLOAD_URL = "/api/admin/uploads";
   var STREAM_UPLOAD_URL = "/api/admin/uploads?kind=stream";
   var STREAM_STATUS_URL = "/api/admin/uploads?kind=stream-status";
+  var STREAM_PLAYBACK_URL = "/api/admin/uploads?kind=stream-playback";
   var ACCESS_GRANT_URL = "/api/admin/videos";
   var authGate = document.getElementById("authGate");
   var authStatus = document.getElementById("authStatus");
@@ -268,6 +269,7 @@
       }
     });
     editor.querySelector(".editor-title").textContent = video.title || "Untitled video";
+    updateThumbnailPreview(editor, video);
     updateSummary();
     saveDraft();
   }
@@ -291,6 +293,121 @@
       message.textContent = "No protected Stream video has been uploaded yet.";
       delete message.dataset.state;
     }
+    updateStreamPreviewAvailability(editor, video);
+  }
+
+  function safeThumbnailUrl(value) {
+    try {
+      var url = new URL(String(value || ""), window.location.href);
+      return url.protocol === "https:" ? url.href : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function safeStreamPlayerUrl(value) {
+    try {
+      var url = new URL(String(value || ""));
+      return url.protocol === "https:" && /\.cloudflarestream\.com$/i.test(url.hostname) && /\/iframe\/?$/i.test(url.pathname)
+        ? url.href
+        : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function updateThumbnailPreview(editor, video) {
+    var image = editor.querySelector(".thumbnail-preview-image");
+    var empty = editor.querySelector(".thumbnail-preview-empty");
+    var url = safeThumbnailUrl(video.thumbnailUrl);
+    image.alt = (video.title || "Movement session") + " thumbnail";
+    if (!url) {
+      image.hidden = true;
+      image.removeAttribute("src");
+      empty.hidden = false;
+      return;
+    }
+    image.src = url;
+    image.hidden = false;
+    empty.hidden = true;
+  }
+
+  function closeStreamPreview(editor) {
+    var frame = editor.querySelector(".stream-preview-player");
+    var empty = editor.querySelector(".stream-preview-empty");
+    frame.hidden = true;
+    frame.removeAttribute("src");
+    empty.hidden = false;
+    editor.querySelector(".close-stream-preview").hidden = true;
+  }
+
+  function updateStreamPreviewAvailability(editor, video) {
+    var button = editor.querySelector(".preview-stream-video");
+    var message = editor.querySelector(".stream-preview-empty");
+    var statusMessage = editor.querySelector(".stream-preview-status");
+    var isReady = video.streamReady === true && Boolean(video.streamVideoId);
+    button.disabled = !isReady;
+    if (!video.streamVideoId) {
+      message.textContent = "Upload a protected video to preview it here.";
+      statusMessage.textContent = "The player opens only when requested.";
+    } else if (!video.streamReady) {
+      message.textContent = "Cloudflare is still preparing this video.";
+      statusMessage.textContent = "Click Check processing before trying to play it.";
+    } else {
+      message.textContent = "This protected video is ready to play.";
+      statusMessage.textContent = "Playback uses a short-lived, non-downloadable viewing link.";
+    }
+    if (editor.dataset.previewVideoId && editor.dataset.previewVideoId !== video.streamVideoId) {
+      delete editor.dataset.previewVideoId;
+      closeStreamPreview(editor);
+    }
+  }
+
+  function previewStreamVideo(editor, index) {
+    var video = videos[index];
+    var button = editor.querySelector(".preview-stream-video");
+    var frame = editor.querySelector(".stream-preview-player");
+    var empty = editor.querySelector(".stream-preview-empty");
+    var closeButton = editor.querySelector(".close-stream-preview");
+    var statusMessage = editor.querySelector(".stream-preview-status");
+    if (!video.streamReady || !video.streamVideoId) {
+      setStatus("Wait until Cloudflare Stream finishes processing this video.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Opening video...";
+    statusMessage.textContent = "Creating a secure admin preview...";
+    requestJson(STREAM_PLAYBACK_URL + "&streamVideoId=" + encodeURIComponent(video.streamVideoId), {
+      method: "GET",
+      credentials: "same-origin"
+    }).then(function (details) {
+      var playerUrl = safeStreamPlayerUrl(details.playerUrl);
+      if (!playerUrl) throw new Error("invalid_stream_player_url");
+      frame.title = (video.title || "Movement session") + " protected video preview";
+      frame.src = playerUrl;
+      frame.hidden = false;
+      empty.hidden = true;
+      closeButton.hidden = false;
+      editor.dataset.previewVideoId = video.streamVideoId;
+      statusMessage.textContent = "Secure preview ready. The viewing link expires automatically.";
+      setStatus("Protected video preview opened.", "success");
+    }).catch(function (error) {
+      if (error.status === 401) {
+        showLogin("Your session expired. Sign in again, then reopen the preview.", "error");
+      } else if (error.code === "stream_video_not_ready") {
+        video.streamReady = false;
+        updateStreamStatus(editor, video);
+        saveDraft();
+        setStatus("Cloudflare is still preparing this video. Check processing again shortly.", "error");
+      } else {
+        statusMessage.textContent = "The protected preview could not be opened.";
+        setStatus("Video preview is unavailable right now. Please try again.", "error");
+      }
+    }).finally(function () {
+      button.disabled = !(video.streamReady && video.streamVideoId);
+      button.textContent = "Play video";
+    });
   }
 
   function render() {
@@ -339,11 +456,25 @@
       editor.querySelector(".check-stream-status").addEventListener("click", function () {
         checkStreamStatus(editor, index);
       });
+      editor.querySelector(".preview-stream-video").addEventListener("click", function () {
+        previewStreamVideo(editor, index);
+      });
+      editor.querySelector(".close-stream-preview").addEventListener("click", function () {
+        delete editor.dataset.previewVideoId;
+        closeStreamPreview(editor);
+      });
       editor.querySelector(".upload-thumbnail").addEventListener("click", function () {
         uploadThumbnail(editor, index);
       });
+      editor.querySelector(".thumbnail-preview-image").addEventListener("error", function (event) {
+        event.currentTarget.hidden = true;
+        event.currentTarget.removeAttribute("src");
+        editor.querySelector(".thumbnail-preview-empty").textContent = "This thumbnail could not be loaded. Check its URL or upload another image.";
+        editor.querySelector(".thumbnail-preview-empty").hidden = false;
+      });
       editor.addEventListener("input", function () { readEditor(editor, index); });
       editor.addEventListener("change", function () { readEditor(editor, index); });
+      updateThumbnailPreview(editor, video);
       updateStreamStatus(editor, video);
       list.appendChild(editor);
     });

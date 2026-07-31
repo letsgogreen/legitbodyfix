@@ -270,6 +270,28 @@
         </div>
       </div>
 
+      <div class="admin-media-preview" aria-label="Session media preview">
+        <section class="media-preview-card">
+          <div class="media-preview-heading"><span>Thumbnail preview</span><small>Customer card image</small></div>
+          <div class="thumbnail-preview-frame">
+            <img class="thumbnail-preview-image" alt="" hidden />
+            <p class="thumbnail-preview-empty">Add a thumbnail URL or upload an image to preview it here.</p>
+          </div>
+        </section>
+        <section class="media-preview-card">
+          <div class="media-preview-heading"><span>Protected video preview</span><small>Admin-only playback</small></div>
+          <div class="stream-preview-frame">
+            <iframe class="stream-preview-player" title="Protected video preview" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin" allowfullscreen hidden></iframe>
+            <p class="stream-preview-empty">Upload a protected video to preview it here.</p>
+          </div>
+          <div class="media-preview-actions">
+            <button class="button button-dark preview-stream-video" type="button" disabled>Play video</button>
+            <button class="button close-stream-preview" type="button" hidden>Close preview</button>
+            <span class="field-hint stream-preview-status">The player opens only when requested.</span>
+          </div>
+        </section>
+      </div>
+
       <div class="form-grid">
         <label class="field field-wide"><span>Title</span><input name="title" type="text" required maxlength="80" /></label>
         <label class="field"><span>Level</span><select name="level"><option value="FOUNDATIONAL">Foundational</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></label>
@@ -296,7 +318,7 @@
 
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
-  <script src="assets/js/admin.js?v=20260731-3" defer></script>
+  <script src="assets/js/admin.js?v=20260801-2" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
 </body>
 </html>

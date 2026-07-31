@@ -39,6 +39,23 @@ test("admin offers protected Stream uploads and does not present R2 as the buyer
   assert.match(javascript, /uploadTusFile/);
 });
 
+test("admin previews thumbnails and protected videos without exposing raw playback URLs", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+
+  assert.match(html, /Thumbnail preview/);
+  assert.match(html, /class="thumbnail-preview-image"/);
+  assert.match(html, /Protected video preview/);
+  assert.match(html, /class="stream-preview-player"/);
+  assert.match(html, /class="button button-dark preview-stream-video"/);
+  assert.match(javascript, /kind=stream-playback/);
+  assert.match(javascript, /function safeStreamPlayerUrl/);
+  assert.match(javascript, /cloudflarestream/);
+  assert.match(javascript, /function previewStreamVideo/);
+  assert.doesNotMatch(javascript, /\.m3u8/);
+  assert.doesNotMatch(javascript, /\.mpd/);
+});
+
 test("admin offers an authenticated customer-access grant control", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
