@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260731-4" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260731-5" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to control room</a>
@@ -58,17 +58,47 @@
   <main id="main" class="control-room" data-active-workspace="overview" hidden>
     <aside class="side-rail" aria-label="Control Room navigation">
       <div class="rail-main">
-        <p class="rail-label">Workspace</p>
+        <section class="setup-card" aria-labelledby="setupTitle">
+          <div class="setup-card-heading"><span>Business setup</span><strong>Ready</strong></div>
+          <h2 id="setupTitle">Core systems connected</h2>
+          <div class="setup-progress" role="progressbar" aria-label="Core setup complete" aria-valuemin="0" aria-valuemax="4" aria-valuenow="4"><span></span></div>
+          <p>4 of 4 essentials ready</p>
+        </section>
+
         <nav class="workspace-nav" aria-label="Primary admin tools">
-          <a class="workspace-nav-item is-active" href="#overview" data-workspace-target="overview" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span><strong>Dashboard</strong><small>Overview and shortcuts</small></span></a>
-          <a class="workspace-nav-item" href="#site-copy" data-workspace-target="site-copy"><span class="nav-icon" aria-hidden="true">◇</span><span><strong>Website</strong><small>Copy, layout, and design</small></span></a>
-          <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access"><span class="nav-icon" aria-hidden="true">◎</span><span><strong>Customers</strong><small>Access and support</small></span></a>
-          <a class="workspace-nav-item" href="#video-library" data-workspace-target="video-library"><span class="nav-icon" aria-hidden="true">▶</span><span><strong>Videos</strong><small>Sessions and publishing</small></span></a>
+          <div class="nav-section">
+            <p class="rail-label">Home</p>
+            <a class="workspace-nav-item is-active" href="#overview" data-workspace-target="overview" aria-current="page"><span class="nav-icon" aria-hidden="true">01</span><span><strong>Overview</strong><small>Status and shortcuts</small></span></a>
+          </div>
+
+          <details class="nav-group" open>
+            <summary><span>Build &amp; sell</span><i aria-hidden="true"></i></summary>
+            <div class="nav-group-items">
+              <a class="workspace-nav-item" href="#site-copy" data-workspace-target="site-copy"><span class="nav-icon" aria-hidden="true">02</span><span><strong>Website</strong><small>Copy, layout, and design</small></span></a>
+              <a class="workspace-nav-item" href="#video-library" data-workspace-target="video-library"><span class="nav-icon" aria-hidden="true">03</span><span><strong>Programs &amp; videos</strong><small>Sessions and publishing</small></span><b class="nav-badge" id="sidebarVideoCount" aria-label="Video count">0</b></a>
+            </div>
+          </details>
+
+          <details class="nav-group" open>
+            <summary><span>Customers</span><i aria-hidden="true"></i></summary>
+            <div class="nav-group-items">
+              <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Customer access</strong><small>Access and support</small></span></a>
+            </div>
+          </details>
+
+          <details class="nav-group customer-views-group">
+            <summary><span>Customer views</span><i aria-hidden="true"></i></summary>
+            <div class="nav-group-items external-nav-items">
+              <a class="external-nav-item" href="index.html" target="_blank" rel="noopener"><span>Live website</span><b aria-hidden="true">↗</b></a>
+              <a class="external-nav-item" href="checkout.html" target="_blank" rel="noopener"><span>Checkout</span><b aria-hidden="true">↗</b></a>
+              <a class="external-nav-item" href="library.html" target="_blank" rel="noopener"><span>Buyer library</span><b aria-hidden="true">↗</b></a>
+            </div>
+          </details>
         </nav>
       </div>
       <div class="rail-footer">
-        <div class="rail-status"><i aria-hidden="true"></i><span><strong>Protected workflow</strong><small>Draft, preview, then publish</small></span></div>
-        <a href="index.html" target="_blank" rel="noopener">Open live website <span aria-hidden="true">↗</span></a>
+        <div class="rail-status"><i aria-hidden="true"></i><span><strong>Protected delivery active</strong><small>Payments, access, and streaming</small></span></div>
+        <div class="rail-safety"><span>Safe publishing</span><small>Draft locally. Preview first. Publish when ready.</small></div>
       </div>
     </aside>
 
@@ -183,7 +213,7 @@
     </article>
   </template>
 
-  <script src="assets/js/admin-interface.js?v=20260731-1" defer></script>
+  <script src="assets/js/admin-interface.js?v=20260731-2" defer></script>
   <script src="assets/js/site-editor.js?v=20260731-1" defer></script>
   <script src="assets/js/admin.js?v=20260731-3" defer></script>
 </body>

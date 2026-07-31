@@ -7,11 +7,13 @@
   var panels = Array.prototype.slice.call(document.querySelectorAll("[data-workspace-panel]"));
   var navigation = Array.prototype.slice.call(document.querySelectorAll("[data-workspace-target]"));
   var currentName = document.getElementById("currentWorkspaceName");
+  var sidebarVideoCount = document.getElementById("sidebarVideoCount");
+  var dashboardVideoCount = document.getElementById("videoCount");
   var labels = {
-    overview: "Dashboard",
+    overview: "Overview",
     "site-copy": "Website",
-    "buyer-access": "Customers",
-    "video-library": "Videos"
+    "buyer-access": "Customer access",
+    "video-library": "Programs & videos"
   };
   var scrollPositions = {};
   var activeWorkspace = "overview";
@@ -103,6 +105,14 @@
       }
     });
     new MutationObserver(filterVideos).observe(editorList, { childList: true, subtree: true, characterData: true });
+  }
+
+  if (sidebarVideoCount && dashboardVideoCount) {
+    function syncSidebarVideoCount() {
+      sidebarVideoCount.textContent = dashboardVideoCount.textContent || "0";
+    }
+    syncSidebarVideoCount();
+    new MutationObserver(syncSidebarVideoCount).observe(dashboardVideoCount, { childList: true, characterData: true, subtree: true });
   }
 
   showWorkspace(workspaceFromHash(window.location.hash), { updateHash: false, instant: true });

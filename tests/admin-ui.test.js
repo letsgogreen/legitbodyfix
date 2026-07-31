@@ -67,6 +67,24 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(javascript, /filterVideos/);
 });
 
+test("admin navigation groups every visible item around a working destination", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin-interface.js"), "utf8");
+
+  assert.match(html, /Business setup/);
+  assert.match(html, /Core systems connected/);
+  assert.match(html, /Build &amp; sell/);
+  assert.match(html, /Programs &amp; videos/);
+  assert.match(html, /Customer views/);
+  assert.match(html, /href="index\.html" target="_blank"/);
+  assert.match(html, /href="checkout\.html" target="_blank"/);
+  assert.match(html, /href="library\.html" target="_blank"/);
+  assert.match(html, /id="sidebarVideoCount"/);
+  assert.match(javascript, /syncSidebarVideoCount/);
+  assert.doesNotMatch(html, />Analytics</);
+  assert.doesNotMatch(html, />Marketing</);
+});
+
 test("admin offers one complete site editor with safe layout controls", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
