@@ -40,11 +40,11 @@ function applyProduct(product) {
   var isBundle = product.id === BUNDLE_ID;
   var sessionTitle = product.title.replace(/\s*—\s*Single Session$/, "");
   labelElement.textContent = isBundle ? "NECK & SHOULDER RESET" : sessionTitle.toUpperCase();
-  nameElement.textContent = isBundle ? "4-Week Movement Program" : "Single Session — Lifetime Access";
+  nameElement.textContent = isBundle ? "Full Body Restoration Package" : "Single Session — Lifetime Access";
   priceElement.innerHTML = formatPrice(product) + "<span> " + product.currency + " / one-time</span>";
   if (introElement) {
     introElement.textContent = isBundle
-      ? "Get lifetime access to the Neck & Shoulder Reset movement program. There is no subscription and no recurring charge."
+      ? "Get lifetime access to the Full Body Restoration Package. There is no subscription and no recurring charge."
       : "Get lifetime access to \u201c" + sessionTitle + "\u201d. There is no subscription and no recurring charge.";
   }
 }
