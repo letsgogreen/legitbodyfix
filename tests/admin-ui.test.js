@@ -85,6 +85,25 @@ test("admin navigation groups every visible item around a working destination", 
   assert.doesNotMatch(html, />Marketing</);
 });
 
+test("admin navigation supports fast switching and a collapsible workspace rail", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin-interface.js"), "utf8");
+
+  assert.match(html, /id="commandPalette"/);
+  assert.match(html, /id="commandSearch"/);
+  assert.match(html, /data-command-workspace="site-copy"/);
+  assert.match(html, /id="railCollapseButton"/);
+  assert.match(html, /data-focus-target="siteSectionType"/);
+  assert.match(html, /data-focus-target="addVideo"/);
+  assert.match(html, /data-focus-target="accessGrantEmail"/);
+  assert.match(css, /data-rail-collapsed="true"/);
+  assert.match(javascript, /legitbodyfix\.adminRailCollapsed\.v1/);
+  assert.match(javascript, /openCommandPalette/);
+  assert.match(javascript, /event\.key\.toLowerCase\(\) === "k"/);
+  assert.match(javascript, /event\.key === "\/"/);
+});
+
 test("admin offers one complete site editor with safe layout controls", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
