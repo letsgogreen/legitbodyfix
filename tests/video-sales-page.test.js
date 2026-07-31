@@ -22,6 +22,7 @@ test("every video has editable persuasive landing-page content", function () {
 test("sales page links to checkout without exposing protected playback data", function () {
   var page = fs.readFileSync(path.join(root, "video.html"), "utf8");
   var script = fs.readFileSync(path.join(root, "assets/js/video-sales.js"), "utf8");
+  var styles = fs.readFileSync(path.join(root, "assets/css/video-sales.css"), "utf8");
 
   assert.match(page, /class="button button-lime checkout-link"/);
   assert.match(page, /Protected full session/);
@@ -29,6 +30,7 @@ test("sales page links to checkout without exposing protected playback data", fu
   assert.doesNotMatch(script, /streamVideoId/);
   assert.doesNotMatch(script, /videoUrl/);
   assert.doesNotMatch(script, /innerHTML/);
+  assert.doesNotMatch(styles, /var\(--[a-z-]+}/, "CSS custom properties must close with a parenthesis");
 });
 
 test("admin can preserve and edit landing-page fields", function () {
