@@ -56,6 +56,22 @@ test("admin previews thumbnails and protected videos without exposing raw playba
   assert.doesNotMatch(javascript, /\.mpd/);
 });
 
+test("admin reconciles stale browser drafts with repository-saved Stream media", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var draftTools = require("../assets/js/admin-video-draft.js");
+  var repositoryVideos = [{ id: "neck", streamVideoId: "saved-stream-id", streamReady: true, title: "Saved title" }];
+  var draftVideos = [{ id: "neck", streamVideoId: "", streamReady: false, title: "Draft title" }];
+
+  var result = draftTools.reconcile(repositoryVideos, draftVideos);
+
+  assert.match(html, /assets\/js\/admin-video-draft\.js\?v=\d+/);
+  assert.equal(result.recovered, 1);
+  assert.equal(result.videos[0].streamVideoId, "saved-stream-id");
+  assert.equal(result.videos[0].streamReady, true);
+  assert.equal(result.videos[0].title, "Draft title");
+  assert.equal(draftVideos[0].streamVideoId, "");
+});
+
 test("admin offers an authenticated customer-access grant control", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
