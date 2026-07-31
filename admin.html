@@ -39,19 +39,27 @@
       <p class="eyebrow">Private administrator access</p>
       <h1 id="authTitle">Sign in to Control Room</h1>
       <p class="lede">Manage your website, customers, sales, and protected video library.</p>
-      <form class="auth-form" id="loginForm">
+      <form class="auth-form" id="emailVerificationForm">
         <label class="field">
           <span>Administrator email</span>
           <input id="adminEmail" name="email" type="email" autocomplete="username" inputmode="email" required />
         </label>
+        <button class="button button-dark" id="emailVerificationButton" type="submit">Send verification link <span aria-hidden="true">&rarr;</span></button>
+      </form>
+      <div class="verified-admin" id="verifiedAdmin" hidden>
+        <span class="verified-admin-mark" aria-hidden="true">&#10003;</span>
+        <span><small>Email verified</small><strong id="verifiedAdminEmail"></strong></span>
+        <button class="text-button" id="changeAdminEmail" type="button">Use another</button>
+      </div>
+      <form class="auth-form auth-password-form" id="loginForm" hidden>
         <label class="field">
-          <span>Password</span>
+          <span>Administrator password</span>
           <input id="adminPassword" name="password" type="password" autocomplete="current-password" required />
         </label>
-        <button class="button button-dark" id="loginButton" type="submit">Sign in <span aria-hidden="true">→</span></button>
+        <button class="button button-dark" id="loginButton" type="submit">Enter Control Room <span aria-hidden="true">&rarr;</span></button>
       </form>
       <p class="auth-status" id="authStatus" role="status" aria-live="polite">Checking your session…</p>
-      <p class="auth-privacy"><strong>Owner only.</strong> There is no public registration and both credentials are checked by the server.</p>
+      <p class="auth-privacy"><strong>Owner only.</strong> First verify the approved inbox, then enter the administrator password. There is no public registration.</p>
     </section>
   </div>
 
@@ -318,7 +326,7 @@
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260801-1" defer></script>
-  <script src="assets/js/admin.js?v=20260801-4" defer></script>
+  <script src="assets/js/admin.js?v=20260801-5" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
 </body>
 </html>

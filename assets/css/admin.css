@@ -80,6 +80,13 @@ kbd { min-width: 23px; display: inline-grid; place-items: center; padding: 3px 5
 .lede { max-width: 720px; margin: 18px 0 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
 .auth-form { display: grid; gap: 16px; margin-top: 30px; padding-top: 28px; border-top: 1px solid var(--line); }
 .auth-form .button { min-height: 52px; }
+.auth-password-form { margin-top: 18px; padding-top: 0; border-top: 0; }
+.verified-admin { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin-top: 28px; padding: 14px; border: 1px solid var(--line); background: var(--surface-soft); }
+.verified-admin-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--success); color: #fff; font-weight: 800; }
+.verified-admin span:nth-child(2) { min-width: 0; display: grid; gap: 3px; }
+.verified-admin small { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.verified-admin strong { overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+.verified-admin .text-button { color: var(--muted); font-size: 10px; }
 .auth-status { min-height: 22px; margin: 15px 0 0; color: var(--muted); font-size: 12px; }
 .auth-status[data-state="error"] { color: #7b281f; }
 .auth-privacy { margin: 18px 0 0; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.6; }
