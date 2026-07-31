@@ -59,6 +59,11 @@ a { color: inherit; }
 .side-rail nav a:first-child { border-top: 1px solid var(--line); }
 .side-rail nav a:hover { padding-left: 5px; color: var(--teal); }
 .side-rail nav span { color: var(--muted); font: 500 10px var(--mono); }
+.rail-group-label { margin: 28px 0 8px; color: var(--muted); font: 500 9px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
+.side-rail .rail-subnav a { justify-content: space-between; padding: 9px 0 9px 12px; border-color: color-mix(in srgb, var(--line) 70%, transparent); color: var(--muted); font-size: 11px; font-weight: 600; }
+.side-rail .rail-subnav a:first-child { border-top: 0; }
+.side-rail .rail-subnav a:hover { color: var(--ink); }
+.side-rail .rail-live-pages a span { margin-left: auto; }
 .rail-note { padding: 18px; border: 1px solid var(--ink); background: var(--acid); }
 .rail-note strong { font-size: 12px; }
 .rail-note p { margin: 6px 0 0; color: #444b17; font-size: 11px; line-height: 1.5; }
@@ -124,6 +129,9 @@ a { color: inherit; }
 .site-editor-settings { border-width: 2px; }
 .site-editor-settings > .content-field-grid { border-top: 1px solid var(--ink); }
 .site-editor-custom { border-left: 7px solid var(--acid); }
+.site-editor-card, .site-editor-divider { scroll-margin-top: 98px; }
+.site-editor-divider { display: flex; align-items: center; gap: 12px; padding: 34px 0 4px; }
+.site-editor-divider strong { font-size: 18px; letter-spacing: -.035em; }
 .site-editor-item { margin: 4px 0; border: 1px solid var(--line); background: var(--paper-2); }
 .site-editor-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 15px; border-bottom: 1px solid var(--line); }
 .site-editor-item-heading strong { font-size: 12px; }
@@ -161,7 +169,7 @@ a { color: inherit; }
   .side-rail { min-height: auto; position: static; display: block; padding: 18px 24px; border-right: 0; border-bottom: 1px solid var(--line); }
   .side-rail nav { display: flex; gap: 22px; overflow-x: auto; }
   .side-rail nav a, .side-rail nav a:first-child { flex: 0 0 auto; border: 0; padding: 8px 0; }
-  .rail-label, .rail-note { display: none; }
+  .rail-label, .rail-note, .rail-group-label, .rail-subnav { display: none !important; }
   .dashboard-hero { min-height: 500px; }
 }
 

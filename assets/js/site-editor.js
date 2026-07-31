@@ -237,6 +237,7 @@
 
   function renderSettings() {
     var card = document.createElement("article"); card.className = "site-editor-card site-editor-settings";
+    card.id = "site-editor-design";
     var header = document.createElement("header"); header.className = "site-editor-card-header";
     var copy = document.createElement("div"); var chip = document.createElement("span"); chip.className = "module-chip"; chip.textContent = "GLOBAL";
     var title = document.createElement("h3"); title.textContent = "Design and navigation";
@@ -271,6 +272,7 @@
 
   function renderFooter() {
     var card = document.createElement("article"); card.className = "site-editor-card";
+    card.id = "site-editor-footer";
     var header = document.createElement("header"); header.className = "site-editor-card-header";
     var copy = document.createElement("div"); var chip = document.createElement("span"); chip.className = "module-chip"; chip.textContent = "FOOTER";
     var title = document.createElement("h3"); title.textContent = "Footer"; var note = document.createElement("p"); note.textContent = "Closing brand and legal copy shown on every homepage visit.";
@@ -282,6 +284,13 @@
   function render() {
     form.replaceChildren();
     renderSettings();
+    var sectionMarker = document.createElement("div");
+    sectionMarker.className = "site-editor-divider";
+    sectionMarker.id = "site-editor-sections";
+    var sectionLabel = document.createElement("span"); sectionLabel.className = "module-chip"; sectionLabel.textContent = "PAGE FLOW";
+    var sectionTitle = document.createElement("strong"); sectionTitle.textContent = "Homepage sections";
+    sectionMarker.append(sectionLabel, sectionTitle);
+    form.appendChild(sectionMarker);
     content.layout.forEach(function (entry, index) {
       if (entry.kind === "core" && CORE_DEFINITIONS[entry.id]) renderCore(entry, index);
       else if (entry.kind === "custom") renderCustom(entry, index);
