@@ -148,10 +148,6 @@
           <textarea name="description" rows="3" maxlength="240"></textarea>
         </label>
         <label class="field field-wide">
-          <span>Video URL</span>
-          <input name="videoUrl" type="url" placeholder="https://…">
-        </label>
-        <label class="field field-wide">
           <span>Protected Stream video</span>
           <span class="upload-row">
             <input class="stream-video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a protected video file">
@@ -161,14 +157,7 @@
           <span class="field-hint stream-status">No protected Stream video has been uploaded yet.</span>
           <span class="field-hint">Videos are uploaded privately. Files over 200 MB use a resumable upload so a brief connection loss does not restart the whole file.</span>
         </label>
-        <label class="field field-wide">
-          <span>Legacy public video file</span>
-          <span class="upload-row">
-            <input class="video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a video file">
-            <button class="button button-secondary upload-video" type="button">Upload to R2</button>
-          </span>
-          <span class="field-hint">Only use this for temporary public previews. For buyer videos, use Protected Stream video above.</span>
-        </label>
+
         <label class="field field-wide">
           <span>Thumbnail URL</span>
           <input name="thumbnailUrl" type="url" placeholder="https://…">
