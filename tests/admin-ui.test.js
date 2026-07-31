@@ -41,3 +41,15 @@ test("admin offers an authenticated buyer-access grant control", function () {
   assert.match(javascript, /api\/admin\/videos/);
   assert.match(javascript, /action: "grant-access"/);
 });
+
+test("admin offers a locked homepage text editor with draft preview and publishing", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+
+  assert.match(html, /id="siteContentForm"/);
+  assert.match(html, /id="previewSiteContent"/);
+  assert.match(html, /id="publishSiteContent"/);
+  assert.match(javascript, /legitbodyfix\.siteContentDraft\.v1/);
+  assert.match(javascript, /action: "publish-site-content"/);
+  assert.doesNotMatch(javascript, /contenteditable/);
+});

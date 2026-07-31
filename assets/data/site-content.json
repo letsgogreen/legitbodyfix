@@ -1,0 +1,49 @@
+{
+  "hero": {
+    "kicker": "Corrective movement. No fluff.",
+    "titleLines": ["MOVE", "BETTER.", "HURT", "LESS."],
+    "description": "Follow clear corrective exercise sessions that help you understand your body, rebuild weak links, and move with confidence again.",
+    "primaryButton": "Start your reset",
+    "secondaryButton": "See the library",
+    "proofPoints": ["Built for real bodies", "Go at your own pace", "One-time purchase"]
+  },
+  "method": {
+    "label": "The LegitBodyFix method",
+    "titleLines": ["STOP GUESSING.", "START REBUILDING."],
+    "intro": "Random stretches are not a plan. Each session gives you a reason, a sequence, and a progression — so you know what to do and why it works.",
+    "steps": [
+      { "title": "Assess", "description": "Find the restriction or weak link driving the pattern." },
+      { "title": "Restore", "description": "Use focused mobility and control to reclaim range." },
+      { "title": "Rebuild", "description": "Load the new pattern so better movement actually sticks." }
+    ]
+  },
+  "library": {
+    "label": "Inside the library",
+    "titleLines": ["SHORT SESSIONS.", "SERIOUS INTENT."],
+    "intro": "Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.",
+    "linkLabel": "Choose a program"
+  },
+  "standard": {
+    "quote": "The goal is not to chase perfect posture. It is to build a body that has options.",
+    "attribution": "— THE LEGITBODYFIX STANDARD"
+  },
+  "pricing": {
+    "label": "Complete corrective movement package",
+    "titleLines": ["YOUR BODY IS", "WORTH THE WORK."],
+    "benefits": [
+      "Full-body guided video package",
+      "Clear exercise sequence and progression",
+      "Replay every session at your own pace",
+      "Lifetime access after purchase"
+    ],
+    "programName": "Full Body Restoration Package",
+    "displayPrice": "$170",
+    "priceSuffix": "one-time",
+    "description": "Get lifetime access to the complete corrective movement package. No subscription and no recurring charge.",
+    "buttonLabel": "Choose program"
+  },
+  "footer": {
+    "tagline": "Move with more options.",
+    "legal": "Educational movement content, not medical diagnosis or treatment."
+  }
+}
