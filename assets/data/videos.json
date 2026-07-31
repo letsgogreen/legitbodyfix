@@ -94,5 +94,21 @@
     "thumbnailUrl": "",
     "published": true,
     "price": 8
+  },
+  {
+    "id": "ankle-sprain-rehabilitation",
+    "programId": "neck-shoulder-reset",
+    "level": "FOUNDATIONAL",
+    "moduleNumber": 7,
+    "title": "Ankle Sprain Rehabilitation",
+    "description": "A progressive rehabilitation session to restore ankle mobility, stability, strength, and confidence after a sprain.",
+    "durationMinutes": 20,
+    "equipment": "Bodyweight",
+    "streamVideoId": "",
+    "streamReady": false,
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "published": false,
+    "price": 20
   }
 ]
