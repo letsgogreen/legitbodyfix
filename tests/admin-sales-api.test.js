@@ -3,7 +3,7 @@
 var test = require("node:test");
 var assert = require("node:assert/strict");
 var auth = require("../lib/admin-auth");
-var handler = require("../api/admin/sales");
+var handler = require("../api/admin/videos");
 
 function createResponse() {
   return {
@@ -42,7 +42,7 @@ test("sales ledger requires admin authentication", async function () {
   try {
     setEnvironment();
     var response = createResponse();
-    await handler({ method: "GET", headers: {} }, response);
+    await handler({ method: "GET", query: { action: "sales" }, headers: {} }, response);
     assert.equal(response.statusCode, 401);
   } finally { restore(); }
 });
@@ -53,7 +53,7 @@ test("refunds are blocked on preview deployments", async function () {
     setEnvironment();
     process.env.VERCEL_ENV = "preview";
     var response = createResponse();
-    await handler({ method: "POST", headers: { cookie: cookie() }, body: { action: "refund", paymentId: "payment-1", confirmation: "REFUND" } }, response);
+    await handler({ method: "POST", query: { action: "sales" }, headers: { cookie: cookie() }, body: { action: "refund", paymentId: "payment-1", confirmation: "REFUND" } }, response);
     assert.equal(response.statusCode, 409);
     assert.deepEqual(response.body, { error: "refunds_disabled_in_preview" });
   } finally { restore(); }
@@ -76,7 +76,7 @@ test("refunds use the server-owned capture and revoke access", async function ()
     };
 
     var response = createResponse();
-    await handler({ method: "POST", headers: { cookie: cookie() }, body: { action: "refund", paymentId: "payment-1", confirmation: "REFUND" } }, response);
+    await handler({ method: "POST", query: { action: "sales" }, headers: { cookie: cookie() }, body: { action: "refund", paymentId: "payment-1", confirmation: "REFUND" } }, response);
     assert.equal(response.statusCode, 200);
     assert.equal(response.body.refunded, true);
     assert.equal(calls.some(function (call) { return call.url.endsWith("/v2/payments/captures/3GG79435FJ124315M/refund"); }), true);

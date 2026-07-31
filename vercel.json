@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/admin/sales",
+      "destination": "/api/admin/videos?action=sales"
+    }
+  ],
   "headers": [
     {
       "source": "/admin.html",
