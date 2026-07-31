@@ -19,6 +19,7 @@
   var labels = {
     overview: "Overview",
     "site-copy": "Website",
+    sales: "Sales",
     "buyer-access": "Customer access",
     "video-library": "Programs & videos"
   };

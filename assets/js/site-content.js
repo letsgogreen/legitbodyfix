@@ -156,6 +156,13 @@
     applyLayout(content);
   }
 
+  window.addEventListener("message", function (event) {
+    if (event.origin !== window.location.origin) return;
+    if (new URLSearchParams(window.location.search).get("site-preview") !== "1") return;
+    if (!event.data || event.data.type !== "legitbodyfix:site-preview" || !event.data.content) return;
+    applyContent(event.data.content);
+  });
+
   function previewContent() {
     if (new URLSearchParams(window.location.search).get("site-preview") !== "1") return null;
     try { return JSON.parse(localStorage.getItem(PREVIEW_KEY) || "null"); }

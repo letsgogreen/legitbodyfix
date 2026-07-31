@@ -13,11 +13,20 @@
   var UPLOAD_URL = "/api/admin/uploads";
   var STREAM_UPLOAD_URL = "/api/admin/uploads?kind=stream";
   var STREAM_STATUS_URL = "/api/admin/uploads?kind=stream-status";
+  var STREAM_PLAYBACK_URL = "/api/admin/uploads?kind=stream-playback";
   var ACCESS_GRANT_URL = "/api/admin/videos";
+  var ACCESS_CONFIG_URL = "/api/access/config";
+  var SUPABASE_SDK_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
   var authGate = document.getElementById("authGate");
   var authStatus = document.getElementById("authStatus");
+  var emailVerificationForm = document.getElementById("emailVerificationForm");
+  var emailVerificationButton = document.getElementById("emailVerificationButton");
+  var verifiedAdmin = document.getElementById("verifiedAdmin");
+  var verifiedAdminEmail = document.getElementById("verifiedAdminEmail");
+  var changeAdminEmail = document.getElementById("changeAdminEmail");
   var loginForm = document.getElementById("loginForm");
   var loginButton = document.getElementById("loginButton");
+  var emailInput = document.getElementById("adminEmail");
   var passwordInput = document.getElementById("adminPassword");
   var logoutButton = document.getElementById("logoutButton");
   var adminShell = document.getElementById("main");
@@ -39,6 +48,9 @@
   var siteContent = null;
   var editorStarted = false;
   var activeUploads = 0;
+  var supabaseClient = null;
+  var supabaseInitialization = null;
+  var verifiedSession = null;
 
   var SITE_FIELDS = [
     { title: "Hero", fields: [
@@ -77,15 +89,81 @@
     else delete authStatus.dataset.state;
   }
 
+  function renderAuthenticationStep() {
+    var verified = Boolean(verifiedSession && verifiedSession.access_token && verifiedSession.user);
+    emailVerificationForm.hidden = verified;
+    verifiedAdmin.hidden = !verified;
+    loginForm.hidden = !verified;
+    verifiedAdminEmail.textContent = verified ? (verifiedSession.user.email || "Verified administrator") : "";
+  }
+
+  function initializeEmailVerification() {
+    if (supabaseInitialization) return supabaseInitialization;
+
+    supabaseInitialization = Promise.all([
+      requestJson(ACCESS_CONFIG_URL, { cache: "no-store" }),
+      import(SUPABASE_SDK_URL)
+    ]).then(function (results) {
+      var config = results[0];
+      var createClient = results[1].createClient;
+      supabaseClient = createClient(config.url, config.publishableKey, {
+        auth: { persistSession: true, detectSessionInUrl: true, autoRefreshToken: true }
+      });
+      return supabaseClient.auth.getSession();
+    }).then(function (result) {
+      if (result.error) throw result.error;
+      verifiedSession = result.data.session || null;
+      renderAuthenticationStep();
+      return verifiedSession;
+    }).catch(function (error) {
+      supabaseInitialization = null;
+      throw error;
+    });
+
+    return supabaseInitialization;
+  }
+
+  function getVerifiedAdminSession() {
+    return initializeEmailVerification().then(function () {
+      return supabaseClient.auth.getSession();
+    }).then(function (result) {
+      if (result.error || !result.data.session || !result.data.session.access_token) {
+        var error = result.error || new Error("Email verification required");
+        error.status = 401;
+        throw error;
+      }
+      verifiedSession = result.data.session;
+      renderAuthenticationStep();
+      return verifiedSession;
+    });
+  }
+
+  function signOutVerifiedEmail() {
+    return initializeEmailVerification().then(function () {
+      return supabaseClient.auth.signOut({ scope: "local" });
+    }).catch(function () {
+      return null;
+    }).then(function () {
+      verifiedSession = null;
+      renderAuthenticationStep();
+    });
+  }
+
   function showLogin(message, state) {
+    document.body.classList.add("auth-visible");
     authGate.hidden = false;
     adminShell.hidden = true;
     logoutButton.hidden = true;
-    setAuthStatus(message || "Enter the administrator password.", state);
-    if (message) passwordInput.focus();
+    renderAuthenticationStep();
+    setAuthStatus(message || (verifiedSession
+      ? "Email verified. Enter your administrator password."
+      : "Verify the approved administrator email to continue."), state);
+    if (verifiedSession) passwordInput.focus();
+    else emailInput.focus();
   }
 
   function showEditor() {
+    document.body.classList.remove("auth-visible");
     authGate.hidden = true;
     adminShell.hidden = false;
     logoutButton.hidden = false;
@@ -95,6 +173,7 @@
       if (window.LegitSiteEditor) window.LegitSiteEditor.start();
       else loadSiteContent();
     }
+    window.dispatchEvent(new CustomEvent("legitbodyfix:admin-authenticated"));
   }
 
   function readPath(source, path) {
@@ -224,6 +303,14 @@
       moduleNumber: index + 1,
       title: typeof video.title === "string" ? video.title : "Untitled video",
       description: typeof video.description === "string" ? video.description : "",
+      landingEyebrow: typeof video.landingEyebrow === "string" ? video.landingEyebrow : "",
+      landingHeadline: typeof video.landingHeadline === "string" ? video.landingHeadline : "",
+      landingSummary: typeof video.landingSummary === "string" ? video.landingSummary : "",
+      landingBenefit1: typeof video.landingBenefit1 === "string" ? video.landingBenefit1 : "",
+      landingBenefit2: typeof video.landingBenefit2 === "string" ? video.landingBenefit2 : "",
+      landingBenefit3: typeof video.landingBenefit3 === "string" ? video.landingBenefit3 : "",
+      landingAudience: typeof video.landingAudience === "string" ? video.landingAudience : "",
+      landingReassurance: typeof video.landingReassurance === "string" ? video.landingReassurance : "",
       durationMinutes: Number.isFinite(Number(video.durationMinutes)) ? Number(video.durationMinutes) : 1,
       equipment: typeof video.equipment === "string" ? video.equipment : "Bodyweight",
       price: Number.isFinite(Number(video.price)) && video.price !== "" && video.price !== null && video.price !== undefined
@@ -267,6 +354,8 @@
       }
     });
     editor.querySelector(".editor-title").textContent = video.title || "Untitled video";
+    updateThumbnailPreview(editor, video);
+    updateSalesPagePreview(editor, video);
     updateSummary();
     saveDraft();
   }
@@ -290,6 +379,188 @@
       message.textContent = "No protected Stream video has been uploaded yet.";
       delete message.dataset.state;
     }
+    updateStreamPreviewAvailability(editor, video);
+  }
+
+  function safeThumbnailUrl(value) {
+    try {
+      var url = new URL(String(value || ""), window.location.href);
+      return url.protocol === "https:" ? url.href : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function safeStreamPlayerUrl(value) {
+    try {
+      var url = new URL(String(value || ""));
+      return url.protocol === "https:" && /\.cloudflarestream\.com$/i.test(url.hostname) && /\/iframe\/?$/i.test(url.pathname)
+        ? url.href
+        : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function updateThumbnailPreview(editor, video) {
+    var image = editor.querySelector(".thumbnail-preview-image");
+    var empty = editor.querySelector(".thumbnail-preview-empty");
+    var url = safeThumbnailUrl(video.thumbnailUrl);
+    image.alt = (video.title || "Movement session") + " thumbnail";
+    if (!url) {
+      image.hidden = true;
+      image.removeAttribute("src");
+      empty.hidden = false;
+      return;
+    }
+    image.src = url;
+    image.hidden = false;
+    empty.hidden = true;
+  }
+
+  function salesPageHref(video) {
+    return "video.html?id=" + encodeURIComponent(String(video.id || ""));
+  }
+
+  function updateSalesPagePreview(editor, video) {
+    var preview = editor.querySelector(".sales-page-preview-card");
+    if (!preview) return;
+
+    var thumbnail = safeThumbnailUrl(video.thumbnailUrl);
+    var image = preview.querySelector(".sales-preview-image");
+    var imageEmpty = preview.querySelector(".sales-preview-image-empty");
+    image.alt = (video.title || "Movement session") + " sales page thumbnail";
+    if (thumbnail) {
+      image.src = thumbnail;
+      image.hidden = false;
+      imageEmpty.hidden = true;
+    } else {
+      image.hidden = true;
+      image.removeAttribute("src");
+      imageEmpty.hidden = false;
+    }
+
+    preview.querySelector(".sales-preview-eyebrow").textContent = video.landingEyebrow || "Movement session";
+    preview.querySelector(".sales-preview-headline").textContent = video.landingHeadline || video.title || "Untitled session";
+    preview.querySelector(".sales-preview-summary").textContent = video.landingSummary || video.description || "Add a short summary that explains the outcome of this session.";
+
+    var benefits = [video.landingBenefit1, video.landingBenefit2, video.landingBenefit3].filter(Boolean);
+    var list = preview.querySelector(".sales-preview-benefits");
+    list.replaceChildren();
+    benefits.forEach(function (benefit) {
+      var item = document.createElement("li");
+      item.textContent = benefit;
+      list.appendChild(item);
+    });
+    list.hidden = benefits.length === 0;
+
+    preview.querySelector(".sales-preview-price").textContent = video.price == null
+      ? "Included in package"
+      : "$" + Number(video.price).toFixed(2) + " USD";
+    editor.querySelector(".preview-sales-page").href = salesPageHref(video);
+  }
+
+  function showEditorPanel(editor, panelName) {
+    editor.querySelectorAll("[data-editor-tab]").forEach(function (button) {
+      var isActive = button.dataset.editorTab === panelName;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    editor.querySelectorAll("[data-editor-panel]").forEach(function (panel) {
+      panel.hidden = panel.dataset.editorPanel !== panelName;
+    });
+  }
+
+  function closeStreamPreview(editor) {
+    var frame = editor.querySelector(".stream-preview-player");
+    var empty = editor.querySelector(".stream-preview-empty");
+    frame.hidden = true;
+    frame.removeAttribute("src");
+    empty.hidden = false;
+    editor.querySelector(".close-stream-preview").hidden = true;
+  }
+
+  function updateStreamPreviewAvailability(editor, video) {
+    var button = editor.querySelector(".preview-stream-video");
+    var message = editor.querySelector(".stream-preview-empty");
+    var statusMessage = editor.querySelector(".stream-preview-status");
+    var card = editor.querySelector(".stream-media-card");
+    var badge = editor.querySelector(".stream-media-badge");
+    var isReady = video.streamReady === true && Boolean(video.streamVideoId);
+    button.disabled = !isReady;
+    if (!video.streamVideoId) {
+      card.dataset.streamState = "empty";
+      badge.dataset.state = "empty";
+      badge.textContent = "Not uploaded";
+      button.textContent = "No video uploaded";
+      message.textContent = "Upload a protected video to preview it here.";
+      statusMessage.textContent = "The player opens only when requested.";
+    } else if (!video.streamReady) {
+      card.dataset.streamState = "processing";
+      badge.dataset.state = "processing";
+      badge.textContent = "Processing";
+      button.textContent = "Video processing";
+      message.textContent = "Cloudflare is still preparing this video.";
+      statusMessage.textContent = "Click Check processing before trying to play it.";
+    } else {
+      card.dataset.streamState = "ready";
+      badge.dataset.state = "ready";
+      badge.textContent = "Uploaded · Ready";
+      button.textContent = "Play uploaded video";
+      message.textContent = "Video uploaded successfully. It is ready to play.";
+      statusMessage.textContent = "Playback uses a short-lived, non-downloadable viewing link.";
+    }
+    if (editor.dataset.previewVideoId && editor.dataset.previewVideoId !== video.streamVideoId) {
+      delete editor.dataset.previewVideoId;
+      closeStreamPreview(editor);
+    }
+  }
+
+  function previewStreamVideo(editor, index) {
+    var video = videos[index];
+    var button = editor.querySelector(".preview-stream-video");
+    var frame = editor.querySelector(".stream-preview-player");
+    var empty = editor.querySelector(".stream-preview-empty");
+    var closeButton = editor.querySelector(".close-stream-preview");
+    var statusMessage = editor.querySelector(".stream-preview-status");
+    if (!video.streamReady || !video.streamVideoId) {
+      setStatus("Wait until Cloudflare Stream finishes processing this video.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Opening video...";
+    statusMessage.textContent = "Creating a secure admin preview...";
+    requestJson(STREAM_PLAYBACK_URL + "&streamVideoId=" + encodeURIComponent(video.streamVideoId), {
+      method: "GET",
+      credentials: "same-origin"
+    }).then(function (details) {
+      var playerUrl = safeStreamPlayerUrl(details.playerUrl);
+      if (!playerUrl) throw new Error("invalid_stream_player_url");
+      frame.title = (video.title || "Movement session") + " protected video preview";
+      frame.src = playerUrl;
+      frame.hidden = false;
+      empty.hidden = true;
+      closeButton.hidden = false;
+      editor.dataset.previewVideoId = video.streamVideoId;
+      statusMessage.textContent = "Secure preview ready. The viewing link expires automatically.";
+      setStatus("Protected video preview opened.", "success");
+    }).catch(function (error) {
+      if (error.status === 401) {
+        showLogin("Your session expired. Sign in again, then reopen the preview.", "error");
+      } else if (error.code === "stream_video_not_ready") {
+        video.streamReady = false;
+        updateStreamStatus(editor, video);
+        saveDraft();
+        setStatus("Cloudflare is still preparing this video. Check processing again shortly.", "error");
+      } else {
+        statusMessage.textContent = "The protected preview could not be opened.";
+        setStatus("Video preview is unavailable right now. Please try again.", "error");
+      }
+    }).finally(function () {
+      button.disabled = !(video.streamReady && video.streamVideoId);
+      button.textContent = video.streamReady && video.streamVideoId ? "Play uploaded video" : "Video unavailable";
+    });
   }
 
   function render() {
@@ -308,6 +579,12 @@
         } else {
           field.value = video[field.name] == null ? "" : String(video[field.name]);
         }
+      });
+
+      editor.querySelectorAll("[data-editor-tab]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          showEditorPanel(editor, button.dataset.editorTab);
+        });
       });
 
       var moveUp = editor.querySelector(".move-up");
@@ -338,11 +615,31 @@
       editor.querySelector(".check-stream-status").addEventListener("click", function () {
         checkStreamStatus(editor, index);
       });
+      editor.querySelector(".preview-stream-video").addEventListener("click", function () {
+        previewStreamVideo(editor, index);
+      });
+      editor.querySelector(".close-stream-preview").addEventListener("click", function () {
+        delete editor.dataset.previewVideoId;
+        closeStreamPreview(editor);
+      });
       editor.querySelector(".upload-thumbnail").addEventListener("click", function () {
         uploadThumbnail(editor, index);
       });
+      editor.querySelector(".thumbnail-preview-image").addEventListener("error", function (event) {
+        event.currentTarget.hidden = true;
+        event.currentTarget.removeAttribute("src");
+        editor.querySelector(".thumbnail-preview-empty").textContent = "This thumbnail could not be loaded. Check its URL or upload another image.";
+        editor.querySelector(".thumbnail-preview-empty").hidden = false;
+      });
+      editor.querySelector(".sales-preview-image").addEventListener("error", function (event) {
+        event.currentTarget.hidden = true;
+        event.currentTarget.removeAttribute("src");
+        editor.querySelector(".sales-preview-image-empty").hidden = false;
+      });
       editor.addEventListener("input", function () { readEditor(editor, index); });
       editor.addEventListener("change", function () { readEditor(editor, index); });
+      updateThumbnailPreview(editor, video);
+      updateSalesPagePreview(editor, video);
       updateStreamStatus(editor, video);
       list.appendChild(editor);
     });
@@ -789,21 +1086,65 @@
     event.target.value = "";
   });
 
+  emailVerificationForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var email = emailInput.value.trim().toLowerCase();
+    if (!email || !emailInput.checkValidity()) {
+      setAuthStatus("Enter a valid administrator email address.", "error");
+      emailInput.focus();
+      return;
+    }
+
+    emailVerificationButton.disabled = true;
+    setAuthStatus("Sending a secure verification link…");
+    initializeEmailVerification().then(function () {
+      return supabaseClient.auth.signInWithOtp({
+        email: email,
+        options: {
+          emailRedirectTo: window.location.origin + "/admin.html",
+          shouldCreateUser: false
+        }
+      });
+    }).then(function (result) {
+      if (result.error) throw result.error;
+      setAuthStatus("Check the approved inbox and open the verification link. This page can stay open.");
+    }).catch(function (error) {
+      console.error("Admin email verification failed:", error && error.message ? error.message : error);
+      setAuthStatus("We could not send the verification link. Check the email or try again shortly.", "error");
+    }).finally(function () {
+      emailVerificationButton.disabled = false;
+    });
+  });
+
+  changeAdminEmail.addEventListener("click", function () {
+    changeAdminEmail.disabled = true;
+    signOutVerifiedEmail().finally(function () {
+      changeAdminEmail.disabled = false;
+      passwordInput.value = "";
+      showLogin("Enter the approved administrator email.");
+    });
+  });
+
   loginForm.addEventListener("submit", function (event) {
     event.preventDefault();
     loginButton.disabled = true;
-    setAuthStatus("Signing in…");
+    setAuthStatus("Confirming both security checks…");
 
-    requestStatus(LOGIN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ password: passwordInput.value })
+    getVerifiedAdminSession().then(function (session) {
+      return requestJson(LOGIN_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + session.access_token
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({ password: passwordInput.value })
+      });
     }).then(function () {
       passwordInput.value = "";
       showEditor();
     }).catch(function (error) {
-      if (error.status === 401) showLogin("The password is incorrect.", "error");
+      if (error.status === 401) showLogin("Email verification or administrator password is invalid.", "error");
       else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
       else showLogin("The login service is unavailable. Please try again.", "error");
       passwordInput.select();
@@ -814,12 +1155,12 @@
 
   logoutButton.addEventListener("click", function () {
     logoutButton.disabled = true;
-    requestStatus(LOGOUT_URL, {
+    Promise.all([requestStatus(LOGOUT_URL, {
       method: "POST",
       credentials: "same-origin"
     }).catch(function () {
       return null;
-    }).finally(function () {
+    }), signOutVerifiedEmail()]).finally(function () {
       logoutButton.disabled = false;
       showLogin("You have signed out.");
     });
@@ -827,15 +1168,11 @@
 
   function load() {
     var draft = localStorage.getItem(DRAFT_KEY);
-    if (draft) {
-      try {
-        videos = JSON.parse(draft).map(normalizeVideo);
-        render();
-        setStatus("Browser draft restored. Reset it to reload repository data.");
-        return;
-      } catch (error) {
-        localStorage.removeItem(DRAFT_KEY);
-      }
+    var draftVideos = null;
+    if (draft) try {
+      draftVideos = JSON.parse(draft).map(normalizeVideo);
+    } catch (error) {
+      localStorage.removeItem(DRAFT_KEY);
     }
 
     fetch(DATA_URL, { cache: "no-cache" })
@@ -845,11 +1182,28 @@
       })
       .then(function (data) {
         if (!Array.isArray(data)) throw new Error("Invalid video data");
-        videos = data.map(normalizeVideo);
+        var repositoryVideos = data.map(normalizeVideo);
+        if (draftVideos && window.LegitAdminVideoDraft) {
+          var reconciled = window.LegitAdminVideoDraft.reconcile(repositoryVideos, draftVideos);
+          videos = reconciled.videos.map(normalizeVideo);
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(videos));
+          render();
+          setStatus(reconciled.recovered > 0
+            ? "Browser draft restored and synced with the saved protected video."
+            : "Browser draft restored. Reset it to reload all repository data.");
+          return;
+        }
+        videos = repositoryVideos;
         render();
         setStatus("Repository data loaded. Start editing to create a browser draft.");
       })
       .catch(function () {
+        if (draftVideos) {
+          videos = draftVideos;
+          render();
+          setStatus("Browser draft restored. Saved repository data could not be checked.", "error");
+          return;
+        }
         list.setAttribute("aria-busy", "false");
         setStatus("Video data could not be loaded. Open this page through a local web server.");
       });
@@ -870,7 +1224,13 @@
   }).then(function () {
     showEditor();
   }).catch(function (error) {
-    if (error.status === 401) showLogin();
+    if (error.status === 401) {
+      initializeEmailVerification().then(function (session) {
+        showLogin(session ? "Email verified. Enter your administrator password." : null);
+      }).catch(function () {
+        showLogin("The email verification service is unavailable. Please try again.", "error");
+      });
+    }
     else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
     else showLogin("The login service is unavailable. Please try again.", "error");
   });

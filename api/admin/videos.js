@@ -7,6 +7,7 @@ var pageSectionsPublishing = require("../../lib/page-sections-publishing");
 var grants = require("../../lib/admin-access-grants");
 var paypal = require("../../lib/paypal-payments");
 var access = require("../../lib/supabase-access");
+var sales = require("../../lib/admin-sales");
 
 function readBody(request) {
   if (typeof request.body === "string") return JSON.parse(request.body);
@@ -62,11 +63,43 @@ async function grantLibraryAccess(response, body) {
   }
 }
 
+function handleSalesError(response, error) {
+  if (error instanceof sales.SalesError) {
+    console.error("[admin/videos:sales] request failed", {
+      code: error.code,
+      statusCode: error.statusCode,
+      provider: error.details || null
+    });
+    return response.status(error.statusCode).json({ error: error.code });
+  }
+  console.error("[admin/videos:sales] unexpected failure", {
+    message: error && error.message ? error.message : String(error)
+  });
+  return response.status(500).json({ error: "sales_service_unavailable" });
+}
+
+async function handleSalesRequest(response) {
+  var storeConfig = access.getServerConfig();
+  if (!storeConfig) {
+    return response.status(503).json({
+      error: "sales_service_not_configured",
+      details: access.getServerConfigIssues()
+    });
+  }
+
+  try {
+    return response.status(200).json({ sales: await sales.listSales(storeConfig, paypal.getProduct) });
+  } catch (error) {
+    return handleSalesError(response, error);
+  }
+}
+
 module.exports = async function handler(request, response) {
   auth.setApiHeaders(response);
 
-  if (request.method !== "POST") {
-    response.setHeader("Allow", "POST");
+  var isSalesRequest = request.query && request.query.action === "sales";
+  if ((!isSalesRequest && request.method !== "POST") || (isSalesRequest && request.method !== "GET")) {
+    response.setHeader("Allow", isSalesRequest ? "GET" : "POST");
     return response.status(405).json({ error: "method_not_allowed" });
   }
 
@@ -76,12 +109,16 @@ module.exports = async function handler(request, response) {
     return response.status(401).json({ error: "authentication_required" });
   }
 
-  var body;
-  try {
-    body = readBody(request);
-  } catch (error) {
-    return response.status(400).json({ error: "invalid_json" });
+  var body = {};
+  if (request.method === "POST") {
+    try {
+      body = readBody(request);
+    } catch (error) {
+      return response.status(400).json({ error: "invalid_json" });
+    }
   }
+
+  if (isSalesRequest) return handleSalesRequest(response);
 
   if (body.action === "grant-access") {
     if (process.env.VERCEL_ENV !== "production") {

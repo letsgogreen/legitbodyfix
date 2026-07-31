@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/admin/sales",
+      "destination": "/api/admin/videos?action=sales"
+    }
+  ],
   "headers": [
     {
       "source": "/admin.html",
@@ -47,6 +53,24 @@
     },
     {
       "source": "/assets/js/videos.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/video.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/assets/js/video-sales.js",
       "headers": [
         {
           "key": "Cache-Control",

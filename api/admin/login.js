@@ -1,8 +1,16 @@
 "use strict";
 
 var auth = require("../../lib/admin-auth");
+var access = require("../../lib/supabase-access");
 
-module.exports = function handler(request, response) {
+function getBearerToken(request) {
+  var header = request.headers && request.headers.authorization;
+  if (typeof header !== "string") return "";
+  var match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : "";
+}
+
+module.exports = async function handler(request, response) {
   auth.setApiHeaders(response);
   response.setHeader("Allow", "POST");
 
@@ -11,7 +19,8 @@ module.exports = function handler(request, response) {
   }
 
   var config = auth.getConfig();
-  if (!config) {
+  var supabaseConfig = access.getPublicConfig();
+  if (!config || !config.email || !supabaseConfig) {
     return response.status(503).json({ error: "admin_auth_not_configured" });
   }
 
@@ -24,7 +33,32 @@ module.exports = function handler(request, response) {
     }
   }
 
-  if (!auth.safeEqual(body.password || "", config.password)) {
+  var passwordMatches = auth.safeEqual(body.password || "", config.password);
+  var bearerToken = getBearerToken(request);
+  if (!bearerToken) {
+    return response.status(401).json({ error: "invalid_credentials" });
+  }
+
+  var user;
+  try {
+    user = await access.getUser(supabaseConfig, bearerToken);
+  } catch (error) {
+    if (error instanceof access.AccessError && error.statusCode === 401) {
+      return response.status(401).json({ error: "invalid_credentials" });
+    }
+    console.error("[admin/login] email verification service failed", {
+      code: error && error.code ? error.code : "unexpected_error",
+      statusCode: error && error.statusCode ? error.statusCode : 500
+    });
+    return response.status(503).json({ error: "admin_auth_unavailable" });
+  }
+
+  var emailMatches = auth.safeEqual(auth.normalizeEmail(user.email), config.email);
+  if (!user.emailConfirmed || !emailMatches || !passwordMatches) {
+    console.warn("[admin/login] rejected an unverified or unauthorized sign-in", {
+      emailConfirmed: Boolean(user.emailConfirmed),
+      emailAllowed: emailMatches
+    });
     return response.status(401).json({ error: "invalid_credentials" });
   }
 

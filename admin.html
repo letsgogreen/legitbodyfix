@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260731-6" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-3" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to control room</a>
@@ -34,25 +34,32 @@
   </header>
 
   <div id="authGate" class="auth-shell" aria-labelledby="authTitle">
-    <section class="auth-intro" aria-hidden="true">
-      <p class="eyebrow">Private operations</p>
-      <h1>RUN THE<br />MOVEMENT<br /><span>LIBRARY.</span></h1>
-      <p>One secure workspace for your website, customers, and protected sessions.</p>
-      <div class="auth-index"><span>Website</span><span>Customers</span><span>Videos</span></div>
-    </section>
     <section class="auth-card">
-      <div class="auth-card-index">ADMIN / 001</div>
-      <p class="eyebrow">Administrator access</p>
-      <h2 id="authTitle">Enter the control room.</h2>
-      <p class="lede">Your password is verified securely by the server and is never stored on this page.</p>
-      <form class="auth-form" id="loginForm">
+      <div class="auth-lock-mark" aria-hidden="true"><span>LBF</span><i></i></div>
+      <p class="eyebrow">Private administrator access</p>
+      <h1 id="authTitle">Sign in to Control Room</h1>
+      <p class="lede">Manage your website, customers, sales, and protected video library.</p>
+      <form class="auth-form" id="emailVerificationForm">
         <label class="field">
-          <span>Admin password</span>
+          <span>Administrator email</span>
+          <input id="adminEmail" name="email" type="email" autocomplete="username" inputmode="email" required />
+        </label>
+        <button class="button button-dark" id="emailVerificationButton" type="submit">Send verification link <span aria-hidden="true">&rarr;</span></button>
+      </form>
+      <div class="verified-admin" id="verifiedAdmin" hidden>
+        <span class="verified-admin-mark" aria-hidden="true">&#10003;</span>
+        <span><small>Email verified</small><strong id="verifiedAdminEmail"></strong></span>
+        <button class="text-button" id="changeAdminEmail" type="button">Use another</button>
+      </div>
+      <form class="auth-form auth-password-form" id="loginForm" hidden>
+        <label class="field">
+          <span>Administrator password</span>
           <input id="adminPassword" name="password" type="password" autocomplete="current-password" required />
         </label>
-        <button class="button button-dark" id="loginButton" type="submit">Sign in <span aria-hidden="true">→</span></button>
+        <button class="button button-dark" id="loginButton" type="submit">Enter Control Room <span aria-hidden="true">&rarr;</span></button>
       </form>
       <p class="auth-status" id="authStatus" role="status" aria-live="polite">Checking your session…</p>
+      <p class="auth-privacy"><strong>Owner only.</strong> First verify the approved inbox, then enter the administrator password. There is no public registration.</p>
     </section>
   </div>
 
@@ -64,13 +71,44 @@
         <button type="button" data-command-item data-command-workspace="overview"><span class="command-number">01</span><span><strong>Overview</strong><small>Status and shortcuts</small></span><b>Open</b></button>
         <button type="button" data-command-item data-command-workspace="site-copy"><span class="command-number">02</span><span><strong>Website editor</strong><small>Copy, layout, and homepage sections</small></span><b>Open</b></button>
         <button type="button" data-command-item data-command-workspace="video-library"><span class="command-number">03</span><span><strong>Programs &amp; videos</strong><small>Sessions, uploads, and publishing</small></span><b>Open</b></button>
-        <button type="button" data-command-item data-command-workspace="buyer-access"><span class="command-number">04</span><span><strong>Customer access</strong><small>Grant access for verified support cases</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="sales"><span class="command-number">04</span><span><strong>Sales</strong><small>Purchases, customers, and revenue</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="buyer-access"><span class="command-number">05</span><span><strong>Customer access</strong><small>Grant access for verified support cases</small></span><b>Open</b></button>
         <a href="index.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Live website</strong><small>Open the public storefront</small></span><b>New tab</b></a>
         <a href="checkout.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Checkout</strong><small>Open the customer payment page</small></span><b>New tab</b></a>
         <a href="library.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Buyer library</strong><small>Open the customer sign-in page</small></span><b>New tab</b></a>
       </div>
       <p class="command-empty" id="commandEmpty" hidden>No matching tool found.</p>
       <footer class="command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> Move</span><span><kbd>Enter</kbd> Open</span><span><kbd>Esc</kbd> Close</span></footer>
+    </section>
+  </div>
+
+  <div class="site-preview-backdrop" id="sitePreviewDialog" role="dialog" aria-modal="true" aria-labelledby="sitePreviewTitle" hidden>
+    <section class="site-preview-shell" data-preview-device="desktop">
+      <header class="site-preview-header">
+        <div class="site-preview-heading">
+          <p class="eyebrow">Private draft preview</p>
+          <h2 id="sitePreviewTitle">See it before you publish.</h2>
+        </div>
+        <div class="site-preview-actions">
+          <button class="button" id="refreshSitePreview" type="button">Refresh</button>
+          <a class="button" id="openSitePreview" href="index.html?site-preview=1" target="_blank" rel="noopener">Open full page <span aria-hidden="true">↗</span></a>
+          <button class="button button-dark" id="closeSitePreview" type="button">Close</button>
+        </div>
+      </header>
+      <div class="site-preview-toolbar" aria-label="Preview screen size">
+        <div class="preview-device-switcher" role="group" aria-label="Choose preview screen size">
+          <button class="is-active" type="button" data-preview-device="desktop" aria-pressed="true"><span aria-hidden="true">▰</span> Desktop <small>1440</small></button>
+          <button type="button" data-preview-device="tablet" aria-pressed="false"><span aria-hidden="true">▯</span> Tablet <small>768</small></button>
+          <button type="button" data-preview-device="mobile" aria-pressed="false"><span aria-hidden="true">▯</span> Mobile <small>390</small></button>
+        </div>
+        <p><i aria-hidden="true"></i> Draft only — visitors cannot see these changes yet.</p>
+      </div>
+      <div class="site-preview-stage">
+        <div class="site-preview-viewport">
+          <div class="site-preview-browserbar" aria-hidden="true"><span></span><span></span><span></span><b>legitbodyfix.com</b></div>
+          <iframe id="sitePreviewFrame" title="Homepage draft preview" loading="eager"></iframe>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -104,7 +142,8 @@
           <details class="nav-group" open>
             <summary><span>Customers</span><i aria-hidden="true"></i></summary>
             <div class="nav-group-items">
-              <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access" title="Customer access"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Customer access</strong><small>Access and support</small></span></a>
+              <a class="workspace-nav-item" href="#sales" data-workspace-target="sales" title="Sales"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Sales</strong><small>Orders and payments</small></span><b class="nav-badge" id="sidebarSalesCount" aria-label="Purchase count">0</b></a>
+              <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access" title="Customer access"><span class="nav-icon" aria-hidden="true">05</span><span><strong>Customer access</strong><small>Access and support</small></span></a>
               <button class="nav-child-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span>+ Grant verified access</span><b aria-hidden="true">→</b></button>
             </div>
           </details>
@@ -141,7 +180,8 @@
           <div class="quick-action-grid">
             <button class="quick-action" type="button" data-workspace-open="site-copy"><span class="quick-number">01</span><span><strong>Edit the website</strong><small>Update copy, layout, buttons, and homepage sections.</small></span><b aria-hidden="true">→</b></button>
             <button class="quick-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span class="quick-number">02</span><span><strong>Add a video</strong><small>Upload a protected session and prepare it for buyers.</small></span><b aria-hidden="true">→</b></button>
-            <button class="quick-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span class="quick-number">03</span><span><strong>Help a customer</strong><small>Grant program access for a verified support case.</small></span><b aria-hidden="true">→</b></button>
+            <button class="quick-action" type="button" data-workspace-open="sales"><span class="quick-number">03</span><span><strong>Review sales</strong><small>See buyers, purchases, revenue, and payment status.</small></span><b aria-hidden="true">→</b></button>
+            <button class="quick-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span class="quick-number">04</span><span><strong>Help a customer</strong><small>Grant program access for a verified support case.</small></span><b aria-hidden="true">→</b></button>
           </div>
         </section>
         <section class="dashboard-block system-block" aria-labelledby="systemTitle">
@@ -174,6 +214,31 @@
         <div class="context-note" role="note"><span aria-hidden="true">✓</span><p><strong>Protected settings stay protected.</strong> You can change visible prices and destinations, but payment amounts, buyer access, and secure video delivery are server-controlled.</p></div>
         <p class="status" id="siteContentStatus" role="status" aria-live="polite">Loading website…</p>
         <form id="siteContentForm" class="site-content-groups" aria-label="Complete homepage editor"></form>
+      </section>
+
+      <section class="workspace-panel sales-workspace" id="sales" data-workspace-panel="sales" aria-labelledby="salesTitle" hidden>
+        <header class="page-heading">
+          <div><p class="eyebrow">Control Room / Sales</p><h1 id="salesTitle">Sales</h1><p class="lede">See who purchased each program, how much they paid, and the current payment status.</p></div>
+          <button class="button" id="refreshSales" type="button">Refresh sales</button>
+        </header>
+        <div class="summary sales-summary" aria-label="Sales summary" aria-live="polite">
+          <article><span>Collected</span><strong id="salesCollected">$0</strong><small>Completed payments</small></article>
+          <article><span>Purchases</span><strong id="salesCount">0</strong><small>Recorded orders</small></article>
+          <article class="summary-accent"><span>Customers</span><strong id="salesCustomers">0</strong><small>Unique buyer emails</small></article>
+        </div>
+        <div class="workspace-toolbar sales-toolbar">
+          <label class="video-search sales-search"><span class="sr-only">Search sales</span><input id="salesSearch" type="search" placeholder="Search buyer or product…" autocomplete="off" /></label>
+          <label class="field compact-field sales-filter"><span>Status</span><select id="salesStatusFilter"><option value="all">All payments</option><option value="completed">Completed</option><option value="refunded">Refunded</option><option value="refund_pending">Refund pending</option></select></label>
+        </div>
+        <p class="status" id="salesStatus" role="status" aria-live="polite">Sales load after you sign in.</p>
+        <div class="sales-table-shell">
+          <table class="sales-table">
+            <thead><tr><th>Buyer</th><th>Product</th><th>Paid</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody id="salesTableBody"></tbody>
+          </table>
+          <div class="sales-empty" id="salesEmpty" hidden><strong>No matching purchases.</strong><span>Try another search or payment status.</span></div>
+        </div>
+        <p class="sales-footnote">This is a read-only record of payments and buyer access. Payment changes are handled outside this dashboard.</p>
       </section>
 
       <section class="workspace-panel access-grant" id="buyer-access" data-workspace-panel="buyer-access" aria-labelledby="accessGrantTitle" hidden>
@@ -212,13 +277,78 @@
         </div>
       </div>
 
+      <nav class="video-editor-tabs" aria-label="Session editor sections">
+        <button class="video-editor-tab is-active" type="button" data-editor-tab="details" aria-selected="true">Details</button>
+        <button class="video-editor-tab" type="button" data-editor-tab="sales" aria-selected="false">Sales page</button>
+        <button class="video-editor-tab" type="button" data-editor-tab="media" aria-selected="false">Media</button>
+      </nav>
+
+      <section class="video-editor-panel" data-editor-panel="details">
+        <div class="panel-intro"><div><span class="module-chip">Session details</span><h4>Organize this session</h4></div><p>These details appear across the public program and buyer library.</p></div>
+        <div class="form-grid">
+          <label class="field field-wide"><span>Title</span><input name="title" type="text" required maxlength="80" /></label>
+          <label class="field"><span>Level</span><select name="level"><option value="FOUNDATIONAL">Foundational</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></label>
+          <label class="field"><span>Duration (minutes)</span><input name="durationMinutes" type="number" required min="1" max="600" /></label>
+          <label class="field"><span>Equipment</span><input name="equipment" type="text" required maxlength="80" /></label>
+          <label class="field field-wide"><span>Description</span><textarea name="description" rows="3" maxlength="240"></textarea></label>
+          <label class="toggle-field"><input name="published" type="checkbox" /><span>Published on website</span></label>
+        </div>
+      </section>
+
+      <section class="video-editor-panel" data-editor-panel="sales" hidden>
+        <div class="panel-intro sales-panel-intro"><div><span class="module-chip">Sales page</span><h4>Turn interest into a purchase</h4></div><a class="button preview-sales-page" href="video.html" target="_blank" rel="noopener">Open full preview ↗</a></div>
+        <div class="sales-page-editor-layout">
+          <div class="form-grid sales-page-fields">
+            <label class="field"><span>Individual price (USD)</span><input name="price" type="number" min="0" max="999" step="0.01" placeholder="e.g. 12.00" /><span class="field-hint">Leave blank to sell only inside the full package.</span></label>
+            <label class="field"><span>Eyebrow</span><input name="landingEyebrow" type="text" maxlength="60" placeholder="Targeted movement session" /></label>
+            <label class="field field-wide"><span>Sales headline</span><input name="landingHeadline" type="text" maxlength="120" placeholder="Lead with the outcome" /></label>
+            <label class="field field-wide"><span>Sales summary</span><textarea name="landingSummary" rows="4" maxlength="360" placeholder="Explain the problem, the session, and the practical result."></textarea></label>
+            <div class="field field-wide editor-section-label"><span>Key benefits</span><span class="field-hint">Use three short, specific results a buyer can understand quickly.</span></div>
+            <label class="field field-wide"><span>Benefit 1</span><input name="landingBenefit1" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Benefit 2</span><input name="landingBenefit2" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Benefit 3</span><input name="landingBenefit3" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Who this is for</span><textarea name="landingAudience" rows="3" maxlength="300"></textarea></label>
+            <label class="field field-wide"><span>Purchase reassurance</span><textarea name="landingReassurance" rows="3" maxlength="240"></textarea></label>
+          </div>
+          <aside class="sales-page-preview-card" aria-label="Sales page content preview">
+            <div class="sales-preview-toolbar"><span>Live content preview</span><small>Updates as you type</small></div>
+            <div class="sales-preview-visual"><img class="sales-preview-image" alt="" hidden /><span class="sales-preview-image-empty">Thumbnail preview</span></div>
+            <div class="sales-preview-copy">
+              <span class="sales-preview-eyebrow"></span>
+              <h4 class="sales-preview-headline"></h4>
+              <p class="sales-preview-summary"></p>
+              <ul class="sales-preview-benefits"></ul>
+              <div class="sales-preview-offer"><strong class="sales-preview-price"></strong><span>One-time access</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="video-editor-panel" data-editor-panel="media" hidden>
+        <div class="panel-intro"><div><span class="module-chip">Media</span><h4>Video and thumbnail</h4></div><p>Upload protected playback and choose the image customers see before opening the session.</p></div>
+        <div class="admin-media-preview" aria-label="Session media preview">
+        <section class="media-preview-card">
+          <div class="media-preview-heading"><span>Thumbnail preview</span><small>Customer card image</small></div>
+          <div class="thumbnail-preview-frame">
+            <img class="thumbnail-preview-image" alt="" hidden />
+            <p class="thumbnail-preview-empty">Add a thumbnail URL or upload an image to preview it here.</p>
+          </div>
+        </section>
+        <section class="media-preview-card stream-media-card" data-stream-state="empty">
+          <div class="media-preview-heading"><span>Protected video</span><small class="stream-media-badge" data-state="empty">Not uploaded</small></div>
+          <div class="stream-preview-frame">
+            <iframe class="stream-preview-player" title="Protected video preview" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin" allowfullscreen hidden></iframe>
+            <p class="stream-preview-empty">Upload a protected video to preview it here.</p>
+          </div>
+          <div class="media-preview-actions">
+            <button class="button button-dark preview-stream-video" type="button" disabled>No video uploaded</button>
+            <button class="button close-stream-preview" type="button" hidden>Close preview</button>
+            <span class="field-hint stream-preview-status">The player opens only when requested.</span>
+          </div>
+        </section>
+      </div>
+
       <div class="form-grid">
-        <label class="field field-wide"><span>Title</span><input name="title" type="text" required maxlength="80" /></label>
-        <label class="field"><span>Level</span><select name="level"><option value="FOUNDATIONAL">Foundational</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></label>
-        <label class="field"><span>Duration (minutes)</span><input name="durationMinutes" type="number" required min="1" max="600" /></label>
-        <label class="field"><span>Equipment</span><input name="equipment" type="text" required maxlength="80" /></label>
-        <label class="field"><span>Individual price (USD)</span><input name="price" type="number" min="0" max="999" step="0.01" placeholder="e.g. 12.00" /><span class="field-hint">Leave blank to include this session only in the $170 package.</span></label>
-        <label class="field field-wide"><span>Description</span><textarea name="description" rows="3" maxlength="240"></textarea></label>
         <label class="field field-wide">
           <span>Protected Stream video</span>
           <span class="upload-row"><input class="stream-video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a protected video file" /><button class="button button-dark upload-stream-video" type="button">Upload to Stream</button><button class="button check-stream-status" type="button">Check processing</button></span>
@@ -231,13 +361,15 @@
           <span class="upload-row"><input class="thumbnail-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose a thumbnail image" /><button class="button upload-thumbnail" type="button">Upload thumbnail</button></span>
           <span class="field-hint">Use a landscape JPG, PNG, or WebP image up to 10 MB.</span>
         </label>
-        <label class="toggle-field"><input name="published" type="checkbox" /><span>Published on website</span></label>
       </div>
+      </section>
     </article>
   </template>
 
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
-  <script src="assets/js/site-editor.js?v=20260731-1" defer></script>
-  <script src="assets/js/admin.js?v=20260731-3" defer></script>
+  <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
+  <script src="assets/js/admin-video-draft.js?v=20260801-1" defer></script>
+  <script src="assets/js/admin.js?v=20260801-7" defer></script>
+  <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
 </body>
 </html>

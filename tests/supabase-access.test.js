@@ -41,7 +41,7 @@ test("checks the authenticated buyer and reads only active programs server-side"
   var fetcher = async function (url, options) {
     requests.push({ url: url, options: options });
     if (url.includes("/auth/v1/user")) {
-      return { ok: true, status: 200, json: async function () { return { id: "buyer-1", email: "Buyer@Example.com" }; } };
+      return { ok: true, status: 200, json: async function () { return { id: "buyer-1", email: "Buyer@Example.com", email_confirmed_at: "2026-07-28T00:00:00Z" }; } };
     }
     return {
       ok: true,
@@ -59,6 +59,7 @@ test("checks the authenticated buyer and reads only active programs server-side"
   var programs = await access.listEntitlements(config, user.email, fetcher);
 
   assert.equal(user.email, "buyer@example.com");
+  assert.equal(user.emailConfirmed, true);
   assert.deepEqual(programs, [{
     id: "neck-shoulder-reset",
     title: "Neck & Shoulder Reset",

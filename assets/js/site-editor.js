@@ -13,6 +13,11 @@
   var form = document.getElementById("siteContentForm");
   var status = document.getElementById("siteContentStatus");
   var publishButton = document.getElementById("publishSiteContent");
+  var previewDialog = document.getElementById("sitePreviewDialog");
+  var previewShell = previewDialog && previewDialog.querySelector(".site-preview-shell");
+  var previewFrame = document.getElementById("sitePreviewFrame");
+  var previewDeviceButtons = previewDialog ? previewDialog.querySelectorAll("[data-preview-device]") : [];
+  var previewReturnFocus = null;
 
   var CORE_DEFINITIONS = {
     hero: { title: "Hero", description: "The first message, actions, proof points, and optional feature image.", fields: [
@@ -65,7 +70,53 @@
 
   function saveDraft(message) {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(content));
+    updateOpenPreview();
     setStatus(message || "Complete site draft saved in this browser.");
+  }
+
+  function sendPreviewContent() {
+    if (!previewFrame || !previewFrame.contentWindow || !content) return;
+    previewFrame.contentWindow.postMessage({ type: "legitbodyfix:site-preview", content: clone(content) }, window.location.origin);
+  }
+
+  function updateOpenPreview() {
+    if (!previewDialog || previewDialog.hidden || !content) return;
+    localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
+    sendPreviewContent();
+  }
+
+  function setPreviewDevice(device) {
+    if (!previewShell || ["desktop", "tablet", "mobile"].indexOf(device) === -1) return;
+    previewShell.dataset.previewDevice = device;
+    previewDeviceButtons.forEach(function (button) {
+      var active = button.dataset.previewDevice === device;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+
+  function refreshPreview() {
+    if (!previewFrame || !content) return;
+    localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
+    previewFrame.src = "index.html?site-preview=1&refresh=" + Date.now();
+  }
+
+  function openPreview() {
+    if (!previewDialog || !content || !form.reportValidity()) return;
+    previewReturnFocus = document.activeElement;
+    previewDialog.hidden = false;
+    document.body.classList.add("preview-open");
+    setPreviewDevice(previewShell.dataset.previewDevice || "desktop");
+    refreshPreview();
+    document.getElementById("closeSitePreview").focus();
+    setStatus("Private responsive preview opened. Changes update as you edit.", "success");
+  }
+
+  function closePreview() {
+    if (!previewDialog || previewDialog.hidden) return;
+    previewDialog.hidden = true;
+    document.body.classList.remove("preview-open");
+    if (previewReturnFocus && typeof previewReturnFocus.focus === "function") previewReturnFocus.focus();
   }
 
   function makeId(type) {
@@ -352,11 +403,19 @@
       fetchContent().then(function (live) { content = normalize(live); render(); setStatus("Draft cleared. Live website restored.", "success"); })
         .catch(function () { setStatus("The live website could not be reloaded.", "error"); });
     });
-    document.getElementById("previewSiteContent").addEventListener("click", function () {
-      if (!content || !form.reportValidity()) return;
-      localStorage.setItem(PREVIEW_KEY, JSON.stringify(content)); window.open("index.html?site-preview=1", "_blank");
-      setStatus("Private full-site preview opened in a new tab.", "success");
-    });
+    document.getElementById("previewSiteContent").addEventListener("click", openPreview);
+    if (previewDialog) {
+      document.getElementById("closeSitePreview").addEventListener("click", closePreview);
+      document.getElementById("refreshSitePreview").addEventListener("click", refreshPreview);
+      previewDeviceButtons.forEach(function (button) {
+        button.addEventListener("click", function () { setPreviewDevice(button.dataset.previewDevice); });
+      });
+      previewFrame.addEventListener("load", sendPreviewContent);
+      previewDialog.addEventListener("click", function (event) { if (event.target === previewDialog) closePreview(); });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !previewDialog.hidden) closePreview();
+      });
+    }
     publishButton.addEventListener("click", function () {
       if (!content || !form.reportValidity()) return;
       publishButton.disabled = true; setStatus("Publishing the complete website…");
