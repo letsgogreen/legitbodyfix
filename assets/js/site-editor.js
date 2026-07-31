@@ -327,13 +327,25 @@
   }
 
   function bindActions() {
-    document.getElementById("addSiteSection").addEventListener("click", function () {
+    function addSection(type) {
       if (!content) return;
       if (content.customSections.length >= 20) { setStatus("The editor supports up to 20 added sections.", "error"); return; }
-      var section = templateSection(document.getElementById("siteSectionType").value);
+      var section = templateSection(type);
       content.customSections.push(section); content.layout.push({ id: section.id, kind: "custom", visible: true });
       render(); saveDraft("New section added to the complete site draft.");
       var card = form.querySelector('[data-section-id="' + section.id + '"]'); if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    document.getElementById("addSiteSection").addEventListener("click", function () {
+      addSection(document.getElementById("siteSectionType").value);
+    });
+    document.querySelectorAll("[data-add-site-section]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var type = button.dataset.addSiteSection;
+        if (CUSTOM_LABELS[type]) {
+          document.getElementById("siteSectionType").value = type;
+          addSection(type);
+        }
+      });
     });
     document.getElementById("resetSiteContent").addEventListener("click", function () {
       localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(PREVIEW_KEY); setStatus("Reloading the live website…");

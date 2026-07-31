@@ -64,6 +64,10 @@ a { color: inherit; }
 .side-rail .rail-subnav a:first-child { border-top: 0; }
 .side-rail .rail-subnav a:hover { color: var(--ink); }
 .side-rail .rail-live-pages a span { margin-left: auto; }
+.rail-template-actions { display: grid; gap: 4px; }
+.rail-template-actions button { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 10px; border: 0; background: transparent; color: var(--muted); text-align: left; font-size: 11px; font-weight: 650; cursor: pointer; }
+.rail-template-actions button span { display: grid; place-items: center; width: 17px; height: 17px; background: var(--ink); color: var(--acid); font: 700 12px/1 var(--mono); }
+.rail-template-actions button:hover { background: var(--acid); color: var(--ink); }
 .rail-note { padding: 18px; border: 1px solid var(--ink); background: var(--acid); }
 .rail-note strong { font-size: 12px; }
 .rail-note p { margin: 6px 0 0; color: #444b17; font-size: 11px; line-height: 1.5; }
@@ -169,7 +173,7 @@ a { color: inherit; }
   .side-rail { min-height: auto; position: static; display: block; padding: 18px 24px; border-right: 0; border-bottom: 1px solid var(--line); }
   .side-rail nav { display: flex; gap: 22px; overflow-x: auto; }
   .side-rail nav a, .side-rail nav a:first-child { flex: 0 0 auto; border: 0; padding: 8px 0; }
-  .rail-label, .rail-note, .rail-group-label, .rail-subnav { display: none !important; }
+  .rail-label, .rail-note, .rail-group-label, .rail-subnav, .rail-template-actions { display: none !important; }
   .dashboard-hero { min-height: 500px; }
 }
 

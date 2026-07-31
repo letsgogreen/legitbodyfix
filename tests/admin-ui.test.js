@@ -65,8 +65,15 @@ test("admin offers one complete site editor with safe layout controls", function
   assert.match(html, /href="#site-editor-design">Design &amp; navigation/);
   assert.match(html, /href="#site-editor-sections">Homepage sections/);
   assert.match(html, /href="checkout\.html" target="_blank"/);
+  assert.match(html, /data-add-site-section="hero"/);
+  assert.match(html, /data-add-site-section="split"/);
+  assert.match(html, /data-add-site-section="benefits"/);
+  assert.match(html, /data-add-site-section="testimonials"/);
+  assert.match(html, /data-add-site-section="faq"/);
+  assert.match(html, /data-add-site-section="cta"/);
   assert.match(javascript, /legitbodyfix\.siteContentDraft\.v2/);
   assert.match(javascript, /site-editor-footer/);
+  assert.match(javascript, /data-add-site-section/);
   assert.match(javascript, /action: "publish-site-content"/);
   assert.match(javascript, /customSections/);
   assert.match(javascript, /Move section down/);
