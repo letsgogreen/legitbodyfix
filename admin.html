@@ -64,6 +64,24 @@
       Changes are saved in this browser. Publishing creates a versioned GitHub update and Vercel then rebuilds the live website.
     </div>
 
+    <section class="site-content-editor" aria-labelledby="siteContentTitle">
+      <div class="site-content-heading">
+        <div>
+          <p class="eyebrow">Website content</p>
+          <h2 id="siteContentTitle">Edit homepage text</h2>
+          <p>Change approved text fields without exposing the page layout, links, scripts, or payment settings.</p>
+        </div>
+        <div class="toolbar-group">
+          <button class="button button-secondary" id="previewSiteContent" type="button">Preview draft</button>
+          <button class="button button-quiet" id="resetSiteContent" type="button">Reset text draft</button>
+          <button class="button button-primary" id="publishSiteContent" type="button">Publish website text</button>
+        </div>
+      </div>
+      <p class="content-safety"><strong>Display price only:</strong> changing the price shown here does not change the amount charged by PayPal.</p>
+      <p class="status" id="siteContentStatus" role="status" aria-live="polite">Loading website text…</p>
+      <form id="siteContentForm" class="site-content-groups" aria-label="Homepage text fields"></form>
+    </section>
+
     <section class="access-grant" aria-labelledby="accessGrantTitle">
       <div>
         <p class="eyebrow">Buyer access</p>
@@ -178,6 +196,6 @@
     </article>
   </template>
 
-  <script src="assets/js/admin.js?v=20260730-1" defer></script>
+  <script src="assets/js/admin.js?v=20260731-1" defer></script>
 </body>
 </html>

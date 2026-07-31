@@ -3,6 +3,9 @@
 
   var DATA_URL = "assets/data/videos.json";
   var DRAFT_KEY = "legitbodyfix.videoDraft.v1";
+  var SITE_DATA_URL = "assets/data/site-content.json";
+  var SITE_DRAFT_KEY = "legitbodyfix.siteContentDraft.v1";
+  var SITE_PREVIEW_KEY = "legitbodyfix.siteContentPreview.v1";
   var SESSION_URL = "/api/admin/session";
   var LOGIN_URL = "/api/admin/login";
   var LOGOUT_URL = "/api/admin/logout";
@@ -29,9 +32,44 @@
   var accessGrantProgram = document.getElementById("accessGrantProgram");
   var accessGrantButton = document.getElementById("grantAccessButton");
   var accessGrantStatus = document.getElementById("accessGrantStatus");
+  var siteContentForm = document.getElementById("siteContentForm");
+  var siteContentStatus = document.getElementById("siteContentStatus");
+  var publishSiteContentButton = document.getElementById("publishSiteContent");
   var videos = [];
+  var siteContent = null;
   var editorStarted = false;
   var activeUploads = 0;
+
+  var SITE_FIELDS = [
+    { title: "Hero", fields: [
+      ["hero.kicker", "Kicker", 80], ["hero.titleLines.0", "Title line 1", 24], ["hero.titleLines.1", "Title line 2", 24],
+      ["hero.titleLines.2", "Outlined title line 3", 24], ["hero.titleLines.3", "Outlined title line 4", 24],
+      ["hero.description", "Description", 320, true], ["hero.primaryButton", "Primary button", 40], ["hero.secondaryButton", "Secondary button", 40],
+      ["hero.proofPoints.0", "Proof point 1", 60], ["hero.proofPoints.1", "Proof point 2", 60], ["hero.proofPoints.2", "Proof point 3", 60]
+    ]},
+    { title: "Method", fields: [
+      ["method.label", "Section label", 80], ["method.titleLines.0", "Title line 1", 40], ["method.titleLines.1", "Title line 2", 40],
+      ["method.intro", "Introduction", 360, true], ["method.steps.0.title", "Step 1 title", 50], ["method.steps.0.description", "Step 1 description", 220, true],
+      ["method.steps.1.title", "Step 2 title", 50], ["method.steps.1.description", "Step 2 description", 220, true],
+      ["method.steps.2.title", "Step 3 title", 50], ["method.steps.2.description", "Step 3 description", 220, true]
+    ]},
+    { title: "Library preview", fields: [
+      ["library.label", "Section label", 80], ["library.titleLines.0", "Title line 1", 40], ["library.titleLines.1", "Title line 2", 40],
+      ["library.intro", "Introduction", 320, true], ["library.linkLabel", "Link label", 40]
+    ]},
+    { title: "Brand statement", fields: [
+      ["standard.quote", "Statement", 280, true], ["standard.attribution", "Attribution", 80]
+    ]},
+    { title: "Program and pricing", fields: [
+      ["pricing.label", "Section label", 80], ["pricing.titleLines.0", "Title line 1", 40], ["pricing.titleLines.1", "Title line 2", 40],
+      ["pricing.benefits.0", "Benefit 1", 100], ["pricing.benefits.1", "Benefit 2", 100], ["pricing.benefits.2", "Benefit 3", 100], ["pricing.benefits.3", "Benefit 4", 100],
+      ["pricing.programName", "Program name", 100], ["pricing.displayPrice", "Displayed price", 20], ["pricing.priceSuffix", "Price suffix", 30],
+      ["pricing.description", "Program description", 280, true], ["pricing.buttonLabel", "Button label", 40]
+    ]},
+    { title: "Footer", fields: [
+      ["footer.tagline", "Tagline", 100], ["footer.legal", "Legal note", 220, true]
+    ]}
+  ];
 
   function setAuthStatus(message, state) {
     authStatus.textContent = message;
@@ -54,7 +92,97 @@
     if (!editorStarted) {
       editorStarted = true;
       load();
+      loadSiteContent();
     }
+  }
+
+  function readPath(source, path) {
+    return path.split(".").reduce(function (value, key) {
+      return value != null ? value[key] : undefined;
+    }, source);
+  }
+
+  function writePath(source, path, value) {
+    var keys = path.split(".");
+    var target = source;
+    keys.slice(0, -1).forEach(function (key) { target = target[key]; });
+    target[keys[keys.length - 1]] = value;
+  }
+
+  function setSiteContentStatus(message, state) {
+    siteContentStatus.textContent = message;
+    if (state) siteContentStatus.dataset.state = state;
+    else delete siteContentStatus.dataset.state;
+  }
+
+  function saveSiteContentDraft() {
+    localStorage.setItem(SITE_DRAFT_KEY, JSON.stringify(siteContent));
+    setSiteContentStatus("Text draft saved in this browser.");
+  }
+
+  function renderSiteContent() {
+    siteContentForm.replaceChildren();
+    SITE_FIELDS.forEach(function (group, groupIndex) {
+      var details = document.createElement("details");
+      details.className = "content-group";
+      details.open = groupIndex === 0;
+      var summary = document.createElement("summary");
+      summary.textContent = group.title;
+      var grid = document.createElement("div");
+      grid.className = "content-field-grid";
+
+      group.fields.forEach(function (definition) {
+        var field = document.createElement("label");
+        field.className = "field" + (definition[3] ? " field-wide" : "");
+        var label = document.createElement("span");
+        label.textContent = definition[1];
+        var input = document.createElement(definition[3] ? "textarea" : "input");
+        if (definition[3]) input.rows = 3;
+        else input.type = "text";
+        input.maxLength = definition[2];
+        input.required = true;
+        input.dataset.siteField = definition[0];
+        input.value = String(readPath(siteContent, definition[0]) || "");
+        input.addEventListener("input", function () {
+          writePath(siteContent, definition[0], input.value);
+          saveSiteContentDraft();
+        });
+        field.append(label, input);
+        grid.appendChild(field);
+      });
+
+      details.append(summary, grid);
+      siteContentForm.appendChild(details);
+    });
+  }
+
+  function fetchSiteContent() {
+    return fetch(SITE_DATA_URL, { cache: "no-cache" }).then(function (response) {
+      if (!response.ok) throw new Error("Unable to load website content");
+      return response.json();
+    });
+  }
+
+  function loadSiteContent() {
+    var draft = localStorage.getItem(SITE_DRAFT_KEY);
+    if (draft) {
+      try {
+        siteContent = JSON.parse(draft);
+        renderSiteContent();
+        setSiteContentStatus("Website text draft restored from this browser.");
+        return;
+      } catch (error) {
+        localStorage.removeItem(SITE_DRAFT_KEY);
+      }
+    }
+
+    fetchSiteContent().then(function (content) {
+      siteContent = content;
+      renderSiteContent();
+      setSiteContentStatus("Live website text loaded. Start editing to create a private draft.");
+    }).catch(function () {
+      setSiteContentStatus("Website text could not be loaded. Refresh and try again.", "error");
+    });
   }
 
   function requestJson(url, options) {
@@ -580,6 +708,65 @@
       }
     }).finally(function () {
       publishButton.disabled = false;
+    });
+  });
+
+  document.getElementById("previewSiteContent").addEventListener("click", function () {
+    if (!siteContent) {
+      setSiteContentStatus("Website text is still loading.", "error");
+      return;
+    }
+    localStorage.setItem(SITE_PREVIEW_KEY, JSON.stringify(siteContent));
+    window.open("index.html?content-preview=1", "_blank");
+    setSiteContentStatus("Preview opened in a new tab. Only this browser can see that draft.", "success");
+  });
+
+  document.getElementById("resetSiteContent").addEventListener("click", function () {
+    localStorage.removeItem(SITE_DRAFT_KEY);
+    localStorage.removeItem(SITE_PREVIEW_KEY);
+    setSiteContentStatus("Reloading the current live website text…");
+    fetchSiteContent().then(function (content) {
+      siteContent = content;
+      renderSiteContent();
+      setSiteContentStatus("Text draft cleared. Live website text restored.", "success");
+    }).catch(function () {
+      setSiteContentStatus("Website text could not be reloaded. Refresh and try again.", "error");
+    });
+  });
+
+  publishSiteContentButton.addEventListener("click", function () {
+    if (!siteContent || !siteContentForm.reportValidity()) return;
+    publishSiteContentButton.disabled = true;
+    setSiteContentStatus("Publishing website text…");
+
+    requestJson(PUBLISH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ action: "publish-site-content", content: siteContent })
+    }).then(function (data) {
+      localStorage.removeItem(SITE_DRAFT_KEY);
+      localStorage.removeItem(SITE_PREVIEW_KEY);
+      if (data.unchanged) {
+        setSiteContentStatus("The live website already uses this text.", "success");
+        return;
+      }
+      var shortSha = typeof data.commitSha === "string" ? data.commitSha.slice(0, 7) : "created";
+      setSiteContentStatus("Published as commit " + shortSha + ". Vercel is updating the live website.", "success");
+    }).catch(function (error) {
+      if (error.status === 401) {
+        showLogin("Your session expired. Sign in again, then publish the saved text draft.", "error");
+      } else if (error.code === "publishing_disabled_in_preview") {
+        setSiteContentStatus("Publishing is disabled on preview deployments. Use the production admin page.", "error");
+      } else if (error.code === "invalid_site_content") {
+        setSiteContentStatus(error.details[0] || "Please correct the website text and try again.", "error");
+      } else if (error.code === "github_publishing_not_configured") {
+        setSiteContentStatus("GitHub publishing is not configured yet.", "error");
+      } else {
+        setSiteContentStatus("Publishing failed. Your browser draft is still safe; please try again.", "error");
+      }
+    }).finally(function () {
+      publishSiteContentButton.disabled = false;
     });
   });
 

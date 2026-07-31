@@ -126,6 +126,8 @@
     .price-panel p { font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
     .price { font-family: var(--display); font-size: clamp(72px, 10vw, 116px); line-height: .8; letter-spacing: -.1em; }
     .price span { font: 700 18px/1 var(--body); letter-spacing: -.04em; }
+    .price .price-value { font: inherit; letter-spacing: inherit; }
+    .price .price-suffix { margin-left: 8px; }
     .price-panel small { display: block; margin-top: 20px; max-width: 340px; color: #454c0d; font-size: 12px; line-height: 1.55; }
     .price-panel .button { align-self: start; margin-top: 24px; background: var(--ink); color: var(--paper); }
 
@@ -177,14 +179,14 @@
   <main id="main">
     <section class="hero wrap" aria-labelledby="hero-title">
       <div>
-        <p class="kicker">Corrective movement. No fluff.</p>
-        <h1 id="hero-title">MOVE<br />BETTER.<br /><span class="outline">HURT</span><br /><span class="outline">LESS.</span></h1>
-        <p class="hero-copy">Follow clear corrective exercise sessions that help you understand your body, rebuild weak links, and move with confidence again.</p>
+        <p class="kicker" data-content="hero.kicker">Corrective movement. No fluff.</p>
+        <h1 id="hero-title"><span data-content="hero.titleLines.0">MOVE</span><br /><span data-content="hero.titleLines.1">BETTER.</span><br /><span class="outline" data-content="hero.titleLines.2">HURT</span><br /><span class="outline" data-content="hero.titleLines.3">LESS.</span></h1>
+        <p class="hero-copy" data-content="hero.description">Follow clear corrective exercise sessions that help you understand your body, rebuild weak links, and move with confidence again.</p>
         <div class="hero-actions">
-          <a class="button button-dark" href="#pricing">Start your reset <span aria-hidden="true">↗</span></a>
-          <a class="button" href="#library-preview">See the library</a>
+          <a class="button button-dark" href="#pricing"><span data-content="hero.primaryButton">Start your reset</span> <span aria-hidden="true">↗</span></a>
+          <a class="button" href="#library-preview" data-content="hero.secondaryButton">See the library</a>
         </div>
-        <div class="proof-list" aria-label="Program highlights"><span>Built for real bodies</span><span>Go at your own pace</span><span>One-time purchase</span></div>
+        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Built for real bodies</span><span data-content="hero.proofPoints.1">Go at your own pace</span><span data-content="hero.proofPoints.2">One-time purchase</span></div>
       </div>
       <div class="body-map" aria-label="Corrective movement body map showing shoulder, hip, and knee focus areas" role="img">
         <span class="map-axis" aria-hidden="true"></span><span class="map-label shoulder">01 / shoulder</span><span class="map-label hip">02 / hip</span><span class="map-label knee">03 / knee</span><span class="map-side-label">mobility / stability / strength</span>
@@ -194,13 +196,13 @@
 
     <section class="section" id="method" aria-labelledby="method-title">
       <div class="wrap">
-        <p class="section-label">The LegitBodyFix method</p>
-        <h2 class="section-title" id="method-title">STOP GUESSING.<br />START REBUILDING.</h2>
-        <p class="section-intro">Random stretches are not a plan. Each session gives you a reason, a sequence, and a progression — so you know what to do and why it works.</p>
+        <p class="section-label" data-content="method.label">The LegitBodyFix method</p>
+        <h2 class="section-title" id="method-title"><span data-content="method.titleLines.0">STOP GUESSING.</span><br /><span data-content="method.titleLines.1">START REBUILDING.</span></h2>
+        <p class="section-intro" data-content="method.intro">Random stretches are not a plan. Each session gives you a reason, a sequence, and a progression — so you know what to do and why it works.</p>
         <div class="method-grid">
-          <article class="method-card"><span class="step">01</span><h3>Assess</h3><p>Find the restriction or weak link driving the pattern.</p></article>
-          <article class="method-card"><span class="step">02</span><h3>Restore</h3><p>Use focused mobility and control to reclaim range.</p></article>
-          <article class="method-card"><span class="step">03</span><h3>Rebuild</h3><p>Load the new pattern so better movement actually sticks.</p></article>
+          <article class="method-card"><span class="step">01</span><h3 data-content="method.steps.0.title">Assess</h3><p data-content="method.steps.0.description">Find the restriction or weak link driving the pattern.</p></article>
+          <article class="method-card"><span class="step">02</span><h3 data-content="method.steps.1.title">Restore</h3><p data-content="method.steps.1.description">Use focused mobility and control to reclaim range.</p></article>
+          <article class="method-card"><span class="step">03</span><h3 data-content="method.steps.2.title">Rebuild</h3><p data-content="method.steps.2.description">Load the new pattern so better movement actually sticks.</p></article>
         </div>
       </div>
     </section>
@@ -208,28 +210,28 @@
     <section class="section" id="library-preview" aria-labelledby="library-title">
       <div class="wrap">
         <div class="library-header">
-          <div><p class="section-label">Inside the library</p><h2 class="section-title" id="library-title">SHORT SESSIONS.<br />SERIOUS INTENT.</h2><p class="section-intro">Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.</p></div>
-          <a class="library-link" href="#pricing">Choose a program →</a>
+          <div><p class="section-label" data-content="library.label">Inside the library</p><h2 class="section-title" id="library-title"><span data-content="library.titleLines.0">SHORT SESSIONS.</span><br /><span data-content="library.titleLines.1">SERIOUS INTENT.</span></h2><p class="section-intro" data-content="library.intro">Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.</p></div>
+          <a class="library-link" href="#pricing"><span data-content="library.linkLabel">Choose a program</span> →</a>
         </div>
         <div class="course-grid" id="courseGrid" aria-live="polite" aria-busy="true"><p class="course-status">Loading the movement library…</p><noscript>Please enable JavaScript to view the movement library.</noscript></div>
       </div>
     </section>
 
-    <section class="standard" aria-label="The LegitBodyFix standard"><div class="wrap"><blockquote>“The goal is not to chase perfect posture. It is to build a body that has options.”</blockquote><p>— THE LEGITBODYFIX STANDARD</p></div></section>
+    <section class="standard" aria-label="The LegitBodyFix standard"><div class="wrap"><blockquote data-content="standard.quote">The goal is not to chase perfect posture. It is to build a body that has options.</blockquote><p data-content="standard.attribution">— THE LEGITBODYFIX STANDARD</p></div></section>
 
     <section class="section" id="pricing" aria-labelledby="pricing-title">
       <div class="wrap membership">
         <div>
-          <p class="section-label">Complete corrective movement package</p>
-          <h2 class="section-title" id="pricing-title">YOUR BODY IS<br />WORTH THE WORK.</h2>
-          <ul class="membership-list"><li>Full-body guided video package</li><li>Clear exercise sequence and progression</li><li>Replay every session at your own pace</li><li>Lifetime access after purchase</li></ul>
+          <p class="section-label" data-content="pricing.label">Complete corrective movement package</p>
+          <h2 class="section-title" id="pricing-title"><span data-content="pricing.titleLines.0">YOUR BODY IS</span><br /><span data-content="pricing.titleLines.1">WORTH THE WORK.</span></h2>
+          <ul class="membership-list"><li data-content="pricing.benefits.0">Full-body guided video package</li><li data-content="pricing.benefits.1">Clear exercise sequence and progression</li><li data-content="pricing.benefits.2">Replay every session at your own pace</li><li data-content="pricing.benefits.3">Lifetime access after purchase</li></ul>
         </div>
-        <aside class="price-panel" aria-label="Program pricing"><p>Full Body Restoration Package</p><div><div class="price">$170<span> one-time</span></div><small>Get lifetime access to the complete corrective movement package. No subscription and no recurring charge.</small></div><a class="button" href="checkout.html">Choose program <span aria-hidden="true">↗</span></a></aside>
+        <aside class="price-panel" aria-label="Program pricing"><p data-content="pricing.programName">Full Body Restoration Package</p><div><div class="price"><span class="price-value" data-content="pricing.displayPrice">$170</span><span class="price-suffix" data-content="pricing.priceSuffix">one-time</span></div><small data-content="pricing.description">Get lifetime access to the complete corrective movement package. No subscription and no recurring charge.</small></div><a class="button" href="checkout.html"><span data-content="pricing.buttonLabel">Choose program</span> <span aria-hidden="true">↗</span></a></aside>
       </div>
     </section>
   </main>
 
-  <footer class="footer wrap"><div><a class="brand" href="#main"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a><p>Move with more options.</p></div><p>© 2026 LegitBodyFix.<br />Educational movement content, not medical diagnosis or treatment.</p></footer>
+  <footer class="footer wrap"><div><a class="brand" href="#main"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a><p data-content="footer.tagline">Move with more options.</p></div><p>© 2026 LegitBodyFix.<br /><span data-content="footer.legal">Educational movement content, not medical diagnosis or treatment.</span></p></footer>
   <div id="toast" role="status" aria-live="polite"></div>
   <script>
     (function () {
@@ -260,6 +262,7 @@
       });
     })();
   </script>
+  <script src="assets/js/site-content.js?v=20260731-1" defer></script>
   <script src="assets/js/videos.js?v=20260728-1" defer></script>
 </body>
 </html>

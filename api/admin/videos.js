@@ -2,6 +2,7 @@
 
 var auth = require("../../lib/admin-auth");
 var publishing = require("../../lib/video-publishing");
+var siteContentPublishing = require("../../lib/site-content-publishing");
 var grants = require("../../lib/admin-access-grants");
 var paypal = require("../../lib/paypal-payments");
 var access = require("../../lib/supabase-access");
@@ -98,7 +99,9 @@ module.exports = async function handler(request, response) {
   }
 
   try {
-    var result = await publishing.publishVideos(publishingConfig, body.videos);
+    var result = body.action === "publish-site-content"
+      ? await siteContentPublishing.publishSiteContent(publishingConfig, body.content)
+      : await publishing.publishVideos(publishingConfig, body.videos);
     return response.status(200).json({
       published: !result.unchanged,
       unchanged: result.unchanged,
@@ -106,6 +109,11 @@ module.exports = async function handler(request, response) {
       commitUrl: result.commitUrl
     });
   } catch (error) {
+    if (error instanceof siteContentPublishing.SiteContentError) {
+      var sitePayload = { error: error.code };
+      if (error.details && error.details.length) sitePayload.details = error.details;
+      return response.status(error.statusCode).json(sitePayload);
+    }
     if (error instanceof publishing.PublishingError) {
       var payload = { error: error.code };
       if (error.details && error.details.length) payload.details = error.details;
