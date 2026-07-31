@@ -26,7 +26,8 @@ test("admin offers protected Stream uploads and does not present R2 as the buyer
 
   assert.match(html, /Upload to Stream/);
   assert.match(html, /Check processing/);
-  assert.match(html, /Legacy public video file/);
+  assert.doesNotMatch(html, /Legacy public video file/);
+  assert.doesNotMatch(html, /Upload to R2/);
   assert.match(javascript, /uploads\?kind=stream/);
   assert.match(javascript, /uploadTusFile/);
 });

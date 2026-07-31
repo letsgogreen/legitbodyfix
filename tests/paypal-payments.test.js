@@ -24,8 +24,8 @@ test("returns only browser-safe checkout configuration, including the catalog", 
   var bundle = config.catalog.find(function (product) { return product.id === "neck-shoulder-reset"; });
   assert.deepEqual(bundle, {
     id: "neck-shoulder-reset",
-    title: "Neck & Shoulder Reset — 4-Week Movement Program",
-    amount: "49.00",
+    title: "Full Body Restoration Package",
+    amount: "170.00",
     currency: "USD"
   });
   var singleVideo = config.catalog.find(function (product) { return product.id === "neck-alignment"; });
@@ -47,7 +47,7 @@ test("creates a fixed-price order with a server-owned program identifier", async
   assert.equal(order.id, "5O190127TN364715T");
   var body = JSON.parse(calls[1].options.body);
   assert.equal(body.purchase_units[0].custom_id, "neck-shoulder-reset");
-  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "49.00" });
+  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "170.00" });
 });
 
 test("creates a fixed-price order for a single purchasable video", async function () {
@@ -82,7 +82,7 @@ test("accepts only a completed matching order for entitlement creation", functio
     payer: { email_address: "Buyer@Example.com" },
     purchase_units: [{
       custom_id: "neck-shoulder-reset",
-      amount: { currency_code: "USD", value: "49.00" },
+      amount: { currency_code: "USD", value: "170.00" },
       payments: { captures: [{ id: "3GG79435FJ124315M", status: "COMPLETED", create_time: "2026-07-28T00:00:00Z" }] }
     }]
   });
@@ -152,7 +152,7 @@ test("captures first, then validates the complete order representation", async f
           payer: { email_address: "Buyer@Example.com" },
           purchase_units: [{
             custom_id: "neck-shoulder-reset",
-            amount: { currency_code: "USD", value: "49.00" },
+            amount: { currency_code: "USD", value: "170.00" },
             payments: { captures: [{ id: "3GG79435FJ124315M", status: "COMPLETED", create_time: "2026-07-28T00:00:00Z" }] }
           }]
         };

@@ -202,9 +202,7 @@
         render();
         saveDraft();
       });
-      editor.querySelector(".upload-video").addEventListener("click", function () {
-        uploadVideo(editor, index);
-      });
+
       editor.querySelector(".upload-stream-video").addEventListener("click", function () {
         uploadStreamVideo(editor, index);
       });
@@ -305,9 +303,6 @@
     }).catch(function (error) {
       if (error.status === 401) {
         showLogin("Your session expired. Sign in again, then retry the upload.", "error");
-      } else if (error.code === "r2_upload_not_configured") {
-        var details = Array.isArray(error.details) && error.details.length ? " Check: " + error.details.join(", ") + "." : "";
-        setStatus("R2 upload is not configured yet." + details, "error");
       } else if (error.code === "uploads_disabled_in_preview") {
         setStatus("Uploads are disabled on preview deployments. Use the production admin page.", "error");
       } else if (error.code === "unsupported_video_type" || error.code === "invalid_file_size" ||
@@ -324,19 +319,6 @@
     });
   }
 
-  function uploadVideo(editor, index) {
-    uploadAsset(editor, index, {
-      kind: "video",
-      label: "video",
-      fileInputSelector: ".video-file",
-      buttonSelector: ".upload-video",
-      urlField: "videoUrl",
-      contentType: uploadContentType,
-      chooseMessage: "Choose an MP4, WebM, or MOV video file before uploading.",
-      invalidMessage: "This video file is not supported. Use MP4, WebM, or MOV files up to 2 GB.",
-      completeMessage: "Upload complete. Review the video URL, then click Publish changes to update the live website."
-    });
-  }
 
   function uploadTusFile(file, uploadUrl, progress) {
     var chunkSize = 50 * 1024 * 1024;
@@ -444,9 +426,6 @@
     }).then(function () {
       videos[index].streamVideoId = uploadDetails.streamVideoId;
       videos[index].streamReady = false;
-      videos[index].videoUrl = "";
-      var legacyUrl = editor.querySelector('[name="videoUrl"]');
-      if (legacyUrl) legacyUrl.value = "";
       fileInput.value = "";
       updateStreamStatus(editor, videos[index]);
       saveDraft();

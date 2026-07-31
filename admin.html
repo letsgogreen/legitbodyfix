@@ -78,7 +78,7 @@
         <label class="field">
           <span>Program</span>
           <select id="accessGrantProgram" required>
-            <option value="neck-shoulder-reset">Neck &amp; Shoulder Reset — 4-Week Movement Program</option>
+            <option value="neck-shoulder-reset">Full Body Restoration Package</option>
           </select>
         </label>
         <button class="button button-primary" id="grantAccessButton" type="submit">Grant access</button>
@@ -141,15 +141,11 @@
         <label class="field">
           <span>Individual price (USD)</span>
           <input name="price" type="number" min="0" max="999" step="0.01" placeholder="e.g. 12.00">
-          <span class="field-hint">Leave blank to sell this session only as part of the $49 bundle. Set a price to also let buyers purchase it on its own.</span>
+          <span class="field-hint">Leave blank to sell this session only as part of the $170 Full Body Restoration Package. Set a price to also let buyers purchase it on its own.</span>
         </label>
         <label class="field field-wide">
           <span>Description</span>
           <textarea name="description" rows="3" maxlength="240"></textarea>
-        </label>
-        <label class="field field-wide">
-          <span>Video URL</span>
-          <input name="videoUrl" type="url" placeholder="https://…">
         </label>
         <label class="field field-wide">
           <span>Protected Stream video</span>
@@ -161,14 +157,7 @@
           <span class="field-hint stream-status">No protected Stream video has been uploaded yet.</span>
           <span class="field-hint">Videos are uploaded privately. Files over 200 MB use a resumable upload so a brief connection loss does not restart the whole file.</span>
         </label>
-        <label class="field field-wide">
-          <span>Legacy public video file</span>
-          <span class="upload-row">
-            <input class="video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a video file">
-            <button class="button button-secondary upload-video" type="button">Upload to R2</button>
-          </span>
-          <span class="field-hint">Only use this for temporary public previews. For buyer videos, use Protected Stream video above.</span>
-        </label>
+
         <label class="field field-wide">
           <span>Thumbnail URL</span>
           <input name="thumbnailUrl" type="url" placeholder="https://…">
