@@ -67,6 +67,43 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(javascript, /filterVideos/);
 });
 
+test("admin navigation groups every visible item around a working destination", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin-interface.js"), "utf8");
+
+  assert.match(html, /Business setup/);
+  assert.match(html, /Core systems connected/);
+  assert.match(html, /Build &amp; sell/);
+  assert.match(html, /Programs &amp; videos/);
+  assert.match(html, /Customer views/);
+  assert.match(html, /href="index\.html" target="_blank"/);
+  assert.match(html, /href="checkout\.html" target="_blank"/);
+  assert.match(html, /href="library\.html" target="_blank"/);
+  assert.match(html, /id="sidebarVideoCount"/);
+  assert.match(javascript, /syncSidebarVideoCount/);
+  assert.doesNotMatch(html, />Analytics</);
+  assert.doesNotMatch(html, />Marketing</);
+});
+
+test("admin navigation supports fast switching and a collapsible workspace rail", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin-interface.js"), "utf8");
+
+  assert.match(html, /id="commandPalette"/);
+  assert.match(html, /id="commandSearch"/);
+  assert.match(html, /data-command-workspace="site-copy"/);
+  assert.match(html, /id="railCollapseButton"/);
+  assert.match(html, /data-focus-target="siteSectionType"/);
+  assert.match(html, /data-focus-target="addVideo"/);
+  assert.match(html, /data-focus-target="accessGrantEmail"/);
+  assert.match(css, /data-rail-collapsed="true"/);
+  assert.match(javascript, /legitbodyfix\.adminRailCollapsed\.v1/);
+  assert.match(javascript, /openCommandPalette/);
+  assert.match(javascript, /event\.key\.toLowerCase\(\) === "k"/);
+  assert.match(javascript, /event\.key === "\/"/);
+});
+
 test("admin offers one complete site editor with safe layout controls", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
