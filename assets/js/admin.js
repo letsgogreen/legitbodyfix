@@ -855,6 +855,14 @@
       });
   }
 
+  var localDesignPreview = ["127.0.0.1", "localhost"].indexOf(window.location.hostname) !== -1 &&
+    new URLSearchParams(window.location.search).get("design-preview") === "1";
+
+  if (localDesignPreview) {
+    showEditor();
+    return;
+  }
+
   requestStatus(SESSION_URL, {
     method: "GET",
     credentials: "same-origin",
