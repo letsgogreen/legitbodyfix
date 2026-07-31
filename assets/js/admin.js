@@ -95,6 +95,7 @@
       if (window.LegitSiteEditor) window.LegitSiteEditor.start();
       else loadSiteContent();
     }
+    window.dispatchEvent(new CustomEvent("legitbodyfix:admin-authenticated"));
   }
 
   function readPath(source, path) {
