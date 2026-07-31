@@ -47,11 +47,16 @@ test("admin previews thumbnails and protected videos without exposing raw playba
   assert.match(html, /class="thumbnail-preview-image"/);
   assert.match(html, /Protected video preview/);
   assert.match(html, /class="stream-preview-player"/);
+  assert.match(html, /class="stream-media-badge" data-state="empty">Not uploaded/);
+  assert.match(html, /No video uploaded/);
   assert.match(html, /class="button button-dark preview-stream-video"/);
   assert.match(javascript, /kind=stream-playback/);
   assert.match(javascript, /function safeStreamPlayerUrl/);
   assert.match(javascript, /cloudflarestream/);
   assert.match(javascript, /function previewStreamVideo/);
+  assert.match(javascript, /badge\.textContent = "Uploaded · Ready"/);
+  assert.match(javascript, /card\.dataset\.streamState = "processing"/);
+  assert.match(javascript, /button\.textContent = "Play uploaded video"/);
   assert.doesNotMatch(javascript, /\.m3u8/);
   assert.doesNotMatch(javascript, /\.mpd/);
 });

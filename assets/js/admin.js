@@ -345,16 +345,30 @@
     var button = editor.querySelector(".preview-stream-video");
     var message = editor.querySelector(".stream-preview-empty");
     var statusMessage = editor.querySelector(".stream-preview-status");
+    var card = editor.querySelector(".stream-media-card");
+    var badge = editor.querySelector(".stream-media-badge");
     var isReady = video.streamReady === true && Boolean(video.streamVideoId);
     button.disabled = !isReady;
     if (!video.streamVideoId) {
+      card.dataset.streamState = "empty";
+      badge.dataset.state = "empty";
+      badge.textContent = "Not uploaded";
+      button.textContent = "No video uploaded";
       message.textContent = "Upload a protected video to preview it here.";
       statusMessage.textContent = "The player opens only when requested.";
     } else if (!video.streamReady) {
+      card.dataset.streamState = "processing";
+      badge.dataset.state = "processing";
+      badge.textContent = "Processing";
+      button.textContent = "Video processing";
       message.textContent = "Cloudflare is still preparing this video.";
       statusMessage.textContent = "Click Check processing before trying to play it.";
     } else {
-      message.textContent = "This protected video is ready to play.";
+      card.dataset.streamState = "ready";
+      badge.dataset.state = "ready";
+      badge.textContent = "Uploaded · Ready";
+      button.textContent = "Play uploaded video";
+      message.textContent = "Video uploaded successfully. It is ready to play.";
       statusMessage.textContent = "Playback uses a short-lived, non-downloadable viewing link.";
     }
     if (editor.dataset.previewVideoId && editor.dataset.previewVideoId !== video.streamVideoId) {
@@ -406,7 +420,7 @@
       }
     }).finally(function () {
       button.disabled = !(video.streamReady && video.streamVideoId);
-      button.textContent = "Play video";
+      button.textContent = video.streamReady && video.streamVideoId ? "Play uploaded video" : "Video unavailable";
     });
   }
 

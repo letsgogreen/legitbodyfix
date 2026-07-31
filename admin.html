@@ -278,14 +278,14 @@
             <p class="thumbnail-preview-empty">Add a thumbnail URL or upload an image to preview it here.</p>
           </div>
         </section>
-        <section class="media-preview-card">
-          <div class="media-preview-heading"><span>Protected video preview</span><small>Admin-only playback</small></div>
+        <section class="media-preview-card stream-media-card" data-stream-state="empty">
+          <div class="media-preview-heading"><span>Protected video</span><small class="stream-media-badge" data-state="empty">Not uploaded</small></div>
           <div class="stream-preview-frame">
             <iframe class="stream-preview-player" title="Protected video preview" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin" allowfullscreen hidden></iframe>
             <p class="stream-preview-empty">Upload a protected video to preview it here.</p>
           </div>
           <div class="media-preview-actions">
-            <button class="button button-dark preview-stream-video" type="button" disabled>Play video</button>
+            <button class="button button-dark preview-stream-video" type="button" disabled>No video uploaded</button>
             <button class="button close-stream-preview" type="button" hidden>Close preview</button>
             <span class="field-hint stream-preview-status">The player opens only when requested.</span>
           </div>
