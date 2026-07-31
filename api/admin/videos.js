@@ -64,7 +64,7 @@ async function grantLibraryAccess(response, body) {
 }
 
 function handleSalesError(response, error) {
-  if (error instanceof sales.SalesError || error instanceof paypal.PaypalError) {
+  if (error instanceof sales.SalesError) {
     console.error("[admin/videos:sales] request failed", {
       code: error.code,
       statusCode: error.statusCode,
@@ -78,7 +78,7 @@ function handleSalesError(response, error) {
   return response.status(500).json({ error: "sales_service_unavailable" });
 }
 
-async function handleSalesRequest(request, response, body) {
+async function handleSalesRequest(response) {
   var storeConfig = access.getServerConfig();
   if (!storeConfig) {
     return response.status(503).json({
@@ -88,31 +88,7 @@ async function handleSalesRequest(request, response, body) {
   }
 
   try {
-    if (request.method === "GET") {
-      return response.status(200).json({ sales: await sales.listSales(storeConfig, paypal.getProduct) });
-    }
-    if (process.env.VERCEL_ENV !== "production") {
-      return response.status(409).json({ error: "refunds_disabled_in_preview" });
-    }
-    if (body.action !== "refund" || body.confirmation !== "REFUND") {
-      return response.status(422).json({ error: "refund_confirmation_required" });
-    }
-
-    var payment = await sales.findSale(storeConfig, body.paymentId, paypal.getProduct);
-    if (payment.provider !== "paypal" || payment.status !== "completed" || !payment.providerCaptureId) {
-      return response.status(409).json({ error: "payment_not_refundable" });
-    }
-
-    var paypalConfig = paypal.getConfig();
-    if (!paypalConfig) return response.status(503).json({ error: "paypal_not_configured" });
-    var refund = await paypal.refundCapture(paypalConfig, payment.providerCaptureId, "lbf-refund-" + payment.providerCaptureId);
-    var status = await sales.markRefunded(storeConfig, payment, refund);
-    console.info("[admin/videos:sales] refund accepted", {
-      paymentId: payment.id,
-      programId: payment.programId,
-      refundStatus: refund.status
-    });
-    return response.status(200).json({ refunded: true, status: status, refundId: refund.id });
+    return response.status(200).json({ sales: await sales.listSales(storeConfig, paypal.getProduct) });
   } catch (error) {
     return handleSalesError(response, error);
   }
@@ -122,8 +98,8 @@ module.exports = async function handler(request, response) {
   auth.setApiHeaders(response);
 
   var isSalesRequest = request.query && request.query.action === "sales";
-  if ((!isSalesRequest && request.method !== "POST") || (isSalesRequest && ["GET", "POST"].indexOf(request.method) === -1)) {
-    response.setHeader("Allow", isSalesRequest ? "GET, POST" : "POST");
+  if ((!isSalesRequest && request.method !== "POST") || (isSalesRequest && request.method !== "GET")) {
+    response.setHeader("Allow", isSalesRequest ? "GET" : "POST");
     return response.status(405).json({ error: "method_not_allowed" });
   }
 
@@ -142,7 +118,7 @@ module.exports = async function handler(request, response) {
     }
   }
 
-  if (isSalesRequest) return handleSalesRequest(request, response, body);
+  if (isSalesRequest) return handleSalesRequest(response);
 
   if (body.action === "grant-access") {
     if (process.env.VERCEL_ENV !== "production") {

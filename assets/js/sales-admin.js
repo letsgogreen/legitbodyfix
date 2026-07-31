@@ -4,7 +4,6 @@
   var API_URL = "/api/admin/sales";
   var sales = [];
   var loaded = false;
-  var activeRefund = null;
   var tableBody = document.getElementById("salesTableBody");
   var empty = document.getElementById("salesEmpty");
   var status = document.getElementById("salesStatus");
@@ -14,15 +13,7 @@
   var count = document.getElementById("salesCount");
   var sidebarCount = document.getElementById("sidebarSalesCount");
   var collected = document.getElementById("salesCollected");
-  var refunded = document.getElementById("salesRefunded");
-  var dialog = document.getElementById("refundDialog");
-  var refundBuyer = document.getElementById("refundBuyer");
-  var refundProduct = document.getElementById("refundProduct");
-  var refundAmount = document.getElementById("refundAmount");
-  var confirmation = document.getElementById("refundConfirmation");
-  var confirmButton = document.getElementById("confirmRefund");
-  var cancelButton = document.getElementById("cancelRefund");
-  var refundStatus = document.getElementById("refundStatus");
+  var customers = document.getElementById("salesCustomers");
   if (!tableBody) return;
 
   function setStatus(message, state) {
@@ -31,18 +22,11 @@
     else delete status.dataset.state;
   }
 
-  function setRefundStatus(message, state) {
-    refundStatus.textContent = message;
-    if (state) refundStatus.dataset.state = state;
-    else delete refundStatus.dataset.state;
-  }
-
-  function requestJson(url, options) {
-    return fetch(url, options).then(function (response) {
+  function requestJson(url) {
+    return fetch(url, { credentials: "same-origin" }).then(function (response) {
       return response.json().catch(function () { return {}; }).then(function (body) {
         if (!response.ok) {
           var error = new Error(body.error || "request_failed");
-          error.code = body.error || "request_failed";
           error.status = response.status;
           throw error;
         }
@@ -87,33 +71,11 @@
     var collectedAmount = sales.reduce(function (total, sale) {
       return total + (sale.status === "completed" ? sale.amount : 0);
     }, 0);
-    var refundedAmount = sales.reduce(function (total, sale) {
-      return total + (["refunded", "refund_pending"].indexOf(sale.status) !== -1 ? sale.amount : 0);
-    }, 0);
+    var buyerEmails = new Set(sales.map(function (sale) { return sale.buyerEmail.toLowerCase(); }).filter(Boolean));
     count.textContent = String(sales.length);
     sidebarCount.textContent = String(sales.length);
     collected.textContent = money(collectedAmount, "USD");
-    refunded.textContent = money(refundedAmount, "USD");
-  }
-
-  function openRefund(sale) {
-    activeRefund = sale;
-    refundBuyer.textContent = sale.buyerEmail;
-    refundProduct.textContent = sale.productTitle;
-    refundAmount.textContent = money(sale.amount, sale.currency);
-    confirmation.value = "";
-    confirmButton.disabled = true;
-    setRefundStatus("");
-    dialog.hidden = false;
-    document.body.classList.add("has-refund-open");
-    window.requestAnimationFrame(function () { confirmation.focus(); });
-  }
-
-  function closeRefund() {
-    if (confirmButton.disabled && confirmation.value === "REFUND" && refundStatus.textContent) return;
-    dialog.hidden = true;
-    document.body.classList.remove("has-refund-open");
-    activeRefund = null;
+    customers.textContent = String(buyerEmails.size);
   }
 
   function render() {
@@ -126,7 +88,7 @@
       var buyer = document.createElement("strong");
       buyer.textContent = sale.buyerEmail;
       var reference = document.createElement("small");
-      reference.textContent = sale.orderReference ? "Order …" + sale.orderReference : "Recorded purchase";
+      reference.textContent = sale.orderReference ? "Order " + sale.orderReference : "Recorded purchase";
       buyerCell.append(buyer, reference);
       var productCell = document.createElement("td");
       productCell.textContent = sale.productTitle;
@@ -139,18 +101,7 @@
       badge.className = "payment-status payment-status-" + sale.status;
       badge.textContent = statusLabel(sale.status);
       statusCell.appendChild(badge);
-      var actionCell = document.createElement("td");
-      if (sale.status === "completed" && sale.provider === "paypal") {
-        var button = document.createElement("button");
-        button.type = "button";
-        button.className = "text-button refund-button";
-        button.textContent = "Refund";
-        button.addEventListener("click", function () { openRefund(sale); });
-        actionCell.appendChild(button);
-      } else {
-        actionCell.textContent = "—";
-      }
-      row.append(buyerCell, productCell, amountCell, dateCell, statusCell, actionCell);
+      row.append(buyerCell, productCell, amountCell, dateCell, statusCell);
       tableBody.appendChild(row);
     });
     renderSummary();
@@ -159,8 +110,8 @@
   function loadSales(force) {
     if (loaded && !force) return;
     refresh.disabled = true;
-    setStatus("Loading sales…");
-    requestJson(API_URL, { credentials: "same-origin" }).then(function (data) {
+    setStatus("Loading sales...");
+    requestJson(API_URL).then(function (data) {
       sales = Array.isArray(data.sales) ? data.sales : [];
       loaded = true;
       render();
@@ -171,42 +122,6 @@
     }).finally(function () { refresh.disabled = false; });
   }
 
-  confirmation.addEventListener("input", function () {
-    confirmButton.disabled = confirmation.value !== "REFUND";
-  });
-  cancelButton.addEventListener("click", closeRefund);
-  dialog.addEventListener("click", function (event) { if (event.target === dialog) closeRefund(); });
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && !dialog.hidden) closeRefund();
-  });
-  confirmButton.addEventListener("click", function () {
-    if (!activeRefund || confirmation.value !== "REFUND") return;
-    confirmButton.disabled = true;
-    cancelButton.disabled = true;
-    setRefundStatus("Submitting the full refund to PayPal…");
-    requestJson(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ action: "refund", paymentId: activeRefund.id, confirmation: confirmation.value })
-    }).then(function () {
-      setRefundStatus("Refund accepted. The buyer's library access has been revoked.", "success");
-      return loadSales(true);
-    }).then(function () {
-      window.setTimeout(function () {
-        cancelButton.disabled = false;
-        confirmation.value = "";
-        closeRefund();
-      }, 900);
-    }).catch(function (error) {
-      cancelButton.disabled = false;
-      if (error.status === 401) window.location.reload();
-      else if (error.code === "refunds_disabled_in_preview") setRefundStatus("Refunds are disabled in previews. Use the production admin page.", "error");
-      else if (error.code === "payment_not_refundable") setRefundStatus("This payment is no longer refundable from this page.", "error");
-      else setRefundStatus("The refund was not completed. No local status was changed.", "error");
-      confirmButton.disabled = confirmation.value !== "REFUND";
-    });
-  });
   search.addEventListener("input", render);
   filter.addEventListener("change", render);
   refresh.addEventListener("click", function () { loadSales(true); });

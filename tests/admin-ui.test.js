@@ -69,17 +69,19 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(javascript, /filterVideos/);
 });
 
-test("admin includes a searchable sales ledger and guarded refund dialog", function () {
+test("admin includes a searchable read-only sales ledger", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/sales-admin.js"), "utf8");
 
-  assert.match(html, /Sales &amp; refunds/);
+  assert.match(html, /id="salesTitle">Sales</);
   assert.match(html, /id="salesTableBody"/);
   assert.match(html, /id="salesSearch"/);
-  assert.match(html, /id="refundDialog"/);
-  assert.match(html, /Type <strong>REFUND<\/strong> to confirm/);
+  assert.match(html, /read-only record of payments and buyer access/);
+  assert.doesNotMatch(html, /id="refundDialog"/);
+  assert.doesNotMatch(html, /Issue full refund/);
   assert.match(javascript, /\/api\/admin\/sales/);
-  assert.match(javascript, /confirmation\.value !== "REFUND"/);
+  assert.doesNotMatch(javascript, /method:\s*"POST"/);
+  assert.doesNotMatch(javascript, /refundCapture|confirmRefund|openRefund/);
   assert.doesNotMatch(javascript, /providerCaptureId\s*:/);
 });
 

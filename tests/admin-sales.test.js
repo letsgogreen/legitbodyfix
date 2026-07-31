@@ -37,16 +37,3 @@ test("lists normalized sales without exposing storage credentials", async functi
   assert.match(calls[0].url, /payment_orders/);
   assert.equal(JSON.stringify(result).includes(config.secretKey), false);
 });
-
-test("marks the payment refunded and revokes its matching entitlement", async function () {
-  var calls = [];
-  var status = await sales.markRefunded(config, { id: "payment-1" }, { status: "COMPLETED" }, async function (url, options) {
-    calls.push({ url: url, options: options });
-    return response(null);
-  });
-
-  assert.equal(status, "refunded");
-  assert.deepEqual(JSON.parse(calls[0].options.body), { status: "refunded" });
-  assert.deepEqual(JSON.parse(calls[1].options.body), { status: "revoked" });
-  assert.match(calls[1].url, /entitlements/);
-});
