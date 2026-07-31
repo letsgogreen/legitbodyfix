@@ -306,6 +306,15 @@
         <label class="field"><span>Equipment</span><input name="equipment" type="text" required maxlength="80" /></label>
         <label class="field"><span>Individual price (USD)</span><input name="price" type="number" min="0" max="999" step="0.01" placeholder="e.g. 12.00" /><span class="field-hint">Leave blank to include this session only in the $170 package.</span></label>
         <label class="field field-wide"><span>Description</span><textarea name="description" rows="3" maxlength="240"></textarea></label>
+        <div class="field field-wide editor-section-label"><span>Sales landing page</span><span class="field-hint">Shape the persuasive page visitors see before checkout.</span></div>
+        <label class="field"><span>Eyebrow</span><input name="landingEyebrow" type="text" maxlength="60" placeholder="Targeted movement session" /></label>
+        <label class="field field-wide"><span>Sales headline</span><input name="landingHeadline" type="text" maxlength="120" placeholder="Lead with the outcome" /></label>
+        <label class="field field-wide"><span>Sales summary</span><textarea name="landingSummary" rows="3" maxlength="360" placeholder="Explain the problem, the session, and the practical result."></textarea></label>
+        <label class="field field-wide"><span>Benefit 1</span><input name="landingBenefit1" type="text" maxlength="140" /></label>
+        <label class="field field-wide"><span>Benefit 2</span><input name="landingBenefit2" type="text" maxlength="140" /></label>
+        <label class="field field-wide"><span>Benefit 3</span><input name="landingBenefit3" type="text" maxlength="140" /></label>
+        <label class="field field-wide"><span>Who this is for</span><textarea name="landingAudience" rows="2" maxlength="300"></textarea></label>
+        <label class="field field-wide"><span>Purchase reassurance</span><textarea name="landingReassurance" rows="2" maxlength="240"></textarea></label>
         <label class="field field-wide">
           <span>Protected Stream video</span>
           <span class="upload-row"><input class="stream-video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a protected video file" /><button class="button button-dark upload-stream-video" type="button">Upload to Stream</button><button class="button check-stream-status" type="button">Check processing</button></span>
@@ -326,7 +335,7 @@
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260801-1" defer></script>
-  <script src="assets/js/admin.js?v=20260801-5" defer></script>
+  <script src="assets/js/admin.js?v=20260801-6" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
 </body>
 </html>

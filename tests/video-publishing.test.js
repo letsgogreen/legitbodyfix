@@ -13,6 +13,14 @@ function sampleVideo(overrides) {
     moduleNumber: 99,
     title: "Neck Alignment",
     description: "A guided protocol.",
+    landingEyebrow: "Targeted movement session",
+    landingHeadline: "Release tension and move comfortably.",
+    landingSummary: "A practical session designed to improve control.",
+    landingBenefit1: "Restore controlled range.",
+    landingBenefit2: "Reduce unnecessary compensation.",
+    landingBenefit3: "Build a repeatable movement habit.",
+    landingAudience: "For people rebuilding comfortable everyday movement.",
+    landingReassurance: "One payment. Protected access through your personal library.",
     durationMinutes: 12,
     equipment: "Bodyweight",
     programId: "neck-shoulder-reset",
@@ -54,6 +62,8 @@ test("video validation normalizes trusted fields and module order", function () 
   assert.equal(videos[0].programId, "neck-shoulder-reset");
   assert.equal(videos[0].streamVideoId, "fedcba9876543210fedcba9876543210");
   assert.equal(videos[0].streamReady, true);
+  assert.equal(videos[0].landingHeadline, "Release tension and move comfortably.");
+  assert.equal(videos[0].landingBenefit3, "Build a repeatable movement habit.");
   assert.equal(videos[1].moduleNumber, 2);
   assert.equal(videos[0].videoUrl, "https://videos.example.com/neck.mp4");
 });

@@ -318,14 +318,13 @@ test("admin video preview refuses playback until Stream processing is ready", as
   }
 });
 
-test("public video cards never link directly to the raw video, only to checkout", function () {
+test("public video cards open persuasive landing pages and never raw video URLs", function () {
   var script = fs.readFileSync(path.join(__dirname, "../assets/js/videos.js"), "utf8");
 
   // Thumbnails still validate as HTTPS URLs, but the card itself must send a
-  // visitor to checkout for that specific session (individually priced when
-  // available, otherwise the bundle) rather than exposing the raw video.
+  // visitor to a dedicated sales page rather than exposing the raw video.
   assert.match(script, /function playableUrl\(value\)/);
-  assert.match(script, /card\.href = "checkout\.html\?product="/);
+  assert.match(script, /card\.href = "video\.html\?id="/);
   assert.doesNotMatch(script, /card\.href = videoUrl/);
   assert.doesNotMatch(script, /card\.target = "_blank"/);
   assert.match(script, /thumbnail\.className = "course-thumbnail"/);
