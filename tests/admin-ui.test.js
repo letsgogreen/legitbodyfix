@@ -95,3 +95,4 @@ test("admin offers one complete site editor with safe layout controls", function
   assert.doesNotMatch(javascript, /contenteditable/);
   assert.doesNotMatch(javascript, /innerHTML/);
 });
+
