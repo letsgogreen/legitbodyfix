@@ -32,16 +32,22 @@ test("session tokens reject tampering and expiration", function () {
 test("login, session check, and logout use a signed HttpOnly cookie", function () {
   var previousPassword = process.env.ADMIN_PASSWORD;
   var previousSecret = process.env.ADMIN_SESSION_SECRET;
+  var previousEmail = process.env.ADMIN_EMAIL;
   process.env.ADMIN_PASSWORD = "correct-horse-battery-staple";
   process.env.ADMIN_SESSION_SECRET = "a-very-long-test-session-secret-value-123456";
+  process.env.ADMIN_EMAIL = "owner@example.com";
 
   try {
     var failedLoginResponse = createResponse();
-    login({ method: "POST", body: { password: "wrong-password" }, headers: {} }, failedLoginResponse);
+    login({ method: "POST", body: { email: process.env.ADMIN_EMAIL, password: "wrong-password" }, headers: {} }, failedLoginResponse);
     assert.equal(failedLoginResponse.statusCode, 401);
 
+    var wrongEmailResponse = createResponse();
+    login({ method: "POST", body: { email: "someone@example.com", password: process.env.ADMIN_PASSWORD }, headers: {} }, wrongEmailResponse);
+    assert.equal(wrongEmailResponse.statusCode, 401);
+
     var loginResponse = createResponse();
-    login({ method: "POST", body: { password: process.env.ADMIN_PASSWORD }, headers: {} }, loginResponse);
+    login({ method: "POST", body: { email: "  OWNER@EXAMPLE.COM ", password: process.env.ADMIN_PASSWORD }, headers: {} }, loginResponse);
     assert.equal(loginResponse.statusCode, 200);
     assert.match(loginResponse.headers["Set-Cookie"], /HttpOnly/);
     assert.match(loginResponse.headers["Set-Cookie"], /SameSite=Strict/);
@@ -61,14 +67,18 @@ test("login, session check, and logout use a signed HttpOnly cookie", function (
     else process.env.ADMIN_PASSWORD = previousPassword;
     if (previousSecret === undefined) delete process.env.ADMIN_SESSION_SECRET;
     else process.env.ADMIN_SESSION_SECRET = previousSecret;
+    if (previousEmail === undefined) delete process.env.ADMIN_EMAIL;
+    else process.env.ADMIN_EMAIL = previousEmail;
   }
 });
 
 test("API reports missing production configuration", function () {
   var previousPassword = process.env.ADMIN_PASSWORD;
   var previousSecret = process.env.ADMIN_SESSION_SECRET;
+  var previousEmail = process.env.ADMIN_EMAIL;
   delete process.env.ADMIN_PASSWORD;
   delete process.env.ADMIN_SESSION_SECRET;
+  delete process.env.ADMIN_EMAIL;
 
   try {
     var response = createResponse();
@@ -78,5 +88,29 @@ test("API reports missing production configuration", function () {
   } finally {
     if (previousPassword !== undefined) process.env.ADMIN_PASSWORD = previousPassword;
     if (previousSecret !== undefined) process.env.ADMIN_SESSION_SECRET = previousSecret;
+    if (previousEmail !== undefined) process.env.ADMIN_EMAIL = previousEmail;
+  }
+});
+
+test("login requires an approved administrator email configuration", function () {
+  var previousPassword = process.env.ADMIN_PASSWORD;
+  var previousSecret = process.env.ADMIN_SESSION_SECRET;
+  var previousEmail = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_PASSWORD = "correct-horse-battery-staple";
+  process.env.ADMIN_SESSION_SECRET = "a-very-long-test-session-secret-value-123456";
+  delete process.env.ADMIN_EMAIL;
+
+  try {
+    var response = createResponse();
+    login({ method: "POST", body: { email: "owner@example.com", password: process.env.ADMIN_PASSWORD }, headers: {} }, response);
+    assert.equal(response.statusCode, 503);
+    assert.deepEqual(response.body, { error: "admin_auth_not_configured" });
+  } finally {
+    if (previousPassword === undefined) delete process.env.ADMIN_PASSWORD;
+    else process.env.ADMIN_PASSWORD = previousPassword;
+    if (previousSecret === undefined) delete process.env.ADMIN_SESSION_SECRET;
+    else process.env.ADMIN_SESSION_SECRET = previousSecret;
+    if (previousEmail === undefined) delete process.env.ADMIN_EMAIL;
+    else process.env.ADMIN_EMAIL = previousEmail;
   }
 });

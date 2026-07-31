@@ -19,6 +19,7 @@
   var authStatus = document.getElementById("authStatus");
   var loginForm = document.getElementById("loginForm");
   var loginButton = document.getElementById("loginButton");
+  var emailInput = document.getElementById("adminEmail");
   var passwordInput = document.getElementById("adminPassword");
   var logoutButton = document.getElementById("logoutButton");
   var adminShell = document.getElementById("main");
@@ -79,14 +80,16 @@
   }
 
   function showLogin(message, state) {
+    document.body.classList.add("auth-visible");
     authGate.hidden = false;
     adminShell.hidden = true;
     logoutButton.hidden = true;
-    setAuthStatus(message || "Enter the administrator password.", state);
-    if (message) passwordInput.focus();
+    setAuthStatus(message || "Enter your approved email and password.", state);
+    if (message) emailInput.focus();
   }
 
   function showEditor() {
+    document.body.classList.remove("auth-visible");
     authGate.hidden = true;
     adminShell.hidden = false;
     logoutButton.hidden = false;
@@ -944,12 +947,12 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify({ password: passwordInput.value })
+      body: JSON.stringify({ email: emailInput.value, password: passwordInput.value })
     }).then(function () {
       passwordInput.value = "";
       showEditor();
     }).catch(function (error) {
-      if (error.status === 401) showLogin("The password is incorrect.", "error");
+      if (error.status === 401) showLogin("The email or password is incorrect.", "error");
       else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
       else showLogin("The login service is unavailable. Please try again.", "error");
       passwordInput.select();
