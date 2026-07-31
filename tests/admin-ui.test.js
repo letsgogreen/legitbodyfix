@@ -39,18 +39,24 @@ test("admin offers protected Stream uploads and does not present R2 as the buyer
   assert.match(javascript, /uploadTusFile/);
 });
 
-test("admin sign-in is a compact owner-only email and password gate", function () {
+test("admin sign-in verifies the approved inbox before checking the password", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
 
   assert.match(html, /id="adminEmail"[^>]+type="email"/);
+  assert.match(html, /id="emailVerificationForm"/);
+  assert.match(html, /Send verification link/);
+  assert.match(html, /id="verifiedAdminEmail"/);
   assert.match(html, /id="adminPassword"[^>]+type="password"/);
   assert.match(html, /Owner only\./);
   assert.doesNotMatch(html, /auth-intro/);
   assert.doesNotMatch(html, /RUN THE/);
   assert.match(css, /\.auth-card\s*\{[^}]*width:\s*min\(460px, 100%\)/);
-  assert.match(javascript, /JSON\.stringify\(\{ email: emailInput\.value, password: passwordInput\.value \}\)/);
+  assert.match(javascript, /signInWithOtp/);
+  assert.match(javascript, /shouldCreateUser:\s*false/);
+  assert.match(javascript, /Authorization": "Bearer " \+ session\.access_token/);
+  assert.match(javascript, /JSON\.stringify\(\{ password: passwordInput\.value \}\)/);
 });
 
 test("admin previews thumbnails and protected videos without exposing raw playback URLs", function () {

@@ -15,8 +15,15 @@
   var STREAM_STATUS_URL = "/api/admin/uploads?kind=stream-status";
   var STREAM_PLAYBACK_URL = "/api/admin/uploads?kind=stream-playback";
   var ACCESS_GRANT_URL = "/api/admin/videos";
+  var ACCESS_CONFIG_URL = "/api/access/config";
+  var SUPABASE_SDK_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
   var authGate = document.getElementById("authGate");
   var authStatus = document.getElementById("authStatus");
+  var emailVerificationForm = document.getElementById("emailVerificationForm");
+  var emailVerificationButton = document.getElementById("emailVerificationButton");
+  var verifiedAdmin = document.getElementById("verifiedAdmin");
+  var verifiedAdminEmail = document.getElementById("verifiedAdminEmail");
+  var changeAdminEmail = document.getElementById("changeAdminEmail");
   var loginForm = document.getElementById("loginForm");
   var loginButton = document.getElementById("loginButton");
   var emailInput = document.getElementById("adminEmail");
@@ -41,6 +48,9 @@
   var siteContent = null;
   var editorStarted = false;
   var activeUploads = 0;
+  var supabaseClient = null;
+  var supabaseInitialization = null;
+  var verifiedSession = null;
 
   var SITE_FIELDS = [
     { title: "Hero", fields: [
@@ -79,13 +89,77 @@
     else delete authStatus.dataset.state;
   }
 
+  function renderAuthenticationStep() {
+    var verified = Boolean(verifiedSession && verifiedSession.access_token && verifiedSession.user);
+    emailVerificationForm.hidden = verified;
+    verifiedAdmin.hidden = !verified;
+    loginForm.hidden = !verified;
+    verifiedAdminEmail.textContent = verified ? (verifiedSession.user.email || "Verified administrator") : "";
+  }
+
+  function initializeEmailVerification() {
+    if (supabaseInitialization) return supabaseInitialization;
+
+    supabaseInitialization = Promise.all([
+      requestJson(ACCESS_CONFIG_URL, { cache: "no-store" }),
+      import(SUPABASE_SDK_URL)
+    ]).then(function (results) {
+      var config = results[0];
+      var createClient = results[1].createClient;
+      supabaseClient = createClient(config.url, config.publishableKey, {
+        auth: { persistSession: true, detectSessionInUrl: true, autoRefreshToken: true }
+      });
+      return supabaseClient.auth.getSession();
+    }).then(function (result) {
+      if (result.error) throw result.error;
+      verifiedSession = result.data.session || null;
+      renderAuthenticationStep();
+      return verifiedSession;
+    }).catch(function (error) {
+      supabaseInitialization = null;
+      throw error;
+    });
+
+    return supabaseInitialization;
+  }
+
+  function getVerifiedAdminSession() {
+    return initializeEmailVerification().then(function () {
+      return supabaseClient.auth.getSession();
+    }).then(function (result) {
+      if (result.error || !result.data.session || !result.data.session.access_token) {
+        var error = result.error || new Error("Email verification required");
+        error.status = 401;
+        throw error;
+      }
+      verifiedSession = result.data.session;
+      renderAuthenticationStep();
+      return verifiedSession;
+    });
+  }
+
+  function signOutVerifiedEmail() {
+    return initializeEmailVerification().then(function () {
+      return supabaseClient.auth.signOut({ scope: "local" });
+    }).catch(function () {
+      return null;
+    }).then(function () {
+      verifiedSession = null;
+      renderAuthenticationStep();
+    });
+  }
+
   function showLogin(message, state) {
     document.body.classList.add("auth-visible");
     authGate.hidden = false;
     adminShell.hidden = true;
     logoutButton.hidden = true;
-    setAuthStatus(message || "Enter your approved email and password.", state);
-    if (message) emailInput.focus();
+    renderAuthenticationStep();
+    setAuthStatus(message || (verifiedSession
+      ? "Email verified. Enter your administrator password."
+      : "Verify the approved administrator email to continue."), state);
+    if (verifiedSession) passwordInput.focus();
+    else emailInput.focus();
   }
 
   function showEditor() {
@@ -938,21 +1012,65 @@
     event.target.value = "";
   });
 
+  emailVerificationForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var email = emailInput.value.trim().toLowerCase();
+    if (!email || !emailInput.checkValidity()) {
+      setAuthStatus("Enter a valid administrator email address.", "error");
+      emailInput.focus();
+      return;
+    }
+
+    emailVerificationButton.disabled = true;
+    setAuthStatus("Sending a secure verification link…");
+    initializeEmailVerification().then(function () {
+      return supabaseClient.auth.signInWithOtp({
+        email: email,
+        options: {
+          emailRedirectTo: window.location.origin + "/admin.html",
+          shouldCreateUser: false
+        }
+      });
+    }).then(function (result) {
+      if (result.error) throw result.error;
+      setAuthStatus("Check the approved inbox and open the verification link. This page can stay open.");
+    }).catch(function (error) {
+      console.error("Admin email verification failed:", error && error.message ? error.message : error);
+      setAuthStatus("We could not send the verification link. Check the email or try again shortly.", "error");
+    }).finally(function () {
+      emailVerificationButton.disabled = false;
+    });
+  });
+
+  changeAdminEmail.addEventListener("click", function () {
+    changeAdminEmail.disabled = true;
+    signOutVerifiedEmail().finally(function () {
+      changeAdminEmail.disabled = false;
+      passwordInput.value = "";
+      showLogin("Enter the approved administrator email.");
+    });
+  });
+
   loginForm.addEventListener("submit", function (event) {
     event.preventDefault();
     loginButton.disabled = true;
-    setAuthStatus("Signing in…");
+    setAuthStatus("Confirming both security checks…");
 
-    requestStatus(LOGIN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ email: emailInput.value, password: passwordInput.value })
+    getVerifiedAdminSession().then(function (session) {
+      return requestJson(LOGIN_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + session.access_token
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({ password: passwordInput.value })
+      });
     }).then(function () {
       passwordInput.value = "";
       showEditor();
     }).catch(function (error) {
-      if (error.status === 401) showLogin("The email or password is incorrect.", "error");
+      if (error.status === 401) showLogin("Email verification or administrator password is invalid.", "error");
       else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
       else showLogin("The login service is unavailable. Please try again.", "error");
       passwordInput.select();
@@ -963,12 +1081,12 @@
 
   logoutButton.addEventListener("click", function () {
     logoutButton.disabled = true;
-    requestStatus(LOGOUT_URL, {
+    Promise.all([requestStatus(LOGOUT_URL, {
       method: "POST",
       credentials: "same-origin"
     }).catch(function () {
       return null;
-    }).finally(function () {
+    }), signOutVerifiedEmail()]).finally(function () {
       logoutButton.disabled = false;
       showLogin("You have signed out.");
     });
@@ -1032,7 +1150,13 @@
   }).then(function () {
     showEditor();
   }).catch(function (error) {
-    if (error.status === 401) showLogin();
+    if (error.status === 401) {
+      initializeEmailVerification().then(function (session) {
+        showLogin(session ? "Email verified. Enter your administrator password." : null);
+      }).catch(function () {
+        showLogin("The email verification service is unavailable. Please try again.", "error");
+      });
+    }
     else if (error.status === 503) showLogin("Admin login is not configured on this deployment yet.", "error");
     else showLogin("The login service is unavailable. Please try again.", "error");
   });
