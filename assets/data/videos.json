@@ -8,12 +8,12 @@
     "description": "A guided protocol for restoring comfortable neck position and control.",
     "durationMinutes": 12,
     "equipment": "Bodyweight",
-    "streamVideoId": "0b4823cc2d39b38006ddaa3efe3927bc",
+    "streamVideoId": "18280d25546236198bf48c17825ef174",
     "streamReady": true,
     "videoUrl": "",
     "thumbnailUrl": "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/thumbnails/2026-07/1785162514945-a92a560beb9397100d6dfc71-neck.png",
     "published": true,
-    "price": null
+    "price": 47
   },
   {
     "id": "shoulder-reset",
@@ -29,7 +29,7 @@
     "videoUrl": "",
     "thumbnailUrl": "",
     "published": true,
-    "price": null
+    "price": 0.62
   },
   {
     "id": "pelvic-balance",
