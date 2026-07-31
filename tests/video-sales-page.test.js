@@ -26,7 +26,12 @@ test("sales page links to checkout without exposing protected playback data", fu
 
   assert.match(page, /class="button button-lime checkout-link"/);
   assert.match(page, /Protected full session/);
+  assert.match(page, /What you get/);
+  assert.match(page, /How access works/);
+  assert.match(page, /Before you purchase/);
+  assert.match(page, /class="mobile-checkout"/);
   assert.match(script, /checkout\.html\?product=/);
+  assert.match(script, /setText\("mobilePrice"/);
   assert.doesNotMatch(script, /streamVideoId/);
   assert.doesNotMatch(script, /videoUrl/);
   assert.doesNotMatch(script, /innerHTML/);

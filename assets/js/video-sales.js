@@ -62,7 +62,10 @@
     setText("audience", text(video.landingAudience, "For people who want a focused, practical approach to better everyday movement."));
     setText("reassurance", text(video.landingReassurance, "One payment gives you protected access through your personal movement library."));
     setText("finalHeadline", "Put " + title.toLowerCase() + " into practice.");
-    setText("price", hasOwnPrice ? formatPrice(video.price) : "Complete program");
+    var displayPrice = hasOwnPrice ? formatPrice(video.price) : "Complete program";
+    setText("price", displayPrice);
+    setText("finalPrice", displayPrice);
+    setText("mobilePrice", displayPrice);
     setText("paymentNote", hasOwnPrice ? "One-time payment" : "Included in the full package");
 
     document.querySelectorAll(".checkout-link").forEach(function (link) { link.href = checkoutUrl; });
@@ -79,6 +82,7 @@
     loading.hidden = true;
     unavailable.hidden = true;
     page.hidden = false;
+    document.getElementById("mobileCheckout").hidden = false;
   }
 
   var videoId = new URLSearchParams(window.location.search).get("id");
