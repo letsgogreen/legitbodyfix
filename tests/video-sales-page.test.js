@@ -25,11 +25,13 @@ test("sales page links to checkout without exposing protected playback data", fu
   var styles = fs.readFileSync(path.join(root, "assets/css/video-sales.css"), "utf8");
 
   assert.match(page, /class="button button-lime checkout-link"/);
-  assert.match(page, /Protected full session/);
-  assert.match(page, /What you get/);
-  assert.match(page, /How access works/);
-  assert.match(page, /Before you purchase/);
+  assert.match(page, /The full session stays protected/);
+  assert.match(page, /Included with purchase/);
+  assert.match(page, /Simple access/);
+  assert.match(page, /Questions, answered/);
   assert.match(page, /class="mobile-checkout"/);
+  assert.match(page, /class="quick-facts"/);
+  assert.match(page, /Secure checkout/);
   assert.match(script, /checkout\.html\?product=/);
   assert.match(script, /setText\("mobilePrice"/);
   assert.doesNotMatch(script, /streamVideoId/);
