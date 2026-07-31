@@ -37,9 +37,19 @@ test("admin offers an authenticated buyer-access grant control", function () {
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
 
   assert.match(html, /id="accessGrantForm"/);
-  assert.match(html, /Grant library access/);
+  assert.match(html, /Buyer access/);
   assert.match(javascript, /api\/admin\/videos/);
   assert.match(javascript, /action: "grant-access"/);
+});
+
+test("admin presents the rebuilt control room workspaces", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+
+  assert.match(html, /class="control-room"/);
+  assert.match(html, /id="site-copy"/);
+  assert.match(html, /id="buyer-access"/);
+  assert.match(html, /id="video-library"/);
+  assert.match(html, /CONTROL<br \/>THE WORK/);
 });
 
 test("admin offers a locked homepage text editor with draft preview and publishing", function () {
