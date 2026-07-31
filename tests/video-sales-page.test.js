@@ -50,3 +50,22 @@ test("admin can preserve and edit landing-page fields", function () {
   assert.match(script, /landingHeadline:/);
   assert.match(script, /landingReassurance:/);
 });
+
+test("admin gives every session a dedicated sales-page editor and safe live preview", function () {
+  var page = fs.readFileSync(path.join(root, "admin.html"), "utf8");
+  var script = fs.readFileSync(path.join(root, "assets/js/admin.js"), "utf8");
+  var styles = fs.readFileSync(path.join(root, "assets/css/admin.css"), "utf8");
+
+  assert.match(page, /data-editor-tab="details"/);
+  assert.match(page, /data-editor-tab="sales"/);
+  assert.match(page, /data-editor-tab="media"/);
+  assert.match(page, /data-editor-panel="sales"/);
+  assert.match(page, /class="sales-page-preview-card"/);
+  assert.match(page, /Open full preview/);
+  assert.match(script, /function updateSalesPagePreview/);
+  assert.match(script, /video\.html\?id=/);
+  assert.match(script, /function showEditorPanel/);
+  assert.match(script, /item\.textContent = benefit/);
+  assert.doesNotMatch(script, /sales-preview[^\n]+innerHTML/);
+  assert.match(styles, /\.sales-page-editor-layout/);
+});

@@ -355,6 +355,7 @@
     });
     editor.querySelector(".editor-title").textContent = video.title || "Untitled video";
     updateThumbnailPreview(editor, video);
+    updateSalesPagePreview(editor, video);
     updateSummary();
     saveDraft();
   }
@@ -415,6 +416,59 @@
     image.src = url;
     image.hidden = false;
     empty.hidden = true;
+  }
+
+  function salesPageHref(video) {
+    return "video.html?id=" + encodeURIComponent(String(video.id || ""));
+  }
+
+  function updateSalesPagePreview(editor, video) {
+    var preview = editor.querySelector(".sales-page-preview-card");
+    if (!preview) return;
+
+    var thumbnail = safeThumbnailUrl(video.thumbnailUrl);
+    var image = preview.querySelector(".sales-preview-image");
+    var imageEmpty = preview.querySelector(".sales-preview-image-empty");
+    image.alt = (video.title || "Movement session") + " sales page thumbnail";
+    if (thumbnail) {
+      image.src = thumbnail;
+      image.hidden = false;
+      imageEmpty.hidden = true;
+    } else {
+      image.hidden = true;
+      image.removeAttribute("src");
+      imageEmpty.hidden = false;
+    }
+
+    preview.querySelector(".sales-preview-eyebrow").textContent = video.landingEyebrow || "Movement session";
+    preview.querySelector(".sales-preview-headline").textContent = video.landingHeadline || video.title || "Untitled session";
+    preview.querySelector(".sales-preview-summary").textContent = video.landingSummary || video.description || "Add a short summary that explains the outcome of this session.";
+
+    var benefits = [video.landingBenefit1, video.landingBenefit2, video.landingBenefit3].filter(Boolean);
+    var list = preview.querySelector(".sales-preview-benefits");
+    list.replaceChildren();
+    benefits.forEach(function (benefit) {
+      var item = document.createElement("li");
+      item.textContent = benefit;
+      list.appendChild(item);
+    });
+    list.hidden = benefits.length === 0;
+
+    preview.querySelector(".sales-preview-price").textContent = video.price == null
+      ? "Included in package"
+      : "$" + Number(video.price).toFixed(2) + " USD";
+    editor.querySelector(".preview-sales-page").href = salesPageHref(video);
+  }
+
+  function showEditorPanel(editor, panelName) {
+    editor.querySelectorAll("[data-editor-tab]").forEach(function (button) {
+      var isActive = button.dataset.editorTab === panelName;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    editor.querySelectorAll("[data-editor-panel]").forEach(function (panel) {
+      panel.hidden = panel.dataset.editorPanel !== panelName;
+    });
   }
 
   function closeStreamPreview(editor) {
@@ -527,6 +581,12 @@
         }
       });
 
+      editor.querySelectorAll("[data-editor-tab]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          showEditorPanel(editor, button.dataset.editorTab);
+        });
+      });
+
       var moveUp = editor.querySelector(".move-up");
       var moveDown = editor.querySelector(".move-down");
       moveUp.disabled = index === 0;
@@ -571,9 +631,15 @@
         editor.querySelector(".thumbnail-preview-empty").textContent = "This thumbnail could not be loaded. Check its URL or upload another image.";
         editor.querySelector(".thumbnail-preview-empty").hidden = false;
       });
+      editor.querySelector(".sales-preview-image").addEventListener("error", function (event) {
+        event.currentTarget.hidden = true;
+        event.currentTarget.removeAttribute("src");
+        editor.querySelector(".sales-preview-image-empty").hidden = false;
+      });
       editor.addEventListener("input", function () { readEditor(editor, index); });
       editor.addEventListener("change", function () { readEditor(editor, index); });
       updateThumbnailPreview(editor, video);
+      updateSalesPagePreview(editor, video);
       updateStreamStatus(editor, video);
       list.appendChild(editor);
     });

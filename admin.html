@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-2" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-3" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to control room</a>
@@ -277,7 +277,56 @@
         </div>
       </div>
 
-      <div class="admin-media-preview" aria-label="Session media preview">
+      <nav class="video-editor-tabs" aria-label="Session editor sections">
+        <button class="video-editor-tab is-active" type="button" data-editor-tab="details" aria-selected="true">Details</button>
+        <button class="video-editor-tab" type="button" data-editor-tab="sales" aria-selected="false">Sales page</button>
+        <button class="video-editor-tab" type="button" data-editor-tab="media" aria-selected="false">Media</button>
+      </nav>
+
+      <section class="video-editor-panel" data-editor-panel="details">
+        <div class="panel-intro"><div><span class="module-chip">Session details</span><h4>Organize this session</h4></div><p>These details appear across the public program and buyer library.</p></div>
+        <div class="form-grid">
+          <label class="field field-wide"><span>Title</span><input name="title" type="text" required maxlength="80" /></label>
+          <label class="field"><span>Level</span><select name="level"><option value="FOUNDATIONAL">Foundational</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></label>
+          <label class="field"><span>Duration (minutes)</span><input name="durationMinutes" type="number" required min="1" max="600" /></label>
+          <label class="field"><span>Equipment</span><input name="equipment" type="text" required maxlength="80" /></label>
+          <label class="field field-wide"><span>Description</span><textarea name="description" rows="3" maxlength="240"></textarea></label>
+          <label class="toggle-field"><input name="published" type="checkbox" /><span>Published on website</span></label>
+        </div>
+      </section>
+
+      <section class="video-editor-panel" data-editor-panel="sales" hidden>
+        <div class="panel-intro sales-panel-intro"><div><span class="module-chip">Sales page</span><h4>Turn interest into a purchase</h4></div><a class="button preview-sales-page" href="video.html" target="_blank" rel="noopener">Open full preview ↗</a></div>
+        <div class="sales-page-editor-layout">
+          <div class="form-grid sales-page-fields">
+            <label class="field"><span>Individual price (USD)</span><input name="price" type="number" min="0" max="999" step="0.01" placeholder="e.g. 12.00" /><span class="field-hint">Leave blank to sell only inside the full package.</span></label>
+            <label class="field"><span>Eyebrow</span><input name="landingEyebrow" type="text" maxlength="60" placeholder="Targeted movement session" /></label>
+            <label class="field field-wide"><span>Sales headline</span><input name="landingHeadline" type="text" maxlength="120" placeholder="Lead with the outcome" /></label>
+            <label class="field field-wide"><span>Sales summary</span><textarea name="landingSummary" rows="4" maxlength="360" placeholder="Explain the problem, the session, and the practical result."></textarea></label>
+            <div class="field field-wide editor-section-label"><span>Key benefits</span><span class="field-hint">Use three short, specific results a buyer can understand quickly.</span></div>
+            <label class="field field-wide"><span>Benefit 1</span><input name="landingBenefit1" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Benefit 2</span><input name="landingBenefit2" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Benefit 3</span><input name="landingBenefit3" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Who this is for</span><textarea name="landingAudience" rows="3" maxlength="300"></textarea></label>
+            <label class="field field-wide"><span>Purchase reassurance</span><textarea name="landingReassurance" rows="3" maxlength="240"></textarea></label>
+          </div>
+          <aside class="sales-page-preview-card" aria-label="Sales page content preview">
+            <div class="sales-preview-toolbar"><span>Live content preview</span><small>Updates as you type</small></div>
+            <div class="sales-preview-visual"><img class="sales-preview-image" alt="" hidden /><span class="sales-preview-image-empty">Thumbnail preview</span></div>
+            <div class="sales-preview-copy">
+              <span class="sales-preview-eyebrow"></span>
+              <h4 class="sales-preview-headline"></h4>
+              <p class="sales-preview-summary"></p>
+              <ul class="sales-preview-benefits"></ul>
+              <div class="sales-preview-offer"><strong class="sales-preview-price"></strong><span>One-time access</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="video-editor-panel" data-editor-panel="media" hidden>
+        <div class="panel-intro"><div><span class="module-chip">Media</span><h4>Video and thumbnail</h4></div><p>Upload protected playback and choose the image customers see before opening the session.</p></div>
+        <div class="admin-media-preview" aria-label="Session media preview">
         <section class="media-preview-card">
           <div class="media-preview-heading"><span>Thumbnail preview</span><small>Customer card image</small></div>
           <div class="thumbnail-preview-frame">
@@ -300,21 +349,6 @@
       </div>
 
       <div class="form-grid">
-        <label class="field field-wide"><span>Title</span><input name="title" type="text" required maxlength="80" /></label>
-        <label class="field"><span>Level</span><select name="level"><option value="FOUNDATIONAL">Foundational</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></label>
-        <label class="field"><span>Duration (minutes)</span><input name="durationMinutes" type="number" required min="1" max="600" /></label>
-        <label class="field"><span>Equipment</span><input name="equipment" type="text" required maxlength="80" /></label>
-        <label class="field"><span>Individual price (USD)</span><input name="price" type="number" min="0" max="999" step="0.01" placeholder="e.g. 12.00" /><span class="field-hint">Leave blank to include this session only in the $170 package.</span></label>
-        <label class="field field-wide"><span>Description</span><textarea name="description" rows="3" maxlength="240"></textarea></label>
-        <div class="field field-wide editor-section-label"><span>Sales landing page</span><span class="field-hint">Shape the persuasive page visitors see before checkout.</span></div>
-        <label class="field"><span>Eyebrow</span><input name="landingEyebrow" type="text" maxlength="60" placeholder="Targeted movement session" /></label>
-        <label class="field field-wide"><span>Sales headline</span><input name="landingHeadline" type="text" maxlength="120" placeholder="Lead with the outcome" /></label>
-        <label class="field field-wide"><span>Sales summary</span><textarea name="landingSummary" rows="3" maxlength="360" placeholder="Explain the problem, the session, and the practical result."></textarea></label>
-        <label class="field field-wide"><span>Benefit 1</span><input name="landingBenefit1" type="text" maxlength="140" /></label>
-        <label class="field field-wide"><span>Benefit 2</span><input name="landingBenefit2" type="text" maxlength="140" /></label>
-        <label class="field field-wide"><span>Benefit 3</span><input name="landingBenefit3" type="text" maxlength="140" /></label>
-        <label class="field field-wide"><span>Who this is for</span><textarea name="landingAudience" rows="2" maxlength="300"></textarea></label>
-        <label class="field field-wide"><span>Purchase reassurance</span><textarea name="landingReassurance" rows="2" maxlength="240"></textarea></label>
         <label class="field field-wide">
           <span>Protected Stream video</span>
           <span class="upload-row"><input class="stream-video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a protected video file" /><button class="button button-dark upload-stream-video" type="button">Upload to Stream</button><button class="button check-stream-status" type="button">Check processing</button></span>
@@ -327,15 +361,15 @@
           <span class="upload-row"><input class="thumbnail-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose a thumbnail image" /><button class="button upload-thumbnail" type="button">Upload thumbnail</button></span>
           <span class="field-hint">Use a landscape JPG, PNG, or WebP image up to 10 MB.</span>
         </label>
-        <label class="toggle-field"><input name="published" type="checkbox" /><span>Published on website</span></label>
       </div>
+      </section>
     </article>
   </template>
 
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260801-1" defer></script>
-  <script src="assets/js/admin.js?v=20260801-6" defer></script>
+  <script src="assets/js/admin.js?v=20260801-7" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
 </body>
 </html>
