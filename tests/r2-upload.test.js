@@ -211,6 +211,113 @@ test("the existing upload API also creates one-time protected Stream upload URLs
   }
 });
 
+test("the existing admin upload function creates short-lived protected preview playback", async function () {
+  var names = [
+    "ADMIN_PASSWORD", "ADMIN_SESSION_SECRET", "VERCEL_ENV", "CLOUDFLARE_STREAM_ACCOUNT_ID",
+    "CLOUDFLARE_STREAM_API_TOKEN", "CLOUDFLARE_STREAM_CUSTOMER_CODE"
+  ];
+  var previous = {};
+  var originalFetch = globalThis.fetch;
+  names.forEach(function (name) { previous[name] = process.env[name]; });
+
+  try {
+    process.env.ADMIN_PASSWORD = "correct-horse-battery-staple";
+    process.env.ADMIN_SESSION_SECRET = "a-very-long-test-session-secret-value-123456";
+    process.env.VERCEL_ENV = "preview";
+    process.env.CLOUDFLARE_STREAM_ACCOUNT_ID = "0123456789abcdef0123456789abcdef";
+    process.env.CLOUDFLARE_STREAM_API_TOKEN = "stream-api-token-with-enough-safe-characters";
+    process.env.CLOUDFLARE_STREAM_CUSTOMER_CODE = "abc123-stream-customer";
+    var requests = [];
+    globalThis.fetch = async function (url, options) {
+      requests.push({ url: url, options: options });
+      if (/\/token$/.test(url)) {
+        return {
+          ok: true,
+          status: 200,
+          json: async function () { return { success: true, result: { token: "short-lived-admin-preview-token" } }; }
+        };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async function () { return { success: true, result: { readyToStream: true, status: { state: "ready" } } }; }
+      };
+    };
+
+    var cookie = auth.createSessionCookie(auth.createSessionToken(process.env.ADMIN_SESSION_SECRET)).split(";")[0];
+    var response = createResponse();
+    await uploadsApi({
+      method: "GET",
+      headers: { cookie: cookie },
+      query: {
+        kind: "stream-playback",
+        streamVideoId: "fedcba9876543210fedcba9876543210"
+      }
+    }, response);
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.playerUrl, "https://customer-abc123-stream-customer.cloudflarestream.com/short-lived-admin-preview-token/iframe");
+    assert.equal(typeof response.body.expiresAt, "string");
+    assert.equal(Object.prototype.hasOwnProperty.call(response.body, "token"), false);
+    assert.equal(requests.length, 2);
+    assert.equal(requests[0].options.method, "GET");
+    assert.equal(requests[1].options.method, "POST");
+    assert.deepEqual(JSON.parse(requests[1].options.body).downloadable, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    names.forEach(function (name) {
+      if (previous[name] === undefined) delete process.env[name];
+      else process.env[name] = previous[name];
+    });
+  }
+});
+
+test("admin video preview refuses playback until Stream processing is ready", async function () {
+  var names = [
+    "ADMIN_PASSWORD", "ADMIN_SESSION_SECRET", "VERCEL_ENV", "CLOUDFLARE_STREAM_ACCOUNT_ID",
+    "CLOUDFLARE_STREAM_API_TOKEN", "CLOUDFLARE_STREAM_CUSTOMER_CODE"
+  ];
+  var previous = {};
+  var originalFetch = globalThis.fetch;
+  names.forEach(function (name) { previous[name] = process.env[name]; });
+
+  try {
+    process.env.ADMIN_PASSWORD = "correct-horse-battery-staple";
+    process.env.ADMIN_SESSION_SECRET = "a-very-long-test-session-secret-value-123456";
+    process.env.VERCEL_ENV = "preview";
+    process.env.CLOUDFLARE_STREAM_ACCOUNT_ID = "0123456789abcdef0123456789abcdef";
+    process.env.CLOUDFLARE_STREAM_API_TOKEN = "stream-api-token-with-enough-safe-characters";
+    process.env.CLOUDFLARE_STREAM_CUSTOMER_CODE = "abc123-stream-customer";
+    globalThis.fetch = async function () {
+      return {
+        ok: true,
+        status: 200,
+        json: async function () { return { success: true, result: { readyToStream: false, status: { state: "inprogress" } } }; }
+      };
+    };
+
+    var cookie = auth.createSessionCookie(auth.createSessionToken(process.env.ADMIN_SESSION_SECRET)).split(";")[0];
+    var response = createResponse();
+    await uploadsApi({
+      method: "GET",
+      headers: { cookie: cookie },
+      query: {
+        kind: "stream-playback",
+        streamVideoId: "fedcba9876543210fedcba9876543210"
+      }
+    }, response);
+
+    assert.equal(response.statusCode, 409);
+    assert.deepEqual(response.body, { error: "stream_video_not_ready" });
+  } finally {
+    globalThis.fetch = originalFetch;
+    names.forEach(function (name) {
+      if (previous[name] === undefined) delete process.env[name];
+      else process.env[name] = previous[name];
+    });
+  }
+});
+
 test("public video cards never link directly to the raw video, only to checkout", function () {
   var script = fs.readFileSync(path.join(__dirname, "../assets/js/videos.js"), "utf8");
 

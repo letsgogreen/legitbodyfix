@@ -37,11 +37,40 @@ module.exports = async function handler(request, response) {
   if (!auth.isAuthenticated(request, authConfig)) {
     return response.status(401).json({ error: "authentication_required" });
   }
+
+  var mode = getQueryValue(request, "kind");
+  if (mode === "stream-playback") {
+    if (request.method !== "GET") {
+      response.setHeader("Allow", "GET");
+      return response.status(405).json({ error: "method_not_allowed" });
+    }
+
+    var playbackConfig = stream.getStreamConfig();
+    if (!playbackConfig) {
+      return response.status(503).json({
+        error: "stream_not_configured",
+        details: stream.getStreamConfigIssues()
+      });
+    }
+
+    try {
+      var playbackVideoId = getQueryValue(request, "streamVideoId");
+      var playbackStatus = await stream.getVideoStatus(playbackConfig, playbackVideoId);
+      if (!playbackStatus.ready) throw new stream.StreamError("stream_video_not_ready", 409);
+      return response.status(200).json(await stream.getSignedPlayback(playbackConfig, playbackVideoId));
+    } catch (error) {
+      if (error instanceof stream.StreamError) return reportStreamError(response, error, "playback");
+      console.error("[admin/uploads] unexpected Cloudflare Stream playback failure", {
+        message: error && error.message ? error.message : String(error)
+      });
+      return response.status(500).json({ error: "playback_unavailable" });
+    }
+  }
+
   if (process.env.VERCEL_ENV !== "production") {
     return response.status(409).json({ error: "uploads_disabled_in_preview" });
   }
 
-  var mode = getQueryValue(request, "kind");
   if (mode === "stream" || mode === "stream-status") {
     if ((mode === "stream" && request.method !== "POST") ||
         (mode === "stream-status" && request.method !== "GET")) {
