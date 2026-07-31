@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260731-6" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-1" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to control room</a>
@@ -71,6 +71,36 @@
       </div>
       <p class="command-empty" id="commandEmpty" hidden>No matching tool found.</p>
       <footer class="command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> Move</span><span><kbd>Enter</kbd> Open</span><span><kbd>Esc</kbd> Close</span></footer>
+    </section>
+  </div>
+
+  <div class="site-preview-backdrop" id="sitePreviewDialog" role="dialog" aria-modal="true" aria-labelledby="sitePreviewTitle" hidden>
+    <section class="site-preview-shell" data-preview-device="desktop">
+      <header class="site-preview-header">
+        <div class="site-preview-heading">
+          <p class="eyebrow">Private draft preview</p>
+          <h2 id="sitePreviewTitle">See it before you publish.</h2>
+        </div>
+        <div class="site-preview-actions">
+          <button class="button" id="refreshSitePreview" type="button">Refresh</button>
+          <a class="button" id="openSitePreview" href="index.html?site-preview=1" target="_blank" rel="noopener">Open full page <span aria-hidden="true">↗</span></a>
+          <button class="button button-dark" id="closeSitePreview" type="button">Close</button>
+        </div>
+      </header>
+      <div class="site-preview-toolbar" aria-label="Preview screen size">
+        <div class="preview-device-switcher" role="group" aria-label="Choose preview screen size">
+          <button class="is-active" type="button" data-preview-device="desktop" aria-pressed="true"><span aria-hidden="true">▰</span> Desktop <small>1440</small></button>
+          <button type="button" data-preview-device="tablet" aria-pressed="false"><span aria-hidden="true">▯</span> Tablet <small>768</small></button>
+          <button type="button" data-preview-device="mobile" aria-pressed="false"><span aria-hidden="true">▯</span> Mobile <small>390</small></button>
+        </div>
+        <p><i aria-hidden="true"></i> Draft only — visitors cannot see these changes yet.</p>
+      </div>
+      <div class="site-preview-stage">
+        <div class="site-preview-viewport">
+          <div class="site-preview-browserbar" aria-hidden="true"><span></span><span></span><span></span><b>legitbodyfix.com</b></div>
+          <iframe id="sitePreviewFrame" title="Homepage draft preview" loading="eager"></iframe>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -237,7 +267,7 @@
   </template>
 
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
-  <script src="assets/js/site-editor.js?v=20260731-1" defer></script>
+  <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
   <script src="assets/js/admin.js?v=20260731-3" defer></script>
 </body>
 </html>
