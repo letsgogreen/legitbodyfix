@@ -92,7 +92,8 @@
     if (!editorStarted) {
       editorStarted = true;
       load();
-      loadSiteContent();
+      if (window.LegitSiteEditor) window.LegitSiteEditor.start();
+      else loadSiteContent();
     }
   }
 
@@ -711,6 +712,7 @@
     });
   });
 
+  if (!window.LegitSiteEditor) {
   document.getElementById("previewSiteContent").addEventListener("click", function () {
     if (!siteContent) {
       setSiteContentStatus("Website text is still loading.", "error");
@@ -769,6 +771,7 @@
       publishSiteContentButton.disabled = false;
     });
   });
+  }
 
   document.getElementById("importJson").addEventListener("change", function (event) {
     var file = event.target.files[0];

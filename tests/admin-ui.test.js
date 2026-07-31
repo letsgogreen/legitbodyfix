@@ -52,14 +52,20 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(html, /CONTROL<br \/>THE WORK/);
 });
 
-test("admin offers a locked homepage text editor with draft preview and publishing", function () {
+test("admin offers one complete site editor with safe layout controls", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
 
   assert.match(html, /id="siteContentForm"/);
+  assert.match(html, /id="siteSectionType"/);
+  assert.match(html, /id="addSiteSection"/);
   assert.match(html, /id="previewSiteContent"/);
   assert.match(html, /id="publishSiteContent"/);
-  assert.match(javascript, /legitbodyfix\.siteContentDraft\.v1/);
+  assert.match(html, /assets\/js\/site-editor\.js/);
+  assert.match(javascript, /legitbodyfix\.siteContentDraft\.v2/);
   assert.match(javascript, /action: "publish-site-content"/);
+  assert.match(javascript, /customSections/);
+  assert.match(javascript, /Move section down/);
   assert.doesNotMatch(javascript, /contenteditable/);
+  assert.doesNotMatch(javascript, /innerHTML/);
 });

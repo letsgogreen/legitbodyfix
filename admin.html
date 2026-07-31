@@ -60,7 +60,7 @@
         <p class="rail-label">Workspace</p>
         <nav>
           <a href="#overview"><span>01</span> Overview</a>
-          <a href="#site-copy"><span>02</span> Website copy</a>
+          <a href="#site-copy"><span>02</span> Site editor</a>
           <a href="#buyer-access"><span>03</span> Buyer access</a>
           <a href="#video-library"><span>04</span> Video library</a>
         </nav>
@@ -93,21 +93,25 @@
         <header class="section-heading">
           <div class="section-number">02</div>
           <div>
-            <p class="eyebrow">Public website</p>
-            <h2 id="siteContentTitle">Website copy</h2>
-            <p>Edit approved text while the design, links, scripts, and payment settings remain locked.</p>
+            <p class="eyebrow">Complete website</p>
+            <h2 id="siteContentTitle">Site editor</h2>
+            <p>Edit the existing homepage, rearrange sections, change approved links and images, or add a new section from a template.</p>
           </div>
         </header>
-        <div class="section-actionbar">
-          <p class="content-safety"><strong>Display only:</strong> changing the visible price here never changes the PayPal charge.</p>
+        <div class="section-actionbar site-editor-toolbar">
+          <div class="site-editor-add">
+            <label class="field compact-field"><span>Add section</span><select id="siteSectionType"><option value="hero">Campaign hero</option><option value="split">Text and image</option><option value="benefits">Benefits grid</option><option value="testimonials">Testimonials</option><option value="faq">FAQ</option><option value="cta">Call to action</option></select></label>
+            <button class="button button-dark" id="addSiteSection" type="button">+ Add section</button>
+          </div>
           <div class="toolbar-group">
             <button class="button button-quiet" id="resetSiteContent" type="button">Reset draft</button>
-            <button class="button" id="previewSiteContent" type="button">Preview copy</button>
-            <button class="button button-lime" id="publishSiteContent" type="button">Publish copy <span aria-hidden="true">↗</span></button>
+            <button class="button" id="previewSiteContent" type="button">Preview site</button>
+            <button class="button button-lime" id="publishSiteContent" type="button">Publish site <span aria-hidden="true">↗</span></button>
           </div>
         </div>
-        <p class="status" id="siteContentStatus" role="status" aria-live="polite">Loading website text…</p>
-        <form id="siteContentForm" class="site-content-groups" aria-label="Homepage text fields"></form>
+        <div class="site-editor-note"><strong>Safe controls:</strong> visible prices and destinations can be edited, but PayPal charge amounts, login, buyer access, and protected video delivery remain server-controlled.</div>
+        <p class="status" id="siteContentStatus" role="status" aria-live="polite">Loading website…</p>
+        <form id="siteContentForm" class="site-content-groups" aria-label="Complete homepage editor"></form>
       </section>
 
       <section class="workspace-section access-grant" id="buyer-access" aria-labelledby="accessGrantTitle">
@@ -206,6 +210,7 @@
     </article>
   </template>
 
-  <script src="assets/js/admin.js?v=20260731-2" defer></script>
+  <script src="assets/js/site-editor.js?v=20260731-1" defer></script>
+  <script src="assets/js/admin.js?v=20260731-3" defer></script>
 </body>
 </html>

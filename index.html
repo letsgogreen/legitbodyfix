@@ -158,6 +158,7 @@
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
   </style>
+  <link rel="stylesheet" href="assets/css/site-editor-public.css?v=20260731-1" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -165,36 +166,37 @@
     <nav class="nav wrap" aria-label="Primary navigation">
       <a class="brand" href="#main" aria-label="LegitBodyFix home"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="#method">Method</a></li>
-        <li><a href="#library-preview">Library</a></li>
-        <li><a href="library.html">My library</a></li>
-        <li><a href="#pricing">Programs</a></li>
-        <li><a href="#method">How it works</a></li>
+        <li><a href="#method" data-content="navigation.method">Method</a></li>
+        <li><a href="#library-preview" data-content="navigation.library">Library</a></li>
+        <li><a href="library.html" data-content="navigation.myLibrary">My library</a></li>
+        <li><a href="#pricing" data-content="navigation.programs">Programs</a></li>
+        <li><a href="#method" data-content="navigation.howItWorks">How it works</a></li>
       </ul>
-      <a class="button nav-cta" href="#pricing">Browse programs <span aria-hidden="true">↗</span></a>
+      <a class="button nav-cta" href="#pricing"><span data-content="navigation.browsePrograms">Browse programs</span> <span aria-hidden="true">↗</span></a>
       <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">☰</button>
     </nav>
   </header>
 
   <main id="main">
-    <section class="hero wrap" aria-labelledby="hero-title">
+    <section class="hero wrap" aria-labelledby="hero-title" data-site-section="hero">
       <div>
         <p class="kicker" data-content="hero.kicker">Corrective movement. No fluff.</p>
         <h1 id="hero-title"><span data-content="hero.titleLines.0">MOVE</span><br /><span data-content="hero.titleLines.1">BETTER.</span><br /><span class="outline" data-content="hero.titleLines.2">HURT</span><br /><span class="outline" data-content="hero.titleLines.3">LESS.</span></h1>
         <p class="hero-copy" data-content="hero.description">Follow clear corrective exercise sessions that help you understand your body, rebuild weak links, and move with confidence again.</p>
         <div class="hero-actions">
-          <a class="button button-dark" href="#pricing"><span data-content="hero.primaryButton">Start your reset</span> <span aria-hidden="true">↗</span></a>
-          <a class="button" href="#library-preview" data-content="hero.secondaryButton">See the library</a>
+          <a class="button button-dark" href="#pricing" data-content-href="hero.primaryHref"><span data-content="hero.primaryButton">Start your reset</span> <span aria-hidden="true">↗</span></a>
+          <a class="button" href="#library-preview" data-content="hero.secondaryButton" data-content-href="hero.secondaryHref">See the library</a>
         </div>
         <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Built for real bodies</span><span data-content="hero.proofPoints.1">Go at your own pace</span><span data-content="hero.proofPoints.2">One-time purchase</span></div>
       </div>
-      <div class="body-map" aria-label="Corrective movement body map showing shoulder, hip, and knee focus areas" role="img">
+      <div class="body-map" id="heroBodyMap" aria-label="Corrective movement body map showing shoulder, hip, and knee focus areas" role="img">
         <span class="map-axis" aria-hidden="true"></span><span class="map-label shoulder">01 / shoulder</span><span class="map-label hip">02 / hip</span><span class="map-label knee">03 / knee</span><span class="map-side-label">mobility / stability / strength</span>
         <div class="body-figure" aria-hidden="true"><span class="head"></span><span class="torso"></span><span class="arm left"></span><span class="arm right"></span><span class="leg left"></span><span class="leg right"></span><span class="joint shoulder"></span><span class="joint hip"></span><span class="joint knee"></span></div>
       </div>
+      <img class="hero-custom-image" id="heroCustomImage" alt="" hidden />
     </section>
 
-    <section class="section" id="method" aria-labelledby="method-title">
+    <section class="section" id="method" aria-labelledby="method-title" data-site-section="method">
       <div class="wrap">
         <p class="section-label" data-content="method.label">The LegitBodyFix method</p>
         <h2 class="section-title" id="method-title"><span data-content="method.titleLines.0">STOP GUESSING.</span><br /><span data-content="method.titleLines.1">START REBUILDING.</span></h2>
@@ -207,26 +209,26 @@
       </div>
     </section>
 
-    <section class="section" id="library-preview" aria-labelledby="library-title">
+    <section class="section" id="library-preview" aria-labelledby="library-title" data-site-section="library">
       <div class="wrap">
         <div class="library-header">
           <div><p class="section-label" data-content="library.label">Inside the library</p><h2 class="section-title" id="library-title"><span data-content="library.titleLines.0">SHORT SESSIONS.</span><br /><span data-content="library.titleLines.1">SERIOUS INTENT.</span></h2><p class="section-intro" data-content="library.intro">Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.</p></div>
-          <a class="library-link" href="#pricing"><span data-content="library.linkLabel">Choose a program</span> →</a>
+          <a class="library-link" href="#pricing" data-content-href="library.linkHref"><span data-content="library.linkLabel">Choose a program</span> →</a>
         </div>
         <div class="course-grid" id="courseGrid" aria-live="polite" aria-busy="true"><p class="course-status">Loading the movement library…</p><noscript>Please enable JavaScript to view the movement library.</noscript></div>
       </div>
     </section>
 
-    <section class="standard" aria-label="The LegitBodyFix standard"><div class="wrap"><blockquote data-content="standard.quote">The goal is not to chase perfect posture. It is to build a body that has options.</blockquote><p data-content="standard.attribution">— THE LEGITBODYFIX STANDARD</p></div></section>
+    <section class="standard" aria-label="The LegitBodyFix standard" data-site-section="standard"><div class="wrap"><blockquote data-content="standard.quote">The goal is not to chase perfect posture. It is to build a body that has options.</blockquote><p data-content="standard.attribution">— THE LEGITBODYFIX STANDARD</p></div></section>
 
-    <section class="section" id="pricing" aria-labelledby="pricing-title">
+    <section class="section" id="pricing" aria-labelledby="pricing-title" data-site-section="pricing">
       <div class="wrap membership">
         <div>
           <p class="section-label" data-content="pricing.label">Complete corrective movement package</p>
           <h2 class="section-title" id="pricing-title"><span data-content="pricing.titleLines.0">YOUR BODY IS</span><br /><span data-content="pricing.titleLines.1">WORTH THE WORK.</span></h2>
           <ul class="membership-list"><li data-content="pricing.benefits.0">Full-body guided video package</li><li data-content="pricing.benefits.1">Clear exercise sequence and progression</li><li data-content="pricing.benefits.2">Replay every session at your own pace</li><li data-content="pricing.benefits.3">Lifetime access after purchase</li></ul>
         </div>
-        <aside class="price-panel" aria-label="Program pricing"><p data-content="pricing.programName">Full Body Restoration Package</p><div><div class="price"><span class="price-value" data-content="pricing.displayPrice">$170</span><span class="price-suffix" data-content="pricing.priceSuffix">one-time</span></div><small data-content="pricing.description">Get lifetime access to the complete corrective movement package. No subscription and no recurring charge.</small></div><a class="button" href="checkout.html"><span data-content="pricing.buttonLabel">Choose program</span> <span aria-hidden="true">↗</span></a></aside>
+        <aside class="price-panel" aria-label="Program pricing"><p data-content="pricing.programName">Full Body Restoration Package</p><div><div class="price"><span class="price-value" data-content="pricing.displayPrice">$170</span><span class="price-suffix" data-content="pricing.priceSuffix">one-time</span></div><small data-content="pricing.description">Get lifetime access to the complete corrective movement package. No subscription and no recurring charge.</small></div><a class="button" href="checkout.html" data-content-href="pricing.buttonHref"><span data-content="pricing.buttonLabel">Choose program</span> <span aria-hidden="true">↗</span></a></aside>
       </div>
     </section>
   </main>
@@ -250,11 +252,12 @@
       menuButton.addEventListener("click", function () {
         var open = navLinks.classList.toggle("open");
         menuButton.setAttribute("aria-expanded", String(open));
+        menuButton.setAttribute("aria-label", open ? "Close menu" : "Open menu");
         menuButton.textContent = open ? "×" : "☰";
       });
 
       navLinks.querySelectorAll("a").forEach(function (link) {
-        link.addEventListener("click", function () { navLinks.classList.remove("open"); menuButton.setAttribute("aria-expanded", "false"); menuButton.textContent = "☰"; });
+        link.addEventListener("click", function () { navLinks.classList.remove("open"); menuButton.setAttribute("aria-expanded", "false"); menuButton.setAttribute("aria-label", "Open menu"); menuButton.textContent = "☰"; });
       });
 
       document.querySelectorAll("[data-coming-soon]").forEach(function (button) {
@@ -262,7 +265,7 @@
       });
     })();
   </script>
-  <script src="assets/js/site-content.js?v=20260731-1" defer></script>
+  <script src="assets/js/site-content.js?v=20260731-2" defer></script>
   <script src="assets/js/videos.js?v=20260728-1" defer></script>
 </body>
 </html>
