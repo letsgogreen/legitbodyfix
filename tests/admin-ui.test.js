@@ -63,3 +63,22 @@ test("admin offers a locked homepage text editor with draft preview and publishi
   assert.match(javascript, /action: "publish-site-content"/);
   assert.doesNotMatch(javascript, /contenteditable/);
 });
+
+test("admin offers a controlled template-based page builder", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/page-builder.js"), "utf8");
+
+  assert.match(html, /id="page-builder"/);
+  assert.match(html, /id="pageSectionType"/);
+  assert.match(html, /Campaign hero/);
+  assert.match(html, /Text and image/);
+  assert.match(html, /Benefits grid/);
+  assert.match(html, /Testimonials/);
+  assert.match(html, /FAQ/);
+  assert.match(html, /Call to action/);
+  assert.match(html, /id="previewPageSections"/);
+  assert.match(html, /id="publishPageSections"/);
+  assert.match(javascript, /duplicate-section/);
+  assert.match(javascript, /publish-page-sections/);
+  assert.doesNotMatch(javascript, /contenteditable/);
+});

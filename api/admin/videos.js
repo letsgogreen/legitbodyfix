@@ -3,6 +3,7 @@
 var auth = require("../../lib/admin-auth");
 var publishing = require("../../lib/video-publishing");
 var siteContentPublishing = require("../../lib/site-content-publishing");
+var pageSectionsPublishing = require("../../lib/page-sections-publishing");
 var grants = require("../../lib/admin-access-grants");
 var paypal = require("../../lib/paypal-payments");
 var access = require("../../lib/supabase-access");
@@ -99,9 +100,14 @@ module.exports = async function handler(request, response) {
   }
 
   try {
-    var result = body.action === "publish-site-content"
-      ? await siteContentPublishing.publishSiteContent(publishingConfig, body.content)
-      : await publishing.publishVideos(publishingConfig, body.videos);
+    var result;
+    if (body.action === "publish-site-content") {
+      result = await siteContentPublishing.publishSiteContent(publishingConfig, body.content);
+    } else if (body.action === "publish-page-sections") {
+      result = await pageSectionsPublishing.publishPageSections(publishingConfig, body.content);
+    } else {
+      result = await publishing.publishVideos(publishingConfig, body.videos);
+    }
     return response.status(200).json({
       published: !result.unchanged,
       unchanged: result.unchanged,
@@ -113,6 +119,11 @@ module.exports = async function handler(request, response) {
       var sitePayload = { error: error.code };
       if (error.details && error.details.length) sitePayload.details = error.details;
       return response.status(error.statusCode).json(sitePayload);
+    }
+    if (error instanceof pageSectionsPublishing.PageSectionsError) {
+      var pageSectionsPayload = { error: error.code };
+      if (error.details && error.details.length) pageSectionsPayload.details = error.details;
+      return response.status(error.statusCode).json(pageSectionsPayload);
     }
     if (error instanceof publishing.PublishingError) {
       var payload = { error: error.code };

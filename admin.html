@@ -61,8 +61,9 @@
         <nav>
           <a href="#overview"><span>01</span> Overview</a>
           <a href="#site-copy"><span>02</span> Website copy</a>
-          <a href="#buyer-access"><span>03</span> Buyer access</a>
-          <a href="#video-library"><span>04</span> Video library</a>
+          <a href="#page-builder"><span>03</span> Page builder</a>
+          <a href="#buyer-access"><span>04</span> Buyer access</a>
+          <a href="#video-library"><span>05</span> Video library</a>
         </nav>
       </div>
       <div class="rail-note">
@@ -110,9 +111,46 @@
         <form id="siteContentForm" class="site-content-groups" aria-label="Homepage text fields"></form>
       </section>
 
-      <section class="workspace-section access-grant" id="buyer-access" aria-labelledby="accessGrantTitle">
+      <section class="workspace-section page-builder" id="page-builder" aria-labelledby="pageBuilderTitle">
         <header class="section-heading">
           <div class="section-number">03</div>
+          <div>
+            <p class="eyebrow">Layout studio</p>
+            <h2 id="pageBuilderTitle">Page builder</h2>
+            <p>Add approved sections without touching code. Templates, colors, links, and field lengths are controlled to protect the design and checkout flow.</p>
+          </div>
+        </header>
+        <div class="toolbar page-builder-toolbar" aria-label="Page builder actions">
+          <div class="toolbar-group">
+            <label class="field compact-field"><span>Section template</span>
+              <select id="pageSectionType">
+                <option value="hero">Campaign hero</option>
+                <option value="split">Text and image</option>
+                <option value="benefits">Benefits grid</option>
+                <option value="testimonials">Testimonials</option>
+                <option value="faq">FAQ</option>
+                <option value="cta">Call to action</option>
+              </select>
+            </label>
+            <button class="button button-dark" id="addPageSection" type="button">+ Add section</button>
+          </div>
+          <div class="toolbar-group">
+            <button class="button button-quiet" id="resetPageSections" type="button">Reset draft</button>
+            <button class="button" id="previewPageSections" type="button">Preview layout</button>
+            <button class="button button-lime" id="publishPageSections" type="button">Publish layout <span aria-hidden="true">&#8599;</span></button>
+          </div>
+        </div>
+        <div class="builder-summary">
+          <p><strong id="pageSectionCount">0</strong> optional sections</p>
+          <p>Every publish is saved as a versioned GitHub commit.</p>
+        </div>
+        <p class="status" id="pageSectionsStatus" role="status" aria-live="polite">Loading page layout...</p>
+        <section class="page-section-list" id="pageSectionsList" aria-label="Optional homepage sections" aria-busy="true"></section>
+      </section>
+
+      <section class="workspace-section access-grant" id="buyer-access" aria-labelledby="accessGrantTitle">
+        <header class="section-heading">
+          <div class="section-number">04</div>
           <div>
             <p class="eyebrow">Customer support</p>
             <h2 id="accessGrantTitle">Buyer access</h2>
@@ -137,7 +175,7 @@
 
       <section class="workspace-section video-workspace" id="video-library" aria-labelledby="videoEditorTitle">
         <header class="section-heading">
-          <div class="section-number">04</div>
+          <div class="section-number">05</div>
           <div>
             <p class="eyebrow">Protected content</p>
             <h2 id="videoEditorTitle">Video library</h2>
@@ -206,6 +244,25 @@
     </article>
   </template>
 
+  <template id="pageSectionEditorTemplate">
+    <article class="page-section-editor">
+      <header class="builder-card-header">
+        <div>
+          <span class="module-chip section-template-name"></span>
+          <h3 class="page-section-editor-title"></h3>
+        </div>
+        <div class="row-actions" aria-label="Section actions">
+          <button class="icon-button move-section-up" type="button" aria-label="Move section up">&#8593;</button>
+          <button class="icon-button move-section-down" type="button" aria-label="Move section down">&#8595;</button>
+          <button class="icon-button duplicate-section" type="button">Duplicate</button>
+          <button class="icon-button danger remove-section" type="button">Remove</button>
+        </div>
+      </header>
+      <div class="page-section-form form-grid"></div>
+    </article>
+  </template>
+
   <script src="assets/js/admin.js?v=20260731-2" defer></script>
+  <script src="assets/js/page-builder.js?v=20260731-1" defer></script>
 </body>
 </html>
