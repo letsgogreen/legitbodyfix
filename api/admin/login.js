@@ -11,7 +11,7 @@ module.exports = function handler(request, response) {
   }
 
   var config = auth.getConfig();
-  if (!config) {
+  if (!config || !config.email) {
     return response.status(503).json({ error: "admin_auth_not_configured" });
   }
 
@@ -24,7 +24,9 @@ module.exports = function handler(request, response) {
     }
   }
 
-  if (!auth.safeEqual(body.password || "", config.password)) {
+  var emailMatches = auth.safeEqual(auth.normalizeEmail(body.email), config.email);
+  var passwordMatches = auth.safeEqual(body.password || "", config.password);
+  if (!emailMatches || !passwordMatches) {
     return response.status(401).json({ error: "invalid_credentials" });
   }
 

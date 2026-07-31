@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-1" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-2" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to control room</a>
@@ -34,25 +34,24 @@
   </header>
 
   <div id="authGate" class="auth-shell" aria-labelledby="authTitle">
-    <section class="auth-intro" aria-hidden="true">
-      <p class="eyebrow">Private operations</p>
-      <h1>RUN THE<br />MOVEMENT<br /><span>LIBRARY.</span></h1>
-      <p>One secure workspace for your website, customers, and protected sessions.</p>
-      <div class="auth-index"><span>Website</span><span>Customers</span><span>Videos</span></div>
-    </section>
     <section class="auth-card">
-      <div class="auth-card-index">ADMIN / 001</div>
-      <p class="eyebrow">Administrator access</p>
-      <h2 id="authTitle">Enter the control room.</h2>
-      <p class="lede">Your password is verified securely by the server and is never stored on this page.</p>
+      <div class="auth-lock-mark" aria-hidden="true"><span>LBF</span><i></i></div>
+      <p class="eyebrow">Private administrator access</p>
+      <h1 id="authTitle">Sign in to Control Room</h1>
+      <p class="lede">Manage your website, customers, sales, and protected video library.</p>
       <form class="auth-form" id="loginForm">
         <label class="field">
-          <span>Admin password</span>
+          <span>Administrator email</span>
+          <input id="adminEmail" name="email" type="email" autocomplete="username" inputmode="email" required />
+        </label>
+        <label class="field">
+          <span>Password</span>
           <input id="adminPassword" name="password" type="password" autocomplete="current-password" required />
         </label>
         <button class="button button-dark" id="loginButton" type="submit">Sign in <span aria-hidden="true">→</span></button>
       </form>
       <p class="auth-status" id="authStatus" role="status" aria-live="polite">Checking your session…</p>
+      <p class="auth-privacy"><strong>Owner only.</strong> There is no public registration and both credentials are checked by the server.</p>
     </section>
   </div>
 
@@ -319,7 +318,7 @@
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260801-1" defer></script>
-  <script src="assets/js/admin.js?v=20260801-3" defer></script>
+  <script src="assets/js/admin.js?v=20260801-4" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
 </body>
 </html>
