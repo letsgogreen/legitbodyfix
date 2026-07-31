@@ -133,3 +133,20 @@ test("admin offers one complete site editor with safe layout controls", function
   assert.doesNotMatch(javascript, /innerHTML/);
 });
 
+test("website editor includes responsive private preview controls", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
+  var publicSite = fs.readFileSync(path.join(__dirname, "../assets/js/site-content.js"), "utf8");
+
+  assert.match(html, /id="sitePreviewDialog"/);
+  assert.match(html, /data-preview-device="desktop"/);
+  assert.match(html, /data-preview-device="tablet"/);
+  assert.match(html, /data-preview-device="mobile"/);
+  assert.match(html, /id="sitePreviewFrame"/);
+  assert.match(editor, /function setPreviewDevice/);
+  assert.match(editor, /function updateOpenPreview/);
+  assert.match(editor, /legitbodyfix:site-preview/);
+  assert.match(publicSite, /event\.origin !== window\.location\.origin/);
+  assert.match(publicSite, /legitbodyfix:site-preview/);
+});
+
