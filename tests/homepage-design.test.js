@@ -18,6 +18,8 @@ test("homepage keeps the approved movement-library design and live product path"
   assert.match(html, /href="checkout\.html"><span data-content="pricing\.buttonLabel">Choose program/);
   assert.match(html, /assets\/js\/videos\.js/);
   assert.match(html, /assets\/js\/site-content\.js/);
+  assert.match(html, /id="customSections"/);
+  assert.match(html, /assets\/js\/page-sections\.js/);
 
   assert.doesNotMatch(html, /payment buttons \(UI placeholder/);
   assert.doesNotMatch(html, /class="pay-btn"/);
