@@ -165,3 +165,31 @@ test("captures first, then validates the complete order representation", async f
   assert.equal(calls.some(function (call) { return call.url.endsWith("/capture"); }), true);
   assert.equal(calls.some(function (call) { return call.url.endsWith("/v2/checkout/orders/5O190127TN364715T"); }), true);
 });
+
+test("issues a full capture refund with an idempotency key", async function () {
+  var calls = [];
+  var fetcher = async function (url, options) {
+    calls.push({ url: url, options: options });
+    if (url.endsWith("/v1/oauth2/token")) {
+      return { ok: true, status: 200, json: async function () { return { access_token: "test-token" }; } };
+    }
+    return {
+      ok: true,
+      status: 201,
+      json: async function () {
+        return { id: "9AB12345CD678901E", status: "COMPLETED", amount: { value: "170.00", currency_code: "USD" } };
+      }
+    };
+  };
+
+  var refund = await paypal.refundCapture(
+    paypal.getConfig(environment()),
+    "3GG79435FJ124315M",
+    "lbf-refund-3GG79435FJ124315M",
+    fetcher
+  );
+  assert.deepEqual(refund, { id: "9AB12345CD678901E", status: "COMPLETED", amount: "170.00", currency: "USD" });
+  assert.match(calls[1].url, /\/v2\/payments\/captures\/3GG79435FJ124315M\/refund$/);
+  assert.equal(calls[1].options.headers["PayPal-Request-Id"], "lbf-refund-3GG79435FJ124315M");
+  assert.equal(calls[1].options.body, "{}");
+});

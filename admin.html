@@ -64,7 +64,8 @@
         <button type="button" data-command-item data-command-workspace="overview"><span class="command-number">01</span><span><strong>Overview</strong><small>Status and shortcuts</small></span><b>Open</b></button>
         <button type="button" data-command-item data-command-workspace="site-copy"><span class="command-number">02</span><span><strong>Website editor</strong><small>Copy, layout, and homepage sections</small></span><b>Open</b></button>
         <button type="button" data-command-item data-command-workspace="video-library"><span class="command-number">03</span><span><strong>Programs &amp; videos</strong><small>Sessions, uploads, and publishing</small></span><b>Open</b></button>
-        <button type="button" data-command-item data-command-workspace="buyer-access"><span class="command-number">04</span><span><strong>Customer access</strong><small>Grant access for verified support cases</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="sales"><span class="command-number">04</span><span><strong>Sales &amp; refunds</strong><small>Purchases, revenue, and guarded refunds</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="buyer-access"><span class="command-number">05</span><span><strong>Customer access</strong><small>Grant access for verified support cases</small></span><b>Open</b></button>
         <a href="index.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Live website</strong><small>Open the public storefront</small></span><b>New tab</b></a>
         <a href="checkout.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Checkout</strong><small>Open the customer payment page</small></span><b>New tab</b></a>
         <a href="library.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Buyer library</strong><small>Open the customer sign-in page</small></span><b>New tab</b></a>
@@ -134,7 +135,8 @@
           <details class="nav-group" open>
             <summary><span>Customers</span><i aria-hidden="true"></i></summary>
             <div class="nav-group-items">
-              <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access" title="Customer access"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Customer access</strong><small>Access and support</small></span></a>
+              <a class="workspace-nav-item" href="#sales" data-workspace-target="sales" title="Sales and refunds"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Sales &amp; refunds</strong><small>Orders and payments</small></span><b class="nav-badge" id="sidebarSalesCount" aria-label="Purchase count">0</b></a>
+              <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access" title="Customer access"><span class="nav-icon" aria-hidden="true">05</span><span><strong>Customer access</strong><small>Access and support</small></span></a>
               <button class="nav-child-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span>+ Grant verified access</span><b aria-hidden="true">→</b></button>
             </div>
           </details>
@@ -171,7 +173,8 @@
           <div class="quick-action-grid">
             <button class="quick-action" type="button" data-workspace-open="site-copy"><span class="quick-number">01</span><span><strong>Edit the website</strong><small>Update copy, layout, buttons, and homepage sections.</small></span><b aria-hidden="true">→</b></button>
             <button class="quick-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span class="quick-number">02</span><span><strong>Add a video</strong><small>Upload a protected session and prepare it for buyers.</small></span><b aria-hidden="true">→</b></button>
-            <button class="quick-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span class="quick-number">03</span><span><strong>Help a customer</strong><small>Grant program access for a verified support case.</small></span><b aria-hidden="true">→</b></button>
+            <button class="quick-action" type="button" data-workspace-open="sales"><span class="quick-number">03</span><span><strong>Review sales</strong><small>See buyers, purchases, revenue, and refund status.</small></span><b aria-hidden="true">→</b></button>
+            <button class="quick-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span class="quick-number">04</span><span><strong>Help a customer</strong><small>Grant program access for a verified support case.</small></span><b aria-hidden="true">→</b></button>
           </div>
         </section>
         <section class="dashboard-block system-block" aria-labelledby="systemTitle">
@@ -206,6 +209,31 @@
         <form id="siteContentForm" class="site-content-groups" aria-label="Complete homepage editor"></form>
       </section>
 
+      <section class="workspace-panel sales-workspace" id="sales" data-workspace-panel="sales" aria-labelledby="salesTitle" hidden>
+        <header class="page-heading">
+          <div><p class="eyebrow">Control Room / Sales</p><h1 id="salesTitle">Sales &amp; refunds</h1><p class="lede">See who purchased each program, how much they paid, and the current payment status.</p></div>
+          <button class="button" id="refreshSales" type="button">Refresh sales</button>
+        </header>
+        <div class="summary sales-summary" aria-label="Sales summary" aria-live="polite">
+          <article><span>Collected</span><strong id="salesCollected">$0</strong><small>Completed payments</small></article>
+          <article><span>Purchases</span><strong id="salesCount">0</strong><small>Recorded orders</small></article>
+          <article class="summary-accent"><span>Refunded</span><strong id="salesRefunded">$0</strong><small>Completed or pending refunds</small></article>
+        </div>
+        <div class="workspace-toolbar sales-toolbar">
+          <label class="video-search sales-search"><span class="sr-only">Search sales</span><input id="salesSearch" type="search" placeholder="Search buyer or product…" autocomplete="off" /></label>
+          <label class="field compact-field sales-filter"><span>Status</span><select id="salesStatusFilter"><option value="all">All payments</option><option value="completed">Completed</option><option value="refunded">Refunded</option><option value="refund_pending">Refund pending</option></select></label>
+        </div>
+        <p class="status" id="salesStatus" role="status" aria-live="polite">Sales load after you sign in.</p>
+        <div class="sales-table-shell">
+          <table class="sales-table">
+            <thead><tr><th>Buyer</th><th>Product</th><th>Paid</th><th>Date</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody id="salesTableBody"></tbody>
+          </table>
+          <div class="sales-empty" id="salesEmpty" hidden><strong>No matching purchases.</strong><span>Try another search or payment status.</span></div>
+        </div>
+        <p class="sales-footnote">Refunds return the full captured amount through PayPal and immediately revoke the matching library access. Every refund requires a typed confirmation.</p>
+      </section>
+
       <section class="workspace-panel access-grant" id="buyer-access" data-workspace-panel="buyer-access" aria-labelledby="accessGrantTitle" hidden>
         <header class="page-heading">
           <div><p class="eyebrow">Control Room / Customers</p><h1 id="accessGrantTitle">Customer access</h1><p class="lede">Resolve access issues quickly. Only grant access after confirming the customer or an approved test account.</p></div>
@@ -227,6 +255,18 @@
       <footer class="admin-footer"><span>LegitBodyFix Control Room</span><span>Draft → Preview → Publish</span></footer>
     </div>
   </main>
+
+  <div class="refund-backdrop" id="refundDialog" role="dialog" aria-modal="true" aria-labelledby="refundTitle" hidden>
+    <section class="refund-dialog">
+      <p class="eyebrow">Irreversible payment action</p>
+      <h2 id="refundTitle">Refund this purchase?</h2>
+      <p id="refundDescription">The full captured amount will be returned and the buyer will lose access to this program.</p>
+      <dl class="refund-details"><div><dt>Buyer</dt><dd id="refundBuyer"></dd></div><div><dt>Product</dt><dd id="refundProduct"></dd></div><div><dt>Amount</dt><dd id="refundAmount"></dd></div></dl>
+      <label class="field"><span>Type <strong>REFUND</strong> to confirm</span><input id="refundConfirmation" type="text" autocomplete="off" spellcheck="false" /></label>
+      <p class="status" id="refundStatus" role="status" aria-live="polite"></p>
+      <div class="refund-actions"><button class="button" id="cancelRefund" type="button">Cancel</button><button class="button button-danger" id="confirmRefund" type="button" disabled>Issue full refund</button></div>
+    </section>
+  </div>
 
   <template id="videoEditorTemplate">
     <article class="video-editor">
@@ -269,5 +309,6 @@
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
   <script src="assets/js/admin.js?v=20260731-3" defer></script>
+  <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
 </body>
 </html>

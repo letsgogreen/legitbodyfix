@@ -56,15 +56,31 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(html, /class="control-room"/);
   assert.match(html, /id="site-copy"/);
   assert.match(html, /id="buyer-access"/);
+  assert.match(html, /id="sales"/);
   assert.match(html, /id="video-library"/);
   assert.match(html, /data-workspace-target="overview"/);
   assert.match(html, /data-workspace-target="site-copy"/);
   assert.match(html, /data-workspace-target="buyer-access"/);
+  assert.match(html, /data-workspace-target="sales"/);
   assert.match(html, /data-workspace-target="video-library"/);
   assert.match(html, /What would you like to do\?/);
   assert.match(html, /id="videoSearch"/);
   assert.match(javascript, /showWorkspace/);
   assert.match(javascript, /filterVideos/);
+});
+
+test("admin includes a searchable sales ledger and guarded refund dialog", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/sales-admin.js"), "utf8");
+
+  assert.match(html, /Sales &amp; refunds/);
+  assert.match(html, /id="salesTableBody"/);
+  assert.match(html, /id="salesSearch"/);
+  assert.match(html, /id="refundDialog"/);
+  assert.match(html, /Type <strong>REFUND<\/strong> to confirm/);
+  assert.match(javascript, /\/api\/admin\/sales/);
+  assert.match(javascript, /confirmation\.value !== "REFUND"/);
+  assert.doesNotMatch(javascript, /providerCaptureId\s*:/);
 });
 
 test("admin navigation groups every visible item around a working destination", function () {
