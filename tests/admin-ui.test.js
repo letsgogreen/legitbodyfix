@@ -46,13 +46,18 @@ test("admin sign-in verifies the approved inbox before checking the password", f
 
   assert.match(html, /id="adminEmail"[^>]+type="email"/);
   assert.match(html, /id="emailVerificationForm"/);
-  assert.match(html, /Send verification link/);
+  assert.match(html, /Continue securely/);
   assert.match(html, /id="verifiedAdminEmail"/);
   assert.match(html, /id="adminPassword"[^>]+type="password"/);
-  assert.match(html, /Owner only\./);
+  assert.match(html, /Restricted access/);
+  assert.match(html, /Administrator sign-in/);
+  assert.doesNotMatch(html, /Owner only\./);
+  assert.doesNotMatch(html, /Manage your website, customers, sales/);
+  assert.doesNotMatch(html, /Sign in to Control Room/);
   assert.doesNotMatch(html, /auth-intro/);
   assert.doesNotMatch(html, /RUN THE/);
-  assert.match(css, /\.auth-card\s*\{[^}]*width:\s*min\(460px, 100%\)/);
+  assert.match(css, /\.auth-card\s*\{[^}]*width:\s*min\(400px, 100%\)/);
+  assert.match(css, /\.auth-visible \.topbar\s*\{\s*display:\s*none/);
   assert.match(javascript, /signInWithOtp/);
   assert.match(javascript, /shouldCreateUser:\s*false/);
   assert.match(javascript, /Authorization": "Bearer " \+ session\.access_token/);

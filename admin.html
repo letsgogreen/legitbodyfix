@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#11110f" />
-  <title>Control Room — LegitBodyFix</title>
+  <title>Restricted Access — LegitBodyFix</title>
   <script>
     if (window.location.protocol === "file:") {
       window.location.replace("https://legitbodyfix.vercel.app/admin.html");
@@ -14,10 +14,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-3" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-4" />
 </head>
-<body>
-  <a class="skip-link" href="#main">Skip to control room</a>
+<body class="auth-visible">
+  <a class="skip-link" href="#authTitle">Skip to restricted access</a>
 
   <header class="topbar">
     <a class="brand" href="index.html" aria-label="LegitBodyFix home">
@@ -35,16 +35,15 @@
 
   <div id="authGate" class="auth-shell" aria-labelledby="authTitle">
     <section class="auth-card">
-      <div class="auth-lock-mark" aria-hidden="true"><span>LBF</span><i></i></div>
-      <p class="eyebrow">Private administrator access</p>
-      <h1 id="authTitle">Sign in to Control Room</h1>
-      <p class="lede">Manage your website, customers, sales, and protected video library.</p>
-      <form class="auth-form" id="emailVerificationForm">
+      <div class="auth-security-mark"><span class="auth-lock-icon" aria-hidden="true"></span><strong>Restricted access</strong></div>
+      <h1 id="authTitle">Administrator sign-in</h1>
+      <p class="lede">Verify your identity to continue.</p>
+      <form class="auth-form" id="emailVerificationForm" autocomplete="off">
         <label class="field">
-          <span>Administrator email</span>
-          <input id="adminEmail" name="email" type="email" autocomplete="username" inputmode="email" required />
+          <span>Email</span>
+          <input id="adminEmail" name="admin-access-email" type="email" autocomplete="off" inputmode="email" required />
         </label>
-        <button class="button button-dark" id="emailVerificationButton" type="submit">Send verification link <span aria-hidden="true">&rarr;</span></button>
+        <button class="button button-dark" id="emailVerificationButton" type="submit">Continue securely <span aria-hidden="true">&rarr;</span></button>
       </form>
       <div class="verified-admin" id="verifiedAdmin" hidden>
         <span class="verified-admin-mark" aria-hidden="true">&#10003;</span>
@@ -53,13 +52,13 @@
       </div>
       <form class="auth-form auth-password-form" id="loginForm" hidden>
         <label class="field">
-          <span>Administrator password</span>
+          <span>Password</span>
           <input id="adminPassword" name="password" type="password" autocomplete="current-password" required />
         </label>
-        <button class="button button-dark" id="loginButton" type="submit">Enter Control Room <span aria-hidden="true">&rarr;</span></button>
+        <button class="button button-dark" id="loginButton" type="submit">Continue <span aria-hidden="true">&rarr;</span></button>
       </form>
       <p class="auth-status" id="authStatus" role="status" aria-live="polite">Checking your session…</p>
-      <p class="auth-privacy"><strong>Owner only.</strong> First verify the approved inbox, then enter the administrator password. There is no public registration.</p>
+      <p class="auth-privacy"><span aria-hidden="true"></span> Verification required &middot; Access restricted</p>
     </section>
   </div>
 
@@ -369,7 +368,7 @@
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-1" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260801-1" defer></script>
-  <script src="assets/js/admin.js?v=20260801-7" defer></script>
+  <script src="assets/js/admin.js?v=20260801-8" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
 </body>
 </html>

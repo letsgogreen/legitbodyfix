@@ -157,7 +157,7 @@
     renderAuthenticationStep();
     setAuthStatus(message || (verifiedSession
       ? "Email verified. Enter your administrator password."
-      : "Verify the approved administrator email to continue."), state);
+      : "Verification is required to continue."), state);
     if (verifiedSession) passwordInput.focus();
     else emailInput.focus();
   }
@@ -1107,10 +1107,10 @@
       });
     }).then(function (result) {
       if (result.error) throw result.error;
-      setAuthStatus("Check the approved inbox and open the verification link. This page can stay open.");
+      setAuthStatus("If this address is authorized, a verification link will arrive shortly.");
     }).catch(function (error) {
       console.error("Admin email verification failed:", error && error.message ? error.message : error);
-      setAuthStatus("We could not send the verification link. Check the email or try again shortly.", "error");
+      setAuthStatus("The verification request could not be completed. Please try again shortly.", "error");
     }).finally(function () {
       emailVerificationButton.disabled = false;
     });
@@ -1121,7 +1121,7 @@
     signOutVerifiedEmail().finally(function () {
       changeAdminEmail.disabled = false;
       passwordInput.value = "";
-      showLogin("Enter the approved administrator email.");
+      showLogin("Verification is required to continue.");
     });
   });
 
