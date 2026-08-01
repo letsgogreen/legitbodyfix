@@ -8,7 +8,11 @@
   var detailContent = document.getElementById("knowledgeDetailContent");
   var directory = document.querySelector(".knowledge-directory");
   var filterButtons = Array.from(document.querySelectorAll("[data-knowledge-filter]"));
+  var muscleTools = document.getElementById("muscleTools");
+  var muscleRegionButtons = Array.from(document.querySelectorAll("[data-muscle-region]"));
+  var muscleSort = document.getElementById("muscleSort");
   var activeType = "all";
+  var activeMuscleRegion = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
 
@@ -74,6 +78,26 @@
   function allItems() {
     return Object.keys(labels).flatMap(function (type) {
       return data[type].filter(function (item) { return item && item.published !== false; }).map(function (item) { return { type: type, item: item }; });
+    });
+  }
+
+  function muscleRegion(item) {
+    var bodyMap = item && item.bodyMap;
+    var group = String(item && item.group || "").toLowerCase();
+    if (["head-neck", "shoulder", "chest", "upper-arm-front", "upper-arm-back", "forearm"].indexOf(bodyMap) !== -1) return "upper-body";
+    if (["abdomen", "back"].indexOf(bodyMap) !== -1) return "trunk";
+    if (["hip-front", "hip-back", "thigh-front", "thigh-back"].indexOf(bodyMap) !== -1) return "hip-thigh";
+    if (["lower-leg-front", "lower-leg-back", "foot"].indexOf(bodyMap) !== -1) return "lower-leg-foot";
+    if (["head and neck", "shoulder", "shoulder girdle", "upper back", "chest", "upper arm", "forearm"].indexOf(group) !== -1) return "upper-body";
+    return "other";
+  }
+
+  function updateMuscleCounts() {
+    var muscles = data.muscles.filter(function (item) { return item && item.published !== false; });
+    document.querySelectorAll("[data-region-count]").forEach(function (node) {
+      var region = node.dataset.regionCount;
+      var count = region === "all" ? muscles.length : muscles.filter(function (item) { return muscleRegion(item) === region; }).length;
+      node.textContent = String(count);
     });
   }
 
@@ -194,8 +218,12 @@
     var query = search.value.trim().toLowerCase();
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
+      if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
       return !query || Object.values(record.item).some(function (value) { return typeof value === "string" && value.toLowerCase().includes(query); });
     });
+    if (activeType === "muscles" && muscleSort.value === "alpha") {
+      records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
+    }
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
@@ -216,9 +244,18 @@
     button.addEventListener("click", function () {
       activeType = button.dataset.knowledgeFilter;
       filterButtons.forEach(function (candidate) { var selected = candidate === button; candidate.classList.toggle("is-active", selected); candidate.setAttribute("aria-pressed", String(selected)); });
+      muscleTools.hidden = activeType !== "muscles";
       render();
     });
   });
+  muscleRegionButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      activeMuscleRegion = button.dataset.muscleRegion;
+      muscleRegionButtons.forEach(function (candidate) { var selected = candidate === button; candidate.classList.toggle("is-active", selected); candidate.setAttribute("aria-pressed", String(selected)); });
+      render();
+    });
+  });
+  muscleSort.addEventListener("change", render);
   search.addEventListener("input", render);
   document.getElementById("detailBack").addEventListener("click", function () { showDirectory(); });
   window.addEventListener("popstate", openFromUrl);
@@ -233,6 +270,7 @@
       var payload = payloads[0];
       videos = Array.isArray(payloads[1]) ? payloads[1] : [];
       Object.keys(labels).forEach(function (type) { data[type] = Array.isArray(payload[type]) ? payload[type] : []; });
+      updateMuscleCounts();
       render();
       openFromUrl();
     })

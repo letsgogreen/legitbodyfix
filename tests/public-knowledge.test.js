@@ -19,6 +19,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /Program previews/);
   assert.match(html, /Muscle dictionary/);
   assert.match(html, /muscle-dictionary\.css/);
+  assert.match(html, /data-muscle-region="lower-leg-foot"/);
+  assert.match(html, /id="muscleSort"/);
   assert.match(javascript, /item\.published !== false/);
   assert.match(javascript, /textContent = text/);
   assert.match(javascript, /URLSearchParams/);
@@ -26,6 +28,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /video\.html\?id=/);
   assert.match(javascript, /assets\/data\/videos\.json/);
   assert.match(javascript, /Functions and actions/);
+  assert.match(javascript, /function muscleRegion/);
+  assert.match(javascript, /localeCompare/);
   assert.match(javascript, /detail-anatomy-image/);
   assert.match(javascript, /\^https:/);
   assert.doesNotMatch(javascript, /innerHTML/);

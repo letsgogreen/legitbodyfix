@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/knowledge.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/knowledge-related.css?v=20260801-1" />
-  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260801-2" />
+  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260801-3" />
   <link rel="stylesheet" href="assets/css/public-responsive-fixes.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260801-1" />
 </head>
@@ -43,6 +43,16 @@
         <button type="button" data-knowledge-filter="muscles" aria-pressed="false">Muscle dictionary</button>
         <button type="button" data-knowledge-filter="recipes" aria-pressed="false">Program previews</button>
       </div>
+      <div class="muscle-tools" id="muscleTools" hidden>
+        <div class="muscle-region-filters" role="group" aria-label="Filter muscles by body region">
+          <button class="is-active" type="button" data-muscle-region="all" aria-pressed="true">All muscles <span data-region-count="all"></span></button>
+          <button type="button" data-muscle-region="upper-body" aria-pressed="false">Upper body <span data-region-count="upper-body"></span></button>
+          <button type="button" data-muscle-region="trunk" aria-pressed="false">Trunk <span data-region-count="trunk"></span></button>
+          <button type="button" data-muscle-region="hip-thigh" aria-pressed="false">Hip &amp; thigh <span data-region-count="hip-thigh"></span></button>
+          <button type="button" data-muscle-region="lower-leg-foot" aria-pressed="false">Lower leg &amp; foot <span data-region-count="lower-leg-foot"></span></button>
+        </div>
+        <label class="muscle-sort"><span>Order</span><select id="muscleSort"><option value="body">Body region</option><option value="alpha">A–Z</option></select></label>
+      </div>
       <p class="knowledge-status" id="knowledgeStatus" role="status" aria-live="polite">Loading movement knowledge…</p>
       <div class="knowledge-grid" id="knowledgeGrid" aria-busy="true"></div>
     </section>
@@ -58,6 +68,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="index.html"><span>LBF</span><strong>LEGITBODYFIX</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260801-2" defer></script>
+  <script src="assets/js/knowledge.js?v=20260801-3" defer></script>
 </body>
 </html>
