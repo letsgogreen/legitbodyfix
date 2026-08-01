@@ -9,12 +9,23 @@
   var directory = document.querySelector(".knowledge-directory");
   var filterButtons = Array.from(document.querySelectorAll("[data-knowledge-filter]"));
   var muscleTools = document.getElementById("muscleTools");
+  var muscleAtlas = document.getElementById("muscleAtlas");
+  var atlasGrid = document.getElementById("atlasGrid");
+  var knowledgePaths = document.getElementById("knowledgePaths");
   var muscleRegionButtons = Array.from(document.querySelectorAll("[data-muscle-region]"));
   var muscleSort = document.getElementById("muscleSort");
   var activeType = "all";
   var activeMuscleRegion = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
+
+  var muscleRegions = {
+    "head-neck": { title: "Head & neck", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Gray378.png", imageAlt: "Gray's Anatomy plate of muscles of the head, face, and neck", credit: "Gray's Anatomy, plate 378 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Gray378.png" },
+    "shoulder-arm": { title: "Shoulder, chest & arms", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Arm_shoulder_gray.png", imageAlt: "Gray's Anatomy plate of arm and shoulder muscles", credit: "Gray's Anatomy · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Arm_shoulder_gray.png" },
+    trunk: { title: "Trunk & breathing", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Gray398.png", imageAlt: "Gray's Anatomy plate of muscles of the torso", credit: "Gray's Anatomy, plate 398 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Gray398.png" },
+    "hip-thigh": { title: "Hip & thigh", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430.png", imageAlt: "Gray's Anatomy plate of the iliac and anterior femoral muscles", credit: "Gray's Anatomy, figure 430 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430.png" },
+    "lower-leg-foot": { title: "Lower leg & foot", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/LowerLimbMuscles.jpg", imageAlt: "Historical anatomical plate of lower-limb muscles", credit: "Adrien Charpy, 1894 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:LowerLimbMuscles.jpg" }
+  };
 
   var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Program preview" };
   var summaries = {
@@ -84,12 +95,52 @@
   function muscleRegion(item) {
     var bodyMap = item && item.bodyMap;
     var group = String(item && item.group || "").toLowerCase();
-    if (["head-neck", "shoulder", "chest", "upper-arm-front", "upper-arm-back", "forearm"].indexOf(bodyMap) !== -1) return "upper-body";
+    if (bodyMap === "head-neck") return "head-neck";
+    if (["shoulder", "chest", "upper-arm-front", "upper-arm-back", "forearm"].indexOf(bodyMap) !== -1) return group === "thorax" ? "trunk" : "shoulder-arm";
     if (["abdomen", "back"].indexOf(bodyMap) !== -1) return "trunk";
     if (["hip-front", "hip-back", "thigh-front", "thigh-back"].indexOf(bodyMap) !== -1) return "hip-thigh";
     if (["lower-leg-front", "lower-leg-back", "foot"].indexOf(bodyMap) !== -1) return "lower-leg-foot";
-    if (["head and neck", "shoulder", "shoulder girdle", "upper back", "chest", "upper arm", "forearm"].indexOf(group) !== -1) return "upper-body";
+    if (group === "head and neck") return "head-neck";
+    if (["shoulder", "shoulder girdle", "upper back", "chest", "upper arm", "forearm"].indexOf(group) !== -1) return "shoulder-arm";
     return "other";
+  }
+
+  function selectType(type) {
+    activeType = type;
+    filterButtons.forEach(function (candidate) {
+      var selected = candidate.dataset.knowledgeFilter === type;
+      candidate.classList.toggle("is-active", selected);
+      candidate.setAttribute("aria-pressed", String(selected));
+    });
+    muscleTools.hidden = type !== "muscles";
+    muscleAtlas.hidden = type !== "muscles";
+    render();
+  }
+
+  function renderAtlas() {
+    var cards = Object.keys(muscleRegions).map(function (region) {
+      var meta = muscleRegions[region];
+      var count = data.muscles.filter(function (item) { return item && item.published !== false && muscleRegion(item) === region; }).length;
+      var card = element("button", "atlas-card");
+      card.type = "button";
+      var image = document.createElement("img");
+      image.src = meta.imageUrl; image.alt = meta.imageAlt; image.loading = "lazy"; image.decoding = "async";
+      var copy = element("span", "atlas-card-copy");
+      copy.append(element("b", "", meta.title), element("small", "", count + (count === 1 ? " muscle" : " muscles")), element("span", "", "Browse region →"));
+      card.append(image, copy);
+      card.addEventListener("click", function () {
+        activeMuscleRegion = region;
+        muscleRegionButtons.forEach(function (candidate) {
+          var selected = candidate.dataset.muscleRegion === region;
+          candidate.classList.toggle("is-active", selected);
+          candidate.setAttribute("aria-pressed", String(selected));
+        });
+        render();
+        grid.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return card;
+    });
+    atlasGrid.replaceChildren.apply(atlasGrid, cards);
   }
 
   function updateMuscleCounts() {
@@ -98,6 +149,14 @@
       var region = node.dataset.regionCount;
       var count = region === "all" ? muscles.length : muscles.filter(function (item) { return muscleRegion(item) === region; }).length;
       node.textContent = String(count);
+    });
+  }
+
+  function updateTypeCounts() {
+    document.querySelectorAll("[data-type-count]").forEach(function (node) {
+      var type = node.dataset.typeCount;
+      var count = data[type].filter(function (item) { return item && item.published !== false; }).length;
+      node.textContent = count + (count === 1 ? " guide" : " guides");
     });
   }
 
@@ -145,6 +204,23 @@
       }
       facts.appendChild(figure);
     } else if (type === "muscles") {
+      var region = muscleRegions[muscleRegion(item)];
+      if (region) {
+        var regionalFigure = element("figure", "detail-anatomy-image is-regional");
+        var regionalImage = document.createElement("img");
+        regionalImage.src = region.imageUrl;
+        regionalImage.alt = region.imageAlt;
+        regionalImage.loading = "eager";
+        var regionalCaption = document.createElement("figcaption");
+        var regionalCredit = document.createElement("a");
+        regionalCredit.href = region.creditUrl;
+        regionalCredit.target = "_blank";
+        regionalCredit.rel = "noopener noreferrer";
+        regionalCredit.textContent = region.credit;
+        regionalCaption.append("Regional anatomy reference · ", regionalCredit);
+        regionalFigure.append(regionalImage, regionalCaption);
+        facts.appendChild(regionalFigure);
+      }
       var bodyMap = createBodyMap(item, false);
       if (bodyMap) facts.appendChild(bodyMap);
     }
@@ -216,6 +292,7 @@
 
   function render() {
     var query = search.value.trim().toLowerCase();
+    knowledgePaths.hidden = activeType !== "all" || Boolean(query);
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
@@ -224,6 +301,14 @@
     if (activeType === "muscles" && muscleSort.value === "alpha") {
       records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
     }
+    if (activeType === "all" && !query) {
+      grid.replaceChildren();
+      grid.hidden = true;
+      grid.setAttribute("aria-busy", "false");
+      status.textContent = "Choose a collection above, or search across all resources.";
+      return;
+    }
+    grid.hidden = false;
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
@@ -242,11 +327,11 @@
 
   filterButtons.forEach(function (button) {
     button.addEventListener("click", function () {
-      activeType = button.dataset.knowledgeFilter;
-      filterButtons.forEach(function (candidate) { var selected = candidate === button; candidate.classList.toggle("is-active", selected); candidate.setAttribute("aria-pressed", String(selected)); });
-      muscleTools.hidden = activeType !== "muscles";
-      render();
+      selectType(button.dataset.knowledgeFilter);
     });
+  });
+  Array.from(document.querySelectorAll("[data-knowledge-path]")).forEach(function (button) {
+    button.addEventListener("click", function () { selectType(button.dataset.knowledgePath); });
   });
   muscleRegionButtons.forEach(function (button) {
     button.addEventListener("click", function () {
@@ -271,6 +356,8 @@
       videos = Array.isArray(payloads[1]) ? payloads[1] : [];
       Object.keys(labels).forEach(function (type) { data[type] = Array.isArray(payload[type]) ? payload[type] : []; });
       updateMuscleCounts();
+      updateTypeCounts();
+      renderAtlas();
       render();
       openFromUrl();
     })

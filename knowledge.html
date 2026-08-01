@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260801-3" />
   <link rel="stylesheet" href="assets/css/public-responsive-fixes.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260801-1" />
+  <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260801-1" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -36,9 +37,14 @@
     </section>
 
     <section class="knowledge-directory shell" aria-labelledby="directoryTitle">
-      <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Start with what feels relevant.</h2></div><label class="knowledge-search"><span>Search movement guides</span><input id="knowledgeSearch" type="search" placeholder="Try shoulder, ankle, or overhead reach…" autocomplete="off" /></label></header>
+      <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Choose one clear path.</h2></div><label class="knowledge-search"><span>Search the whole knowledge hub</span><input id="knowledgeSearch" type="search" placeholder="Try shoulder, ankle, or overhead reach…" autocomplete="off" /></label></header>
+      <div class="knowledge-paths" id="knowledgePaths" aria-label="Knowledge collections">
+        <button type="button" data-knowledge-path="conditions"><span class="path-number">01</span><span class="path-copy"><b>Movement patterns</b><small>Start with a limitation or movement question.</small></span><span class="path-count" data-type-count="conditions"></span></button>
+        <button type="button" data-knowledge-path="muscles"><span class="path-number">02</span><span class="path-copy"><b>Muscle atlas</b><small>Explore anatomy by body region, attachment, and action.</small></span><span class="path-count" data-type-count="muscles"></span></button>
+        <button type="button" data-knowledge-path="recipes"><span class="path-number">03</span><span class="path-copy"><b>Program previews</b><small>See how a guided progression is structured.</small></span><span class="path-count" data-type-count="recipes"></span></button>
+      </div>
       <div class="knowledge-filters" role="group" aria-label="Filter knowledge type">
-        <button class="is-active" type="button" data-knowledge-filter="all" aria-pressed="true">All</button>
+        <button class="is-active" type="button" data-knowledge-filter="all" aria-pressed="true">Overview</button>
         <button type="button" data-knowledge-filter="conditions" aria-pressed="false">Movement patterns</button>
         <button type="button" data-knowledge-filter="muscles" aria-pressed="false">Muscle dictionary</button>
         <button type="button" data-knowledge-filter="recipes" aria-pressed="false">Program previews</button>
@@ -46,13 +52,19 @@
       <div class="muscle-tools" id="muscleTools" hidden>
         <div class="muscle-region-filters" role="group" aria-label="Filter muscles by body region">
           <button class="is-active" type="button" data-muscle-region="all" aria-pressed="true">All muscles <span data-region-count="all"></span></button>
-          <button type="button" data-muscle-region="upper-body" aria-pressed="false">Upper body <span data-region-count="upper-body"></span></button>
-          <button type="button" data-muscle-region="trunk" aria-pressed="false">Trunk <span data-region-count="trunk"></span></button>
+          <button type="button" data-muscle-region="head-neck" aria-pressed="false">Head &amp; neck <span data-region-count="head-neck"></span></button>
+          <button type="button" data-muscle-region="shoulder-arm" aria-pressed="false">Shoulder, chest &amp; arms <span data-region-count="shoulder-arm"></span></button>
+          <button type="button" data-muscle-region="trunk" aria-pressed="false">Trunk &amp; breathing <span data-region-count="trunk"></span></button>
           <button type="button" data-muscle-region="hip-thigh" aria-pressed="false">Hip &amp; thigh <span data-region-count="hip-thigh"></span></button>
           <button type="button" data-muscle-region="lower-leg-foot" aria-pressed="false">Lower leg &amp; foot <span data-region-count="lower-leg-foot"></span></button>
         </div>
         <label class="muscle-sort"><span>Order</span><select id="muscleSort"><option value="body">Body region</option><option value="alpha">A–Z</option></select></label>
       </div>
+      <section class="muscle-atlas" id="muscleAtlas" hidden aria-labelledby="muscleAtlasTitle">
+        <div class="atlas-heading"><div><p class="eyebrow">Regional anatomy atlas</p><h3 id="muscleAtlasTitle">See the body area before opening a muscle.</h3></div><p>Historical anatomy plates provide regional context. Individual entries then show origin, insertion, and primary actions. Exact highlighted illustrations are used when available.</p></div>
+        <div class="atlas-grid" id="atlasGrid"></div>
+        <p class="atlas-key"><b>Visual key:</b> anatomy plate = regional context &nbsp; / &nbsp; lime locator = approximate body area, not a diagnostic image.</p>
+      </section>
       <p class="knowledge-status" id="knowledgeStatus" role="status" aria-live="polite">Loading movement knowledge…</p>
       <div class="knowledge-grid" id="knowledgeGrid" aria-busy="true"></div>
     </section>

@@ -20,6 +20,11 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /Muscle dictionary/);
   assert.match(html, /muscle-dictionary\.css/);
   assert.match(html, /data-muscle-region="lower-leg-foot"/);
+  assert.match(html, /data-muscle-region="head-neck"/);
+  assert.match(html, /data-muscle-region="shoulder-arm"/);
+  assert.match(html, /id="knowledgePaths"/);
+  assert.match(html, /id="muscleAtlas"/);
+  assert.match(html, /knowledge-organization\.css/);
   assert.match(html, /id="muscleSort"/);
   assert.match(javascript, /item\.published !== false/);
   assert.match(javascript, /textContent = text/);
@@ -31,6 +36,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /function muscleRegion/);
   assert.match(javascript, /localeCompare/);
   assert.match(javascript, /detail-anatomy-image/);
+  assert.match(javascript, /Regional anatomy reference/);
+  assert.match(javascript, /Special:FilePath\/Gray378\.png/);
   assert.match(javascript, /\^https:/);
   assert.doesNotMatch(javascript, /innerHTML/);
   assert.doesNotMatch(javascript, /\["steps",\s*"Sequence"\]/);
