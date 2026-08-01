@@ -24,12 +24,15 @@
     "price": 45
   },
   {
-    "id": "shoulder-reset",
+    "id": "ankle-sprain-rehabilitation",
+    "legacyIds": [
+      "shoulder-reset"
+    ],
     "programId": "neck-shoulder-reset",
     "level": "INTERMEDIATE",
     "moduleNumber": 2,
-    "title": "ankle sprain rehabilitation",
-    "description": "Improve shoulder positioning with a proficient massaging techniques that actually works!",
+    "title": "Ankle Sprain Rehabilitation",
+    "description": "A progressive guided session for rebuilding ankle mobility, balance, stability, and strength after the acute stage has settled.",
     "landingEyebrow": "Progressive ankle session",
     "landingHeadline": "Rebuild ankle strength, stability, and trust.",
     "landingSummary": "A step-by-step rehabilitation session for rebuilding movement after an ankle sprain. Progress from mobility and control toward stability, strength, and greater confidence on the ankle.",

@@ -14,7 +14,9 @@
 insert into programs (id, title, price, currency, active)
 values
   ('neck-alignment',          'Neck Alignment',          12, 'USD', true),
-  ('shoulder-reset',          'Shoulder Reset',          14, 'USD', true),
+  ('ankle-sprain-rehabilitation', 'Ankle Sprain Rehabilitation', 14, 'USD', true),
+  -- Keep the former identifier active so any earlier entitlement remains visible.
+  ('shoulder-reset',          'Ankle Sprain Rehabilitation (legacy)', 14, 'USD', true),
   ('pelvic-balance',          'Pelvic Balance',          15, 'USD', true),
   ('foot-mechanics',          'Foot Mechanics',          10, 'USD', true),
   ('walking-mechanics',       'Walking Mechanics',       16, 'USD', true),

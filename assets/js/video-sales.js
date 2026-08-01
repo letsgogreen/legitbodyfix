@@ -31,6 +31,10 @@
     return "$" + (Number.isInteger(value) ? value : value.toFixed(2)) + " USD";
   }
 
+  function canonicalVideoId(value) {
+    return value === "shoulder-reset" ? "ankle-sprain-rehabilitation" : value;
+  }
+
   function createElement(tag, className, value) {
     var node = document.createElement(tag);
     if (className) node.className = className;
@@ -143,7 +147,8 @@
     loadRelatedKnowledge(video.id);
   }
 
-  var videoId = new URLSearchParams(window.location.search).get("id");
+  var requestedVideoId = new URLSearchParams(window.location.search).get("id");
+  var videoId = canonicalVideoId(requestedVideoId);
   if (!videoId || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(videoId)) {
     showUnavailable();
     return;
