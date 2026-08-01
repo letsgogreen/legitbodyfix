@@ -29,7 +29,7 @@ test("returns only browser-safe checkout configuration, including the catalog", 
     currency: "USD"
   });
   var singleVideo = config.catalog.find(function (product) { return product.id === "neck-alignment"; });
-  assert.equal(singleVideo.amount, "12.00");
+  assert.equal(singleVideo.amount, "45.00");
   assert.equal(singleVideo.currency, "USD");
 });
 
@@ -64,7 +64,7 @@ test("creates a fixed-price order for a single purchasable video", async functio
   assert.equal(order.id, "5O190127TN364715U");
   var body = JSON.parse(calls[1].options.body);
   assert.equal(body.purchase_units[0].custom_id, "neck-alignment");
-  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "12.00" });
+  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "45.00" });
 });
 
 test("rejects order creation for a product that is not in the catalog", async function () {
@@ -102,13 +102,13 @@ test("validates a completed order for an individually purchased video at its own
     payer: { email_address: "Buyer@Example.com" },
     purchase_units: [{
       custom_id: "neck-alignment",
-      amount: { currency_code: "USD", value: "12.00" },
+      amount: { currency_code: "USD", value: "45.00" },
       payments: { captures: [{ id: "3GG79435FJ124315N", status: "COMPLETED", create_time: "2026-07-30T00:00:00Z" }] }
     }]
   });
 
   assert.equal(payment.programId, "neck-alignment");
-  assert.equal(payment.amount, 12);
+  assert.equal(payment.amount, 45);
 
   // Paying the single-video price should not be accepted as payment for the
   // full bundle (custom_id mismatch against the claimed amount).
