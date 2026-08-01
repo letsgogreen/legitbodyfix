@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/knowledge.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/knowledge-related.css?v=20260801-1" />
-  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260801-3" />
+  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260802-6" />
   <link rel="stylesheet" href="assets/css/public-responsive-fixes.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260801-1" />
@@ -37,7 +37,7 @@
     </section>
 
     <section class="knowledge-directory shell" aria-labelledby="directoryTitle">
-      <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Choose one clear path.</h2></div><label class="knowledge-search"><span>Search the whole knowledge hub</span><input id="knowledgeSearch" type="search" placeholder="Try shoulder, ankle, or overhead reach…" autocomplete="off" /></label></header>
+      <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Choose one clear path.</h2></div><label class="knowledge-search"><span>Search the whole knowledge hub</span><input id="knowledgeSearch" type="search" placeholder="Try hip flexor, rotator cuff, or ankle…" autocomplete="off" /></label></header>
       <div class="knowledge-paths" id="knowledgePaths" aria-label="Knowledge collections">
         <button type="button" data-knowledge-path="conditions"><span class="path-number">01</span><span class="path-copy"><b>Movement patterns</b><small>Start with a limitation or movement question.</small></span><span class="path-count" data-type-count="conditions"></span></button>
         <button type="button" data-knowledge-path="muscles"><span class="path-number">02</span><span class="path-copy"><b>Muscle atlas</b><small>Explore anatomy by body region, attachment, and action.</small></span><span class="path-count" data-type-count="muscles"></span></button>
@@ -52,13 +52,32 @@
       <div class="muscle-tools" id="muscleTools" hidden>
         <div class="muscle-region-filters" role="group" aria-label="Filter muscles by body region">
           <button class="is-active" type="button" data-muscle-region="all" aria-pressed="true">All muscles <span data-region-count="all"></span></button>
-          <button type="button" data-muscle-region="head-neck" aria-pressed="false">Head &amp; neck <span data-region-count="head-neck"></span></button>
-          <button type="button" data-muscle-region="shoulder-arm" aria-pressed="false">Shoulder, chest &amp; arms <span data-region-count="shoulder-arm"></span></button>
-          <button type="button" data-muscle-region="trunk" aria-pressed="false">Trunk &amp; breathing <span data-region-count="trunk"></span></button>
+          <button type="button" data-muscle-region="head-neck" aria-pressed="false">Neck <span data-region-count="head-neck"></span></button>
+          <button type="button" data-muscle-region="shoulder-chest" aria-pressed="false">Shoulder &amp; chest <span data-region-count="shoulder-chest"></span></button>
+          <button type="button" data-muscle-region="arm-hand" aria-pressed="false">Arm &amp; hand <span data-region-count="arm-hand"></span></button>
+          <button type="button" data-muscle-region="trunk-back" aria-pressed="false">Trunk &amp; back <span data-region-count="trunk-back"></span></button>
+          <button type="button" data-muscle-region="pelvic-floor" aria-pressed="false">Pelvic floor <span data-region-count="pelvic-floor"></span></button>
           <button type="button" data-muscle-region="hip-thigh" aria-pressed="false">Hip &amp; thigh <span data-region-count="hip-thigh"></span></button>
-          <button type="button" data-muscle-region="lower-leg-foot" aria-pressed="false">Lower leg &amp; foot <span data-region-count="lower-leg-foot"></span></button>
+          <button type="button" data-muscle-region="lower-leg" aria-pressed="false">Lower leg <span data-region-count="lower-leg"></span></button>
+          <button type="button" data-muscle-region="foot" aria-pressed="false">Foot <span data-region-count="foot"></span></button>
         </div>
-        <label class="muscle-sort"><span>Order</span><select id="muscleSort"><option value="body">Body region</option><option value="alpha">A–Z</option></select></label>
+        <div class="muscle-tool-selects">
+          <label class="muscle-function"><span>Function</span><select id="muscleFunction">
+            <option value="all">All functions</option>
+            <optgroup label="Neck"><option value="Neck flexor">Neck flexors</option><option value="Neck extensor">Neck extensors</option><option value="Neck lateral flexor">Neck lateral flexors</option><option value="Neck rotator">Neck rotators</option></optgroup>
+            <optgroup label="Shoulder"><option value="Shoulder flexor">Shoulder flexors</option><option value="Shoulder extensor">Shoulder extensors</option><option value="Shoulder abductor">Shoulder abductors</option><option value="Shoulder adductor">Shoulder adductors</option><option value="Shoulder internal rotator">Shoulder internal rotators</option><option value="Shoulder external rotator">Shoulder external rotators</option></optgroup>
+            <optgroup label="Scapula"><option value="Scapular protractor">Scapular protractors</option><option value="Scapular retractor">Scapular retractors</option><option value="Scapular elevator">Scapular elevators</option><option value="Scapular depressor">Scapular depressors</option><option value="Scapular upward rotator">Scapular upward rotators</option><option value="Scapular downward rotator">Scapular downward rotators</option></optgroup>
+            <optgroup label="Arm and wrist"><option value="Elbow flexor">Elbow flexors</option><option value="Elbow extensor">Elbow extensors</option><option value="Forearm pronator">Forearm pronators</option><option value="Forearm supinator">Forearm supinators</option><option value="Wrist flexor">Wrist flexors</option><option value="Wrist extensor">Wrist extensors</option></optgroup>
+            <optgroup label="Hand"><option value="Finger flexor">Finger flexors</option><option value="Finger extensor">Finger extensors</option><option value="Finger abductor">Finger abductors</option><option value="Finger adductor">Finger adductors</option><option value="Thumb flexor">Thumb flexors</option><option value="Thumb extensor">Thumb extensors</option><option value="Thumb abductor">Thumb abductors</option><option value="Thumb adductor">Thumb adductors</option><option value="Thumb opposer">Thumb opposition</option></optgroup>
+            <optgroup label="Trunk and breathing"><option value="Trunk flexor">Trunk flexors</option><option value="Trunk extensor">Trunk extensors</option><option value="Trunk rotator">Trunk rotators</option><option value="Trunk lateral flexor">Trunk lateral flexors</option><option value="Inspiratory muscle">Inspiratory muscles</option><option value="Expiratory muscle">Expiratory muscles</option></optgroup>
+            <optgroup label="Pelvic floor"><option value="Pelvic floor supporter">Pelvic floor support</option><option value="Urinary continence muscle">Urinary continence</option><option value="Fecal continence muscle">Fecal continence</option></optgroup>
+            <optgroup label="Hip"><option value="Hip flexor">Hip flexors</option><option value="Hip extensor">Hip extensors</option><option value="Hip abductor">Hip abductors</option><option value="Hip adductor">Hip adductors</option><option value="Hip internal rotator">Hip internal rotators</option><option value="Hip external rotator">Hip external rotators</option></optgroup>
+            <optgroup label="Knee"><option value="Knee flexor">Knee flexors</option><option value="Knee extensor">Knee extensors</option><option value="Knee internal rotator">Knee internal rotators</option><option value="Knee external rotator">Knee external rotators</option></optgroup>
+            <optgroup label="Ankle and foot"><option value="Ankle dorsiflexor">Ankle dorsiflexors</option><option value="Ankle plantarflexor">Ankle plantarflexors</option><option value="Foot invertor">Foot invertors</option><option value="Foot evertor">Foot evertors</option><option value="Toe flexor">Toe flexors</option><option value="Toe extensor">Toe extensors</option></optgroup>
+          </select></label>
+          <label class="muscle-sort"><span>Order</span><select id="muscleSort"><option value="body">Body region</option><option value="alpha">A–Z</option></select></label>
+          <button class="muscle-reset" id="muscleReset" type="button">Reset filters</button>
+        </div>
       </div>
       <section class="muscle-atlas" id="muscleAtlas" hidden aria-labelledby="muscleAtlasTitle">
         <div class="atlas-heading"><div><p class="eyebrow">Regional anatomy atlas</p><h3 id="muscleAtlasTitle">See the body area before opening a muscle.</h3></div><p>Historical anatomy plates provide regional context. Individual entries then show origin, insertion, and primary actions. Exact highlighted illustrations are used when available.</p></div>
@@ -80,6 +99,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="index.html"><span>LBF</span><strong>LEGITBODYFIX</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260801-3" defer></script>
+  <script src="assets/js/knowledge.js?v=20260802-6" defer></script>
 </body>
 </html>
