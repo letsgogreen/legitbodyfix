@@ -40,16 +40,16 @@
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
 
-  var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Program preview" };
+  var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
   var summaries = {
     conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
     muscles: function (item) { return item.actions || item.function || "Explore this muscle's role in movement."; },
-    recipes: function (item) { return item.goal || "Preview the purpose of this guided program."; }
+    recipes: function (item) { return item.goal || "Use a focused sequence, then reassess before progressing."; }
   };
   var fields = {
     conditions: [["joints", "Areas involved"], ["tags", "Common associations"], ["tightMuscles", "Often overactive or restricted"], ["weakMuscles", "Often underactive"], ["screening", "Movement screen"]],
     muscles: [["group", "Body region"], ["origin", "Origin"], ["insertion", "Insertion"], ["actions", "Functions and actions"]],
-    recipes: [["goal", "What this program works toward"], ["equipment", "What you may need"], ["cautions", "Before you begin"], ["relatedConditions", "Related movement patterns"]]
+    recipes: [["bodyRegion", "Body area"], ["goal", "Goal"], ["whenToUse", "A useful starting point when"], ["equipment", "What you may need"], ["steps", "Starting sequence"], ["dosage", "Suggested dose"], ["reassess", "Reassess before progressing"], ["regression", "Make it easier"], ["progression", "Make it harder"], ["cautions", "Stop and get help when"], ["relatedConditions", "Related movement patterns"]]
   };
 
   function element(tag, className, text) {
@@ -439,7 +439,13 @@
       var roles = createFunctionalRoleList(record.item);
       if (roles) card.appendChild(roles);
     }
-    card.append(element("span", "knowledge-card-type", labels[record.type]), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Preview the approach →" : "Read the guide →"));
+    if (record.type === "recipes") {
+      card.classList.add("is-recipe");
+      var recipeMeta = element("span", "recipe-card-meta");
+      recipeMeta.append(element("b", "", record.item.bodyRegion || "Whole body"), element("i", "", record.item.time || "10–15 min"));
+      card.appendChild(recipeMeta);
+    }
+    card.append(element("span", "knowledge-card-type", labels[record.type]), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Open the recipe →" : "Read the guide →"));
     card.addEventListener("click", function () { openDetail(record.type, record.item); });
     return card;
   }
@@ -501,6 +507,28 @@
     grid.replaceChildren.apply(grid, sections);
   }
 
+  function renderRecipeGroups(records) {
+    var regionOrder = ["Neck & shoulders", "Trunk & breathing", "Hip & pelvis", "Knee", "Ankle & foot", "Whole body"];
+    var regions = Array.from(new Set(records.map(function (record) { return record.item.bodyRegion || "Whole body"; })));
+    regions.sort(function (a, b) {
+      var aIndex = regionOrder.indexOf(a), bIndex = regionOrder.indexOf(b);
+      if (aIndex === -1) aIndex = regionOrder.length;
+      if (bIndex === -1) bIndex = regionOrder.length;
+      return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
+    });
+    var sections = regions.map(function (region) {
+      var regionRecords = records.filter(function (record) { return (record.item.bodyRegion || "Whole body") === region; });
+      var section = element("section", "recipe-region-section");
+      var heading = element("header", "recipe-region-heading");
+      heading.append(element("h3", "", region), element("span", "", regionRecords.length + (regionRecords.length === 1 ? " recipe" : " recipes")));
+      var recipeGrid = element("div", "recipe-region-grid");
+      recipeGrid.replaceChildren.apply(recipeGrid, regionRecords.map(createCard));
+      section.append(heading, recipeGrid);
+      return section;
+    });
+    grid.replaceChildren.apply(grid, sections);
+  }
+
   function render() {
     var query = search.value.trim().toLowerCase();
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
@@ -515,6 +543,7 @@
       return fieldMatch || roleMatch;
     });
     var groupMuscles = activeType === "muscles" && muscleSort.value === "body" && !query;
+    var groupRecipes = activeType === "recipes" && !query;
     if (activeType === "muscles" && muscleSort.value === "alpha") {
       records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
     }
@@ -527,14 +556,17 @@
       return;
     }
     grid.hidden = false;
-    grid.classList.toggle("is-grouped", groupMuscles && Boolean(records.length));
+    grid.classList.toggle("is-grouped", (groupMuscles || groupRecipes) && Boolean(records.length));
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
     else if (groupMuscles) renderMuscleGroups(records);
+    else if (groupRecipes) renderRecipeGroups(records);
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
     status.textContent = activeType === "muscles"
       ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase())
-      : records.length + (records.length === 1 ? " movement guide" : " movement guides");
+      : activeType === "recipes"
+        ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + " grouped by body area"
+        : records.length + (records.length === 1 ? " movement guide" : " movement guides");
   }
 
   function openFromUrl() {

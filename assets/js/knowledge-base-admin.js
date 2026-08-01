@@ -40,8 +40,11 @@
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     recipes: [
-      ["title", "Program preview title", 120], ["goal", "Public goal", 500, true], ["equipment", "Equipment", 300],
-      ["steps", "Ordered steps", 2400, true], ["cautions", "Cautions", 800, true],
+      ["title", "Recipe title", 120], ["bodyRegion", "Body area", 120], ["time", "Estimated time", 80],
+      ["goal", "Public goal", 500, true], ["whenToUse", "Useful starting point when", 800, true], ["equipment", "Equipment", 300],
+      ["steps", "Starting sequence", 2400, true], ["dosage", "Suggested dose", 800, true],
+      ["reassess", "Reassessment checkpoint", 800, true], ["regression", "Regression", 800, true],
+      ["progression", "Progression", 800, true], ["cautions", "Stop / referral guidance", 800, true],
       ["relatedConditions", "Related conditions", 500], ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ]
   };
@@ -169,7 +172,7 @@
   }
 
   function addRecord() {
-    var labels = { conditions: "New movement pattern", muscles: "New muscle", recipes: "New program preview" };
+    var labels = { conditions: "New movement pattern", muscles: "New muscle", recipes: "New correction recipe" };
     var record = { id: uniqueId(labels[activeType]), title: labels[activeType], published: false };
     schemas[activeType].forEach(function (definition) { if (!(definition[0] in record)) record[definition[0]] = ""; });
     data[activeType].push(record);

@@ -17,7 +17,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /data-knowledge-filter="conditions"/);
   assert.match(html, /Complete follow-along progressions stay inside the paid programs/);
   assert.match(html, /How movement guides help/);
-  assert.match(html, /Program previews/);
+  assert.match(html, /Correction recipes/);
   assert.match(html, /Muscle dictionary/);
   assert.match(html, /muscle-dictionary\.css/);
   assert.match(html, /data-muscle-region="lower-leg"/);
@@ -85,6 +85,9 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /Related programs/);
   assert.match(javascript, /Programs selected for the movement roles/);
   assert.match(javascript, /Explore this program/);
+  assert.match(javascript, /function renderRecipeGroups/);
+  assert.match(javascript, /Open the recipe/);
+  assert.match(javascript, /Reassess before progressing/);
   assert.match(css, /\.anatomy-viewer/);
   assert.match(css, /\.knowledge-card-media-label/);
   assert.match(javascript, /localeCompare/);
@@ -194,5 +197,19 @@ test("knowledge seed data provides unique public identifiers", function () {
     assert.ok(Array.isArray(data[type]) && data[type].length > 0);
     assert.equal(new Set(data[type].map(function (item) { return item.id; })).size, data[type].length);
     data[type].forEach(function (item) { assert.ok(item.title); assert.equal(typeof item.published, "boolean"); });
+  });
+});
+
+test("correction recipes are grouped, actionable, and safety aware", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  assert.ok(data.recipes.length >= 8);
+  var regions = new Set(data.recipes.map(function (recipe) { return recipe.bodyRegion; }));
+  ["Neck & shoulders", "Trunk & breathing", "Hip & pelvis", "Knee", "Ankle & foot"].forEach(function (region) {
+    assert.ok(regions.has(region), "missing correction recipe region " + region);
+  });
+  data.recipes.forEach(function (recipe) {
+    ["goal", "whenToUse", "steps", "dosage", "reassess", "regression", "progression", "cautions", "relatedVideoIds"].forEach(function (field) {
+      assert.ok(String(recipe[field] || "").trim(), recipe.id + " needs " + field);
+    });
   });
 });
