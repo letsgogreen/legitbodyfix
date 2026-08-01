@@ -45,7 +45,7 @@ test("public knowledge hub exposes searchable published education safely", funct
 
 test("muscle dictionary records include anatomy fields, visual orientation, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  assert.ok(data.muscles.length >= 25);
+  assert.ok(data.muscles.length >= 60);
   data.muscles.forEach(function (muscle) {
     assert.ok(muscle.origin, muscle.id + " needs an origin");
     assert.ok(muscle.insertion, muscle.id + " needs an insertion");
@@ -59,6 +59,17 @@ test("muscle dictionary records include anatomy fields, visual orientation, and 
     }
     assert.ok(muscle.sourceName, muscle.id + " needs a reference name");
     assert.match(muscle.sourceUrl, /^https:\/\//);
+  });
+});
+
+test("muscle dictionary covers the major whole-body regions", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var bodyMaps = new Set(data.muscles.map(function (muscle) { return muscle.bodyMap; }).filter(Boolean));
+  ["head-neck", "shoulder", "chest", "forearm", "abdomen", "back", "hip-front", "hip-back", "thigh-front", "thigh-back", "lower-leg-front", "lower-leg-back", "foot"].forEach(function (bodyMap) {
+    assert.ok(bodyMaps.has(bodyMap), "missing muscle coverage for " + bodyMap);
+  });
+  ["supraspinatus", "internal-oblique", "gluteus-minimus", "tibialis-posterior", "intrinsic-foot-muscles"].forEach(function (id) {
+    assert.ok(data.muscles.some(function (muscle) { return muscle.id === id; }), "missing foundational muscle " + id);
   });
 });
 
