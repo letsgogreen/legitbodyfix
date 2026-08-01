@@ -22,7 +22,7 @@
     sales: "Sales",
     "buyer-access": "Customer access",
     "video-library": "Programs & videos",
-    "knowledge-base": "Knowledge base"
+    "knowledge-base": "Movement guides"
   };
   var scrollPositions = {};
   var activeWorkspace = "overview";

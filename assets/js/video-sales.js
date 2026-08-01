@@ -49,11 +49,11 @@
   }
 
   function renderRelatedKnowledge(videoId, payload) {
-    var labels = { conditions: "Movement pattern", muscles: "Anatomy guide", recipes: "Practice recipe" };
+    var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Program preview" };
     var summaries = {
       conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
-      muscles: function (item) { return item.function || item.notes || "Explore this muscle's role in movement."; },
-      recipes: function (item) { return item.goal || "Explore this corrective exercise sequence."; }
+      muscles: function (item) { return item.actions || item.function || "Explore this muscle's role in movement."; },
+      recipes: function (item) { return item.goal || "Preview the purpose of this guided program."; }
     };
     var records = Object.keys(labels).flatMap(function (type) {
       var items = payload && Array.isArray(payload[type]) ? payload[type] : [];

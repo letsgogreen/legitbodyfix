@@ -70,7 +70,7 @@
         <button type="button" data-command-item data-command-workspace="overview"><span class="command-number">01</span><span><strong>Overview</strong><small>Status and shortcuts</small></span><b>Open</b></button>
         <button type="button" data-command-item data-command-workspace="site-copy"><span class="command-number">02</span><span><strong>Website editor</strong><small>Copy, layout, and homepage sections</small></span><b>Open</b></button>
         <button type="button" data-command-item data-command-workspace="video-library"><span class="command-number">03</span><span><strong>Programs &amp; videos</strong><small>Sessions, uploads, and publishing</small></span><b>Open</b></button>
-        <button type="button" data-command-item data-command-workspace="knowledge-base"><span class="command-number">04</span><span><strong>Knowledge base</strong><small>Conditions, muscles, and exercise recipes</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="knowledge-base"><span class="command-number">04</span><span><strong>Movement guides</strong><small>Patterns, concepts, and program previews</small></span><b>Open</b></button>
         <button type="button" data-command-item data-command-workspace="sales"><span class="command-number">05</span><span><strong>Sales</strong><small>Purchases, customers, and revenue</small></span><b>Open</b></button>
         <button type="button" data-command-item data-command-workspace="buyer-access"><span class="command-number">06</span><span><strong>Customer access</strong><small>Grant access for verified support cases</small></span><b>Open</b></button>
         <a href="index.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Live website</strong><small>Open the public storefront</small></span><b>New tab</b></a>
@@ -140,9 +140,9 @@
           </details>
 
           <details class="nav-group" open>
-            <summary><span>Knowledge</span><i aria-hidden="true"></i></summary>
+            <summary><span>Education</span><i aria-hidden="true"></i></summary>
             <div class="nav-group-items">
-              <a class="workspace-nav-item" href="#knowledge-base" data-workspace-target="knowledge-base" title="Knowledge base"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Knowledge base</strong><small>Clinical content library</small></span><b class="nav-badge" id="sidebarKnowledgeCount" aria-label="Knowledge record count">0</b></a>
+              <a class="workspace-nav-item" href="#knowledge-base" data-workspace-target="knowledge-base" title="Movement guides"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Movement guides</strong><small>Patterns, muscle dictionary, and previews</small></span><b class="nav-badge" id="sidebarKnowledgeCount" aria-label="Movement guide count">0</b></a>
             </div>
           </details>
 
@@ -269,24 +269,24 @@
 
       <section class="workspace-panel knowledge-workspace" id="knowledge-base" data-workspace-panel="knowledge-base" aria-labelledby="knowledgeTitle" hidden>
         <header class="page-heading knowledge-heading">
-          <div><p class="eyebrow">Control Room / Knowledge</p><h1 id="knowledgeTitle">Knowledge base</h1><p class="lede">Turn your corrective-exercise research into organized, reusable content for programs and sales pages.</p></div>
-          <button class="button button-lime" id="publishKnowledge" type="button">Publish knowledge <span aria-hidden="true">&rarr;</span></button>
+          <div><p class="eyebrow">Control Room / Education</p><h1 id="knowledgeTitle">Movement guides</h1><p class="lede">Explain the why, build trust, and connect every public guide to the most relevant paid program.</p></div>
+          <button class="button button-lime" id="publishKnowledge" type="button">Publish guides <span aria-hidden="true">&rarr;</span></button>
         </header>
         <div class="summary knowledge-summary" aria-label="Knowledge base summary" aria-live="polite">
-          <article><span>Conditions</span><strong id="conditionCount">0</strong><small>Movement patterns and findings</small></article>
-          <article><span>Muscles</span><strong id="muscleCount">0</strong><small>Anatomy and function notes</small></article>
-          <article class="summary-accent"><span>Recipes</span><strong id="recipeCount">0</strong><small>Ordered corrective sequences</small></article>
+          <article><span>Patterns</span><strong id="conditionCount">0</strong><small>Questions visitors may recognize</small></article>
+          <article><span>Muscles</span><strong id="muscleCount">0</strong><small>Origin, insertion, actions, and images</small></article>
+          <article class="summary-accent"><span>Previews</span><strong id="recipeCount">0</strong><small>Program goals without full protocols</small></article>
         </div>
         <div class="workspace-toolbar knowledge-toolbar">
           <div class="knowledge-tabs" role="tablist" aria-label="Knowledge record type">
-            <button class="is-active" type="button" role="tab" aria-selected="true" data-knowledge-type="conditions">Conditions</button>
-            <button type="button" role="tab" aria-selected="false" data-knowledge-type="muscles">Muscles</button>
-            <button type="button" role="tab" aria-selected="false" data-knowledge-type="recipes">Exercise recipes</button>
+            <button class="is-active" type="button" role="tab" aria-selected="true" data-knowledge-type="conditions">Movement patterns</button>
+            <button type="button" role="tab" aria-selected="false" data-knowledge-type="muscles">Muscle dictionary</button>
+            <button type="button" role="tab" aria-selected="false" data-knowledge-type="recipes">Program previews</button>
           </div>
-          <label class="video-search"><span class="sr-only">Search knowledge base</span><input id="knowledgeSearch" type="search" placeholder="Search knowledge..." autocomplete="off" /></label>
+          <label class="video-search"><span class="sr-only">Search movement guides</span><input id="knowledgeSearch" type="search" placeholder="Search movement guides..." autocomplete="off" /></label>
           <div class="toolbar-group"><button class="button button-dark" id="addKnowledgeRecord" type="button">+ New record</button><button class="button button-quiet" id="resetKnowledgeDraft" type="button">Discard draft</button></div>
         </div>
-        <div class="context-note" role="note"><span aria-hidden="true">i</span><p><strong>Research stays editable.</strong> Drafts remain in this browser until you publish a versioned update. Public pages are unchanged in this first step.</p></div>
+        <div class="context-note" role="note"><span aria-hidden="true">i</span><p><strong>Keep the complete method paid.</strong> Public guides should explain the problem and the reasoning, then direct readers to a related program. Drafts remain in this browser until published.</p></div>
         <p class="status" id="knowledgeStatus" role="status" aria-live="polite">Loading knowledge base...</p>
         <section class="knowledge-list" id="knowledgeList" aria-label="Knowledge records" aria-busy="true"></section>
       </section>
@@ -402,6 +402,6 @@
   <script src="assets/js/admin-video-draft.js?v=20260801-1" defer></script>
   <script src="assets/js/admin.js?v=20260801-8" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
-  <script src="assets/js/knowledge-base-admin.js?v=20260801-1" defer></script>
+  <script src="assets/js/knowledge-base-admin.js?v=20260801-2" defer></script>
 </body>
 </html>

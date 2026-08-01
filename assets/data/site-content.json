@@ -50,10 +50,10 @@
     "linkHref": "#pricing"
   },
   "knowledge": {
-    "label": "Movement knowledge",
-    "titleLines": ["KNOW WHAT.", "KNOW WHY."],
-    "intro": "Explore the patterns, muscles, and practical sequences behind every intentional movement session.",
-    "linkLabel": "Open the knowledge base",
+    "label": "Free movement guides",
+    "titleLines": ["UNDERSTAND WHY.", "CHOOSE WHAT'S NEXT."],
+    "intro": "Learn what may influence a movement pattern, then find the guided program that fits your goal.",
+    "linkLabel": "Browse movement guides",
     "linkHref": "knowledge.html"
   },
   "standard": {

@@ -31,12 +31,16 @@
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     muscles: [
-      ["title", "Muscle name", 120], ["group", "Muscle group", 160], ["function", "Primary function", 600, true],
-      ["origin", "Origin", 500], ["insertion", "Insertion", 500], ["notes", "Programming notes", 800, true],
+      ["title", "Muscle name", 120], ["group", "Body region", 160], ["origin", "Origin", 800, true],
+      ["insertion", "Insertion", 800, true], ["actions", "Functions and actions", 800, true],
+      ["imageUrl", "Anatomy image URL (HTTPS)", 800], ["imageAlt", "Image description", 240],
+      ["imageCredit", "Image credit", 240], ["imageCreditUrl", "Image source URL (HTTPS)", 800],
+      ["bodyMap", "Body map region", 80], ["sourceName", "Anatomy reference name", 240],
+      ["sourceUrl", "Anatomy reference URL (HTTPS)", 800],
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     recipes: [
-      ["title", "Recipe name", 120], ["goal", "Goal", 500, true], ["equipment", "Equipment", 300],
+      ["title", "Program preview title", 120], ["goal", "Public goal", 500, true], ["equipment", "Equipment", 300],
       ["steps", "Ordered steps", 2400, true], ["cautions", "Cautions", 800, true],
       ["relatedConditions", "Related conditions", 500], ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ]
@@ -49,6 +53,13 @@
   }
 
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
+
+  function normalizeMuscles(payload) {
+    (payload.muscles || []).forEach(function (record) {
+      if (!record.actions && record.function) record.actions = record.function;
+    });
+    return payload;
+  }
 
   function slugify(value) {
     return String(value || "record").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70) || "record";
@@ -158,7 +169,7 @@
   }
 
   function addRecord() {
-    var labels = { conditions: "New condition", muscles: "New muscle", recipes: "New exercise recipe" };
+    var labels = { conditions: "New movement pattern", muscles: "New muscle", recipes: "New program preview" };
     var record = { id: uniqueId(labels[activeType]), title: labels[activeType], published: false };
     schemas[activeType].forEach(function (definition) { if (!(definition[0] in record)) record[definition[0]] = ""; });
     data[activeType].push(record);
@@ -174,10 +185,10 @@
       if (!response.ok) throw new Error("Knowledge data could not be loaded.");
       return response.json();
     }).then(function (loaded) {
-      repositoryData = clone(loaded);
+      repositoryData = normalizeMuscles(clone(loaded));
       var saved = localStorage.getItem(DRAFT_KEY);
       if (saved) {
-        try { data = JSON.parse(saved); setStatus("Browser draft restored.", "draft"); }
+        try { data = normalizeMuscles(JSON.parse(saved)); setStatus("Browser draft restored.", "draft"); }
         catch (error) { data = clone(repositoryData); localStorage.removeItem(DRAFT_KEY); }
       } else data = clone(repositoryData);
       render();

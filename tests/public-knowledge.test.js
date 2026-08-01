@@ -14,14 +14,45 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /id="knowledgeGrid"/);
   assert.match(html, /public-responsive-fixes\.css/);
   assert.match(html, /data-knowledge-filter="conditions"/);
-  assert.match(html, /Education only/);
+  assert.match(html, /Complete follow-along progressions stay inside the paid programs/);
+  assert.match(html, /How movement guides help/);
+  assert.match(html, /Program previews/);
+  assert.match(html, /Muscle dictionary/);
+  assert.match(html, /muscle-dictionary\.css/);
+  assert.match(html, /data-muscle-region="lower-leg-foot"/);
+  assert.match(html, /id="muscleSort"/);
   assert.match(javascript, /item\.published !== false/);
   assert.match(javascript, /textContent = text/);
   assert.match(javascript, /URLSearchParams/);
   assert.match(javascript, /relatedVideoIds/);
   assert.match(javascript, /video\.html\?id=/);
   assert.match(javascript, /assets\/data\/videos\.json/);
+  assert.match(javascript, /Functions and actions/);
+  assert.match(javascript, /function muscleRegion/);
+  assert.match(javascript, /localeCompare/);
+  assert.match(javascript, /detail-anatomy-image/);
+  assert.match(javascript, /\^https:/);
   assert.doesNotMatch(javascript, /innerHTML/);
+  assert.doesNotMatch(javascript, /\["steps",\s*"Sequence"\]/);
+});
+
+test("muscle dictionary records include anatomy fields, visual orientation, and references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  assert.ok(data.muscles.length >= 25);
+  data.muscles.forEach(function (muscle) {
+    assert.ok(muscle.origin, muscle.id + " needs an origin");
+    assert.ok(muscle.insertion, muscle.id + " needs an insertion");
+    assert.ok(muscle.actions, muscle.id + " needs functions and actions");
+    assert.ok(muscle.imageUrl || muscle.bodyMap, muscle.id + " needs an image or body map");
+    if (muscle.imageUrl) {
+      assert.match(muscle.imageUrl, /^https:\/\//);
+      assert.ok(muscle.imageAlt);
+      assert.ok(muscle.imageCredit);
+      assert.match(muscle.imageCreditUrl, /^https:\/\//);
+    }
+    assert.ok(muscle.sourceName, muscle.id + " needs a reference name");
+    assert.match(muscle.sourceUrl, /^https:\/\//);
+  });
 });
 
 test("published knowledge records link to existing purchasable sessions", function () {
