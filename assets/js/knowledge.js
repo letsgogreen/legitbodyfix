@@ -12,15 +12,15 @@
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
 
-  var labels = { conditions: "Movement pattern", muscles: "Movement concept", recipes: "Program preview" };
+  var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Program preview" };
   var summaries = {
     conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
-    muscles: function (item) { return item.function || item.notes || "Explore this muscle's role in movement."; },
+    muscles: function (item) { return item.actions || item.function || "Explore this muscle's role in movement."; },
     recipes: function (item) { return item.goal || "Preview the purpose of this guided program."; }
   };
   var fields = {
     conditions: [["joints", "Areas involved"], ["tags", "Common associations"], ["tightMuscles", "Often overactive or restricted"], ["weakMuscles", "Often underactive"], ["screening", "Movement screen"]],
-    muscles: [["group", "Region"], ["function", "Primary movement role"], ["origin", "Origin"], ["insertion", "Insertion"], ["notes", "Programming note"]],
+    muscles: [["group", "Body region"], ["origin", "Origin"], ["insertion", "Insertion"], ["actions", "Functions and actions"]],
     recipes: [["goal", "What this program works toward"], ["equipment", "What you may need"], ["cautions", "Before you begin"], ["relatedConditions", "Related movement patterns"]]
   };
 
@@ -51,6 +51,7 @@
     var list = element("dl", "detail-fields");
     fields[type].forEach(function (definition) {
       var value = item[definition[0]];
+      if (type === "muscles" && definition[0] === "actions" && !value) value = item.function;
       if (typeof value !== "string" || !value.trim()) return;
       var row = element("div", "detail-field");
       row.append(element("dt", "", definition[1]), element("dd", "", value));
@@ -58,6 +59,28 @@
     });
     var body = element("div", "detail-layout");
     var facts = element("div", "detail-facts");
+    if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl)) {
+      var figure = element("figure", "detail-anatomy-image");
+      var anatomyImage = document.createElement("img");
+      anatomyImage.src = item.imageUrl;
+      anatomyImage.alt = item.imageAlt || (item.title + " anatomy illustration");
+      anatomyImage.loading = "eager";
+      anatomyImage.decoding = "async";
+      figure.appendChild(anatomyImage);
+      if (item.imageCredit) {
+        var caption = document.createElement("figcaption");
+        if (typeof item.imageCreditUrl === "string" && /^https:\/\//i.test(item.imageCreditUrl)) {
+          var creditLink = document.createElement("a");
+          creditLink.href = item.imageCreditUrl;
+          creditLink.target = "_blank";
+          creditLink.rel = "noopener noreferrer";
+          creditLink.textContent = item.imageCredit;
+          caption.append("Image: ", creditLink);
+        } else caption.textContent = "Image: " + item.imageCredit;
+        figure.appendChild(caption);
+      }
+      facts.appendChild(figure);
+    }
     facts.append(list, element("p", "detail-disclaimer", "Use this resource for movement education only. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician."));
     body.append(intro, facts);
     var relatedIds = typeof item.relatedVideoIds === "string" ? item.relatedVideoIds.split(",").map(function (id) { return id.trim(); }).filter(Boolean) : [];
@@ -99,6 +122,17 @@
     var card = element("button", "knowledge-card");
     card.type = "button";
     card.setAttribute("aria-label", "Read about " + record.item.title);
+    if (record.type === "muscles" && typeof record.item.imageUrl === "string" && /^https:\/\//i.test(record.item.imageUrl)) {
+      card.classList.add("has-media");
+      var media = element("span", "knowledge-card-media");
+      var image = document.createElement("img");
+      image.src = record.item.imageUrl;
+      image.alt = "";
+      image.loading = "lazy";
+      image.decoding = "async";
+      media.appendChild(image);
+      card.appendChild(media);
+    }
     card.append(element("span", "knowledge-card-type", labels[record.type]), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Preview the approach →" : "Read the guide →"));
     card.addEventListener("click", function () { openDetail(record.type, record.item); });
     return card;

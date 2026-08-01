@@ -6,14 +6,15 @@ var publishing = require("../lib/knowledge-base-publishing");
 
 var valid = {
   conditions: [{ id: "round-shoulder", title: "Round shoulder", summary: "A useful clinical summary.", published: true }],
-  muscles: [{ id: "serratus-anterior", title: "Serratus anterior", function: "Scapular control", published: true }],
+  muscles: [{ id: "serratus-anterior", title: "Serratus anterior", origin: "Upper ribs", insertion: "Medial scapula", actions: "Scapular control", imageUrl: "https://example.com/serratus.png", published: true }],
   recipes: [{ id: "wall-reach", title: "Wall reach", steps: "1. Reach.\n2. Reassess.", published: false }]
 };
 
 test("knowledge base validation preserves safe versioned records", function () {
   var result = publishing.validateKnowledgeBase(valid);
   assert.equal(result.conditions[0].id, "round-shoulder");
-  assert.equal(result.muscles[0].function, "Scapular control");
+  assert.equal(result.muscles[0].actions, "Scapular control");
+  assert.equal(result.muscles[0].imageUrl, "https://example.com/serratus.png");
   assert.equal(result.recipes[0].published, false);
 });
 

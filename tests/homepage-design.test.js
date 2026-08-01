@@ -21,6 +21,7 @@ test("homepage keeps the approved movement-library design and live product path"
   assert.match(html, /data-site-section="hero"/);
   assert.match(html, /assets\/css\/site-editor-public\.css/);
   assert.match(html, /href="knowledge\.html">Movement guides<\/a>/);
+  assert.match(html, /02 \/ Muscle dictionary/);
   assert.match(html, /id="knowledge-preview"/);
   assert.match(html, /data-site-section="knowledge"/);
   assert.match(html, /knowledge\.html\?type=conditions&amp;id=round-shoulder/);
