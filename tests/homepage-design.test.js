@@ -20,6 +20,9 @@ test("homepage keeps the approved movement-library design and live product path"
   assert.match(html, /assets\/js\/site-content\.js/);
   assert.match(html, /data-site-section="hero"/);
   assert.match(html, /assets\/css\/site-editor-public\.css/);
+  assert.match(html, /href="knowledge\.html">Knowledge<\/a>/);
+  assert.match(html, /id="knowledge-preview"/);
+  assert.match(html, /knowledge\.html\?type=conditions&amp;id=round-shoulder/);
 
   assert.doesNotMatch(html, /payment buttons \(UI placeholder/);
   assert.doesNotMatch(html, /class="pay-btn"/);

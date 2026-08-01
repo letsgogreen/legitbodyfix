@@ -70,6 +70,24 @@
       ]
     },
     {
+      "source": "/knowledge.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/assets/data/knowledge-base.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
       "source": "/assets/js/video-sales.js",
       "headers": [
         {

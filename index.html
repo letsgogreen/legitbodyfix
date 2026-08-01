@@ -114,6 +114,15 @@
     .course-info .len { display: block; margin-top: 12px; color: #d9d7ce; font: 500 11px/1 var(--mono); }
     .course-status { color: var(--soft-ink); grid-column: 1 / -1; }
 
+    .knowledge-preview { background: var(--panel); }
+    .knowledge-preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 58px; border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+    .knowledge-preview-grid a { min-height: 330px; padding: 28px; display: flex; flex-direction: column; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); color: var(--ink); text-decoration: none; }
+    .knowledge-preview-grid a:hover { background: var(--lime); }
+    .knowledge-preview-grid span { font: 500 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .knowledge-preview-grid h3 { margin-top: 58px; font-size: 29px; line-height: 1; letter-spacing: -.055em; }
+    .knowledge-preview-grid p { margin-top: 16px; color: var(--soft-ink); font-size: 14px; line-height: 1.65; }
+    .knowledge-preview-grid b { margin-top: auto; padding-top: 30px; font-size: 13px; }
+
     .standard { padding: 105px 0; background: var(--ink); color: var(--paper); }
     .standard blockquote { max-width: 1000px; font-family: var(--display); font-size: clamp(40px, 6vw, 78px); font-weight: 400; line-height: .97; letter-spacing: -.07em; }
     .standard p { margin-top: 27px; color: #b8b6ad; font: 500 12px/1.5 var(--mono); letter-spacing: .06em; }
@@ -148,6 +157,7 @@
       .library-header { display: block; } .library-link { display: inline-block; margin-top: 24px; }
       .method-grid { grid-template-columns: 1fr; } .method-card { min-height: 200px; border-right: 0; border-bottom: 1px solid var(--ink); } .method-card:last-child { border-bottom: 0; }
       .course-grid { grid-template-columns: repeat(2, 1fr); }
+      .knowledge-preview-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 560px) {
       .wrap { width: min(100% - 32px, var(--max)); } .brand { font-size: 18px; } .brand-mark { width: 37px; height: 37px; }
@@ -168,6 +178,7 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="#method" data-content="navigation.method">Method</a></li>
         <li><a href="#library-preview" data-content="navigation.library">Library</a></li>
+        <li><a href="knowledge.html">Knowledge</a></li>
         <li><a href="library.html" data-content="navigation.myLibrary">My library</a></li>
         <li><a href="#pricing" data-content="navigation.programs">Programs</a></li>
         <li><a href="#method" data-content="navigation.howItWorks">How it works</a></li>
@@ -216,6 +227,20 @@
           <a class="library-link" href="#pricing" data-content-href="library.linkHref"><span data-content="library.linkLabel">Choose a program</span> →</a>
         </div>
         <div class="course-grid" id="courseGrid" aria-live="polite" aria-busy="true"><p class="course-status">Loading the movement library…</p><noscript>Please enable JavaScript to view the movement library.</noscript></div>
+      </div>
+    </section>
+
+    <section class="section knowledge-preview" id="knowledge-preview" aria-labelledby="knowledge-preview-title">
+      <div class="wrap">
+        <div class="library-header">
+          <div><p class="section-label">Movement knowledge</p><h2 class="section-title" id="knowledge-preview-title">KNOW WHAT.<br />KNOW WHY.</h2><p class="section-intro">Explore the patterns, muscles, and practical sequences behind every intentional movement session.</p></div>
+          <a class="library-link" href="knowledge.html">Open the knowledge base →</a>
+        </div>
+        <div class="knowledge-preview-grid">
+          <a href="knowledge.html?type=conditions&amp;id=round-shoulder"><span>01 / Condition</span><h3>Round shoulder</h3><p>Understand the common restrictions and control deficits behind a forward shoulder position.</p><b>Read the guide →</b></a>
+          <a href="knowledge.html?type=muscles&amp;id=serratus-anterior"><span>02 / Muscle</span><h3>Serratus anterior</h3><p>Learn why scapular control against the rib cage matters for comfortable overhead reach.</p><b>Explore the muscle →</b></a>
+          <a href="knowledge.html?type=recipes&amp;id=scapular-control-sequence"><span>03 / Recipe</span><h3>Scapular control sequence</h3><p>Follow the reasoning behind a simple progression from breathing position to overhead reassessment.</p><b>View the sequence →</b></a>
+        </div>
       </div>
     </section>
 
