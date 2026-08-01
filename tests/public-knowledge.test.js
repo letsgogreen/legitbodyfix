@@ -19,13 +19,19 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /Program previews/);
   assert.match(html, /Muscle dictionary/);
   assert.match(html, /muscle-dictionary\.css/);
-  assert.match(html, /data-muscle-region="lower-leg-foot"/);
+  assert.match(html, /data-muscle-region="lower-leg"/);
+  assert.match(html, /data-muscle-region="foot"/);
   assert.match(html, /data-muscle-region="head-neck"/);
-  assert.match(html, /data-muscle-region="shoulder-arm"/);
+  assert.match(html, /data-muscle-region="shoulder-chest"/);
+  assert.match(html, /data-muscle-region="arm-hand"/);
+  assert.match(html, /data-muscle-region="pelvic-floor"/);
   assert.match(html, /id="knowledgePaths"/);
   assert.match(html, /id="muscleAtlas"/);
   assert.match(html, /knowledge-organization\.css/);
   assert.match(html, /id="muscleSort"/);
+  assert.match(html, /id="muscleFunction"/);
+  assert.match(html, /id="muscleReset"/);
+  assert.match(html, /Knee internal rotators/);
   assert.match(javascript, /item\.published !== false/);
   assert.match(javascript, /textContent = text/);
   assert.match(javascript, /URLSearchParams/);
@@ -34,21 +40,63 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /assets\/data\/videos\.json/);
   assert.match(javascript, /Functions and actions/);
   assert.match(javascript, /function muscleRegion/);
+  assert.match(javascript, /function muscleFunctionalRoles/);
+  assert.match(javascript, /function updateFunctionOptions/);
+  assert.match(javascript, /option\.dataset\.baseLabel/);
+  assert.match(javascript, /option\.disabled/);
+  assert.match(javascript, /muscleReset\.addEventListener/);
+  assert.match(javascript, /activeMuscleFunction/);
+  assert.match(javascript, /role\.toLowerCase\(\)\.includes\(query\)/);
+  assert.match(javascript, /Neck flexor/);
+  assert.match(javascript, /Neck extensor/);
+  assert.match(javascript, /Shoulder internal rotator/);
+  assert.match(javascript, /Shoulder external rotator/);
+  assert.match(javascript, /Hip flexor/);
+  assert.match(javascript, /Hip extensor/);
+  assert.match(javascript, /Hip internal rotator/);
+  assert.match(javascript, /Hip external rotator/);
+  assert.match(javascript, /Knee internal rotator/);
+  assert.match(javascript, /Knee external rotator/);
+  assert.match(javascript, /Scapular upward rotator/);
+  assert.match(javascript, /Forearm pronator/);
+  assert.match(javascript, /Trunk extensor/);
+  assert.match(javascript, /Ankle dorsiflexor/);
+  assert.match(javascript, /Toe flexor/);
+  assert.match(javascript, /Neck lateral flexor/);
+  assert.match(javascript, /Finger abductor/);
+  assert.match(javascript, /Thumb opposer/);
+  assert.match(javascript, /Inspiratory muscle/);
+  assert.match(javascript, /Pelvic floor supporter/);
+  assert.match(javascript, /Urinary continence muscle/);
+  assert.match(javascript, /"upper arm", "forearm", "hand"/);
+  assert.match(javascript, /"head and neck", "anterior neck", "lateral neck", "suboccipital neck"/);
+  assert.match(javascript, /"erector spinae", "deep back", "thorax", "posterior thorax"/);
+  assert.match(javascript, /"pelvic diaphragm", "superficial perineum", "deep perineum", "pelvic sphincters"/);
+  assert.match(javascript, /"deep hip", "anterior thigh", "medial thigh", "posterior thigh"/);
+  assert.match(javascript, /"anterior lower leg", "lateral lower leg", "posterior lower leg"/);
   assert.match(javascript, /function renderMuscleGroups/);
   assert.match(javascript, /muscle-region-section/);
-  assert.match(javascript, /across 5 body regions/);
+  assert.match(javascript, /across 8 body regions/);
+  assert.match(javascript, /muscle-subgroup-heading/);
   assert.match(javascript, /localeCompare/);
   assert.match(javascript, /detail-anatomy-image/);
   assert.match(javascript, /Regional anatomy reference/);
-  assert.match(javascript, /Special:FilePath\/Gray378\.png/);
+  assert.match(javascript, /Special:FilePath\/1117_Muscles_of_the_Back\.png/);
+  assert.match(javascript, /Special:FilePath\/1115_Muscles_of_the_Pelvic_Floor\.jpg/);
   assert.match(javascript, /\^https:/);
   assert.doesNotMatch(javascript, /innerHTML/);
   assert.doesNotMatch(javascript, /\["steps",\s*"Sequence"\]/);
+
+  var functionOptions = Array.from(html.matchAll(/<option value="([^"]+)">/g), function (match) { return match[1]; })
+    .filter(function (value) { return !["all", "body", "alpha"].includes(value); });
+  functionOptions.forEach(function (value) {
+    assert.ok(javascript.includes('"' + value + '"'), "missing function classifier for " + value);
+  });
 });
 
 test("muscle dictionary records include anatomy fields, visual orientation, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  assert.ok(data.muscles.length >= 60);
+  assert.ok(data.muscles.length >= 161);
   data.muscles.forEach(function (muscle) {
     assert.ok(muscle.origin, muscle.id + " needs an origin");
     assert.ok(muscle.insertion, muscle.id + " needs an insertion");
@@ -72,8 +120,38 @@ test("muscle dictionary covers the major whole-body regions", function () {
   ["head-neck", "shoulder", "chest", "forearm", "abdomen", "back", "hip-front", "hip-back", "thigh-front", "thigh-back", "lower-leg-front", "lower-leg-back", "foot"].forEach(function (bodyMap) {
     assert.ok(bodyMaps.has(bodyMap), "missing muscle coverage for " + bodyMap);
   });
-  ["supraspinatus", "internal-oblique", "gluteus-minimus", "tibialis-posterior", "intrinsic-foot-muscles"].forEach(function (id) {
+  ["supraspinatus", "subclavius", "internal-oblique", "gluteus-minimus", "psoas-major", "iliacus", "tibialis-posterior", "extensor-digitorum-brevis", "extensor-hallucis-brevis", "longus-colli", "anterior-scalene", "middle-scalene", "posterior-scalene", "sternohyoid", "omohyoid", "sternothyroid", "thyrohyoid", "rectus-capitis-posterior-major", "rectus-capitis-posterior-minor", "obliquus-capitis-superior", "obliquus-capitis-inferior", "iliocostalis-lumborum", "iliocostalis-thoracis", "iliocostalis-cervicis", "longissimus-thoracis", "spinalis-thoracis", "spinalis-cervicis", "spinalis-capitis", "flexor-digitorum-profundus", "dorsal-interossei-hand", "obturator-internus", "vastus-intermedius", "articularis-genus", "plantaris", "abductor-hallucis", "dorsal-interossei-foot", "rotatores", "internal-intercostals", "transversus-thoracis", "serratus-posterior-superior", "levator-ani", "puborectalis", "pubococcygeus", "iliococcygeus", "bulbospongiosus", "deep-transverse-perineal", "compressor-urethrae", "urethrovaginal-sphincter", "external-urethral-sphincter", "external-anal-sphincter", "extensor-pollicis-longus", "palmar-interossei-hand", "flexor-digiti-minimi-brevis-foot"].forEach(function (id) {
     assert.ok(data.muscles.some(function (muscle) { return muscle.id === id; }), "missing foundational muscle " + id);
+  });
+});
+
+test("pelvic floor is a complete standalone atlas region", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var pelvicGroups = new Set(["Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters"]);
+  var pelvicFloor = data.muscles.filter(function (muscle) { return pelvicGroups.has(muscle.group); });
+  assert.ok(pelvicFloor.length >= 13);
+  ["levator-ani", "coccygeus", "puborectalis", "pubococcygeus", "iliococcygeus", "superficial-transverse-perineal", "bulbospongiosus", "ischiocavernosus", "deep-transverse-perineal", "compressor-urethrae", "urethrovaginal-sphincter", "external-urethral-sphincter", "external-anal-sphincter"].forEach(function (id) {
+    assert.ok(pelvicFloor.some(function (muscle) { return muscle.id === id; }), "missing pelvic floor muscle " + id);
+  });
+});
+
+test("lower-leg and pelvic-floor records use useful anatomical subgroups", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var groups = new Set(data.muscles.map(function (muscle) { return muscle.group; }));
+  ["Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters", "Anterior lower leg", "Lateral lower leg", "Posterior lower leg"].forEach(function (group) {
+    assert.ok(groups.has(group), "missing anatomical subgroup " + group);
+  });
+  assert.ok(!data.muscles.some(function (muscle) { return muscle.id === "intrinsic-foot-muscles"; }), "aggregate foot placeholder should be removed");
+});
+
+test("neck and erector-spinae families use named muscles instead of aggregate cards", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  ["scalenes", "erector-spinae", "iliocostalis", "spinalis"].forEach(function (id) {
+    assert.ok(!data.muscles.some(function (muscle) { return muscle.id === id; }), "aggregate record should be removed: " + id);
+  });
+  var groups = new Set(data.muscles.map(function (muscle) { return muscle.group; }));
+  ["Anterior neck", "Lateral neck", "Suboccipital neck", "Erector spinae"].forEach(function (group) {
+    assert.ok(groups.has(group), "missing anatomical subgroup " + group);
   });
 });
 
