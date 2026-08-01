@@ -145,9 +145,58 @@
   font: 700 12px/1 var(--body);
 }
 
+.knowledge-grid.is-grouped {
+  display: block;
+  border: 0;
+}
+
+.muscle-region-section + .muscle-region-section {
+  margin-top: 54px;
+}
+
+.muscle-region-heading {
+  min-height: 58px;
+  padding: 0 2px 14px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--ink);
+}
+
+.muscle-region-heading h3 {
+  font-size: clamp(26px, 3.2vw, 42px);
+  line-height: .95;
+  letter-spacing: -.06em;
+}
+
+.muscle-region-heading span {
+  color: var(--muted);
+  font: 500 10px/1 var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.muscle-region-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-left: 1px solid var(--ink);
+}
+
+.muscle-region-grid .knowledge-card {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .muscle-region-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 560px) {
   .muscle-tools { align-items: stretch; flex-direction: column; }
   .muscle-sort { width: 100%; }
+  .muscle-region-section + .muscle-region-section { margin-top: 38px; }
+  .muscle-region-heading { align-items: flex-start; flex-direction: column; gap: 9px; }
+  .muscle-region-grid { grid-template-columns: 1fr; }
   .knowledge-card-media {
     height: 180px;
   }

@@ -290,6 +290,27 @@
     return card;
   }
 
+  function renderMuscleGroups(records) {
+    var regionOrder = Object.keys(muscleRegions);
+    var visibleRegions = activeMuscleRegion === "all" ? regionOrder : [activeMuscleRegion];
+    var sections = visibleRegions.map(function (region) {
+      var regionRecords = records.filter(function (record) { return muscleRegion(record.item) === region; });
+      if (!regionRecords.length) return null;
+      var meta = muscleRegions[region] || { title: "Other muscles" };
+      var section = element("section", "muscle-region-section");
+      section.setAttribute("aria-labelledby", "muscle-region-" + region);
+      var heading = element("header", "muscle-region-heading");
+      var title = element("h3", "", meta.title);
+      title.id = "muscle-region-" + region;
+      heading.append(title, element("span", "", regionRecords.length + (regionRecords.length === 1 ? " muscle" : " muscles")));
+      var regionGrid = element("div", "muscle-region-grid");
+      regionGrid.replaceChildren.apply(regionGrid, regionRecords.map(createCard));
+      section.append(heading, regionGrid);
+      return section;
+    }).filter(Boolean);
+    grid.replaceChildren.apply(grid, sections);
+  }
+
   function render() {
     var query = search.value.trim().toLowerCase();
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
@@ -298,21 +319,27 @@
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
       return !query || Object.values(record.item).some(function (value) { return typeof value === "string" && value.toLowerCase().includes(query); });
     });
+    var groupMuscles = activeType === "muscles" && muscleSort.value === "body" && !query;
     if (activeType === "muscles" && muscleSort.value === "alpha") {
       records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
     }
     if (activeType === "all" && !query) {
       grid.replaceChildren();
       grid.hidden = true;
+      grid.classList.remove("is-grouped");
       grid.setAttribute("aria-busy", "false");
       status.textContent = "Choose a collection above, or search across all resources.";
       return;
     }
     grid.hidden = false;
+    grid.classList.toggle("is-grouped", groupMuscles && Boolean(records.length));
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
+    else if (groupMuscles) renderMuscleGroups(records);
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
-    status.textContent = records.length + (records.length === 1 ? " movement guide" : " movement guides");
+    status.textContent = activeType === "muscles"
+      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleRegion === "all" ? " across 5 body regions" : " in this body region")
+      : records.length + (records.length === 1 ? " movement guide" : " movement guides");
   }
 
   function openFromUrl() {
