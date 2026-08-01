@@ -59,6 +59,33 @@
     return node;
   }
 
+  function openAnatomyViewer(item) {
+    var dialog = document.getElementById("anatomyViewer");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "anatomyViewer";
+      dialog.className = "anatomy-viewer";
+      var panel = element("div", "anatomy-viewer-panel");
+      var close = element("button", "anatomy-viewer-close", "Close");
+      close.type = "button";
+      close.addEventListener("click", function () { dialog.close(); });
+      var image = document.createElement("img");
+      image.className = "anatomy-viewer-image";
+      var copy = element("div", "anatomy-viewer-copy");
+      copy.append(element("p", "detail-kicker", "Anatomy plate"), element("h3", "anatomy-viewer-title"), element("p", "anatomy-viewer-note"));
+      panel.append(close, image, copy);
+      dialog.appendChild(panel);
+      dialog.addEventListener("click", function (event) { if (event.target === dialog) dialog.close(); });
+      document.body.appendChild(dialog);
+    }
+    dialog.querySelector(".anatomy-viewer-image").src = item.imageUrl;
+    dialog.querySelector(".anatomy-viewer-image").alt = item.imageAlt || (item.title + " anatomy illustration");
+    dialog.querySelector(".anatomy-viewer-title").textContent = item.title;
+    dialog.querySelector(".anatomy-viewer-note").textContent = (item.imageAlt || "Anatomical reference plate") + ". The plate may include nearby structures for orientation.";
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+  }
+
   var bodyMapHighlights = {
     "head-neck": { x: 85, y: 34, width: 30, height: 45 },
     shoulder: { x: 48, y: 70, width: 104, height: 35 },
@@ -297,12 +324,17 @@
     }
     if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl)) {
       var figure = element("figure", "detail-anatomy-image");
+      var anatomyButton = element("button", "anatomy-zoom-button");
+      anatomyButton.type = "button";
+      anatomyButton.setAttribute("aria-label", "Enlarge anatomy plate for " + item.title);
       var anatomyImage = document.createElement("img");
       anatomyImage.src = item.imageUrl;
       anatomyImage.alt = item.imageAlt || (item.title + " anatomy illustration");
       anatomyImage.loading = "eager";
       anatomyImage.decoding = "async";
-      figure.appendChild(anatomyImage);
+      anatomyButton.append(anatomyImage, element("span", "anatomy-zoom-label", "Enlarge plate"));
+      anatomyButton.addEventListener("click", function () { openAnatomyViewer(item); });
+      figure.appendChild(anatomyButton);
       if (item.imageCredit) {
         var caption = document.createElement("figcaption");
         if (typeof item.imageCreditUrl === "string" && /^https:\/\//i.test(item.imageCreditUrl)) {
@@ -311,8 +343,9 @@
           creditLink.target = "_blank";
           creditLink.rel = "noopener noreferrer";
           creditLink.textContent = item.imageCredit;
-          caption.append("Image: ", creditLink);
-        } else caption.textContent = "Image: " + item.imageCredit;
+          caption.append("Plate context: " + (item.group || "body region") + ". Image: ", creditLink);
+        } else caption.textContent = "Plate context: " + (item.group || "body region") + ". Image: " + item.imageCredit;
+        caption.append(". This plate may show nearby muscles; use the listed attachments and actions to identify the selected muscle.");
         figure.appendChild(caption);
       }
       facts.appendChild(figure);
@@ -392,7 +425,7 @@
       image.alt = "";
       image.loading = "lazy";
       image.decoding = "async";
-      media.appendChild(image);
+      media.append(image, element("span", "knowledge-card-media-label", (record.item.group || "Anatomy") + " plate"));
       card.appendChild(media);
     } else if (record.type === "muscles") {
       var map = createBodyMap(record.item, true);

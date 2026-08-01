@@ -3,12 +3,29 @@
 }
 
 .knowledge-card-media {
+  position: relative;
   height: 150px;
   margin: -28px -28px 24px;
   display: block;
   overflow: hidden;
   border-bottom: 1px solid var(--ink);
   background: #fff;
+}
+
+.knowledge-card-media-label {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  max-width: calc(100% - 20px);
+  padding: 6px 8px;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .knowledge-card-media img {
@@ -29,6 +46,73 @@
   max-height: 520px;
   display: block;
   object-fit: contain;
+}
+
+.anatomy-zoom-button {
+  position: relative;
+  width: 100%;
+  padding: 0;
+  display: block;
+  border: 0;
+  background: #fff;
+  color: var(--ink);
+  cursor: zoom-in;
+}
+
+.anatomy-zoom-label {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.anatomy-zoom-button:hover .anatomy-zoom-label,
+.anatomy-zoom-button:focus-visible .anatomy-zoom-label {
+  background: var(--lime);
+}
+
+.anatomy-viewer {
+  width: min(1000px, calc(100% - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.anatomy-viewer::backdrop { background: rgb(17 17 15 / 82%); }
+
+.anatomy-viewer-panel { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 290px; }
+
+.anatomy-viewer-image {
+  width: 100%;
+  height: min(78vh, 780px);
+  display: block;
+  object-fit: contain;
+  background: #fff;
+}
+
+.anatomy-viewer-copy { padding: 72px 28px 28px; border-left: 1px solid var(--ink); }
+.anatomy-viewer-copy h3 { margin: 18px 0; font-size: 30px; line-height: 1; letter-spacing: -.05em; }
+.anatomy-viewer-note { color: var(--muted); font-size: 13px; line-height: 1.65; }
+
+.anatomy-viewer-close {
+  position: absolute;
+  z-index: 1;
+  right: 14px;
+  top: 14px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .detail-anatomy-image figcaption {
@@ -282,4 +366,7 @@
   .knowledge-card-media {
     height: 180px;
   }
+  .anatomy-viewer-panel { grid-template-columns: 1fr; }
+  .anatomy-viewer-image { height: 58vh; }
+  .anatomy-viewer-copy { padding: 24px; border-top: 1px solid var(--ink); border-left: 0; }
 }

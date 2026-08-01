@@ -10,6 +10,7 @@ var root = path.join(__dirname, "..");
 test("public knowledge hub exposes searchable published education safely", function () {
   var html = fs.readFileSync(path.join(root, "knowledge.html"), "utf8");
   var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  var css = fs.readFileSync(path.join(root, "assets/css/muscle-dictionary.css"), "utf8");
 
   assert.match(html, /id="knowledgeGrid"/);
   assert.match(html, /public-responsive-fixes\.css/);
@@ -78,6 +79,11 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /muscle-region-section/);
   assert.match(javascript, /across 8 body regions/);
   assert.match(javascript, /muscle-subgroup-heading/);
+  assert.match(javascript, /openAnatomyViewer/);
+  assert.match(javascript, /Enlarge anatomy plate/);
+  assert.match(javascript, /This plate may show nearby muscles/);
+  assert.match(css, /\.anatomy-viewer/);
+  assert.match(css, /\.knowledge-card-media-label/);
   assert.match(javascript, /localeCompare/);
   assert.match(javascript, /detail-anatomy-image/);
   assert.match(javascript, /Regional anatomy reference/);
