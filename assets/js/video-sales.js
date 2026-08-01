@@ -31,6 +31,63 @@
     return "$" + (Number.isInteger(value) ? value : value.toFixed(2)) + " USD";
   }
 
+  function createElement(tag, className, value) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (typeof value === "string") node.textContent = value;
+    return node;
+  }
+
+  function relatedVideoIds(item) {
+    return typeof item.relatedVideoIds === "string"
+      ? item.relatedVideoIds.split(",").map(function (id) { return id.trim(); }).filter(Boolean)
+      : [];
+  }
+
+  function renderRelatedKnowledge(videoId, payload) {
+    var labels = { conditions: "Movement pattern", muscles: "Anatomy guide", recipes: "Practice recipe" };
+    var summaries = {
+      conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
+      muscles: function (item) { return item.function || item.notes || "Explore this muscle's role in movement."; },
+      recipes: function (item) { return item.goal || "Explore this corrective exercise sequence."; }
+    };
+    var records = Object.keys(labels).flatMap(function (type) {
+      var items = payload && Array.isArray(payload[type]) ? payload[type] : [];
+      return items.filter(function (item) {
+        return item && item.published !== false && relatedVideoIds(item).indexOf(videoId) !== -1;
+      }).map(function (item) { return { type: type, item: item }; });
+    }).slice(0, 3);
+    if (!records.length) return;
+
+    var grid = document.getElementById("relatedKnowledgeGrid");
+    var cards = records.map(function (record, index) {
+      var link = createElement("a", "learning-card");
+      link.href = "knowledge.html?type=" + encodeURIComponent(record.type) + "&id=" + encodeURIComponent(record.item.id);
+      link.append(
+        createElement("span", "learning-number", String(index + 1).padStart(2, "0")),
+        createElement("span", "learning-type", labels[record.type]),
+        createElement("h3", "", record.item.title || "Movement guide"),
+        createElement("p", "", summaries[record.type](record.item)),
+        createElement("b", "", "Read the guide →")
+      );
+      return link;
+    });
+    grid.replaceChildren.apply(grid, cards);
+    document.getElementById("relatedKnowledge").hidden = false;
+  }
+
+  function loadRelatedKnowledge(videoId) {
+    fetch("assets/data/knowledge-base.json", { cache: "no-cache" })
+      .then(function (response) {
+        if (!response.ok) throw new Error("Unable to load movement guides");
+        return response.json();
+      })
+      .then(function (payload) { renderRelatedKnowledge(videoId, payload); })
+      .catch(function () {
+        document.getElementById("relatedKnowledge").hidden = true;
+      });
+  }
+
   function showUnavailable() {
     loading.hidden = true;
     unavailable.hidden = false;
@@ -83,6 +140,7 @@
     unavailable.hidden = true;
     page.hidden = false;
     document.getElementById("mobileCheckout").hidden = false;
+    loadRelatedKnowledge(video.id);
   }
 
   var videoId = new URLSearchParams(window.location.search).get("id");
