@@ -35,6 +35,8 @@
       ["insertion", "Insertion", 800, true], ["actions", "Functions and actions", 800, true],
       ["imageUrl", "Anatomy image URL (HTTPS)", 800], ["imageAlt", "Image description", 240],
       ["imageCredit", "Image credit", 240], ["imageCreditUrl", "Image source URL (HTTPS)", 800],
+      ["bodyMap", "Body map region", 80], ["sourceName", "Anatomy reference name", 240],
+      ["sourceUrl", "Anatomy reference URL (HTTPS)", 800],
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     recipes: [

@@ -31,6 +31,46 @@
     return node;
   }
 
+  var bodyMapHighlights = {
+    "head-neck": { x: 85, y: 34, width: 30, height: 45 },
+    shoulder: { x: 48, y: 70, width: 104, height: 35 },
+    chest: { x: 66, y: 82, width: 68, height: 48 },
+    "upper-arm-front": { x: 40, y: 91, width: 25, height: 66 },
+    "upper-arm-back": { x: 135, y: 91, width: 25, height: 66 },
+    forearm: { x: 25, y: 145, width: 28, height: 70 },
+    abdomen: { x: 72, y: 125, width: 56, height: 70 },
+    back: { x: 64, y: 82, width: 72, height: 115 },
+    "hip-front": { x: 65, y: 184, width: 70, height: 48 },
+    "hip-back": { x: 61, y: 180, width: 78, height: 57 },
+    "thigh-front": { x: 58, y: 220, width: 35, height: 100 },
+    "thigh-back": { x: 107, y: 220, width: 35, height: 100 },
+    "lower-leg-front": { x: 60, y: 308, width: 31, height: 105 },
+    "lower-leg-back": { x: 109, y: 308, width: 31, height: 105 },
+    foot: { x: 51, y: 405, width: 43, height: 24 }
+  };
+
+  function createBodyMap(item, compact) {
+    var focus = bodyMapHighlights[item.bodyMap];
+    if (!focus) return null;
+    var figure = element("figure", compact ? "knowledge-card-body-map" : "detail-body-map");
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 200 440");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", item.title + " body-region orientation map");
+    var head = document.createElementNS(svg.namespaceURI, "circle");
+    head.setAttribute("cx", "100"); head.setAttribute("cy", "30"); head.setAttribute("r", "18");
+    var body = document.createElementNS(svg.namespaceURI, "path");
+    body.setAttribute("d", "M76 55 Q100 48 124 55 L143 86 L130 170 L142 220 L126 300 L139 414 L112 414 L100 260 L88 414 L61 414 L74 300 L58 220 L70 170 L57 86 Z");
+    var highlight = document.createElementNS(svg.namespaceURI, "rect");
+    Object.keys(focus).forEach(function (key) { highlight.setAttribute(key, String(focus[key])); });
+    highlight.setAttribute("rx", "12");
+    highlight.setAttribute("class", "body-map-highlight");
+    svg.append(head, body, highlight);
+    figure.appendChild(svg);
+    if (!compact) figure.appendChild(element("figcaption", "", "Orientation map: " + (item.group || "body region") + ". Not a diagnostic image."));
+    return figure;
+  }
+
   function allItems() {
     return Object.keys(labels).flatMap(function (type) {
       return data[type].filter(function (item) { return item && item.published !== false; }).map(function (item) { return { type: type, item: item }; });
@@ -80,8 +120,17 @@
         figure.appendChild(caption);
       }
       facts.appendChild(figure);
+    } else if (type === "muscles") {
+      var bodyMap = createBodyMap(item, false);
+      if (bodyMap) facts.appendChild(bodyMap);
     }
     facts.append(list, element("p", "detail-disclaimer", "Use this resource for movement education only. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician."));
+    if (type === "muscles" && item.sourceName && typeof item.sourceUrl === "string" && /^https:\/\//i.test(item.sourceUrl)) {
+      var source = element("p", "detail-source", "Reference: ");
+      var sourceLink = document.createElement("a");
+      sourceLink.href = item.sourceUrl; sourceLink.target = "_blank"; sourceLink.rel = "noopener noreferrer"; sourceLink.textContent = item.sourceName;
+      source.appendChild(sourceLink); facts.appendChild(source);
+    }
     body.append(intro, facts);
     var relatedIds = typeof item.relatedVideoIds === "string" ? item.relatedVideoIds.split(",").map(function (id) { return id.trim(); }).filter(Boolean) : [];
     var relatedVideos = videos.filter(function (video) { return video && video.published !== false && relatedIds.indexOf(video.id) !== -1; });
@@ -132,6 +181,9 @@
       image.decoding = "async";
       media.appendChild(image);
       card.appendChild(media);
+    } else if (record.type === "muscles") {
+      var map = createBodyMap(record.item, true);
+      if (map) { card.classList.add("has-media"); card.appendChild(map); }
     }
     card.append(element("span", "knowledge-card-type", labels[record.type]), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Preview the approach →" : "Read the guide →"));
     card.addEventListener("click", function () { openDetail(record.type, record.item); });

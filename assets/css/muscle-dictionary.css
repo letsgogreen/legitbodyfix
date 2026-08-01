@@ -43,6 +43,36 @@
   text-underline-offset: 3px;
 }
 
+.knowledge-card-body-map {
+  height: 150px;
+  margin: -28px -28px 24px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ink);
+  background: #e7e4dc;
+}
+
+.knowledge-card-body-map svg { width: 82px; height: 138px; }
+.knowledge-card-body-map circle,
+.knowledge-card-body-map path,
+.detail-body-map circle,
+.detail-body-map path { fill: #b9b7af; stroke: var(--ink); stroke-width: 2; }
+.body-map-highlight { fill: var(--lime); stroke: var(--ink); stroke-width: 2; opacity: .92; }
+
+.detail-body-map {
+  margin: 0 0 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink);
+  background: #e7e4dc;
+}
+
+.detail-body-map svg { width: 180px; height: 390px; margin: 24px; }
+.detail-body-map figcaption { width: 100%; padding: 10px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.5; }
+.detail-source { margin-top: 16px; color: var(--muted); font-size: 12px; }
+.detail-source a { text-underline-offset: 3px; }
+
 @media (max-width: 560px) {
   .knowledge-card-media {
     height: 180px;

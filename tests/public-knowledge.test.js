@@ -32,17 +32,22 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.doesNotMatch(javascript, /\["steps",\s*"Sequence"\]/);
 });
 
-test("muscle dictionary records include focused anatomy fields and credited images", function () {
+test("muscle dictionary records include anatomy fields, visual orientation, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  assert.ok(data.muscles.length >= 3);
+  assert.ok(data.muscles.length >= 25);
   data.muscles.forEach(function (muscle) {
     assert.ok(muscle.origin, muscle.id + " needs an origin");
     assert.ok(muscle.insertion, muscle.id + " needs an insertion");
     assert.ok(muscle.actions, muscle.id + " needs functions and actions");
-    assert.match(muscle.imageUrl, /^https:\/\//);
-    assert.ok(muscle.imageAlt);
-    assert.ok(muscle.imageCredit);
-    assert.match(muscle.imageCreditUrl, /^https:\/\//);
+    assert.ok(muscle.imageUrl || muscle.bodyMap, muscle.id + " needs an image or body map");
+    if (muscle.imageUrl) {
+      assert.match(muscle.imageUrl, /^https:\/\//);
+      assert.ok(muscle.imageAlt);
+      assert.ok(muscle.imageCredit);
+      assert.match(muscle.imageCreditUrl, /^https:\/\//);
+    }
+    assert.ok(muscle.sourceName, muscle.id + " needs a reference name");
+    assert.match(muscle.sourceUrl, /^https:\/\//);
   });
 });
 
