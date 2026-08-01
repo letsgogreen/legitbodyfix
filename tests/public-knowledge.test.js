@@ -82,6 +82,9 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /openAnatomyViewer/);
   assert.match(javascript, /Enlarge anatomy plate/);
   assert.match(javascript, /This plate may show nearby muscles/);
+  assert.match(javascript, /Related programs/);
+  assert.match(javascript, /Programs selected for the movement roles/);
+  assert.match(javascript, /Explore this program/);
   assert.match(css, /\.anatomy-viewer/);
   assert.match(css, /\.knowledge-card-media-label/);
   assert.match(javascript, /localeCompare/);

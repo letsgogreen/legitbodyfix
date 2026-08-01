@@ -384,13 +384,17 @@
     if (relatedVideos.length) {
       related = element("section", "related-sessions");
       var relatedHeading = element("div", "related-heading");
-      relatedHeading.append(element("p", "detail-kicker", "Put it into practice"), element("h3", "", "Related guided sessions"));
+      var relatedHeadingCopy = element("div", "related-heading-copy");
+      relatedHeadingCopy.append(element("p", "detail-kicker", type === "muscles" ? "Train this area" : "Put it into practice"), element("h3", "", type === "muscles" ? "Related programs" : "Related guided sessions"));
+      relatedHeading.appendChild(relatedHeadingCopy);
+      if (type === "muscles") relatedHeading.appendChild(element("p", "related-program-context", "Programs selected for the movement roles and body region described in this muscle guide."));
       var relatedGrid = element("div", "related-session-grid");
       relatedVideos.forEach(function (video) {
         var card = element("a", "related-session-card");
+        if (type === "muscles") card.classList.add("is-program-match");
         card.href = "video.html?id=" + encodeURIComponent(video.id);
         var copy = element("div", "related-session-copy");
-        copy.append(element("span", "", String(video.durationMinutes || "") + " min · " + (video.level || "Session")), element("h4", "", video.title || "Movement session"), element("p", "", video.description || "Follow this focused guided session."), element("b", "", "View session →"));
+        copy.append(element("span", "", (type === "muscles" ? "Related program · " : "") + String(video.durationMinutes || "") + " min · " + (video.level || "Session")), element("h4", "", video.title || "Movement session"), element("p", "", video.description || "Follow this focused guided session."), element("b", "", type === "muscles" ? "Explore this program →" : "View session →"));
         var imageUrl = typeof video.thumbnailUrl === "string" && /^https:\/\//.test(video.thumbnailUrl) ? video.thumbnailUrl : "";
         if (imageUrl) { var image = document.createElement("img"); image.src = imageUrl; image.alt = ""; image.loading = "lazy"; card.appendChild(image); }
         card.appendChild(copy); relatedGrid.appendChild(card);
