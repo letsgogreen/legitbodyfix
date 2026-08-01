@@ -70,15 +70,16 @@ kbd { min-width: 23px; display: inline-grid; place-items: center; padding: 3px 5
 .command-footer span { display: inline-flex; align-items: center; gap: 5px; }
 
 /* Authentication */
-.auth-shell { min-height: calc(100vh - 72px); display: grid; place-items: center; padding: clamp(34px, 7vw, 88px) 20px; background: radial-gradient(circle at 50% 12%, var(--surface) 0, var(--surface-soft) 50%, #e2e0d7 100%); }
+.auth-shell { min-height: 100vh; display: grid; place-items: center; padding: clamp(28px, 7vw, 72px) 20px; background: var(--surface-soft); }
 .eyebrow { margin: 0 0 12px; color: var(--teal); font: 500 10px/1 var(--mono); letter-spacing: .15em; text-transform: uppercase; }
-.auth-card { width: min(460px, 100%); padding: clamp(30px, 5vw, 46px); border: 1px solid var(--ink); border-radius: 7px; background: var(--surface); box-shadow: 9px 9px 0 var(--ink); }
-.auth-lock-mark { display: flex; align-items: center; justify-content: space-between; margin-bottom: 34px; }
-.auth-lock-mark span { width: 44px; height: 44px; display: grid; place-items: center; transform: rotate(-3deg); background: var(--acid); font-size: 10px; font-weight: 900; }
-.auth-lock-mark i { width: 9px; height: 9px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 5px rgba(38,115,72,.12); }
-.auth-card h1 { margin: 0; font: 400 clamp(34px, 5vw, 48px)/.98 var(--display); letter-spacing: -.055em; }
+.auth-card { width: min(400px, 100%); padding: clamp(28px, 5vw, 38px); border: 1px solid var(--line); border-radius: 5px; background: var(--surface); box-shadow: 0 18px 48px rgba(17,17,15,.08); }
+.auth-security-mark { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; color: var(--muted); font: 500 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+.auth-lock-icon { position: relative; width: 24px; height: 22px; border: 1px solid var(--ink); border-radius: 3px; }
+.auth-lock-icon::before { position: absolute; width: 10px; height: 8px; top: -8px; left: 6px; border: 1px solid var(--ink); border-bottom: 0; border-radius: 8px 8px 0 0; content: ""; }
+.auth-lock-icon::after { position: absolute; width: 4px; height: 4px; top: 8px; left: 9px; border-radius: 50%; background: var(--success); content: ""; }
+.auth-card h1 { margin: 0; font: 400 clamp(30px, 5vw, 38px)/1 var(--display); letter-spacing: -.045em; }
 .lede { max-width: 720px; margin: 18px 0 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
-.auth-form { display: grid; gap: 16px; margin-top: 30px; padding-top: 28px; border-top: 1px solid var(--line); }
+.auth-form { display: grid; gap: 14px; margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--line); }
 .auth-form .button { min-height: 52px; }
 .auth-password-form { margin-top: 18px; padding-top: 0; border-top: 0; }
 .verified-admin { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin-top: 28px; padding: 14px; border: 1px solid var(--line); background: var(--surface-soft); }
@@ -89,9 +90,9 @@ kbd { min-width: 23px; display: inline-grid; place-items: center; padding: 3px 5
 .verified-admin .text-button { color: var(--muted); font-size: 10px; }
 .auth-status { min-height: 22px; margin: 15px 0 0; color: var(--muted); font-size: 12px; }
 .auth-status[data-state="error"] { color: #7b281f; }
-.auth-privacy { margin: 18px 0 0; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.6; }
-.auth-privacy strong { color: var(--ink); }
-.auth-visible .current-workspace, .auth-visible .command-trigger, .auth-visible .live-state { display: none; }
+.auth-privacy { display: flex; align-items: center; gap: 8px; margin: 18px 0 0; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font: 500 8px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.auth-privacy span { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px rgba(38,115,72,.1); }
+.auth-visible .topbar { display: none; }
 
 /* Application shell */
 .control-room { min-height: calc(100vh - 72px); display: grid; grid-template-columns: 284px minmax(0, 1fr); align-items: stretch; }
@@ -391,8 +392,8 @@ body.preview-open { overflow: hidden; }
   .brand-copy small, .current-workspace, .live-state, .command-trigger span { display: none; }
   .command-trigger { gap: 0; padding: 5px; }
   .topbar-meta { gap: 14px; }
-  .auth-shell { min-height: calc(100vh - 64px); padding: 28px 16px; }
-  .auth-card { padding: 28px 24px; box-shadow: 6px 6px 0 var(--ink); }
+  .auth-shell { min-height: 100vh; padding: 24px 16px; }
+  .auth-card { padding: 28px 24px; }
   .control-room { display: block; }
   .video-editor-tabs { padding: 0 12px; overflow-x: auto; }
   .video-editor-tab { padding: 0 13px; white-space: nowrap; }
