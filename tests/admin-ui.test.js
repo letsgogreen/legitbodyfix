@@ -146,6 +146,7 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(html, /id="knowledgeSearch"/);
   assert.match(html, /id="publishKnowledge"/);
   assert.match(javascript, /publish-knowledge-base/);
+  assert.match(javascript, /Related session IDs \(comma separated\)/);
   assert.match(javascript, /legitbodyfix\.knowledgeBaseDraft\.v1/);
   assert.ok(data.conditions.length >= 2);
   assert.ok(data.muscles.length >= 3);

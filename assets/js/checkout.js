@@ -8,6 +8,10 @@ var priceElement = document.getElementById("productPrice");
 var introElement = document.getElementById("checkoutIntro");
 var BUNDLE_ID = "neck-shoulder-reset";
 
+function canonicalProductId(value) {
+  return value === "shoulder-reset" ? "ankle-sprain-rehabilitation" : value;
+}
+
 function setStatus(message, isError) {
   statusElement.textContent = message || "";
   statusElement.classList.toggle("error", Boolean(isError));
@@ -24,7 +28,7 @@ function getRequestedProductId() {
 
 function chooseProduct(catalog) {
   var products = Array.isArray(catalog) ? catalog : [];
-  var requestedId = getRequestedProductId();
+  var requestedId = canonicalProductId(getRequestedProductId());
   return products.find(function (item) { return item.id === requestedId; }) ||
     products.find(function (item) { return item.id === BUNDLE_ID; }) ||
     products[0] || null;

@@ -25,6 +25,15 @@ test("refuses playback metadata for a session outside the buyer's entitlement", 
   assert.equal(videoLibrary.getAccessibleVideo(entitledProgram, "neck-alignment").title, "Neck Alignment");
 });
 
+test("preserves access and playback lookup for the ankle session's former id", function () {
+  var legacyPurchase = [{ id: "shoulder-reset" }];
+  var videos = videoLibrary.listAccessibleVideos(legacyPurchase);
+
+  assert.equal(videos.length, 1);
+  assert.equal(videos[0].id, "ankle-sprain-rehabilitation");
+  assert.equal(videoLibrary.getAccessibleVideo(legacyPurchase, "shoulder-reset").id, "ankle-sprain-rehabilitation");
+});
+
 function createResponse() {
   return {
     headers: {},

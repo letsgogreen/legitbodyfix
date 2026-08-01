@@ -27,16 +27,18 @@
     conditions: [
       ["title", "Condition name", 120], ["joints", "Related joints", 240], ["tags", "Tags", 400],
       ["summary", "Clinical summary", 800, true], ["tightMuscles", "Commonly tight / overactive", 500],
-      ["weakMuscles", "Commonly weak / underactive", 500], ["screening", "Screening signs", 600, true]
+      ["weakMuscles", "Commonly weak / underactive", 500], ["screening", "Screening signs", 600, true],
+      ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     muscles: [
       ["title", "Muscle name", 120], ["group", "Muscle group", 160], ["function", "Primary function", 600, true],
-      ["origin", "Origin", 500], ["insertion", "Insertion", 500], ["notes", "Programming notes", 800, true]
+      ["origin", "Origin", 500], ["insertion", "Insertion", 500], ["notes", "Programming notes", 800, true],
+      ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     recipes: [
       ["title", "Recipe name", 120], ["goal", "Goal", 500, true], ["equipment", "Equipment", 300],
       ["steps", "Ordered steps", 2400, true], ["cautions", "Cautions", 800, true],
-      ["relatedConditions", "Related conditions", 500]
+      ["relatedConditions", "Related conditions", 500], ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ]
   };
 

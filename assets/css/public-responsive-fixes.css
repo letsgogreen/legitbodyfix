@@ -1,0 +1,7 @@
+@media (max-width: 560px) {
+  .knowledge-hero h1,
+  .trust-hero h1 {
+    font-size: clamp(40px, 12.5vw, 60px);
+    overflow-wrap: anywhere;
+  }
+}

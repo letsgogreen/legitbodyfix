@@ -16,6 +16,7 @@
     { "id": "hero", "kind": "core", "visible": true },
     { "id": "method", "kind": "core", "visible": true },
     { "id": "library", "kind": "core", "visible": true },
+    { "id": "knowledge", "kind": "core", "visible": true },
     { "id": "standard", "kind": "core", "visible": true },
     { "id": "pricing", "kind": "core", "visible": true }
   ],
@@ -47,6 +48,13 @@
     "intro": "Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.",
     "linkLabel": "Choose a program",
     "linkHref": "#pricing"
+  },
+  "knowledge": {
+    "label": "Movement knowledge",
+    "titleLines": ["KNOW WHAT.", "KNOW WHY."],
+    "intro": "Explore the patterns, muscles, and practical sequences behind every intentional movement session.",
+    "linkLabel": "Open the knowledge base",
+    "linkHref": "knowledge.html"
   },
   "standard": {
     "quote": "The goal is not to chase perfect posture. It is to build a body that has options.",

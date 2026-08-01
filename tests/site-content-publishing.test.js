@@ -24,7 +24,8 @@ test("website content validation returns only approved plain-text fields", funct
   assert.equal(content.hero.extraHtml, undefined);
   assert.equal(content.pricing.checkoutUrl, undefined);
   assert.equal(content.version, 2);
-  assert.equal(content.layout.length, 5);
+  assert.equal(content.layout.length, 6);
+  assert.equal(content.knowledge.linkHref, "knowledge.html");
   assert.deepEqual(content.customSections, []);
   assert.equal(content.hero.titleLines.length, 4);
   assert.equal(content.method.steps.length, 3);

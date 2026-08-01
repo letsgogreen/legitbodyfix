@@ -25,4 +25,5 @@ h1 { margin:0; max-width:620px; font:400 clamp(52px,8vw,92px)/.87 var(--display)
 #checkoutStatus { min-height:44px; margin-top:15px; color:var(--soft-ink); font-size:13px; line-height:1.45; }
 #checkoutStatus.error { color:#bf3429; }
 .note { margin-top:20px !important; color:var(--soft-ink); font-size:12px; line-height:1.6; }
+.note a { color:var(--ink); font-weight:700; text-underline-offset:3px; }
 @media (max-width:760px) { .topbar-inner,.checkout { width:min(100% - 32px,980px); } .checkout { grid-template-columns:1fr; gap:44px; padding:56px 0; } .card { padding:24px; } }

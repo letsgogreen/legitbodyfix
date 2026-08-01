@@ -3,6 +3,10 @@ body[data-site-theme="mono"] { --lime: #f4f2ea; }
 body[data-site-density="compact"] .section,
 body[data-site-density="compact"] .site-block { padding-top: 72px; padding-bottom: 72px; }
 
+.hero-custom-image[hidden] {
+  display: none;
+}
+
 .hero-custom-image {
   width: 100%;
   min-height: 540px;

@@ -53,7 +53,7 @@ function jsonResponse(status, data) {
 
 test("video validation normalizes trusted fields and module order", function () {
   var videos = publishing.validateVideos([
-    sampleVideo({ title: "  Neck Alignment  ", moduleNumber: 42 }),
+    sampleVideo({ title: "  Neck Alignment  ", moduleNumber: 42, legacyIds: ["old-neck-session"] }),
     sampleVideo({ id: "shoulder-reset", title: "Shoulder Reset", moduleNumber: 1 })
   ]);
 
@@ -64,6 +64,7 @@ test("video validation normalizes trusted fields and module order", function () 
   assert.equal(videos[0].streamReady, true);
   assert.equal(videos[0].landingHeadline, "Release tension and move comfortably.");
   assert.equal(videos[0].landingBenefit3, "Build a repeatable movement habit.");
+  assert.deepEqual(videos[0].legacyIds, ["old-neck-session"]);
   assert.equal(videos[1].moduleNumber, 2);
   assert.equal(videos[0].videoUrl, "https://videos.example.com/neck.mp4");
 });

@@ -29,11 +29,18 @@ test("sales page links to checkout without exposing protected playback data", fu
   assert.match(page, /Included with purchase/);
   assert.match(page, /Simple access/);
   assert.match(page, /Questions, answered/);
+  assert.match(page, /id="relatedKnowledge"/);
+  assert.match(page, /Understand the movement before you practice/);
   assert.match(page, /class="mobile-checkout"/);
   assert.match(page, /class="quick-facts"/);
   assert.match(page, /Secure checkout/);
   assert.match(script, /checkout\.html\?product=/);
   assert.match(script, /setText\("mobilePrice"/);
+  assert.match(script, /knowledge-base\.json/);
+  assert.match(script, /knowledge\.html\?type=/);
+  assert.match(script, /relatedVideoIds/);
+  assert.match(script, /shoulder-reset/);
+  assert.match(script, /ankle-sprain-rehabilitation/);
   assert.doesNotMatch(script, /streamVideoId/);
   assert.doesNotMatch(script, /videoUrl/);
   assert.doesNotMatch(script, /innerHTML/);
@@ -49,6 +56,7 @@ test("admin can preserve and edit landing-page fields", function () {
   assert.match(page, /name="landingReassurance"/);
   assert.match(script, /landingHeadline:/);
   assert.match(script, /landingReassurance:/);
+  assert.match(script, /legacyIds:/);
 });
 
 test("admin gives every session a dedicated sales-page editor and safe live preview", function () {

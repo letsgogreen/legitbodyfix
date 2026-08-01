@@ -297,8 +297,15 @@
   }
 
   function normalizeVideo(video, index) {
+    var rawId = typeof video.id === "string" && video.id ? video.id : "video-" + Date.now() + "-" + index;
+    var id = rawId === "shoulder-reset" ? "ankle-sprain-rehabilitation" : rawId;
+    var legacyIds = Array.isArray(video.legacyIds) ? video.legacyIds.filter(function (legacyId) {
+      return typeof legacyId === "string" && legacyId && legacyId !== id;
+    }) : [];
+    if (rawId === "shoulder-reset" && legacyIds.indexOf(rawId) === -1) legacyIds.push(rawId);
     return {
-      id: typeof video.id === "string" && video.id ? video.id : "video-" + Date.now() + "-" + index,
+      id: id,
+      legacyIds: legacyIds,
       level: typeof video.level === "string" ? video.level : "FOUNDATIONAL",
       moduleNumber: index + 1,
       title: typeof video.title === "string" ? video.title : "Untitled video",

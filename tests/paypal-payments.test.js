@@ -165,3 +165,19 @@ test("captures first, then validates the complete order representation", async f
   assert.equal(calls.some(function (call) { return call.url.endsWith("/capture"); }), true);
   assert.equal(calls.some(function (call) { return call.url.endsWith("/v2/checkout/orders/5O190127TN364715T"); }), true);
 });
+
+test("canonicalizes the ankle session's former product id before creating an order", async function () {
+  var calls = [];
+  var fetcher = async function (url, options) {
+    calls.push({ url: url, options: options });
+    if (url.endsWith("/v1/oauth2/token")) {
+      return { ok: true, status: 200, json: async function () { return { access_token: "test-token" }; } };
+    }
+    return { ok: true, status: 201, json: async function () { return { id: "5O190127TN364715W" }; } };
+  };
+
+  await paypal.createOrder(paypal.getConfig(environment()), "shoulder-reset", fetcher);
+  var body = JSON.parse(calls[1].options.body);
+  assert.equal(body.purchase_units[0].custom_id, "ankle-sprain-rehabilitation");
+  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "14.00" });
+});
