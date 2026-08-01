@@ -34,6 +34,9 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /assets\/data\/videos\.json/);
   assert.match(javascript, /Functions and actions/);
   assert.match(javascript, /function muscleRegion/);
+  assert.match(javascript, /function renderMuscleGroups/);
+  assert.match(javascript, /muscle-region-section/);
+  assert.match(javascript, /across 5 body regions/);
   assert.match(javascript, /localeCompare/);
   assert.match(javascript, /detail-anatomy-image/);
   assert.match(javascript, /Regional anatomy reference/);
