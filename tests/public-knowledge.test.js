@@ -162,10 +162,20 @@ test("published knowledge records link to existing purchasable sessions", functi
 
   ["conditions", "muscles", "recipes"].forEach(function (type) {
     data[type].filter(function (item) { return item.published; }).forEach(function (item) {
+      if (type === "muscles") assert.ok(String(item.relatedVideoIds || "").trim(), "muscle record " + item.id + " needs a related session");
       String(item.relatedVideoIds || "").split(",").map(function (id) { return id.trim(); }).filter(Boolean).forEach(function (id) {
         assert.ok(videoIds.has(id), type + " record " + item.id + " references a missing session");
       });
     });
+  });
+});
+
+test("muscle references use one canonical label for each source", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var labelsByUrl = new Map();
+  data.muscles.forEach(function (muscle) {
+    if (labelsByUrl.has(muscle.sourceUrl)) assert.equal(muscle.sourceName, labelsByUrl.get(muscle.sourceUrl), "inconsistent source label for " + muscle.sourceUrl);
+    else labelsByUrl.set(muscle.sourceUrl, muscle.sourceName);
   });
 });
 
