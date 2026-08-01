@@ -64,7 +64,7 @@ test("muscle dictionary records include anatomy fields, visual orientation, and 
 
 test("muscle dictionary covers the major whole-body regions", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  assert.ok(data.muscles.filter(function (muscle) { return muscle.imageUrl; }).length >= 12, "needs a useful foundation of muscle-specific illustrations");
+  assert.ok(data.muscles.filter(function (muscle) { return muscle.imageUrl; }).length >= 24, "needs broad muscle-specific illustration coverage");
   var bodyMaps = new Set(data.muscles.map(function (muscle) { return muscle.bodyMap; }).filter(Boolean));
   ["head-neck", "shoulder", "chest", "forearm", "abdomen", "back", "hip-front", "hip-back", "thigh-front", "thigh-back", "lower-leg-front", "lower-leg-back", "foot"].forEach(function (bodyMap) {
     assert.ok(bodyMaps.has(bodyMap), "missing muscle coverage for " + bodyMap);
