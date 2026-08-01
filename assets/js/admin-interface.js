@@ -21,7 +21,8 @@
     "site-copy": "Website",
     sales: "Sales",
     "buyer-access": "Customer access",
-    "video-library": "Programs & videos"
+    "video-library": "Programs & videos",
+    "knowledge-base": "Knowledge base"
   };
   var scrollPositions = {};
   var activeWorkspace = "overview";

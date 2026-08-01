@@ -121,15 +121,35 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(html, /id="buyer-access"/);
   assert.match(html, /id="sales"/);
   assert.match(html, /id="video-library"/);
+  assert.match(html, /id="knowledge-base"/);
   assert.match(html, /data-workspace-target="overview"/);
   assert.match(html, /data-workspace-target="site-copy"/);
   assert.match(html, /data-workspace-target="buyer-access"/);
   assert.match(html, /data-workspace-target="sales"/);
   assert.match(html, /data-workspace-target="video-library"/);
+  assert.match(html, /data-workspace-target="knowledge-base"/);
   assert.match(html, /What would you like to do\?/);
   assert.match(html, /id="videoSearch"/);
   assert.match(javascript, /showWorkspace/);
   assert.match(javascript, /filterVideos/);
+});
+
+test("admin includes an editable versioned knowledge base", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/knowledge-base-admin.js"), "utf8");
+  var data = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/data/knowledge-base.json"), "utf8"));
+
+  assert.match(html, /Knowledge base/);
+  assert.match(html, /data-knowledge-type="conditions"/);
+  assert.match(html, /data-knowledge-type="muscles"/);
+  assert.match(html, /data-knowledge-type="recipes"/);
+  assert.match(html, /id="knowledgeSearch"/);
+  assert.match(html, /id="publishKnowledge"/);
+  assert.match(javascript, /publish-knowledge-base/);
+  assert.match(javascript, /legitbodyfix\.knowledgeBaseDraft\.v1/);
+  assert.ok(data.conditions.length >= 2);
+  assert.ok(data.muscles.length >= 3);
+  assert.ok(data.recipes.length >= 2);
 });
 
 test("admin includes a searchable read-only sales ledger", function () {
