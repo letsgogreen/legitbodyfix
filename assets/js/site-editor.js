@@ -38,7 +38,7 @@
       ["library.label", "Section label", 80], ["library.titleLines.0", "Title line 1", 40], ["library.titleLines.1", "Title line 2", 40],
       ["library.intro", "Introduction", 320, "textarea"], ["library.linkLabel", "Link label", 40], ["library.linkHref", "Link destination", 500, "link"]
     ]},
-    knowledge: { title: "Knowledge preview", description: "A public education preview that builds trust and leads visitors into the knowledge base.", fields: [
+    knowledge: { title: "Movement guides preview", description: "Free education that builds trust and guides visitors toward the most relevant paid program.", fields: [
       ["knowledge.label", "Section label", 80], ["knowledge.titleLines.0", "Title line 1", 40], ["knowledge.titleLines.1", "Title line 2", 40],
       ["knowledge.intro", "Introduction", 320, "textarea"], ["knowledge.linkLabel", "Link label", 40], ["knowledge.linkHref", "Link destination", 500, "link"]
     ]},

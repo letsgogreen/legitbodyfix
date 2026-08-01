@@ -12,16 +12,16 @@
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
 
-  var labels = { conditions: "Condition", muscles: "Muscle", recipes: "Exercise recipe" };
+  var labels = { conditions: "Movement pattern", muscles: "Movement concept", recipes: "Program preview" };
   var summaries = {
     conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
     muscles: function (item) { return item.function || item.notes || "Explore this muscle's role in movement."; },
-    recipes: function (item) { return item.goal || "Explore this corrective exercise sequence."; }
+    recipes: function (item) { return item.goal || "Preview the purpose of this guided program."; }
   };
   var fields = {
     conditions: [["joints", "Areas involved"], ["tags", "Common associations"], ["tightMuscles", "Often overactive or restricted"], ["weakMuscles", "Often underactive"], ["screening", "Movement screen"]],
     muscles: [["group", "Region"], ["function", "Primary movement role"], ["origin", "Origin"], ["insertion", "Insertion"], ["notes", "Programming note"]],
-    recipes: [["goal", "Goal"], ["equipment", "Equipment"], ["steps", "Sequence"], ["cautions", "Safety note"], ["relatedConditions", "Related patterns"]]
+    recipes: [["goal", "What this program works toward"], ["equipment", "What you may need"], ["cautions", "Before you begin"], ["relatedConditions", "Related movement patterns"]]
   };
 
   function element(tag, className, text) {
@@ -83,7 +83,7 @@
     if (related) detailContent.appendChild(related);
     directory.hidden = true;
     detail.hidden = false;
-    document.title = (item.title || "Movement Knowledge") + " — LegitBodyFix";
+    document.title = (item.title || "Movement Guide") + " — LegitBodyFix";
     if (shouldUpdateUrl !== false) updateUrl(type, item.id);
     detail.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -91,7 +91,7 @@
   function showDirectory(shouldUpdateUrl) {
     detail.hidden = true;
     directory.hidden = false;
-    document.title = "Movement Knowledge — LegitBodyFix";
+    document.title = "Movement Guides — LegitBodyFix";
     if (shouldUpdateUrl !== false) updateUrl();
   }
 
@@ -99,7 +99,7 @@
     var card = element("button", "knowledge-card");
     card.type = "button";
     card.setAttribute("aria-label", "Read about " + record.item.title);
-    card.append(element("span", "knowledge-card-type", labels[record.type]), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", "Read the guide →"));
+    card.append(element("span", "knowledge-card-type", labels[record.type]), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Preview the approach →" : "Read the guide →"));
     card.addEventListener("click", function () { openDetail(record.type, record.item); });
     return card;
   }
@@ -113,7 +113,7 @@
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
-    status.textContent = records.length + (records.length === 1 ? " published resource" : " published resources");
+    status.textContent = records.length + (records.length === 1 ? " movement guide" : " movement guides");
   }
 
   function openFromUrl() {
@@ -150,5 +150,5 @@
       render();
       openFromUrl();
     })
-    .catch(function () { status.textContent = "The movement knowledge library is temporarily unavailable."; status.setAttribute("role", "alert"); grid.setAttribute("aria-busy", "false"); });
+    .catch(function () { status.textContent = "The movement guides are temporarily unavailable."; status.setAttribute("role", "alert"); grid.setAttribute("aria-busy", "false"); });
 })();

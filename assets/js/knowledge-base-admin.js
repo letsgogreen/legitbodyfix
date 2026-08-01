@@ -36,7 +36,7 @@
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     recipes: [
-      ["title", "Recipe name", 120], ["goal", "Goal", 500, true], ["equipment", "Equipment", 300],
+      ["title", "Program preview title", 120], ["goal", "Public goal", 500, true], ["equipment", "Equipment", 300],
       ["steps", "Ordered steps", 2400, true], ["cautions", "Cautions", 800, true],
       ["relatedConditions", "Related conditions", 500], ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ]
@@ -158,7 +158,7 @@
   }
 
   function addRecord() {
-    var labels = { conditions: "New condition", muscles: "New muscle", recipes: "New exercise recipe" };
+    var labels = { conditions: "New movement pattern", muscles: "New movement concept", recipes: "New program preview" };
     var record = { id: uniqueId(labels[activeType]), title: labels[activeType], published: false };
     schemas[activeType].forEach(function (definition) { if (!(definition[0] in record)) record[definition[0]] = ""; });
     data[activeType].push(record);

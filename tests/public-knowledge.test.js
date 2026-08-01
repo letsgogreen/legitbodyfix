@@ -14,7 +14,9 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /id="knowledgeGrid"/);
   assert.match(html, /public-responsive-fixes\.css/);
   assert.match(html, /data-knowledge-filter="conditions"/);
-  assert.match(html, /Education only/);
+  assert.match(html, /Complete follow-along progressions stay inside the paid programs/);
+  assert.match(html, /How movement guides help/);
+  assert.match(html, /Program previews/);
   assert.match(javascript, /item\.published !== false/);
   assert.match(javascript, /textContent = text/);
   assert.match(javascript, /URLSearchParams/);
@@ -22,6 +24,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /video\.html\?id=/);
   assert.match(javascript, /assets\/data\/videos\.json/);
   assert.doesNotMatch(javascript, /innerHTML/);
+  assert.doesNotMatch(javascript, /\["steps",\s*"Sequence"\]/);
 });
 
 test("published knowledge records link to existing purchasable sessions", function () {
