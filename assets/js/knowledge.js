@@ -10,6 +10,7 @@
   var filterButtons = Array.from(document.querySelectorAll("[data-knowledge-filter]"));
   var activeType = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
+  var videos = [];
 
   var labels = { conditions: "Condition", muscles: "Muscle", recipes: "Exercise recipe" };
   var summaries = {
@@ -59,7 +60,27 @@
     var facts = element("div", "detail-facts");
     facts.append(list, element("p", "detail-disclaimer", "Use this resource for movement education only. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician."));
     body.append(intro, facts);
+    var relatedIds = typeof item.relatedVideoIds === "string" ? item.relatedVideoIds.split(",").map(function (id) { return id.trim(); }).filter(Boolean) : [];
+    var relatedVideos = videos.filter(function (video) { return video && video.published !== false && relatedIds.indexOf(video.id) !== -1; });
+    var related = null;
+    if (relatedVideos.length) {
+      related = element("section", "related-sessions");
+      var relatedHeading = element("div", "related-heading");
+      relatedHeading.append(element("p", "detail-kicker", "Put it into practice"), element("h3", "", "Related guided sessions"));
+      var relatedGrid = element("div", "related-session-grid");
+      relatedVideos.forEach(function (video) {
+        var card = element("a", "related-session-card");
+        card.href = "video.html?id=" + encodeURIComponent(video.id);
+        var copy = element("div", "related-session-copy");
+        copy.append(element("span", "", String(video.durationMinutes || "") + " min · " + (video.level || "Session")), element("h4", "", video.title || "Movement session"), element("p", "", video.description || "Follow this focused guided session."), element("b", "", "View session →"));
+        var imageUrl = typeof video.thumbnailUrl === "string" && /^https:\/\//.test(video.thumbnailUrl) ? video.thumbnailUrl : "";
+        if (imageUrl) { var image = document.createElement("img"); image.src = imageUrl; image.alt = ""; image.loading = "lazy"; card.appendChild(image); }
+        card.appendChild(copy); relatedGrid.appendChild(card);
+      });
+      related.append(relatedHeading, relatedGrid);
+    }
     detailContent.replaceChildren(body);
+    if (related) detailContent.appendChild(related);
     directory.hidden = true;
     detail.hidden = false;
     document.title = (item.title || "Movement Knowledge") + " — LegitBodyFix";
@@ -116,9 +137,15 @@
   document.getElementById("detailBack").addEventListener("click", function () { showDirectory(); });
   window.addEventListener("popstate", openFromUrl);
 
-  fetch("assets/data/knowledge-base.json", { cache: "no-cache" })
-    .then(function (response) { if (!response.ok) throw new Error("Unable to load knowledge base"); return response.json(); })
-    .then(function (payload) {
+  Promise.all([
+    fetch("assets/data/knowledge-base.json", { cache: "no-cache" }),
+    fetch("assets/data/videos.json", { cache: "no-cache" })
+  ]).then(function (responses) {
+    if (!responses[0].ok || !responses[1].ok) throw new Error("Unable to load public content");
+    return Promise.all([responses[0].json(), responses[1].json()]);
+  }).then(function (payloads) {
+      var payload = payloads[0];
+      videos = Array.isArray(payloads[1]) ? payloads[1] : [];
       Object.keys(labels).forEach(function (type) { data[type] = Array.isArray(payload[type]) ? payload[type] : []; });
       render();
       openFromUrl();

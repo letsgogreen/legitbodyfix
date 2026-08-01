@@ -17,7 +17,24 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /item\.published !== false/);
   assert.match(javascript, /textContent = text/);
   assert.match(javascript, /URLSearchParams/);
+  assert.match(javascript, /relatedVideoIds/);
+  assert.match(javascript, /video\.html\?id=/);
+  assert.match(javascript, /assets\/data\/videos\.json/);
   assert.doesNotMatch(javascript, /innerHTML/);
+});
+
+test("published knowledge records link to existing purchasable sessions", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var videos = JSON.parse(fs.readFileSync(path.join(root, "assets/data/videos.json"), "utf8"));
+  var videoIds = new Set(videos.filter(function (video) { return video.published !== false; }).map(function (video) { return video.id; }));
+
+  ["conditions", "muscles", "recipes"].forEach(function (type) {
+    data[type].filter(function (item) { return item.published; }).forEach(function (item) {
+      String(item.relatedVideoIds || "").split(",").map(function (id) { return id.trim(); }).filter(Boolean).forEach(function (id) {
+        assert.ok(videoIds.has(id), type + " record " + item.id + " references a missing session");
+      });
+    });
+  });
 });
 
 test("knowledge seed data provides unique public identifiers", function () {

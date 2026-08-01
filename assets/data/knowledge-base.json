@@ -9,6 +9,7 @@
       "weakMuscles": "Lower trapezius, serratus anterior",
       "screening": "Overhead squat: arms fall forward",
       "summary": "Anterior tipping of the scapula can reduce comfortable overhead mechanics and contribute to shoulder compensation.",
+      "relatedVideoIds": "neck-alignment",
       "published": true
     },
     {
@@ -20,6 +21,19 @@
       "weakMuscles": "Rhomboids, lower trapezius, middle trapezius",
       "screening": "Standing posture and overhead squat",
       "summary": "A forward shoulder position commonly combines restricted anterior tissue with reduced scapular control.",
+      "relatedVideoIds": "neck-alignment",
+      "published": true
+    },
+    {
+      "id": "ankle-sprain-recovery",
+      "title": "Ankle sprain recovery",
+      "joints": "Ankle, foot",
+      "tags": "Balance, mobility, stability, return to movement",
+      "tightMuscles": "Varies by injury stage and individual presentation",
+      "weakMuscles": "Calf and lateral ankle strength may require progressive rebuilding",
+      "screening": "Comfortable walking, swelling response, ankle range, balance, and task tolerance",
+      "summary": "Ankle recovery is a progressive process of restoring comfortable motion, balance, strength, and confidence after the acute stage has settled.",
+      "relatedVideoIds": "shoulder-reset",
       "published": true
     }
   ],
@@ -32,6 +46,7 @@
       "origin": "Upper eight or nine ribs",
       "insertion": "Anterior medial border of the scapula",
       "notes": "Often trained when improving overhead reach and scapular control.",
+      "relatedVideoIds": "neck-alignment",
       "published": true
     },
     {
@@ -42,6 +57,7 @@
       "origin": "Lower thoracic spinous processes",
       "insertion": "Medial end of the scapular spine",
       "notes": "Useful in programming for shoulder positioning and overhead mechanics.",
+      "relatedVideoIds": "neck-alignment",
       "published": true
     },
     {
@@ -52,6 +68,7 @@
       "origin": "Ribs three to five",
       "insertion": "Coracoid process of the scapula",
       "notes": "Assess before using inhibition or mobility work; avoid treating posture from one muscle alone.",
+      "relatedVideoIds": "neck-alignment",
       "published": true
     }
   ],
@@ -64,6 +81,7 @@
       "steps": "1. Release the hamstrings with a vibrating massage ball.\n2. Perform a controlled splitting stretch.\n3. Execute a full squat and reassess pain and movement quality.",
       "cautions": "Stop if pain increases or symptoms radiate. This is education, not diagnosis.",
       "relatedConditions": "Round shoulder",
+      "relatedVideoIds": "pelvic-balance",
       "published": true
     },
     {
@@ -74,6 +92,18 @@
       "steps": "1. Address rib flare and breathing position.\n2. Use gentle pectoralis minor mobility if indicated.\n3. Practice serratus anterior control.\n4. Reassess overhead reach.",
       "cautions": "Use a pain-free range and avoid forcing the shoulder into end range.",
       "relatedConditions": "Scapula anterior tilt, round shoulder",
+      "relatedVideoIds": "neck-alignment",
+      "published": true
+    },
+    {
+      "id": "ankle-rehabilitation-progression",
+      "title": "Ankle rehabilitation progression",
+      "goal": "Rebuild comfortable ankle motion, balance, strength, and confidence after an ankle sprain",
+      "equipment": "Open floor space, resistance band",
+      "steps": "1. Begin only after the acute stage has settled and exercise has been cleared.\n2. Restore comfortable ankle motion without forcing symptoms.\n3. Rebuild balance and controlled weight bearing.\n4. Progress calf and ankle strength gradually.\n5. Reassess walking and task tolerance before advancing.",
+      "cautions": "Stop and seek clinical guidance if pain or swelling increases, the ankle gives way, or walking remains difficult.",
+      "relatedConditions": "Ankle sprain recovery",
+      "relatedVideoIds": "shoulder-reset",
       "published": true
     }
   ]
