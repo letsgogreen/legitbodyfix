@@ -4,6 +4,7 @@ var auth = require("../../lib/admin-auth");
 var publishing = require("../../lib/video-publishing");
 var siteContentPublishing = require("../../lib/site-content-publishing");
 var pageSectionsPublishing = require("../../lib/page-sections-publishing");
+var knowledgeBasePublishing = require("../../lib/knowledge-base-publishing");
 var grants = require("../../lib/admin-access-grants");
 var paypal = require("../../lib/paypal-payments");
 var access = require("../../lib/supabase-access");
@@ -142,6 +143,8 @@ module.exports = async function handler(request, response) {
       result = await siteContentPublishing.publishSiteContent(publishingConfig, body.content);
     } else if (body.action === "publish-page-sections") {
       result = await pageSectionsPublishing.publishPageSections(publishingConfig, body.content);
+    } else if (body.action === "publish-knowledge-base") {
+      result = await knowledgeBasePublishing.publishKnowledgeBase(publishingConfig, body.content);
     } else {
       result = await publishing.publishVideos(publishingConfig, body.videos);
     }
@@ -161,6 +164,11 @@ module.exports = async function handler(request, response) {
       var pageSectionsPayload = { error: error.code };
       if (error.details && error.details.length) pageSectionsPayload.details = error.details;
       return response.status(error.statusCode).json(pageSectionsPayload);
+    }
+    if (error instanceof knowledgeBasePublishing.KnowledgeBaseError) {
+      var knowledgePayload = { error: error.code };
+      if (error.details && error.details.length) knowledgePayload.details = error.details;
+      return response.status(error.statusCode).json(knowledgePayload);
     }
     if (error instanceof publishing.PublishingError) {
       var payload = { error: error.code };

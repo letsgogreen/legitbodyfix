@@ -1,0 +1,80 @@
+{
+  "conditions": [
+    {
+      "id": "scapula-anterior-tilt",
+      "title": "Scapula anterior tilt",
+      "joints": "Shoulder",
+      "tags": "Shoulder impingement, upper crossed syndrome",
+      "tightMuscles": "Pectoralis minor, latissimus dorsi, coracobrachialis",
+      "weakMuscles": "Lower trapezius, serratus anterior",
+      "screening": "Overhead squat: arms fall forward",
+      "summary": "Anterior tipping of the scapula can reduce comfortable overhead mechanics and contribute to shoulder compensation.",
+      "published": true
+    },
+    {
+      "id": "round-shoulder",
+      "title": "Round shoulder",
+      "joints": "Neck, shoulder, thoracic spine",
+      "tags": "Upper crossed syndrome, shoulder impingement, rib flare",
+      "tightMuscles": "Pectoralis minor, pectoralis major, latissimus dorsi",
+      "weakMuscles": "Rhomboids, lower trapezius, middle trapezius",
+      "screening": "Standing posture and overhead squat",
+      "summary": "A forward shoulder position commonly combines restricted anterior tissue with reduced scapular control.",
+      "published": true
+    }
+  ],
+  "muscles": [
+    {
+      "id": "serratus-anterior",
+      "title": "Serratus anterior",
+      "group": "Shoulder girdle",
+      "function": "Scapular protraction, upward rotation, and control against the rib cage",
+      "origin": "Upper eight or nine ribs",
+      "insertion": "Anterior medial border of the scapula",
+      "notes": "Often trained when improving overhead reach and scapular control.",
+      "published": true
+    },
+    {
+      "id": "lower-trapezius",
+      "title": "Lower trapezius",
+      "group": "Upper back",
+      "function": "Scapular depression, upward rotation, and posterior tilt support",
+      "origin": "Lower thoracic spinous processes",
+      "insertion": "Medial end of the scapular spine",
+      "notes": "Useful in programming for shoulder positioning and overhead mechanics.",
+      "published": true
+    },
+    {
+      "id": "pectoralis-minor",
+      "title": "Pectoralis minor",
+      "group": "Chest",
+      "function": "Scapular anterior tilt, downward rotation, and protraction",
+      "origin": "Ribs three to five",
+      "insertion": "Coracoid process of the scapula",
+      "notes": "Assess before using inhibition or mobility work; avoid treating posture from one muscle alone.",
+      "published": true
+    }
+  ],
+  "recipes": [
+    {
+      "id": "squat-preparation",
+      "title": "Squat preparation",
+      "goal": "Improve comfortable squat depth and reassess symptoms",
+      "equipment": "Vibrating massage ball, open floor space",
+      "steps": "1. Release the hamstrings with a vibrating massage ball.\n2. Perform a controlled splitting stretch.\n3. Execute a full squat and reassess pain and movement quality.",
+      "cautions": "Stop if pain increases or symptoms radiate. This is education, not diagnosis.",
+      "relatedConditions": "Round shoulder",
+      "published": true
+    },
+    {
+      "id": "scapular-control-sequence",
+      "title": "Scapular control sequence",
+      "goal": "Restore comfortable scapular movement before loaded overhead work",
+      "equipment": "Wall, resistance band",
+      "steps": "1. Address rib flare and breathing position.\n2. Use gentle pectoralis minor mobility if indicated.\n3. Practice serratus anterior control.\n4. Reassess overhead reach.",
+      "cautions": "Use a pain-free range and avoid forcing the shoulder into end range.",
+      "relatedConditions": "Scapula anterior tilt, round shoulder",
+      "published": true
+    }
+  ]
+}
