@@ -12,6 +12,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
 
   assert.match(html, /id="knowledgeGrid"/);
+  assert.match(html, /public-responsive-fixes\.css/);
   assert.match(html, /data-knowledge-filter="conditions"/);
   assert.match(html, /Education only/);
   assert.match(javascript, /item\.published !== false/);

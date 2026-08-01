@@ -168,7 +168,7 @@
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
   </style>
-  <link rel="stylesheet" href="assets/css/site-editor-public.css?v=20260731-1" />
+  <link rel="stylesheet" href="assets/css/site-editor-public.css?v=20260801-2" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -230,11 +230,11 @@
       </div>
     </section>
 
-    <section class="section knowledge-preview" id="knowledge-preview" aria-labelledby="knowledge-preview-title">
+    <section class="section knowledge-preview" id="knowledge-preview" aria-labelledby="knowledge-preview-title" data-site-section="knowledge">
       <div class="wrap">
         <div class="library-header">
-          <div><p class="section-label">Movement knowledge</p><h2 class="section-title" id="knowledge-preview-title">KNOW WHAT.<br />KNOW WHY.</h2><p class="section-intro">Explore the patterns, muscles, and practical sequences behind every intentional movement session.</p></div>
-          <a class="library-link" href="knowledge.html">Open the knowledge base →</a>
+          <div><p class="section-label" data-content="knowledge.label">Movement knowledge</p><h2 class="section-title" id="knowledge-preview-title"><span data-content="knowledge.titleLines.0">KNOW WHAT.</span><br /><span data-content="knowledge.titleLines.1">KNOW WHY.</span></h2><p class="section-intro" data-content="knowledge.intro">Explore the patterns, muscles, and practical sequences behind every intentional movement session.</p></div>
+          <a class="library-link" href="knowledge.html" data-content="knowledge.linkLabel" data-content-href="knowledge.linkHref">Open the knowledge base</a>
         </div>
         <div class="knowledge-preview-grid">
           <a href="knowledge.html?type=conditions&amp;id=round-shoulder"><span>01 / Condition</span><h3>Round shoulder</h3><p>Understand the common restrictions and control deficits behind a forward shoulder position.</p><b>Read the guide →</b></a>
@@ -290,7 +290,7 @@
       });
     })();
   </script>
-  <script src="assets/js/site-content.js?v=20260801-1" defer></script>
+  <script src="assets/js/site-content.js?v=20260801-2" defer></script>
   <script src="assets/js/videos.js?v=20260801-1" defer></script>
 </body>
 </html>

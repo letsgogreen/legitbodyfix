@@ -3,7 +3,7 @@
 
   var DATA_URL = "assets/data/site-content.json";
   var PREVIEW_KEY = "legitbodyfix.siteContentPreview.v2";
-  var CORE_IDS = ["hero", "method", "library", "standard", "pricing"];
+  var CORE_IDS = ["hero", "method", "library", "knowledge", "standard", "pricing"];
   var CUSTOM_TYPES = ["hero", "split", "benefits", "testimonials", "faq", "cta"];
 
   function readPath(source, path) {

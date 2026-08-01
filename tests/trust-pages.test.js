@@ -10,6 +10,7 @@ var root = path.join(__dirname, "..");
 test("public support and policy page explains the real purchase and privacy flow", function () {
   var page = fs.readFileSync(path.join(root, "policies.html"), "utf8");
 
+  assert.match(page, /public-responsive-fixes\.css/);
   assert.match(page, /id="support"/);
   assert.match(page, /id="refunds"/);
   assert.match(page, /id="terms"/);
