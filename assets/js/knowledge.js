@@ -688,17 +688,33 @@
 
   function renderNeckDirectory(regionRecords, section, heading) {
     var collectiveIds = new Set();
-    var groupCards = collectiveNeckGroups.map(function (groupName) {
+    var directoryEntries = collectiveNeckGroups.map(function (groupName) {
       var members = regionRecords.filter(function (record) { return muscleSectionGroup(record.item) === groupName; });
       if (!members.length) return null;
       members.forEach(function (record) { collectiveIds.add(record.item.id); });
-      var card = element("button", "muscle-collective-card");
+      var imageRecord = members.find(function (record) { return hasFocusedMuscleImage(record.item); })
+        || members.find(function (record) { return typeof record.item.imageUrl === "string" && /^https:\/\//i.test(record.item.imageUrl); });
+      var card = element("button", "knowledge-card muscle-collective-card");
       card.type = "button";
+      card.setAttribute("aria-label", "Explore " + groupName);
+      if (imageRecord) {
+        card.classList.add("has-media");
+        var media = element("span", "knowledge-card-media");
+        var image = document.createElement("img");
+        image.src = imageRecord.item.imageUrl;
+        image.alt = "";
+        image.loading = "lazy";
+        image.decoding = "async";
+        var imageLabel = element("span", "knowledge-card-media-label", members.length + (members.length === 1 ? " specific muscle" : " specific muscles"));
+        imageLabel.classList.add("is-focused");
+        media.append(image, imageLabel);
+        card.appendChild(media);
+      }
       card.append(
-        element("span", "muscle-collective-kicker", "Collective muscle group"),
-        element("h4", "", groupName),
+        element("span", "knowledge-card-type", "Muscle group"),
+        element("h3", "", groupName),
         element("p", "", collectiveNeckGroupDescriptions[groupName]),
-        element("span", "muscle-collective-meta", members.length + (members.length === 1 ? " muscle" : " muscles") + " — Open group")
+        element("span", "knowledge-card-link", "Explore specific muscles →")
       );
       card.addEventListener("click", function () {
         activeMuscleGroup = groupName;
@@ -706,29 +722,15 @@
         render();
         grid.scrollIntoView({ behavior: "smooth", block: "start" });
       });
-      return card;
+      return { title: groupName, card: card };
     }).filter(Boolean);
     var namedRecords = regionRecords.filter(function (record) { return !collectiveIds.has(record.item.id); });
-    namedRecords.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
-    var directory = element("div", "neck-muscle-directory");
-    if (groupCards.length) {
-      var groupSection = element("section", "neck-directory-section");
-      var groupHeading = element("div", "neck-directory-heading");
-      groupHeading.append(element("h4", "", "Collective groups"), element("p", "", "Open a group when its smaller muscles are normally discussed together."));
-      var groupGrid = element("div", "muscle-collective-grid");
-      groupGrid.replaceChildren.apply(groupGrid, groupCards);
-      groupSection.append(groupHeading, groupGrid);
-      directory.appendChild(groupSection);
-    }
-    if (namedRecords.length) {
-      var namedSection = element("section", "neck-directory-section");
-      var namedHeading = element("div", "neck-directory-heading");
-      namedHeading.append(element("h4", "", "Named muscles"), element("p", "", "Open these directly. They are not hidden inside broad regional labels."));
-      var namedGrid = element("div", "muscle-region-grid");
-      namedGrid.replaceChildren.apply(namedGrid, namedRecords.map(createCard));
-      namedSection.append(namedHeading, namedGrid);
-      directory.appendChild(namedSection);
-    }
+    namedRecords.forEach(function (record) {
+      directoryEntries.push({ title: String(record.item.title || ""), card: createCard(record) });
+    });
+    directoryEntries.sort(function (a, b) { return a.title.localeCompare(b.title); });
+    var directory = element("div", "muscle-region-grid neck-visual-directory");
+    directory.replaceChildren.apply(directory, directoryEntries.map(function (entry) { return entry.card; }));
     section.append(heading, directory);
   }
 
