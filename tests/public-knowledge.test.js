@@ -20,8 +20,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /Correction recipes/);
   assert.match(html, /id="recipeTools"/);
   assert.match(html, /id="carePathTools"/);
-  assert.match(html, /data-care-path="movement-alignment"/);
-  assert.match(html, /data-care-path="injury-rehabilitation"/);
+  assert.match(html, /data-care-path="postural-movement"/);
+  assert.match(html, /data-care-path="musculoskeletal-condition"/);
   assert.match(html, /data-recipe-region="Ankle &amp; foot"/);
   assert.match(html, /Muscle dictionary/);
   assert.match(html, /muscle-dictionary\.css/);
@@ -45,7 +45,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /activeRecipeRegion/);
   assert.match(javascript, /updateRecipeCounts/);
   assert.match(javascript, /activeCarePath/);
-  assert.match(javascript, /does not diagnose a structural misalignment/);
+  assert.match(javascript, /does not diagnose a body part as structurally misaligned/);
+  assert.match(javascript, /sprains, dislocations, disc-related conditions, and nerve-related syndromes/);
   assert.match(javascript, /Continue with a complete program/);
   assert.match(javascript, /video\.html\?id=/);
   assert.match(javascript, /assets\/data\/videos\.json/);
@@ -225,14 +226,14 @@ test("correction recipes are grouped, actionable, and safety aware", function ()
   });
 });
 
-test("injury rehabilitation stays distinct from movement and alignment education", function () {
+test("musculoskeletal conditions stay distinct from postural and movement education", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  var allowed = new Set(["movement-alignment", "injury-rehabilitation"]);
+  var allowed = new Set(["postural-movement", "musculoskeletal-condition"]);
   data.conditions.concat(data.recipes).forEach(function (item) {
     assert.ok(allowed.has(item.pathway), item.id + " needs a valid pathway");
   });
-  assert.equal(data.conditions.find(function (item) { return item.id === "ankle-sprain-recovery"; }).pathway, "injury-rehabilitation");
-  assert.equal(data.recipes.find(function (item) { return item.id === "ankle-rehabilitation-progression"; }).pathway, "injury-rehabilitation");
-  assert.equal(data.conditions.find(function (item) { return item.id === "round-shoulder"; }).pathway, "movement-alignment");
-  assert.equal(data.recipes.find(function (item) { return item.id === "squat-preparation"; }).pathway, "movement-alignment");
+  assert.equal(data.conditions.find(function (item) { return item.id === "ankle-sprain-recovery"; }).pathway, "musculoskeletal-condition");
+  assert.equal(data.recipes.find(function (item) { return item.id === "ankle-rehabilitation-progression"; }).pathway, "musculoskeletal-condition");
+  assert.equal(data.conditions.find(function (item) { return item.id === "round-shoulder"; }).pathway, "postural-movement");
+  assert.equal(data.recipes.find(function (item) { return item.id === "squat-preparation"; }).pathway, "postural-movement");
 });

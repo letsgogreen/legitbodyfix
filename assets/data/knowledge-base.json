@@ -2,7 +2,7 @@
   "conditions": [
     {
       "id": "scapula-anterior-tilt",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Scapula anterior tilt",
       "joints": "Shoulder",
       "tags": "Shoulder impingement, upper crossed syndrome",
@@ -15,7 +15,7 @@
     },
     {
       "id": "round-shoulder",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Round shoulder",
       "joints": "Neck, shoulder, thoracic spine",
       "tags": "Upper crossed syndrome, shoulder impingement, rib flare",
@@ -28,7 +28,7 @@
     },
     {
       "id": "ankle-sprain-recovery",
-      "pathway": "injury-rehabilitation",
+      "pathway": "musculoskeletal-condition",
       "title": "Ankle sprain recovery",
       "joints": "Ankle, foot",
       "tags": "Balance, mobility, stability, return to movement",
@@ -1715,7 +1715,7 @@
   "recipes": [
     {
       "id": "squat-preparation",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Squat preparation",
       "bodyRegion": "Hip & pelvis",
       "time": "10–15 min",
@@ -1736,7 +1736,7 @@
     },
     {
       "id": "scapular-control-sequence",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Scapular control sequence",
       "bodyRegion": "Neck & shoulders",
       "time": "8–12 min",
@@ -1757,7 +1757,7 @@
     },
     {
       "id": "neck-desk-reset",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Neck desk reset",
       "bodyRegion": "Neck & shoulders",
       "time": "5–8 min",
@@ -1778,7 +1778,7 @@
     },
     {
       "id": "ribcage-breathing-reset",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Ribcage breathing reset",
       "bodyRegion": "Trunk & breathing",
       "time": "6–10 min",
@@ -1799,7 +1799,7 @@
     },
     {
       "id": "pelvic-balance-baseline",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Pelvic balance baseline",
       "bodyRegion": "Hip & pelvis",
       "time": "8–12 min",
@@ -1820,7 +1820,7 @@
     },
     {
       "id": "knee-control-return-to-squat",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Knee control before squatting",
       "bodyRegion": "Knee",
       "time": "8–12 min",
@@ -1841,7 +1841,7 @@
     },
     {
       "id": "ankle-rehabilitation-progression",
-      "pathway": "injury-rehabilitation",
+      "pathway": "musculoskeletal-condition",
       "title": "Ankle rehabilitation progression",
       "bodyRegion": "Ankle & foot",
       "time": "12–18 min",
@@ -1862,7 +1862,7 @@
     },
     {
       "id": "foot-tripod-walking-reset",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Foot tripod walking reset",
       "bodyRegion": "Ankle & foot",
       "time": "8–10 min",
@@ -1883,7 +1883,7 @@
     },
     {
       "id": "overhead-reach-preparation",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Overhead reach preparation",
       "bodyRegion": "Neck & shoulders",
       "time": "8–12 min",
@@ -1904,7 +1904,7 @@
     },
     {
       "id": "thoracic-rotation-reset",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Thoracic rotation reset",
       "bodyRegion": "Trunk & breathing",
       "time": "6–10 min",
@@ -1925,7 +1925,7 @@
     },
     {
       "id": "trunk-control-before-lifting",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Trunk control before lifting",
       "bodyRegion": "Trunk & breathing",
       "time": "8–12 min",
@@ -1946,7 +1946,7 @@
     },
     {
       "id": "hip-control-walking-prep",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Hip control walking preparation",
       "bodyRegion": "Hip & pelvis",
       "time": "8–12 min",
@@ -1967,7 +1967,7 @@
     },
     {
       "id": "stair-control-preparation",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Stair control preparation",
       "bodyRegion": "Knee",
       "time": "8–12 min",
@@ -1988,7 +1988,7 @@
     },
     {
       "id": "knee-extension-baseline",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Knee extension baseline",
       "bodyRegion": "Knee",
       "time": "6–10 min",
@@ -2009,7 +2009,7 @@
     },
     {
       "id": "calf-raise-readiness",
-      "pathway": "movement-alignment",
+      "pathway": "postural-movement",
       "title": "Calf raise readiness",
       "bodyRegion": "Ankle & foot",
       "time": "8–10 min",

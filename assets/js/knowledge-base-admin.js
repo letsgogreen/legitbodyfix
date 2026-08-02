@@ -63,7 +63,7 @@
     });
     ["conditions", "recipes"].forEach(function (type) {
       (payload[type] || []).forEach(function (record) {
-        if (!record.pathway) record.pathway = "movement-alignment";
+        if (!record.pathway) record.pathway = "postural-movement";
       });
     });
     return payload;
@@ -95,8 +95,8 @@
     if (name === "pathway") {
       input = document.createElement("select");
       [
-        ["movement-alignment", "Movement & alignment"],
-        ["injury-rehabilitation", "Injury rehabilitation"]
+        ["postural-movement", "Postural & movement issues"],
+        ["musculoskeletal-condition", "Musculoskeletal conditions & injuries"]
       ].forEach(function (entry) {
         var option = document.createElement("option");
         option.value = entry[0];
@@ -108,7 +108,7 @@
     else if (name !== "pathway") input.type = "text";
     input.name = name;
     if (name !== "pathway") input.maxLength = definition[2];
-    input.value = record[name] || (name === "pathway" ? "movement-alignment" : "");
+    input.value = record[name] || (name === "pathway" ? "postural-movement" : "");
     input.addEventListener("input", function () {
       record[name] = input.value;
       if (name === "title") {
@@ -191,7 +191,7 @@
   function addRecord() {
     var labels = { conditions: "New movement pattern", muscles: "New muscle", recipes: "New correction recipe" };
     var record = { id: uniqueId(labels[activeType]), title: labels[activeType], published: false };
-    if (activeType === "conditions" || activeType === "recipes") record.pathway = "movement-alignment";
+    if (activeType === "conditions" || activeType === "recipes") record.pathway = "postural-movement";
     schemas[activeType].forEach(function (definition) { if (!(definition[0] in record)) record[definition[0]] = ""; });
     data[activeType].push(record);
     search.value = "";

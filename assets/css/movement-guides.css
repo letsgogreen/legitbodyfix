@@ -200,11 +200,11 @@
 .care-path-filters button.is-active { background: var(--ink); color: var(--paper); }
 .care-path-filters button:hover small,
 .care-path-filters button.is-active small { color: #d7d5cc; }
-.care-path-filters button.is-injury:not(.is-active) { border-left: 7px solid #a34232; }
+.care-path-filters button.is-clinical:not(.is-active) { border-left: 7px solid #a34232; }
 
-.knowledge-card.care-path-injury-rehabilitation { box-shadow: inset 7px 0 0 #a34232; }
-.knowledge-card.care-path-injury-rehabilitation .knowledge-card-type { color: #a34232; }
-.knowledge-card.care-path-movement-alignment .knowledge-card-type { color: #39766e; }
+.knowledge-card.care-path-musculoskeletal-condition { box-shadow: inset 7px 0 0 #a34232; }
+.knowledge-card.care-path-musculoskeletal-condition .knowledge-card-type { color: #a34232; }
+.knowledge-card.care-path-postural-movement .knowledge-card-type { color: #39766e; }
 .knowledge-card:hover .knowledge-card-type { color: var(--ink); }
 
 .detail-care-path {
@@ -214,7 +214,7 @@
   background: #e5eee9;
 }
 
-.detail-care-path.is-injury-rehabilitation { border-left: 8px solid #a34232; background: #f2e6e2; }
+.detail-care-path.is-musculoskeletal-condition { border-left: 8px solid #a34232; background: #f2e6e2; }
 .detail-care-path strong { display: block; font: 500 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
 .detail-care-path p { margin-top: 9px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 

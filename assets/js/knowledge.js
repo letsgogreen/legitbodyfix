@@ -48,18 +48,18 @@
 
   var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
   var carePaths = {
-    "movement-alignment": {
-      label: "Movement & alignment",
-      description: "Non-acute movement education for comfort, coordination, mobility, and preparation. It does not diagnose a structural misalignment."
+    "postural-movement": {
+      label: "Postural & movement issues",
+      description: "Non-acute education for posture, comfort, coordination, mobility, and load control. It does not diagnose a body part as structurally misaligned."
     },
-    "injury-rehabilitation": {
-      label: "Injury rehabilitation",
-      description: "A cautious recovery pathway after injury. Begin only when serious injury has been ruled out and the recommended starting criteria are met."
+    "musculoskeletal-condition": {
+      label: "Musculoskeletal conditions & injuries",
+      description: "A cautious pathway for sprains, dislocations, disc-related conditions, and nerve-related syndromes. Some conditions require assessment before exercise is appropriate."
     }
   };
 
   function carePath(item) {
-    return item && carePaths[item.pathway] ? item.pathway : "movement-alignment";
+    return item && carePaths[item.pathway] ? item.pathway : "postural-movement";
   }
 
   function contentLabel(type, item) {
@@ -426,9 +426,9 @@
       var bodyMap = createBodyMap(item, false);
       if (bodyMap) facts.appendChild(bodyMap);
     }
-    var disclaimer = type !== "muscles" && carePath(item) === "injury-rehabilitation"
-      ? "This injury-rehabilitation guide is educational and does not diagnose the injury or replace an individual recovery plan. Seek assessment for severe pain, inability to bear weight, deformity, substantial swelling, worsening symptoms, numbness, weakness, or uncertainty about readiness."
-      : "This movement and alignment resource describes observable patterns, not a diagnosis that a joint or bone is out of place. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician.";
+    var disclaimer = type !== "muscles" && carePath(item) === "musculoskeletal-condition"
+      ? "This guide is educational and does not diagnose or treat a musculoskeletal condition. A suspected dislocation, visible deformity, inability to bear weight, substantial swelling, worsening pain, numbness, weakness, or new bladder or bowel changes needs prompt medical assessment before self-guided exercise."
+      : "This postural and movement resource describes observable patterns, not a diagnosis that a joint or bone is out of place. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician.";
     facts.append(list, element("p", "detail-disclaimer", disclaimer));
     if (type === "muscles" && item.sourceName && typeof item.sourceUrl === "string" && /^https:\/\//i.test(item.sourceUrl)) {
       var source = element("p", "detail-source", "Reference: ");
