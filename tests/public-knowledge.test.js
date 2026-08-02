@@ -97,10 +97,12 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /function muscleSectionGroup/);
   assert.match(javascript, /function updateMuscleGroupFilters/);
   assert.match(javascript, /function renderNeckDirectory/);
-  assert.match(javascript, /collectiveNeckGroups = \["Deep neck flexors", "Deep cervical stabilizers", "Cervicoscapular muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"\]/);
+  assert.match(javascript, /collectiveNeckGroups = \["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"\]/);
   assert.match(javascript, /function neckDirectoryGroup/);
   assert.match(javascript, /function muscleInRegion/);
-  assert.match(javascript, /"Deep neck flexors", "Deep cervical stabilizers", "Cervicoscapular muscles"/);
+  assert.match(javascript, /"Deep neck flexors", "Splenius muscles", "Capitis muscles"/);
+  assert.doesNotMatch(javascript, /Deep cervical stabilizers/);
+  assert.doesNotMatch(javascript, /Cervicoscapular muscles/);
   assert.match(javascript, /neck-visual-directory/);
   assert.match(javascript, /Explore specific muscles/);
   assert.match(javascript, /directoryEntries\.sort/);
@@ -237,16 +239,25 @@ test("anterior-neck and prevertebral families use named muscle records", functio
   });
 });
 
-test("neck directory exposes deep flexors, deep stabilizers, and upper trapezius", function () {
+test("neck directory exposes deep flexors, splenius, and upper trapezius", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   ["longus-colli", "longus-capitis", "rectus-capitis-anterior", "rectus-capitis-lateralis"].forEach(function (id) {
     var muscle = data.muscles.find(function (item) { return item.id === id; });
     assert.ok(muscle, "missing deep neck flexor " + id);
     assert.equal(muscle.family, "Prevertebral muscles");
   });
-  ["multifidus", "semispinalis-cervicis", "longissimus-cervicis", "iliocostalis-cervicis", "spinalis-cervicis", "interspinales-cervicis", "intertransversarii-cervicis", "upper-trapezius", "levator-scapulae"].forEach(function (id) {
+  ["splenius-capitis", "splenius-cervicis", "semispinalis-cervicis", "longissimus-cervicis", "iliocostalis-cervicis", "spinalis-cervicis", "interspinales-cervicis", "intertransversarii-cervicis", "upper-trapezius", "levator-scapulae"].forEach(function (id) {
     assert.ok(data.muscles.some(function (muscle) { return muscle.id === id; }), "missing cervical directory muscle " + id);
   });
+  ["splenius-capitis", "splenius-cervicis"].forEach(function (id) {
+    assert.equal(data.muscles.find(function (muscle) { return muscle.id === id; }).family, "Splenius");
+  });
+  ["upper-trapezius", "middle-trapezius", "lower-trapezius"].forEach(function (id) {
+    var trapezius = data.muscles.find(function (muscle) { return muscle.id === id; });
+    assert.equal(trapezius.family, "Trapezius");
+    assert.ok(trapezius.imageUrl.includes("Trapezius_muscle_animation2.gif"));
+  });
+  assert.equal(data.muscles.find(function (muscle) { return muscle.id === "longissimus-cervicis"; }).group, "Erector spinae");
 });
 
 test("muscle dictionary includes the remaining distinct regional muscles", function () {
@@ -262,6 +273,10 @@ test("hard-to-identify muscles use focused anatomy references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
     "splenius-cervicis": "Splenius_cervicis_muscle_back.png",
+    "longissimus-cervicis": "Longissimus.png",
+    "semispinalis-cervicis": "Semispinalis.png",
+    "iliocostalis-cervicis": "Iliostalis.png",
+    "spinalis-cervicis": "Spinalis.png",
     "levatores-costarum-breves": "Levatores_costarum.png",
     "levatores-costarum-longi": "Levatores_costarum.png",
     "pyramidalis": "PyramidalisMuscle.jpg",
