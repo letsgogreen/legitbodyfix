@@ -71,17 +71,16 @@
     { title: "Lower quarter", description: "Pelvic floor, hip, thigh, knee, lower-leg, ankle, and foot anatomy.", regions: ["pelvis-hip", "knee", "foot-ankle"] }
   ];
   var muscleGroupOrder = [
-    "Head and neck", "Deep neck flexors", "Deep cervical stabilizers", "Cervicoscapular muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
+    "Head and neck", "Deep neck flexors", "Splenius muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
     "Upper arm", "Forearm", "Hand", "Thorax", "Posterior thorax", "Abdomen", "Back", "Erector spinae", "Deep back",
     "Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters",
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
-  var collectiveNeckGroups = ["Deep neck flexors", "Deep cervical stabilizers", "Cervicoscapular muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"];
+  var collectiveNeckGroups = ["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"];
   var collectiveNeckGroupDescriptions = {
     "Deep neck flexors": "The four prevertebral muscles that provide deep anterior head-and-neck flexion and segmental control.",
-    "Deep cervical stabilizers": "Deep posterior and segmental muscles that extend, laterally flex, rotate, or stabilize the cervical spine.",
-    "Cervicoscapular muscles": "Upper trapezius and levator scapulae bridge cervical motion with scapular position and control.",
+    "Splenius muscles": "Splenius capitis and splenius cervicis, the two named muscles in the splenius layer.",
     "Capitis muscles": "Muscles named for their attachment to the head, organized by anatomical family.",
     "Hyoid muscles": "The suprahyoid and infrahyoid muscles that position the hyoid during swallowing and jaw movement.",
     Scalenes: "Anterior, middle, and posterior scalenes considered as a functional neck group.",
@@ -146,8 +145,7 @@
     var title = String(item && item.title || "").toLowerCase();
     var family = String(item && item.family || "").toLowerCase();
     if (family === "prevertebral muscles" || ["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) return "Deep neck flexors";
-    if (/^(multifidus|semispinalis cervicis|longissimus cervicis|iliocostalis cervicis|spinalis cervicis|interspinales cervicis|intertransversarii cervicis)$/.test(title)) return "Deep cervical stabilizers";
-    if (title === "upper trapezius" || title === "levator scapulae") return "Cervicoscapular muscles";
+    if (family === "splenius" || title.indexOf("splenius ") === 0) return "Splenius muscles";
     return muscleSectionGroup(item);
   }
 
@@ -274,7 +272,7 @@
   function muscleInRegion(item, region) {
     if (muscleRegion(item) === region) return true;
     var title = String(item && item.title || "").toLowerCase();
-    return region === "head-neck" && (title === "upper trapezius" || title === "multifidus");
+    return region === "head-neck" && title === "upper trapezius";
   }
 
   function muscleFunctionalRoles(item) {
