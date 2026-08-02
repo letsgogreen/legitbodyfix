@@ -90,6 +90,11 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /function renderMuscleGroups/);
   assert.match(javascript, /function muscleSectionGroup/);
   assert.match(javascript, /function updateMuscleGroupFilters/);
+  assert.match(javascript, /function renderNeckDirectory/);
+  assert.match(javascript, /collectiveNeckGroups = \["Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"\]/);
+  assert.match(javascript, /Named muscles/);
+  assert.match(javascript, /They are not hidden inside broad regional labels/);
+  assert.match(javascript, /muscles in directory/);
   assert.match(javascript, /activeMuscleGroup !== "all"/);
   assert.match(javascript, /Choose a body region, then choose one muscle group/);
   assert.match(javascript, /"Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"/);
