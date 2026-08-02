@@ -56,14 +56,20 @@
 
   var muscleRegions = {
     "head-neck": { title: "Neck", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1117_Muscles_of_the_Back.png", imageAlt: "OpenStax anatomy plate of the neck and upper back", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1117_Muscles_of_the_Back.png" },
-    "shoulder-chest": { title: "Shoulder & chest", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Arm_shoulder_gray.png", imageAlt: "Gray's Anatomy plate of shoulder and chest muscles", credit: "Gray's Anatomy · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Arm_shoulder_gray.png" },
-    "arm-hand": { title: "Arm & hand", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1120_Muscles_that_Move_the_Forearm.jpg", imageAlt: "OpenStax anatomy plate of arm and forearm muscles", credit: "OpenStax · CC BY 4.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1120_Muscles_that_Move_the_Forearm.jpg" },
-    "trunk-back": { title: "Trunk & back", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Gray398.png", imageAlt: "Gray's Anatomy plate of muscles of the torso", credit: "Gray's Anatomy, plate 398 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Gray398.png" },
-    "pelvic-floor": { title: "Pelvic floor", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1115_Muscles_of_the_Pelvic_Floor.jpg", imageAlt: "OpenStax superior view of the pelvic floor muscles", credit: "OpenStax · CC BY 4.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1115_Muscles_of_the_Pelvic_Floor.jpg" },
-    "hip-thigh": { title: "Hip & thigh", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430.png", imageAlt: "Gray's Anatomy plate of the iliac and anterior femoral muscles", credit: "Gray's Anatomy, figure 430 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430.png" },
-    "lower-leg": { title: "Lower leg", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/LowerLimbMuscles.jpg", imageAlt: "Historical anatomical plate of lower-leg muscles", credit: "Adrien Charpy, 1894 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:LowerLimbMuscles.jpg" },
-    foot: { title: "Foot", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1124_Intrinsic_Muscles_of_the_Foot_c.png", imageAlt: "OpenStax plantar view of intrinsic foot muscles", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1124_Intrinsic_Muscles_of_the_Foot_c.png" }
+    "shoulder-scapula": { title: "Shoulder & Scapula", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Arm_shoulder_gray.png", imageAlt: "Gray's Anatomy plate of shoulder, scapular, and chest muscles", credit: "Gray's Anatomy · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Arm_shoulder_gray.png" },
+    "elbow-forearm": { title: "Elbow & Forearm", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1120_Muscles_that_Move_the_Forearm.jpg", imageAlt: "OpenStax anatomy plate of muscles that move the elbow and forearm", credit: "OpenStax · CC BY 4.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1120_Muscles_that_Move_the_Forearm.jpg" },
+    "wrist-hand": { title: "Wrist & Hand", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1121_Intrinsic_Muscles_of_the_Hand.jpg", imageAlt: "OpenStax anatomy plate of intrinsic hand muscles", credit: "OpenStax · CC BY 4.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1121_Intrinsic_Muscles_of_the_Hand.jpg" },
+    "thoracic-spine": { title: "Thoracic Spine", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1117_Muscles_of_the_Back.png", imageAlt: "OpenStax plate of thoracic, rib, and posterior trunk muscles", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1117_Muscles_of_the_Back.png" },
+    "lumbar-spine": { title: "Lumbar Spine", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Gray398.png", imageAlt: "Gray's Anatomy plate of abdominal and lumbar trunk muscles", credit: "Gray's Anatomy, plate 398 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Gray398.png" },
+    "pelvis-hip": { title: "Pelvis & Hip", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430.png", imageAlt: "Gray's Anatomy plate of pelvic and hip muscles", credit: "Gray's Anatomy, figure 430 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430.png" },
+    knee: { title: "Knee", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Rectus_femoris.png", imageAlt: "Anatomy plate of a major knee extensor and the anterior thigh", credit: "Wikimedia Commons anatomy plate", creditUrl: "https://commons.wikimedia.org/wiki/File:Rectus_femoris.png" },
+    "foot-ankle": { title: "Foot & Ankle", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1124_Intrinsic_Muscles_of_the_Foot_a.png", imageAlt: "OpenStax plate of foot and ankle muscles", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1124_Intrinsic_Muscles_of_the_Foot_a.png" }
   };
+  var muscleRegionSections = [
+    { title: "Upper quarter", description: "Cervical, shoulder, arm, forearm, wrist, and hand anatomy.", regions: ["head-neck", "shoulder-scapula", "elbow-forearm", "wrist-hand"] },
+    { title: "Trunk", description: "Thoracic, rib, respiratory, abdominal, and lumbar contributors.", regions: ["thoracic-spine", "lumbar-spine"] },
+    { title: "Lower quarter", description: "Pelvic floor, hip, thigh, knee, lower-leg, ankle, and foot anatomy.", regions: ["pelvis-hip", "knee", "foot-ankle"] }
+  ];
   var muscleGroupOrder = [
     "Head and neck", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
     "Upper arm", "Forearm", "Hand", "Thorax", "Posterior thorax", "Abdomen", "Back", "Erector spinae", "Deep back",
@@ -232,21 +238,23 @@
   function muscleRegion(item) {
     var bodyMap = item && item.bodyMap;
     var group = String(item && item.group || "").toLowerCase();
+    var title = String(item && item.title || "").toLowerCase();
     if (["head and neck", "anterior neck", "lateral neck", "suboccipital neck"].indexOf(group) !== -1) return "head-neck";
-    if (["shoulder", "shoulder girdle", "upper back", "chest", "rotator cuff"].indexOf(group) !== -1) return "shoulder-chest";
-    if (["upper arm", "forearm", "hand"].indexOf(group) !== -1) return "arm-hand";
-    if (["abdomen", "back", "erector spinae", "deep back", "thorax", "posterior thorax"].indexOf(group) !== -1) return "trunk-back";
-    if (["pelvic diaphragm", "superficial perineum", "deep perineum", "pelvic sphincters"].indexOf(group) !== -1) return "pelvic-floor";
-    if (["hip and pelvis", "deep hip", "anterior thigh", "medial thigh", "posterior thigh"].indexOf(group) !== -1) return "hip-thigh";
-    if (["anterior lower leg", "lateral lower leg", "posterior lower leg"].indexOf(group) !== -1) return "lower-leg";
-    if (group === "foot") return "foot";
+    if (["shoulder", "shoulder girdle", "upper back", "chest", "rotator cuff"].indexOf(group) !== -1) return "shoulder-scapula";
+    if (["upper arm", "forearm"].indexOf(group) !== -1) return "elbow-forearm";
+    if (group === "hand") return "wrist-hand";
+    if (["thorax", "posterior thorax"].indexOf(group) !== -1 || /thoracis|thoracic|costarum/.test(title)) return "thoracic-spine";
+    if (["abdomen", "back", "erector spinae", "deep back"].indexOf(group) !== -1) return "lumbar-spine";
+    if (["pelvic diaphragm", "superficial perineum", "deep perineum", "pelvic sphincters", "hip and pelvis", "deep hip", "medial thigh"].indexOf(group) !== -1) return "pelvis-hip";
+    if (["anterior thigh", "posterior thigh"].indexOf(group) !== -1 || title === "popliteus") return "knee";
+    if (["anterior lower leg", "lateral lower leg", "posterior lower leg", "foot"].indexOf(group) !== -1) return "foot-ankle";
     if (bodyMap === "head-neck") return "head-neck";
-    if (["shoulder", "chest"].indexOf(bodyMap) !== -1) return "shoulder-chest";
-    if (["upper-arm-front", "upper-arm-back", "forearm"].indexOf(bodyMap) !== -1) return "arm-hand";
-    if (["abdomen", "back"].indexOf(bodyMap) !== -1) return "trunk-back";
-    if (["hip-front", "hip-back", "thigh-front", "thigh-back"].indexOf(bodyMap) !== -1) return "hip-thigh";
-    if (["lower-leg-front", "lower-leg-back"].indexOf(bodyMap) !== -1) return "lower-leg";
-    if (bodyMap === "foot") return "foot";
+    if (["shoulder", "chest"].indexOf(bodyMap) !== -1) return "shoulder-scapula";
+    if (["upper-arm-front", "upper-arm-back", "forearm"].indexOf(bodyMap) !== -1) return "elbow-forearm";
+    if (["abdomen", "back"].indexOf(bodyMap) !== -1) return "lumbar-spine";
+    if (["hip-front", "hip-back"].indexOf(bodyMap) !== -1) return "pelvis-hip";
+    if (["thigh-front", "thigh-back"].indexOf(bodyMap) !== -1) return "knee";
+    if (["lower-leg-front", "lower-leg-back", "foot"].indexOf(bodyMap) !== -1) return "foot-ankle";
     return "other";
   }
 
@@ -264,7 +272,7 @@
       add("Neck lateral flexor", /laterally flexes? (?:the head|the neck|the cervical vertebral column|it|to the)/);
       add("Neck rotator", /rotates? (?:and [^.;]+ )?(?:the head|the atlas)|rotates? or laterally flexes it|neck rotation/);
     }
-    if (region === "shoulder-chest") {
+    if (region === "shoulder-scapula") {
       add("Shoulder internal rotator", /medial(?:ly)? rotat(?:es|ion)|internal rotation/);
       add("Shoulder external rotator", /lateral(?:ly)? rotat(?:es|ion)|external rotation/);
     }
@@ -284,7 +292,7 @@
     add("Forearm supinator", /supinates? the forearm/);
     add("Wrist flexor", /flexes? (?:and [^.;]+ )?(?:the hand at )?the wrist|wrist flexion/);
     add("Wrist extensor", /extends? (?:and [^.;]+ )?(?:the hand at )?the wrist|wrist extension/);
-    if (region === "arm-hand") {
+    if (region === "wrist-hand") {
       add("Finger flexor", /flex(?:es|ion) (?:the )?(?:little )?finger|flexes? the (?:proximal|distal) interphalangeal|flexes? [^.;]*fingers|flex the metacarpophalangeal|finger flexion/);
       add("Finger extensor", /extends? (?:the )?(?:little|index)? ?finger|extends? digits|extending the interphalangeal|finger extension/);
       add("Finger abductor", /abducts? (?:the )?(?:little finger|digits?)/);
@@ -301,7 +309,7 @@
     add("Trunk lateral flexor", /laterally flexes? (?:the |lumbar )?trunk|lateral trunk flexion/);
     add("Inspiratory muscle", /inspiration|elevates? (?:the )?(?:first|second|upper)? ?ribs?|expansion of the thoracic cavity/);
     add("Expiratory muscle", /expiration|depresses? (?:the )?(?:lower )?ribs?/);
-    if (region === "hip-thigh") {
+    if (region === "pelvis-hip" || region === "knee") {
       add("Hip flexor", /flexes? the (?:hip|thigh)|hip flexion|assists? flexion|^flexes,/);
       add("Hip extensor", /extends? the (?:hip|thigh)|hip extension|assists? extension/);
       add("Hip internal rotator", /medial(?:ly)? rotat(?:es|ion).*(?:hip|thigh)|anterior fibers assist medial rotation|hip flexion and medial rotation|medial rotation at the hip/);
@@ -313,7 +321,7 @@
     add("Knee extensor", /extends? (?:the leg at )?the knee|extends? the knee|knee extension/);
     add("Knee internal rotator", /medial(?:ly)? rotat(?:es|ing) the (?:flexed )?(?:knee|leg|tibia)/);
     add("Knee external rotator", /lateral(?:ly)? rotat(?:es|ing) the (?:flexed )?(?:knee|leg|tibia)/);
-    if (region === "lower-leg" || region === "foot") {
+    if (region === "foot-ankle") {
       add("Ankle dorsiflexor", /dorsiflex(?:es|ion)/);
       add("Ankle plantarflexor", /plantarflex(?:es|ion)/);
       add("Foot invertor", /inverts? the foot|foot inversion|assists? inversion/);
@@ -321,7 +329,7 @@
       add("Toe flexor", /flex(?:es|ing) (?:the )?(?:great|little|lateral four|toes?)/);
       add("Toe extensor", /extends? (?:the )?(?:great|little|lateral four|toes?|digits?)|extension of toes/);
     }
-    if (region === "pelvic-floor") {
+    if (region === "pelvis-hip") {
       add("Pelvic floor supporter", /supports? (?:and elevates? )?(?:the )?pelvic|pelvic support|supports? the central pelvic outlet|stabilizes? the perineal body/);
       add("Urinary continence muscle", /urinary continence|compresses? the urethra|constricts? the urethral/);
       add("Fecal continence muscle", /fecal continence|closes? the anal canal|anorectal angle/);
@@ -375,7 +383,7 @@
   }
 
   function renderAtlas() {
-    var cards = Object.keys(muscleRegions).map(function (region) {
+    function createAtlasCard(region) {
       var meta = muscleRegions[region];
       var count = data.muscles.filter(function (item) { return item && item.published !== false && muscleRegion(item) === region; }).length;
       var card = element("button", "atlas-card");
@@ -399,8 +407,17 @@
         grid.scrollIntoView({ behavior: "smooth", block: "start" });
       });
       return card;
+    }
+    var sections = muscleRegionSections.map(function (regionSection) {
+      var section = element("section", "atlas-region-section");
+      var heading = element("header", "atlas-region-heading");
+      heading.append(element("h3", "", regionSection.title), element("p", "", regionSection.description));
+      var cards = element("div", "atlas-region-grid");
+      cards.replaceChildren.apply(cards, regionSection.regions.map(createAtlasCard));
+      section.append(heading, cards);
+      return section;
     });
-    atlasGrid.replaceChildren.apply(atlasGrid, cards);
+    atlasGrid.replaceChildren.apply(atlasGrid, sections);
   }
 
   function updateMuscleCounts() {
@@ -650,24 +667,20 @@
       return item && item.published !== false && muscleRegion(item) === activeMuscleRegion;
     });
     var groupNames = orderedMuscleGroups(regionalMuscles);
-    if (activeMuscleRegion === "head-neck") {
-      groupNames = collectiveNeckGroups.filter(function (groupName) { return groupNames.indexOf(groupName) !== -1; });
-      if (activeMuscleGroup !== "all" && groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = "all";
-    } else if (groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = groupNames[0] || "all";
+    if (activeMuscleRegion === "head-neck") groupNames = collectiveNeckGroups.filter(function (groupName) { return groupNames.indexOf(groupName) !== -1; });
+    if (activeMuscleGroup !== "all" && groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = "all";
     var buttons = [];
-    if (activeMuscleRegion === "head-neck") {
-      var overview = element("button", activeMuscleGroup === "all" ? "is-active" : "");
-      overview.type = "button";
-      overview.setAttribute("role", "tab");
-      overview.setAttribute("aria-selected", String(activeMuscleGroup === "all"));
-      overview.append(document.createTextNode("Neck directory "), element("span", "", String(regionalMuscles.length)));
-      overview.addEventListener("click", function () {
-        activeMuscleGroup = "all";
-        updateMuscleGroupFilters();
-        render();
-      });
-      buttons.push(overview);
-    }
+    var overview = element("button", activeMuscleGroup === "all" ? "is-active" : "");
+    overview.type = "button";
+    overview.setAttribute("role", "tab");
+    overview.setAttribute("aria-selected", String(activeMuscleGroup === "all"));
+    overview.append(document.createTextNode((activeMuscleRegion === "head-neck" ? "Neck directory " : "All groups ")), element("span", "", String(regionalMuscles.length)));
+    overview.addEventListener("click", function () {
+      activeMuscleGroup = "all";
+      updateMuscleGroupFilters();
+      render();
+    });
+    buttons.push(overview);
     buttons = buttons.concat(groupNames.map(function (groupName) {
       var count = regionalMuscles.filter(function (item) { return muscleSectionGroup(item) === groupName; }).length;
       var button = element("button", activeMuscleGroup === groupName ? "is-active" : "");
@@ -688,17 +701,33 @@
 
   function renderNeckDirectory(regionRecords, section, heading) {
     var collectiveIds = new Set();
-    var groupCards = collectiveNeckGroups.map(function (groupName) {
+    var directoryEntries = collectiveNeckGroups.map(function (groupName) {
       var members = regionRecords.filter(function (record) { return muscleSectionGroup(record.item) === groupName; });
       if (!members.length) return null;
       members.forEach(function (record) { collectiveIds.add(record.item.id); });
-      var card = element("button", "muscle-collective-card");
+      var imageRecord = members.find(function (record) { return hasFocusedMuscleImage(record.item); })
+        || members.find(function (record) { return typeof record.item.imageUrl === "string" && /^https:\/\//i.test(record.item.imageUrl); });
+      var card = element("button", "knowledge-card muscle-collective-card");
       card.type = "button";
+      card.setAttribute("aria-label", "Explore " + groupName);
+      if (imageRecord) {
+        card.classList.add("has-media");
+        var media = element("span", "knowledge-card-media");
+        var image = document.createElement("img");
+        image.src = imageRecord.item.imageUrl;
+        image.alt = "";
+        image.loading = "lazy";
+        image.decoding = "async";
+        var imageLabel = element("span", "knowledge-card-media-label", members.length + (members.length === 1 ? " specific muscle" : " specific muscles"));
+        imageLabel.classList.add("is-focused");
+        media.append(image, imageLabel);
+        card.appendChild(media);
+      }
       card.append(
-        element("span", "muscle-collective-kicker", "Collective muscle group"),
-        element("h4", "", groupName),
+        element("span", "knowledge-card-type", "Muscle group"),
+        element("h3", "", groupName),
         element("p", "", collectiveNeckGroupDescriptions[groupName]),
-        element("span", "muscle-collective-meta", members.length + (members.length === 1 ? " muscle" : " muscles") + " — Open group")
+        element("span", "knowledge-card-link", "Explore specific muscles →")
       );
       card.addEventListener("click", function () {
         activeMuscleGroup = groupName;
@@ -706,29 +735,15 @@
         render();
         grid.scrollIntoView({ behavior: "smooth", block: "start" });
       });
-      return card;
+      return { title: groupName, card: card };
     }).filter(Boolean);
     var namedRecords = regionRecords.filter(function (record) { return !collectiveIds.has(record.item.id); });
-    namedRecords.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
-    var directory = element("div", "neck-muscle-directory");
-    if (groupCards.length) {
-      var groupSection = element("section", "neck-directory-section");
-      var groupHeading = element("div", "neck-directory-heading");
-      groupHeading.append(element("h4", "", "Collective groups"), element("p", "", "Open a group when its smaller muscles are normally discussed together."));
-      var groupGrid = element("div", "muscle-collective-grid");
-      groupGrid.replaceChildren.apply(groupGrid, groupCards);
-      groupSection.append(groupHeading, groupGrid);
-      directory.appendChild(groupSection);
-    }
-    if (namedRecords.length) {
-      var namedSection = element("section", "neck-directory-section");
-      var namedHeading = element("div", "neck-directory-heading");
-      namedHeading.append(element("h4", "", "Named muscles"), element("p", "", "Open these directly. They are not hidden inside broad regional labels."));
-      var namedGrid = element("div", "muscle-region-grid");
-      namedGrid.replaceChildren.apply(namedGrid, namedRecords.map(createCard));
-      namedSection.append(namedHeading, namedGrid);
-      directory.appendChild(namedSection);
-    }
+    namedRecords.forEach(function (record) {
+      directoryEntries.push({ title: String(record.item.title || ""), card: createCard(record) });
+    });
+    directoryEntries.sort(function (a, b) { return a.title.localeCompare(b.title); });
+    var directory = element("div", "muscle-region-grid neck-visual-directory");
+    directory.replaceChildren.apply(directory, directoryEntries.map(function (entry) { return entry.card; }));
     section.append(heading, directory);
   }
 
@@ -852,7 +867,7 @@
       grid.hidden = true;
       grid.classList.remove("is-grouped");
       grid.setAttribute("aria-busy", "false");
-      status.textContent = "Choose a body region, then choose one muscle group.";
+      status.textContent = "Choose a body region, then open a muscle group or named muscle.";
       return;
     }
     grid.hidden = false;
@@ -863,7 +878,7 @@
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
     status.textContent = activeType === "muscles"
-      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
+      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 9 anatomical regions" : " in this anatomical region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
       : activeType === "recipes"
         ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
         : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase());

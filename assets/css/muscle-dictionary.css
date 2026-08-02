@@ -212,10 +212,31 @@
 .muscle-tools[hidden] { display: none; }
 
 .muscle-region-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: minmax(130px, .6fr) repeat(3, minmax(220px, 1fr));
+  align-items: stretch;
+  gap: 10px;
 }
+
+.muscle-filter-section {
+  padding: 11px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+}
+
+.muscle-filter-heading {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--muted);
+  font: 600 9px/1 var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.muscle-filter-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.muscle-region-all { align-self: stretch; justify-content: center; }
 
 .muscle-region-filters button {
   min-height: 38px;
@@ -456,65 +477,27 @@
   min-width: 0;
 }
 
-.neck-muscle-directory {
-  display: grid;
-  gap: 42px;
-  padding-top: 24px;
-}
-
-.neck-directory-section {
-  min-width: 0;
-}
-
-.neck-directory-heading {
-  margin-bottom: 14px;
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.neck-directory-heading h4 {
-  font-size: 18px;
-  letter-spacing: -.03em;
-}
-
-.neck-directory-heading p {
-  max-width: 520px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-  text-align: right;
-}
-
-.muscle-collective-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  border-top: 1px solid var(--ink);
-  border-left: 1px solid var(--ink);
-}
-
 .muscle-collective-card {
-  min-height: 210px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  border: 0;
-  border-right: 1px solid var(--ink);
-  border-bottom: 1px solid var(--ink);
   background: var(--panel);
-  color: var(--ink);
-  text-align: left;
-  cursor: pointer;
+}
+
+@media (max-width: 1040px) {
+  .muscle-region-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .muscle-region-all { min-height: 62px; }
+}
+
+@media (max-width: 680px) {
+  .muscle-region-filters { grid-template-columns: 1fr; }
+  .muscle-filter-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .muscle-filter-row button { justify-content: space-between; }
 }
 
 .muscle-collective-card:hover,
 .muscle-collective-card:focus-visible { background: var(--lime); }
-.muscle-collective-kicker { color: var(--teal); font: 500 9px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
-.muscle-collective-card h4 { margin-top: 20px; font-size: 25px; letter-spacing: -.05em; }
-.muscle-collective-card p { margin-top: 10px; max-width: 470px; color: var(--muted); font-size: 13px; line-height: 1.55; }
-.muscle-collective-meta { margin-top: auto; padding-top: 24px; font: 500 9px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+
+.muscle-collective-card .knowledge-card-media { background: #fff; }
+
+.neck-visual-directory { padding-top: 24px; }
 
 @media (max-width: 860px) {
   .muscle-tools { align-items: stretch; flex-direction: column; }
@@ -533,9 +516,6 @@
   .muscle-region-section + .muscle-region-section { margin-top: 38px; }
   .muscle-region-heading { align-items: flex-start; flex-direction: column; gap: 9px; }
   .muscle-region-grid { grid-template-columns: 1fr; }
-  .neck-directory-heading { align-items: flex-start; flex-direction: column; gap: 7px; }
-  .neck-directory-heading p { text-align: left; }
-  .muscle-collective-grid { grid-template-columns: 1fr; }
   .knowledge-card-media {
     height: 180px;
   }
