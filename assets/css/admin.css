@@ -337,10 +337,16 @@ body.preview-open { overflow: hidden; }
 .sales-muscle-selector-heading > div { display: grid; gap: 5px; }
 .sales-muscle-selector-heading span { font-size: 12px; font-weight: 850; }
 .sales-muscle-selector-heading small { max-width: 520px; color: var(--muted); font-size: 9px; line-height: 1.5; }
-.sales-muscle-count { flex: 0 0 auto; color: var(--teal); font: 600 8px var(--mono); letter-spacing: .05em; text-transform: uppercase; }
+.sales-muscle-counts { flex: 0 0 auto; display: grid; gap: 5px; justify-items: end; }
+.sales-muscle-count, .sales-muscle-group-count { color: var(--teal); font: 600 8px var(--mono); letter-spacing: .05em; text-transform: uppercase; }
 .sales-muscle-search-label { display: block; padding: 12px; border-bottom: 1px solid var(--line); background: var(--surface-soft); }
 .sales-muscle-search { width: 100%; min-height: 42px; padding: 0 13px; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); }
-.sales-muscle-options { max-height: 312px; overflow: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; }
+.sales-muscle-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 12px 14px; border-bottom: 1px solid var(--line); background: #11110f; color: white; }
+.sales-muscle-section-heading span { font-size: 10px; font-weight: 850; }
+.sales-muscle-section-heading small { color: #b9b8b2; font: 500 7px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.sales-muscle-options, .sales-muscle-group-options { overflow: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; }
+.sales-muscle-options { max-height: 312px; }
+.sales-muscle-group-options { max-height: 220px; }
 .sales-muscle-option { min-width: 0; min-height: 66px; padding: 12px 14px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); cursor: pointer; }
 .sales-muscle-option:nth-child(2n) { border-right: 0; }
 .sales-muscle-option:hover { background: var(--surface-soft); }
@@ -477,8 +483,10 @@ body.preview-open { overflow: hidden; }
 }
 
 @media (max-width: 620px) {
-  .sales-muscle-options { grid-template-columns: 1fr; }
+  .sales-muscle-options, .sales-muscle-group-options { grid-template-columns: 1fr; }
   .sales-muscle-option { border-right: 0; }
+  .sales-muscle-selector-heading { align-items: stretch; flex-direction: column; }
+  .sales-muscle-counts { justify-items: start; }
 }
 
 /* Sales */

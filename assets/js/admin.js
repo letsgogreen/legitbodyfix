@@ -320,6 +320,7 @@
       landingBenefit3: typeof video.landingBenefit3 === "string" ? video.landingBenefit3 : "",
       landingAudience: typeof video.landingAudience === "string" ? video.landingAudience : "",
       landingReassurance: typeof video.landingReassurance === "string" ? video.landingReassurance : "",
+      relatedMuscleGroupIds: normalizeRelatedMuscleGroupIds(video.relatedMuscleGroupIds),
       relatedMuscleIds: normalizeRelatedMuscleIds(video.relatedMuscleIds),
       durationMinutes: Number.isFinite(Number(video.durationMinutes)) ? Number(video.durationMinutes) : 1,
       equipment: typeof video.equipment === "string" ? video.equipment : "Bodyweight",
@@ -379,6 +380,40 @@
       .slice(0, 8);
   }
 
+  function normalizeRelatedMuscleGroupIds(value) {
+    if (!Array.isArray(value)) return [];
+    return value.map(function (id) { return typeof id === "string" ? id.trim() : ""; })
+      .filter(function (id, index, values) {
+        return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) && values.indexOf(id) === index;
+      })
+      .slice(0, 4);
+  }
+
+  function muscleGroupId(value) {
+    return String(value || "").toLowerCase().trim()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function muscleGroupLabel(muscle) {
+    return muscle && (muscle.family || muscle.group) ? (muscle.family || muscle.group) : "";
+  }
+
+  function muscleGroupCatalog() {
+    var groups = new Map();
+    muscleCatalog.forEach(function (muscle) {
+      var label = muscleGroupLabel(muscle);
+      var id = muscleGroupId(label);
+      if (!id) return;
+      if (!groups.has(id)) groups.set(id, { id: id, label: label, muscles: [] });
+      groups.get(id).muscles.push(muscle);
+    });
+    return Array.from(groups.values()).sort(function (left, right) {
+      return left.label.localeCompare(right.label);
+    });
+  }
+
   function muscleById(id) {
     return muscleCatalog.find(function (muscle) { return muscle.id === id; });
   }
@@ -391,19 +426,75 @@
     var selector = editor.querySelector(".sales-muscle-selector");
     if (!selector) return;
     var search = selector.querySelector(".sales-muscle-search");
+    var groupOptions = selector.querySelector(".sales-muscle-group-options");
     var options = selector.querySelector(".sales-muscle-options");
     var count = selector.querySelector(".sales-muscle-count");
+    var groupCount = selector.querySelector(".sales-muscle-group-count");
 
     function drawOptions() {
       var query = search.value.trim().toLowerCase();
+      var selectedGroupIds = normalizeRelatedMuscleGroupIds(video.relatedMuscleGroupIds);
       var selectedIds = normalizeRelatedMuscleIds(video.relatedMuscleIds);
+      video.relatedMuscleGroupIds = selectedGroupIds;
       video.relatedMuscleIds = selectedIds;
-      count.textContent = selectedIds.length + " / 8 selected";
+      groupCount.textContent = selectedGroupIds.length + " / 4 groups";
+      count.textContent = selectedIds.length + " / 8 muscles";
+      groupOptions.replaceChildren();
       options.replaceChildren();
 
       if (!muscleCatalog.length) {
+        groupOptions.appendChild(createMuscleSelectorMessage("Muscle groups unavailable. Your existing selections are still saved."));
         options.appendChild(createMuscleSelectorMessage("Muscle library unavailable. Your existing selections are still saved."));
         return;
+      }
+
+      var groups = muscleGroupCatalog().filter(function (group) {
+        var searchable = [group.label].concat(group.muscles.map(muscleLabel)).join(" ").toLowerCase();
+        return !query || searchable.indexOf(query) !== -1;
+      }).sort(function (left, right) {
+        var leftSelected = selectedGroupIds.indexOf(left.id) !== -1;
+        var rightSelected = selectedGroupIds.indexOf(right.id) !== -1;
+        if (leftSelected !== rightSelected) return leftSelected ? -1 : 1;
+        return left.label.localeCompare(right.label);
+      });
+
+      if (!groups.length) {
+        groupOptions.appendChild(createMuscleSelectorMessage("No muscle groups match this search."));
+      } else {
+        groups.forEach(function (group) {
+          var row = document.createElement("label");
+          row.className = "sales-muscle-option sales-muscle-group-option";
+          var checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = selectedGroupIds.indexOf(group.id) !== -1;
+          checkbox.setAttribute("aria-label", "Feature " + group.label + " muscle group");
+          var copy = document.createElement("span");
+          var title = document.createElement("strong");
+          title.textContent = group.label;
+          var meta = document.createElement("small");
+          meta.textContent = group.muscles.length + (group.muscles.length === 1 ? " muscle" : " muscles");
+          copy.append(title, meta);
+          row.append(checkbox, copy);
+          checkbox.addEventListener("change", function (event) {
+            event.stopPropagation();
+            var nextIds = normalizeRelatedMuscleGroupIds(video.relatedMuscleGroupIds);
+            if (checkbox.checked) {
+              if (nextIds.length >= 4) {
+                checkbox.checked = false;
+                setStatus("Choose up to 4 muscle groups for one sales page.", "error");
+                return;
+              }
+              if (nextIds.indexOf(group.id) === -1) nextIds.push(group.id);
+            } else {
+              nextIds = nextIds.filter(function (id) { return id !== group.id; });
+            }
+            video.relatedMuscleGroupIds = nextIds;
+            updateSalesPagePreview(editor, video);
+            saveDraft();
+            drawOptions();
+          });
+          groupOptions.appendChild(row);
+        });
       }
 
       var matches = muscleCatalog.filter(function (muscle) {
@@ -565,16 +656,27 @@
     });
     list.hidden = benefits.length === 0;
 
-    var muscles = normalizeRelatedMuscleIds(video.relatedMuscleIds).map(muscleById).filter(Boolean);
+    var selectedGroupIds = normalizeRelatedMuscleGroupIds(video.relatedMuscleGroupIds);
+    var groupsById = muscleGroupCatalog().reduce(function (index, group) { index[group.id] = group; return index; }, {});
+    var selectedGroups = selectedGroupIds.map(function (id) { return groupsById[id]; }).filter(Boolean);
+    var muscles = normalizeRelatedMuscleIds(video.relatedMuscleIds).map(muscleById).filter(function (muscle) {
+      return muscle && selectedGroupIds.indexOf(muscleGroupId(muscleGroupLabel(muscle))) === -1;
+    });
     var muscleSection = preview.querySelector(".sales-preview-muscles");
     var muscleList = preview.querySelector(".sales-preview-muscle-list");
     muscleList.replaceChildren();
+    selectedGroups.forEach(function (group) {
+      var chip = document.createElement("span");
+      chip.textContent = group.label + " group";
+      chip.dataset.kind = "group";
+      muscleList.appendChild(chip);
+    });
     muscles.forEach(function (muscle) {
       var chip = document.createElement("span");
       chip.textContent = muscleLabel(muscle);
       muscleList.appendChild(chip);
     });
-    muscleSection.hidden = muscles.length === 0;
+    muscleSection.hidden = selectedGroups.length + muscles.length === 0;
 
     preview.querySelector(".sales-preview-price").textContent = video.price == null
       ? "Included in package"

@@ -57,40 +57,101 @@
       .slice(0, 8);
   }
 
+  function relatedMuscleGroupIds(video) {
+    if (!video || !Array.isArray(video.relatedMuscleGroupIds)) return [];
+    return video.relatedMuscleGroupIds.map(function (id) { return typeof id === "string" ? id.trim() : ""; })
+      .filter(function (id, index, values) {
+        return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) && values.indexOf(id) === index;
+      })
+      .slice(0, 4);
+  }
+
+  function muscleGroupId(value) {
+    return String(value || "").toLowerCase().trim()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function muscleGroupLabel(muscle) {
+    return muscle && (muscle.family || muscle.group) ? (muscle.family || muscle.group) : "";
+  }
+
+  function createMuscleCard(config) {
+    var link = createElement("a", "muscle-matter-card" + (config.kind === "group" ? " is-group" : ""));
+    link.href = config.href;
+    var imageWrap = createElement("span", "muscle-matter-image");
+    var imageUrl = safeImageUrl(config.imageUrl);
+    if (imageUrl) {
+      var image = document.createElement("img");
+      image.src = imageUrl;
+      image.alt = config.imageAlt;
+      image.loading = "lazy";
+      imageWrap.appendChild(image);
+    } else {
+      imageWrap.appendChild(createElement("span", "muscle-matter-placeholder", "Anatomy guide"));
+    }
+    var copy = createElement("span", "muscle-matter-copy");
+    copy.append(
+      createElement("span", "muscle-matter-type", config.type),
+      createElement("h3", "", config.title),
+      createElement("p", "", config.summary),
+      createElement("b", "", config.action)
+    );
+    link.append(imageWrap, copy);
+    return link;
+  }
+
   function renderMusclesThatMatter(video, payload) {
     var ids = relatedMuscleIds(video);
+    var groupIds = relatedMuscleGroupIds(video);
     var source = payload && Array.isArray(payload.muscles) ? payload.muscles : [];
     var musclesById = source.reduce(function (index, muscle) {
       if (muscle && muscle.id && muscle.published !== false) index[muscle.id] = muscle;
       return index;
     }, {});
-    var muscles = ids.map(function (id) { return musclesById[id]; }).filter(Boolean);
-    if (!muscles.length) return;
-
-    var cards = muscles.map(function (muscle) {
-      var link = createElement("a", "muscle-matter-card");
-      link.href = "knowledge.html?type=muscles&id=" + encodeURIComponent(muscle.id);
-      var imageWrap = createElement("span", "muscle-matter-image");
-      var imageUrl = safeImageUrl(muscle.imageUrl);
-      if (imageUrl) {
-        var image = document.createElement("img");
-        image.src = imageUrl;
-        image.alt = text(muscle.imageAlt, text(muscle.title, "Muscle anatomy"));
-        image.loading = "lazy";
-        imageWrap.appendChild(image);
-      } else {
-        imageWrap.appendChild(createElement("span", "muscle-matter-placeholder", "Anatomy guide"));
-      }
-      var copy = createElement("span", "muscle-matter-copy");
-      copy.append(
-        createElement("span", "muscle-matter-type", text(muscle.family, text(muscle.group, "Muscle dictionary"))),
-        createElement("h3", "", text(muscle.title, "Muscle guide")),
-        createElement("p", "", text(muscle.actions, "Explore this muscle's role in movement.")),
-        createElement("b", "", "Explore muscle →")
-      );
-      link.append(imageWrap, copy);
-      return link;
+    var groupsById = source.reduce(function (index, muscle) {
+      if (!muscle || muscle.published === false) return index;
+      var label = muscleGroupLabel(muscle);
+      var id = muscleGroupId(label);
+      if (!id) return index;
+      if (!index[id]) index[id] = { id: id, label: label, muscles: [] };
+      index[id].muscles.push(muscle);
+      return index;
+    }, {});
+    var groups = groupIds.map(function (id) { return groupsById[id]; }).filter(Boolean);
+    var muscles = ids.map(function (id) { return musclesById[id]; }).filter(function (muscle) {
+      return muscle && groupIds.indexOf(muscleGroupId(muscleGroupLabel(muscle))) === -1;
     });
+    if (!groups.length && !muscles.length) return;
+
+    var cards = groups.map(function (group) {
+      var representative = group.muscles.find(function (muscle) { return safeImageUrl(muscle.imageUrl); }) || group.muscles[0] || {};
+      var names = group.muscles.slice(0, 4).map(function (muscle) { return text(muscle.title, ""); }).filter(Boolean);
+      var summary = names.join(", ");
+      if (group.muscles.length > names.length) summary += " and " + (group.muscles.length - names.length) + " more";
+      return createMuscleCard({
+        kind: "group",
+        href: "knowledge.html?type=muscles&q=" + encodeURIComponent(group.label),
+        imageUrl: representative.imageUrl,
+        imageAlt: text(representative.imageAlt, group.label + " anatomy group"),
+        type: "Muscle group · " + group.muscles.length + " muscles",
+        title: group.label,
+        summary: summary || "Explore the muscles in this movement group.",
+        action: "Explore group →"
+      });
+    }).concat(muscles.map(function (muscle) {
+      return createMuscleCard({
+        kind: "muscle",
+        href: "knowledge.html?type=muscles&id=" + encodeURIComponent(muscle.id),
+        imageUrl: muscle.imageUrl,
+        imageAlt: text(muscle.imageAlt, text(muscle.title, "Muscle anatomy")),
+        type: text(muscle.family, text(muscle.group, "Muscle dictionary")),
+        title: text(muscle.title, "Muscle guide"),
+        summary: text(muscle.actions, "Explore this muscle's role in movement."),
+        action: "Explore muscle →"
+      });
+    }));
     var grid = document.getElementById("musclesMatterGrid");
     grid.replaceChildren.apply(grid, cards);
     document.getElementById("musclesMatter").hidden = false;

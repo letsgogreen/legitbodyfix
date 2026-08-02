@@ -21,6 +21,7 @@ function sampleVideo(overrides) {
     landingBenefit3: "Build a repeatable movement habit.",
     landingAudience: "For people rebuilding comfortable everyday movement.",
     landingReassurance: "One payment. Protected access through your personal library.",
+    relatedMuscleGroupIds: ["trapezius", "prevertebral-muscles"],
     relatedMuscleIds: ["upper-trapezius", "longus-colli"],
     durationMinutes: 12,
     equipment: "Bodyweight",
@@ -65,6 +66,7 @@ test("video validation normalizes trusted fields and module order", function () 
   assert.equal(videos[0].streamReady, true);
   assert.equal(videos[0].landingHeadline, "Release tension and move comfortably.");
   assert.equal(videos[0].landingBenefit3, "Build a repeatable movement habit.");
+  assert.deepEqual(videos[0].relatedMuscleGroupIds, ["trapezius", "prevertebral-muscles"]);
   assert.deepEqual(videos[0].relatedMuscleIds, ["upper-trapezius", "longus-colli"]);
   assert.deepEqual(videos[0].legacyIds, ["old-neck-session"]);
   assert.equal(videos[1].moduleNumber, 2);
@@ -101,6 +103,16 @@ test("video validation refuses more than eight sales-page muscles", function () 
   }, function (error) {
     assert.equal(error.code, "invalid_video_data");
     assert.match(error.details.join(" "), /at most 8 muscles/);
+    return true;
+  });
+});
+
+test("video validation refuses more than four sales-page muscle groups", function () {
+  assert.throws(function () {
+    publishing.validateVideos([sampleVideo({ relatedMuscleGroupIds: ["one", "two", "three", "four", "five"] })]);
+  }, function (error) {
+    assert.equal(error.code, "invalid_video_data");
+    assert.match(error.details.join(" "), /at most 4 groups/);
     return true;
   });
 });
