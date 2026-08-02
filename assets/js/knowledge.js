@@ -15,6 +15,8 @@
   var atlasGrid = document.getElementById("atlasGrid");
   var knowledgePaths = document.getElementById("knowledgePaths");
   var muscleRegionButtons = Array.from(document.querySelectorAll("[data-muscle-region]"));
+  var muscleGroupFilterShell = document.getElementById("muscleGroupFilterShell");
+  var muscleGroupFilters = document.getElementById("muscleGroupFilters");
   var muscleFunction = document.getElementById("muscleFunction");
   var muscleVisual = document.getElementById("muscleVisual");
   var muscleSort = document.getElementById("muscleSort");
@@ -23,6 +25,7 @@
   var carePathButtons = Array.from(document.querySelectorAll("[data-care-path]"));
   var activeType = "all";
   var activeMuscleRegion = "all";
+  var activeMuscleGroup = "all";
   var activeMuscleFunction = "all";
   var activeMuscleVisual = "all";
   var activeRecipeRegion = "all";
@@ -383,6 +386,7 @@
           candidate.setAttribute("aria-pressed", String(selected));
         });
         updateFunctionOptions();
+        updateMuscleGroupFilters();
         render();
         grid.scrollIntoView({ behavior: "smooth", block: "start" });
       });
@@ -615,6 +619,48 @@
     }
   }
 
+  function orderedMuscleGroups(items) {
+    var groupNames = Array.from(new Set(items.map(muscleSectionGroup)));
+    groupNames.sort(function (a, b) {
+      var aIndex = muscleGroupOrder.indexOf(a);
+      var bIndex = muscleGroupOrder.indexOf(b);
+      if (aIndex === -1) aIndex = muscleGroupOrder.length;
+      if (bIndex === -1) bIndex = muscleGroupOrder.length;
+      return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
+    });
+    return groupNames;
+  }
+
+  function updateMuscleGroupFilters() {
+    if (activeMuscleRegion === "all") {
+      activeMuscleGroup = "all";
+      muscleGroupFilters.replaceChildren();
+      muscleGroupFilterShell.hidden = true;
+      return;
+    }
+    var regionalMuscles = data.muscles.filter(function (item) {
+      return item && item.published !== false && muscleRegion(item) === activeMuscleRegion;
+    });
+    var groupNames = orderedMuscleGroups(regionalMuscles);
+    if (groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = groupNames[0] || "all";
+    var buttons = groupNames.map(function (groupName) {
+      var count = regionalMuscles.filter(function (item) { return muscleSectionGroup(item) === groupName; }).length;
+      var button = element("button", activeMuscleGroup === groupName ? "is-active" : "");
+      button.type = "button";
+      button.setAttribute("role", "tab");
+      button.setAttribute("aria-selected", String(activeMuscleGroup === groupName));
+      button.append(document.createTextNode(groupName + " "), element("span", "", String(count)));
+      button.addEventListener("click", function () {
+        activeMuscleGroup = groupName;
+        updateMuscleGroupFilters();
+        render();
+      });
+      return button;
+    });
+    muscleGroupFilters.replaceChildren.apply(muscleGroupFilters, buttons);
+    muscleGroupFilterShell.hidden = !buttons.length;
+  }
+
   function renderMuscleGroups(records) {
     var regionOrder = Object.keys(muscleRegions);
     var visibleRegions = activeMuscleRegion === "all" ? regionOrder : [activeMuscleRegion];
@@ -629,14 +675,7 @@
       title.id = "muscle-region-" + region;
       heading.append(title, element("span", "", regionRecords.length + (regionRecords.length === 1 ? " muscle" : " muscles")));
       var subgroups = element("div", "muscle-subgroups");
-      var groupNames = Array.from(new Set(regionRecords.map(function (record) { return muscleSectionGroup(record.item); })));
-      groupNames.sort(function (a, b) {
-        var aIndex = muscleGroupOrder.indexOf(a);
-        var bIndex = muscleGroupOrder.indexOf(b);
-        if (aIndex === -1) aIndex = muscleGroupOrder.length;
-        if (bIndex === -1) bIndex = muscleGroupOrder.length;
-        return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
-      });
+      var groupNames = orderedMuscleGroups(regionRecords.map(function (record) { return record.item; }));
       groupNames.forEach(function (groupName) {
         var groupRecords = regionRecords.filter(function (record) { return muscleSectionGroup(record.item) === groupName; });
         var subgroup = element("section", "muscle-subgroup");
@@ -708,6 +747,7 @@
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
+      if (activeType === "muscles" && activeMuscleGroup !== "all" && !query && muscleSectionGroup(record.item) !== activeMuscleGroup) return false;
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
       if (activeType === "muscles" && activeMuscleVisual !== "all" && muscleVisualType(record.item) !== activeMuscleVisual) return false;
       if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
@@ -729,6 +769,14 @@
       grid.classList.remove("is-grouped");
       grid.setAttribute("aria-busy", "false");
       status.textContent = "Choose a collection above, or search across all resources.";
+      return;
+    }
+    if (activeType === "muscles" && activeMuscleRegion === "all" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query) {
+      grid.replaceChildren();
+      grid.hidden = true;
+      grid.classList.remove("is-grouped");
+      grid.setAttribute("aria-busy", "false");
+      status.textContent = "Choose a body region, then choose one muscle group.";
       return;
     }
     grid.hidden = false;
@@ -768,6 +816,7 @@
       activeMuscleRegion = button.dataset.muscleRegion;
       muscleRegionButtons.forEach(function (candidate) { var selected = candidate === button; candidate.classList.toggle("is-active", selected); candidate.setAttribute("aria-pressed", String(selected)); });
       updateFunctionOptions();
+      updateMuscleGroupFilters();
       render();
     });
   });
@@ -782,6 +831,7 @@
   muscleSort.addEventListener("change", render);
   muscleReset.addEventListener("click", function () {
     activeMuscleRegion = "all";
+    activeMuscleGroup = "all";
     activeMuscleFunction = "all";
     activeMuscleVisual = "all";
     muscleFunction.value = "all";
@@ -794,6 +844,7 @@
       candidate.setAttribute("aria-pressed", String(selected));
     });
     updateFunctionOptions();
+    updateMuscleGroupFilters();
     render();
   });
   recipeRegionButtons.forEach(function (button) {
@@ -833,6 +884,7 @@
       videos = Array.isArray(payloads[1]) ? payloads[1] : [];
       Object.keys(labels).forEach(function (type) { data[type] = Array.isArray(payload[type]) ? payload[type] : []; });
       updateMuscleCounts();
+      updateMuscleGroupFilters();
       updateFunctionOptions();
       updateRecipeCounts();
       updateTypeCounts();

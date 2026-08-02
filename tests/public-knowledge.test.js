@@ -31,6 +31,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /data-muscle-region="shoulder-chest"/);
   assert.match(html, /data-muscle-region="arm-hand"/);
   assert.match(html, /data-muscle-region="pelvic-floor"/);
+  assert.match(html, /id="muscleGroupFilters" role="tablist"/);
   assert.match(html, /id="knowledgePaths"/);
   assert.match(html, /id="muscleAtlas"/);
   assert.match(html, /knowledge-organization\.css/);
@@ -88,6 +89,9 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /"anterior lower leg", "lateral lower leg", "posterior lower leg"/);
   assert.match(javascript, /function renderMuscleGroups/);
   assert.match(javascript, /function muscleSectionGroup/);
+  assert.match(javascript, /function updateMuscleGroupFilters/);
+  assert.match(javascript, /activeMuscleGroup !== "all"/);
+  assert.match(javascript, /Choose a body region, then choose one muscle group/);
   assert.match(javascript, /"Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"/);
   assert.match(javascript, /family === "suprahyoid muscles" \|\| family === "infrahyoid muscles"/);
   assert.match(javascript, /rectus capitis posterior\|obliquus capitis/);
