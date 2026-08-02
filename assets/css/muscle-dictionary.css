@@ -204,6 +204,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
+  flex-wrap: wrap;
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--panel) 68%, transparent);
 }
@@ -247,6 +248,56 @@
   background: var(--lime);
   color: var(--ink);
   font: 500 10px/1 var(--mono);
+}
+
+.muscle-group-filter-shell {
+  flex: 1 1 100%;
+  order: 3;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+}
+
+.muscle-region-filters { order: 1; }
+.muscle-tool-selects { order: 2; }
+
+.muscle-group-filter-shell[hidden] { display: none; }
+
+.muscle-group-filter-label {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--muted);
+  font: 500 10px/1 var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.muscle-group-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.muscle-group-filters button {
+  min-height: 36px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font: 700 11px/1 var(--body);
+  cursor: pointer;
+}
+
+.muscle-group-filters button:hover,
+.muscle-group-filters button.is-active {
+  background: var(--lime);
+}
+
+.muscle-group-filters button span {
+  color: var(--muted);
+  font: 500 9px/1 var(--mono);
 }
 
 .muscle-tool-selects {
@@ -417,6 +468,8 @@
   .muscle-function,
   .muscle-visual { width: 100%; }
   .muscle-reset { width: 100%; }
+  .muscle-group-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .muscle-group-filters button { flex: 0 0 auto; }
   .muscle-region-section + .muscle-region-section { margin-top: 38px; }
   .muscle-region-heading { align-items: flex-start; flex-direction: column; gap: 9px; }
   .muscle-region-grid { grid-template-columns: 1fr; }

@@ -15,6 +15,8 @@
   var atlasGrid = document.getElementById("atlasGrid");
   var knowledgePaths = document.getElementById("knowledgePaths");
   var muscleRegionButtons = Array.from(document.querySelectorAll("[data-muscle-region]"));
+  var muscleGroupFilterShell = document.getElementById("muscleGroupFilterShell");
+  var muscleGroupFilters = document.getElementById("muscleGroupFilters");
   var muscleFunction = document.getElementById("muscleFunction");
   var muscleVisual = document.getElementById("muscleVisual");
   var muscleSort = document.getElementById("muscleSort");
@@ -23,6 +25,7 @@
   var carePathButtons = Array.from(document.querySelectorAll("[data-care-path]"));
   var activeType = "all";
   var activeMuscleRegion = "all";
+  var activeMuscleGroup = "all";
   var activeMuscleFunction = "all";
   var activeMuscleVisual = "all";
   var activeRecipeRegion = "all";
@@ -62,7 +65,7 @@
     foot: { title: "Foot", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1124_Intrinsic_Muscles_of_the_Foot_c.png", imageAlt: "OpenStax plantar view of intrinsic foot muscles", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1124_Intrinsic_Muscles_of_the_Foot_c.png" }
   };
   var muscleGroupOrder = [
-    "Head and neck", "Anterior neck", "Lateral neck", "Suboccipital neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
+    "Head and neck", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
     "Upper arm", "Forearm", "Hand", "Thorax", "Posterior thorax", "Abdomen", "Back", "Erector spinae", "Deep back",
     "Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters",
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
@@ -113,21 +116,36 @@
     return node;
   }
 
+  function muscleSectionGroup(item) {
+    var title = String(item && item.title || "").toLowerCase();
+    var family = String(item && item.family || "").toLowerCase();
+    if (/rectus capitis posterior|obliquus capitis/.test(title)) return "Suboccipital muscles";
+    if (title.indexOf("scalene") !== -1) return "Scalenes";
+    if (family === "suprahyoid muscles" || family === "infrahyoid muscles") return "Hyoid muscles";
+    if (title.indexOf("capitis") !== -1) return "Capitis muscles";
+    return String(item && item.group || "Other");
+  }
+
   function muscleFamily(item) {
+    var sectionGroup = muscleSectionGroup(item).toLowerCase();
+    function distinctFamily(value) {
+      var familyName = String(value || "").trim();
+      return familyName.toLowerCase() === sectionGroup ? "" : familyName;
+    }
     var explicitFamily = String(item && item.family || "").trim();
-    if (explicitFamily) return explicitFamily;
+    if (explicitFamily) return distinctFamily(explicitFamily);
     var title = String(item && item.title || "").toLowerCase();
     var families = [
       ["splenius ", "Splenius"], ["semispinalis ", "Semispinalis"], ["longissimus ", "Longissimus"],
       ["iliocostalis ", "Iliocostalis"], ["spinalis ", "Spinalis"], ["scalene", "Scalenes"]
     ];
     for (var index = 0; index < families.length; index += 1) {
-      if (title.indexOf(families[index][0]) === 0 || title.indexOf(" " + families[index][0]) !== -1) return families[index][1];
+      if (title.indexOf(families[index][0]) === 0 || title.indexOf(" " + families[index][0]) !== -1) return distinctFamily(families[index][1]);
     }
     if (["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) return "Prevertebral muscles";
     if (["digastric", "stylohyoid", "mylohyoid", "geniohyoid"].indexOf(title) !== -1) return "Suprahyoid muscles";
     if (["sternohyoid", "omohyoid", "sternothyroid", "thyrohyoid"].indexOf(title) !== -1) return "Infrahyoid muscles";
-    if (/rectus capitis posterior|obliquus capitis/.test(title)) return "Suboccipital muscles";
+    if (/rectus capitis posterior|obliquus capitis/.test(title)) return distinctFamily("Suboccipital muscles");
     return "";
   }
 
@@ -368,6 +386,7 @@
           candidate.setAttribute("aria-pressed", String(selected));
         });
         updateFunctionOptions();
+        updateMuscleGroupFilters();
         render();
         grid.scrollIntoView({ behavior: "smooth", block: "start" });
       });
@@ -600,6 +619,48 @@
     }
   }
 
+  function orderedMuscleGroups(items) {
+    var groupNames = Array.from(new Set(items.map(muscleSectionGroup)));
+    groupNames.sort(function (a, b) {
+      var aIndex = muscleGroupOrder.indexOf(a);
+      var bIndex = muscleGroupOrder.indexOf(b);
+      if (aIndex === -1) aIndex = muscleGroupOrder.length;
+      if (bIndex === -1) bIndex = muscleGroupOrder.length;
+      return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
+    });
+    return groupNames;
+  }
+
+  function updateMuscleGroupFilters() {
+    if (activeMuscleRegion === "all") {
+      activeMuscleGroup = "all";
+      muscleGroupFilters.replaceChildren();
+      muscleGroupFilterShell.hidden = true;
+      return;
+    }
+    var regionalMuscles = data.muscles.filter(function (item) {
+      return item && item.published !== false && muscleRegion(item) === activeMuscleRegion;
+    });
+    var groupNames = orderedMuscleGroups(regionalMuscles);
+    if (groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = groupNames[0] || "all";
+    var buttons = groupNames.map(function (groupName) {
+      var count = regionalMuscles.filter(function (item) { return muscleSectionGroup(item) === groupName; }).length;
+      var button = element("button", activeMuscleGroup === groupName ? "is-active" : "");
+      button.type = "button";
+      button.setAttribute("role", "tab");
+      button.setAttribute("aria-selected", String(activeMuscleGroup === groupName));
+      button.append(document.createTextNode(groupName + " "), element("span", "", String(count)));
+      button.addEventListener("click", function () {
+        activeMuscleGroup = groupName;
+        updateMuscleGroupFilters();
+        render();
+      });
+      return button;
+    });
+    muscleGroupFilters.replaceChildren.apply(muscleGroupFilters, buttons);
+    muscleGroupFilterShell.hidden = !buttons.length;
+  }
+
   function renderMuscleGroups(records) {
     var regionOrder = Object.keys(muscleRegions);
     var visibleRegions = activeMuscleRegion === "all" ? regionOrder : [activeMuscleRegion];
@@ -614,16 +675,9 @@
       title.id = "muscle-region-" + region;
       heading.append(title, element("span", "", regionRecords.length + (regionRecords.length === 1 ? " muscle" : " muscles")));
       var subgroups = element("div", "muscle-subgroups");
-      var groupNames = Array.from(new Set(regionRecords.map(function (record) { return record.item.group || "Other"; })));
-      groupNames.sort(function (a, b) {
-        var aIndex = muscleGroupOrder.indexOf(a);
-        var bIndex = muscleGroupOrder.indexOf(b);
-        if (aIndex === -1) aIndex = muscleGroupOrder.length;
-        if (bIndex === -1) bIndex = muscleGroupOrder.length;
-        return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
-      });
+      var groupNames = orderedMuscleGroups(regionRecords.map(function (record) { return record.item; }));
       groupNames.forEach(function (groupName) {
-        var groupRecords = regionRecords.filter(function (record) { return (record.item.group || "Other") === groupName; });
+        var groupRecords = regionRecords.filter(function (record) { return muscleSectionGroup(record.item) === groupName; });
         var subgroup = element("section", "muscle-subgroup");
         var subgroupHeading = element("div", "muscle-subgroup-heading");
         subgroupHeading.append(element("h4", "", groupName), element("span", "", String(groupRecords.length)));
@@ -693,6 +747,7 @@
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
+      if (activeType === "muscles" && activeMuscleGroup !== "all" && !query && muscleSectionGroup(record.item) !== activeMuscleGroup) return false;
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
       if (activeType === "muscles" && activeMuscleVisual !== "all" && muscleVisualType(record.item) !== activeMuscleVisual) return false;
       if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
@@ -714,6 +769,14 @@
       grid.classList.remove("is-grouped");
       grid.setAttribute("aria-busy", "false");
       status.textContent = "Choose a collection above, or search across all resources.";
+      return;
+    }
+    if (activeType === "muscles" && activeMuscleRegion === "all" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query) {
+      grid.replaceChildren();
+      grid.hidden = true;
+      grid.classList.remove("is-grouped");
+      grid.setAttribute("aria-busy", "false");
+      status.textContent = "Choose a body region, then choose one muscle group.";
       return;
     }
     grid.hidden = false;
@@ -753,6 +816,7 @@
       activeMuscleRegion = button.dataset.muscleRegion;
       muscleRegionButtons.forEach(function (candidate) { var selected = candidate === button; candidate.classList.toggle("is-active", selected); candidate.setAttribute("aria-pressed", String(selected)); });
       updateFunctionOptions();
+      updateMuscleGroupFilters();
       render();
     });
   });
@@ -767,6 +831,7 @@
   muscleSort.addEventListener("change", render);
   muscleReset.addEventListener("click", function () {
     activeMuscleRegion = "all";
+    activeMuscleGroup = "all";
     activeMuscleFunction = "all";
     activeMuscleVisual = "all";
     muscleFunction.value = "all";
@@ -779,6 +844,7 @@
       candidate.setAttribute("aria-pressed", String(selected));
     });
     updateFunctionOptions();
+    updateMuscleGroupFilters();
     render();
   });
   recipeRegionButtons.forEach(function (button) {
@@ -818,6 +884,7 @@
       videos = Array.isArray(payloads[1]) ? payloads[1] : [];
       Object.keys(labels).forEach(function (type) { data[type] = Array.isArray(payload[type]) ? payload[type] : []; });
       updateMuscleCounts();
+      updateMuscleGroupFilters();
       updateFunctionOptions();
       updateRecipeCounts();
       updateTypeCounts();
