@@ -42,7 +42,12 @@
 .atlas-heading { display: grid; grid-template-columns: 1fr minmax(280px, 430px); gap: 40px; align-items: end; margin-bottom: 24px; }
 .atlas-heading h3 { margin-top: 10px; font-size: 30px; letter-spacing: -.055em; }
 .atlas-heading > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
-.atlas-grid { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+.atlas-grid { display: grid; gap: 28px; }
+.atlas-region-section { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 0; border-top: 1px solid var(--ink); }
+.atlas-region-heading { padding: 20px 22px 20px 0; }
+.atlas-region-heading h3 { margin: 0; font-size: 24px; line-height: 1; }
+.atlas-region-heading p { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.atlas-region-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-left: 1px solid var(--ink); }
 .atlas-card { min-width: 0; padding: 0; display: flex; flex-direction: column; border: 0; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: #fff; color: var(--ink); text-align: left; cursor: pointer; }
 .atlas-card:hover { background: var(--lime); }
 .atlas-card img { width: 100%; height: 180px; display: block; object-fit: contain; mix-blend-mode: multiply; }
@@ -57,12 +62,15 @@
   .knowledge-paths { grid-template-columns: 1fr; }
   .knowledge-paths button { min-height: 140px; }
   .atlas-heading { grid-template-columns: 1fr; gap: 14px; }
-  .atlas-grid { grid-template-columns: repeat(2, 1fr); }
+  .atlas-region-section { grid-template-columns: 150px minmax(0, 1fr); }
+  .atlas-region-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 560px) {
   .muscle-atlas { padding: 18px; }
-  .atlas-grid { grid-template-columns: 1fr; }
+  .atlas-region-section { grid-template-columns: 1fr; }
+  .atlas-region-heading { padding: 18px 0; }
+  .atlas-region-grid { grid-template-columns: 1fr; border-top: 1px solid var(--ink); }
   .atlas-card { display: grid; grid-template-columns: 120px 1fr; }
   .atlas-card img { height: 140px; }
   .atlas-card-copy { min-height: 140px; border-top: 0; border-left: 1px solid var(--line); }

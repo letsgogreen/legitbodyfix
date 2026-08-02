@@ -212,10 +212,31 @@
 .muscle-tools[hidden] { display: none; }
 
 .muscle-region-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: minmax(130px, .6fr) repeat(3, minmax(220px, 1fr));
+  align-items: stretch;
+  gap: 10px;
 }
+
+.muscle-filter-section {
+  padding: 11px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+}
+
+.muscle-filter-heading {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--muted);
+  font: 600 9px/1 var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.muscle-filter-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.muscle-region-all { align-self: stretch; justify-content: center; }
 
 .muscle-region-filters button {
   min-height: 38px;
@@ -458,6 +479,17 @@
 
 .muscle-collective-card {
   background: var(--panel);
+}
+
+@media (max-width: 1040px) {
+  .muscle-region-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .muscle-region-all { min-height: 62px; }
+}
+
+@media (max-width: 680px) {
+  .muscle-region-filters { grid-template-columns: 1fr; }
+  .muscle-filter-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .muscle-filter-row button { justify-content: space-between; }
 }
 
 .muscle-collective-card:hover,
