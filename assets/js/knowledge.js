@@ -46,8 +46,9 @@
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
   var muscleFamilyOrder = [
-    "Splenius", "Semispinalis", "Longissimus", "Iliocostalis", "Spinalis", "Scalenes", "Suboccipital muscles",
-    "Interspinales", "Intertransversarii", "Rotatores"
+    "Superficial neck", "Splenius", "Prevertebral muscles", "Suprahyoid muscles", "Infrahyoid muscles",
+    "Semispinalis", "Longissimus", "Iliocostalis", "Spinalis", "Scalenes", "Suboccipital muscles",
+    "Transversospinalis", "Interspinales", "Intertransversarii", "Rotatores", "Posterior abdominal wall"
   ];
 
   var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
@@ -99,6 +100,9 @@
     for (var index = 0; index < families.length; index += 1) {
       if (title.indexOf(families[index][0]) === 0 || title.indexOf(" " + families[index][0]) !== -1) return families[index][1];
     }
+    if (["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) return "Prevertebral muscles";
+    if (["digastric", "stylohyoid", "mylohyoid", "geniohyoid"].indexOf(title) !== -1) return "Suprahyoid muscles";
+    if (["sternohyoid", "omohyoid", "sternothyroid", "thyrohyoid"].indexOf(title) !== -1) return "Infrahyoid muscles";
     if (/rectus capitis posterior|obliquus capitis/.test(title)) return "Suboccipital muscles";
     return "";
   }
@@ -384,7 +388,7 @@
     }
     var list = element("dl", "detail-fields");
     fields[type].forEach(function (definition) {
-      var value = item[definition[0]];
+      var value = type === "muscles" && definition[0] === "family" ? muscleFamily(item) : item[definition[0]];
       if (type === "muscles" && definition[0] === "actions" && !value) value = item.function;
       if (typeof value !== "string" || !value.trim()) return;
       var row = element("div", "detail-field");

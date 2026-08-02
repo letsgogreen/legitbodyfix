@@ -91,7 +91,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /across 8 body regions/);
   assert.match(javascript, /muscle-subgroup-heading/);
   assert.match(javascript, /muscle-family-heading/);
-  assert.match(javascript, /"Splenius", "Semispinalis", "Longissimus"/);
+  assert.match(javascript, /"Superficial neck", "Splenius", "Prevertebral muscles", "Suprahyoid muscles", "Infrahyoid muscles"/);
+  assert.match(javascript, /"Semispinalis", "Longissimus", "Iliocostalis", "Spinalis"/);
   assert.match(javascript, /openAnatomyViewer/);
   assert.match(javascript, /Enlarge anatomy plate/);
   assert.match(javascript, /This plate may show nearby muscles/);
@@ -121,7 +122,7 @@ test("public knowledge hub exposes searchable published education safely", funct
 
 test("muscle dictionary records include anatomy fields, visual orientation, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  assert.ok(data.muscles.length >= 165);
+  assert.ok(data.muscles.length >= 171);
   data.muscles.forEach(function (muscle) {
     assert.ok(muscle.origin, muscle.id + " needs an origin");
     assert.ok(muscle.insertion, muscle.id + " needs an insertion");
@@ -183,6 +184,22 @@ test("neck and erector-spinae families use named muscles instead of aggregate ca
   var groups = new Set(data.muscles.map(function (muscle) { return muscle.group; }));
   ["Anterior neck", "Lateral neck", "Suboccipital neck", "Erector spinae"].forEach(function (group) {
     assert.ok(groups.has(group), "missing anatomical subgroup " + group);
+  });
+});
+
+test("anterior-neck and prevertebral families use named muscle records", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var requiredFamilies = {
+    "Suprahyoid muscles": ["digastric", "stylohyoid", "mylohyoid", "geniohyoid"],
+    "Infrahyoid muscles": ["sternohyoid", "omohyoid", "sternothyroid", "thyrohyoid"],
+    "Prevertebral muscles": ["longus-colli", "longus-capitis", "rectus-capitis-anterior", "rectus-capitis-lateralis"]
+  };
+  Object.keys(requiredFamilies).forEach(function (family) {
+    requiredFamilies[family].forEach(function (id) {
+      var muscle = data.muscles.find(function (item) { return item.id === id; });
+      assert.ok(muscle, "missing named neck muscle " + id);
+      assert.equal(muscle.family, family, id + " should belong to " + family);
+    });
   });
 });
 
