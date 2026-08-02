@@ -48,6 +48,54 @@
       : [];
   }
 
+  function relatedMuscleIds(video) {
+    if (!video || !Array.isArray(video.relatedMuscleIds)) return [];
+    return video.relatedMuscleIds.map(function (id) { return typeof id === "string" ? id.trim() : ""; })
+      .filter(function (id, index, values) {
+        return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) && values.indexOf(id) === index;
+      })
+      .slice(0, 8);
+  }
+
+  function renderMusclesThatMatter(video, payload) {
+    var ids = relatedMuscleIds(video);
+    var source = payload && Array.isArray(payload.muscles) ? payload.muscles : [];
+    var musclesById = source.reduce(function (index, muscle) {
+      if (muscle && muscle.id && muscle.published !== false) index[muscle.id] = muscle;
+      return index;
+    }, {});
+    var muscles = ids.map(function (id) { return musclesById[id]; }).filter(Boolean);
+    if (!muscles.length) return;
+
+    var cards = muscles.map(function (muscle) {
+      var link = createElement("a", "muscle-matter-card");
+      link.href = "knowledge.html?type=muscles&id=" + encodeURIComponent(muscle.id);
+      var imageWrap = createElement("span", "muscle-matter-image");
+      var imageUrl = safeImageUrl(muscle.imageUrl);
+      if (imageUrl) {
+        var image = document.createElement("img");
+        image.src = imageUrl;
+        image.alt = text(muscle.imageAlt, text(muscle.title, "Muscle anatomy"));
+        image.loading = "lazy";
+        imageWrap.appendChild(image);
+      } else {
+        imageWrap.appendChild(createElement("span", "muscle-matter-placeholder", "Anatomy guide"));
+      }
+      var copy = createElement("span", "muscle-matter-copy");
+      copy.append(
+        createElement("span", "muscle-matter-type", text(muscle.family, text(muscle.group, "Muscle dictionary"))),
+        createElement("h3", "", text(muscle.title, "Muscle guide")),
+        createElement("p", "", text(muscle.actions, "Explore this muscle's role in movement.")),
+        createElement("b", "", "Explore muscle →")
+      );
+      link.append(imageWrap, copy);
+      return link;
+    });
+    var grid = document.getElementById("musclesMatterGrid");
+    grid.replaceChildren.apply(grid, cards);
+    document.getElementById("musclesMatter").hidden = false;
+  }
+
   function renderRelatedKnowledge(videoId, payload) {
     var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
     var summaries = {
@@ -80,14 +128,18 @@
     document.getElementById("relatedKnowledge").hidden = false;
   }
 
-  function loadRelatedKnowledge(videoId) {
+  function loadSalesKnowledge(video) {
     fetch("assets/data/knowledge-base.json", { cache: "no-cache" })
       .then(function (response) {
         if (!response.ok) throw new Error("Unable to load movement guides");
         return response.json();
       })
-      .then(function (payload) { renderRelatedKnowledge(videoId, payload); })
+      .then(function (payload) {
+        renderMusclesThatMatter(video, payload);
+        renderRelatedKnowledge(video.id, payload);
+      })
       .catch(function () {
+        document.getElementById("musclesMatter").hidden = true;
         document.getElementById("relatedKnowledge").hidden = true;
       });
   }
@@ -144,7 +196,7 @@
     unavailable.hidden = true;
     page.hidden = false;
     document.getElementById("mobileCheckout").hidden = false;
-    loadRelatedKnowledge(video.id);
+    loadSalesKnowledge(video);
   }
 
   var requestedVideoId = new URLSearchParams(window.location.search).get("id");

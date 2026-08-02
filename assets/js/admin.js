@@ -2,6 +2,7 @@
   "use strict";
 
   var DATA_URL = "assets/data/videos.json";
+  var KNOWLEDGE_DATA_URL = "assets/data/knowledge-base.json";
   var DRAFT_KEY = "legitbodyfix.videoDraft.v1";
   var SITE_DATA_URL = "assets/data/site-content.json";
   var SITE_DRAFT_KEY = "legitbodyfix.siteContentDraft.v1";
@@ -45,6 +46,7 @@
   var siteContentStatus = document.getElementById("siteContentStatus");
   var publishSiteContentButton = document.getElementById("publishSiteContent");
   var videos = [];
+  var muscleCatalog = [];
   var siteContent = null;
   var editorStarted = false;
   var activeUploads = 0;
@@ -318,6 +320,7 @@
       landingBenefit3: typeof video.landingBenefit3 === "string" ? video.landingBenefit3 : "",
       landingAudience: typeof video.landingAudience === "string" ? video.landingAudience : "",
       landingReassurance: typeof video.landingReassurance === "string" ? video.landingReassurance : "",
+      relatedMuscleIds: normalizeRelatedMuscleIds(video.relatedMuscleIds),
       durationMinutes: Number.isFinite(Number(video.durationMinutes)) ? Number(video.durationMinutes) : 1,
       equipment: typeof video.equipment === "string" ? video.equipment : "Bodyweight",
       price: Number.isFinite(Number(video.price)) && video.price !== "" && video.price !== null && video.price !== undefined
@@ -365,6 +368,107 @@
     updateSalesPagePreview(editor, video);
     updateSummary();
     saveDraft();
+  }
+
+  function normalizeRelatedMuscleIds(value) {
+    if (!Array.isArray(value)) return [];
+    return value.map(function (id) { return typeof id === "string" ? id.trim() : ""; })
+      .filter(function (id, index, values) {
+        return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) && values.indexOf(id) === index;
+      })
+      .slice(0, 8);
+  }
+
+  function muscleById(id) {
+    return muscleCatalog.find(function (muscle) { return muscle.id === id; });
+  }
+
+  function muscleLabel(muscle) {
+    return muscle && (muscle.title || muscle.name) ? (muscle.title || muscle.name) : "Unknown muscle";
+  }
+
+  function renderMuscleSelector(editor, video) {
+    var selector = editor.querySelector(".sales-muscle-selector");
+    if (!selector) return;
+    var search = selector.querySelector(".sales-muscle-search");
+    var options = selector.querySelector(".sales-muscle-options");
+    var count = selector.querySelector(".sales-muscle-count");
+
+    function drawOptions() {
+      var query = search.value.trim().toLowerCase();
+      var selectedIds = normalizeRelatedMuscleIds(video.relatedMuscleIds);
+      video.relatedMuscleIds = selectedIds;
+      count.textContent = selectedIds.length + " / 8 selected";
+      options.replaceChildren();
+
+      if (!muscleCatalog.length) {
+        options.appendChild(createMuscleSelectorMessage("Muscle library unavailable. Your existing selections are still saved."));
+        return;
+      }
+
+      var matches = muscleCatalog.filter(function (muscle) {
+        var searchable = [muscleLabel(muscle), muscle.group, muscle.family, muscle.actions].join(" ").toLowerCase();
+        return !query || searchable.indexOf(query) !== -1;
+      }).sort(function (left, right) {
+        var leftSelected = selectedIds.indexOf(left.id) !== -1;
+        var rightSelected = selectedIds.indexOf(right.id) !== -1;
+        if (leftSelected !== rightSelected) return leftSelected ? -1 : 1;
+        return muscleLabel(left).localeCompare(muscleLabel(right));
+      });
+
+      if (!matches.length) {
+        options.appendChild(createMuscleSelectorMessage("No muscles match this search."));
+        return;
+      }
+
+      matches.forEach(function (muscle) {
+        var row = document.createElement("label");
+        row.className = "sales-muscle-option";
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = selectedIds.indexOf(muscle.id) !== -1;
+        checkbox.setAttribute("aria-label", "Feature " + muscleLabel(muscle));
+        var copy = document.createElement("span");
+        var title = document.createElement("strong");
+        title.textContent = muscleLabel(muscle);
+        var meta = document.createElement("small");
+        meta.textContent = [muscle.group, muscle.family].filter(Boolean).join(" · ") || "Muscle dictionary";
+        copy.append(title, meta);
+        row.append(checkbox, copy);
+        checkbox.addEventListener("change", function (event) {
+          event.stopPropagation();
+          var nextIds = normalizeRelatedMuscleIds(video.relatedMuscleIds);
+          if (checkbox.checked) {
+            if (nextIds.length >= 8) {
+              checkbox.checked = false;
+              setStatus("Choose up to 8 muscles for one sales page.", "error");
+              return;
+            }
+            if (nextIds.indexOf(muscle.id) === -1) nextIds.push(muscle.id);
+          } else {
+            nextIds = nextIds.filter(function (id) { return id !== muscle.id; });
+          }
+          video.relatedMuscleIds = nextIds;
+          updateSalesPagePreview(editor, video);
+          saveDraft();
+          drawOptions();
+        });
+        options.appendChild(row);
+      });
+    }
+
+    search.addEventListener("input", function (event) {
+      event.stopPropagation();
+      drawOptions();
+    });
+    drawOptions();
+  }
+
+  function createMuscleSelectorMessage(message) {
+    var node = document.createElement("p");
+    node.className = "sales-muscle-empty";
+    node.textContent = message;
+    return node;
   }
 
   function setAccessGrantStatus(message, state) {
@@ -460,6 +564,17 @@
       list.appendChild(item);
     });
     list.hidden = benefits.length === 0;
+
+    var muscles = normalizeRelatedMuscleIds(video.relatedMuscleIds).map(muscleById).filter(Boolean);
+    var muscleSection = preview.querySelector(".sales-preview-muscles");
+    var muscleList = preview.querySelector(".sales-preview-muscle-list");
+    muscleList.replaceChildren();
+    muscles.forEach(function (muscle) {
+      var chip = document.createElement("span");
+      chip.textContent = muscleLabel(muscle);
+      muscleList.appendChild(chip);
+    });
+    muscleSection.hidden = muscles.length === 0;
 
     preview.querySelector(".sales-preview-price").textContent = video.price == null
       ? "Included in package"
@@ -646,6 +761,7 @@
       editor.addEventListener("input", function () { readEditor(editor, index); });
       editor.addEventListener("change", function () { readEditor(editor, index); });
       updateThumbnailPreview(editor, video);
+      renderMuscleSelector(editor, video);
       updateSalesPagePreview(editor, video);
       updateStreamStatus(editor, video);
       list.appendChild(editor);
@@ -1177,18 +1293,29 @@
     var draft = localStorage.getItem(DRAFT_KEY);
     var draftVideos = null;
     if (draft) try {
-      draftVideos = JSON.parse(draft).map(normalizeVideo);
+      draftVideos = JSON.parse(draft);
+      if (!Array.isArray(draftVideos)) throw new Error("Invalid browser draft");
     } catch (error) {
       localStorage.removeItem(DRAFT_KEY);
     }
 
-    fetch(DATA_URL, { cache: "no-cache" })
-      .then(function (response) {
+    Promise.all([
+      fetch(DATA_URL, { cache: "no-cache" }).then(function (response) {
         if (!response.ok) throw new Error("Unable to load video data");
         return response.json();
-      })
-      .then(function (data) {
+      }),
+      fetch(KNOWLEDGE_DATA_URL, { cache: "no-cache" }).then(function (response) {
+        if (!response.ok) return { muscles: [] };
+        return response.json();
+      }).catch(function () { return { muscles: [] }; })
+    ])
+      .then(function (results) {
+        var data = results[0];
+        var knowledge = results[1];
         if (!Array.isArray(data)) throw new Error("Invalid video data");
+        muscleCatalog = knowledge && Array.isArray(knowledge.muscles)
+          ? knowledge.muscles.filter(function (muscle) { return muscle && muscle.published !== false && muscle.id; })
+          : [];
         var repositoryVideos = data.map(normalizeVideo);
         if (draftVideos && window.LegitAdminVideoDraft) {
           var reconciled = window.LegitAdminVideoDraft.reconcile(repositoryVideos, draftVideos);

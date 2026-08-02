@@ -89,7 +89,7 @@ test("admin previews thumbnails and protected videos without exposing raw playba
 test("admin reconciles stale browser drafts with repository-saved Stream media", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var draftTools = require("../assets/js/admin-video-draft.js");
-  var repositoryVideos = [{ id: "neck", streamVideoId: "saved-stream-id", streamReady: true, title: "Saved title" }];
+  var repositoryVideos = [{ id: "neck", streamVideoId: "saved-stream-id", streamReady: true, title: "Saved title", relatedMuscleIds: ["upper-trapezius"] }];
   var draftVideos = [{ id: "neck", streamVideoId: "", streamReady: false, title: "Draft title" }];
 
   var result = draftTools.reconcile(repositoryVideos, draftVideos);
@@ -99,6 +99,7 @@ test("admin reconciles stale browser drafts with repository-saved Stream media",
   assert.equal(result.videos[0].streamVideoId, "saved-stream-id");
   assert.equal(result.videos[0].streamReady, true);
   assert.equal(result.videos[0].title, "Draft title");
+  assert.deepEqual(result.videos[0].relatedMuscleIds, ["upper-trapezius"]);
   assert.equal(draftVideos[0].streamVideoId, "");
 });
 
