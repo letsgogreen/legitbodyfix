@@ -62,7 +62,7 @@
     foot: { title: "Foot", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1124_Intrinsic_Muscles_of_the_Foot_c.png", imageAlt: "OpenStax plantar view of intrinsic foot muscles", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1124_Intrinsic_Muscles_of_the_Foot_c.png" }
   };
   var muscleGroupOrder = [
-    "Head and neck", "Anterior neck", "Lateral neck", "Suboccipital neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
+    "Head and neck", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
     "Upper arm", "Forearm", "Hand", "Thorax", "Posterior thorax", "Abdomen", "Back", "Erector spinae", "Deep back",
     "Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters",
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
@@ -113,21 +113,36 @@
     return node;
   }
 
+  function muscleSectionGroup(item) {
+    var title = String(item && item.title || "").toLowerCase();
+    var family = String(item && item.family || "").toLowerCase();
+    if (/rectus capitis posterior|obliquus capitis/.test(title)) return "Suboccipital muscles";
+    if (title.indexOf("scalene") !== -1) return "Scalenes";
+    if (family === "suprahyoid muscles" || family === "infrahyoid muscles") return "Hyoid muscles";
+    if (title.indexOf("capitis") !== -1) return "Capitis muscles";
+    return String(item && item.group || "Other");
+  }
+
   function muscleFamily(item) {
+    var sectionGroup = muscleSectionGroup(item).toLowerCase();
+    function distinctFamily(value) {
+      var familyName = String(value || "").trim();
+      return familyName.toLowerCase() === sectionGroup ? "" : familyName;
+    }
     var explicitFamily = String(item && item.family || "").trim();
-    if (explicitFamily) return explicitFamily;
+    if (explicitFamily) return distinctFamily(explicitFamily);
     var title = String(item && item.title || "").toLowerCase();
     var families = [
       ["splenius ", "Splenius"], ["semispinalis ", "Semispinalis"], ["longissimus ", "Longissimus"],
       ["iliocostalis ", "Iliocostalis"], ["spinalis ", "Spinalis"], ["scalene", "Scalenes"]
     ];
     for (var index = 0; index < families.length; index += 1) {
-      if (title.indexOf(families[index][0]) === 0 || title.indexOf(" " + families[index][0]) !== -1) return families[index][1];
+      if (title.indexOf(families[index][0]) === 0 || title.indexOf(" " + families[index][0]) !== -1) return distinctFamily(families[index][1]);
     }
     if (["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) return "Prevertebral muscles";
     if (["digastric", "stylohyoid", "mylohyoid", "geniohyoid"].indexOf(title) !== -1) return "Suprahyoid muscles";
     if (["sternohyoid", "omohyoid", "sternothyroid", "thyrohyoid"].indexOf(title) !== -1) return "Infrahyoid muscles";
-    if (/rectus capitis posterior|obliquus capitis/.test(title)) return "Suboccipital muscles";
+    if (/rectus capitis posterior|obliquus capitis/.test(title)) return distinctFamily("Suboccipital muscles");
     return "";
   }
 
@@ -614,7 +629,7 @@
       title.id = "muscle-region-" + region;
       heading.append(title, element("span", "", regionRecords.length + (regionRecords.length === 1 ? " muscle" : " muscles")));
       var subgroups = element("div", "muscle-subgroups");
-      var groupNames = Array.from(new Set(regionRecords.map(function (record) { return record.item.group || "Other"; })));
+      var groupNames = Array.from(new Set(regionRecords.map(function (record) { return muscleSectionGroup(record.item); })));
       groupNames.sort(function (a, b) {
         var aIndex = muscleGroupOrder.indexOf(a);
         var bIndex = muscleGroupOrder.indexOf(b);
@@ -623,7 +638,7 @@
         return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
       });
       groupNames.forEach(function (groupName) {
-        var groupRecords = regionRecords.filter(function (record) { return (record.item.group || "Other") === groupName; });
+        var groupRecords = regionRecords.filter(function (record) { return muscleSectionGroup(record.item) === groupName; });
         var subgroup = element("section", "muscle-subgroup");
         var subgroupHeading = element("div", "muscle-subgroup-heading");
         subgroupHeading.append(element("h4", "", groupName), element("span", "", String(groupRecords.length)));

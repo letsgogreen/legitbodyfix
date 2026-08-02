@@ -87,6 +87,10 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /"deep hip", "anterior thigh", "medial thigh", "posterior thigh"/);
   assert.match(javascript, /"anterior lower leg", "lateral lower leg", "posterior lower leg"/);
   assert.match(javascript, /function renderMuscleGroups/);
+  assert.match(javascript, /function muscleSectionGroup/);
+  assert.match(javascript, /"Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"/);
+  assert.match(javascript, /family === "suprahyoid muscles" \|\| family === "infrahyoid muscles"/);
+  assert.match(javascript, /rectus capitis posterior\|obliquus capitis/);
   assert.match(javascript, /muscle-region-section/);
   assert.match(javascript, /across 8 body regions/);
   assert.match(javascript, /muscle-subgroup-heading/);
