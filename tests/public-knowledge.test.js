@@ -95,7 +95,9 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /"Semispinalis", "Longissimus", "Iliocostalis", "Spinalis"/);
   assert.match(javascript, /openAnatomyViewer/);
   assert.match(javascript, /Enlarge anatomy plate/);
-  assert.match(javascript, /This plate may show nearby muscles/);
+  assert.match(javascript, /hasFocusedMuscleImage/);
+  assert.match(javascript, /Highlighted anatomy/);
+  assert.match(javascript, /is not separately highlighted/);
   assert.match(javascript, /Related programs/);
   assert.match(javascript, /Programs selected for the movement roles/);
   assert.match(javascript, /Explore this program/);
@@ -209,6 +211,26 @@ test("muscle dictionary includes the remaining distinct regional muscles", funct
     var muscle = data.muscles.find(function (item) { return item.id === id; });
     assert.ok(muscle, "missing distinct regional muscle " + id);
     assert.ok(muscle.family, id + " needs an anatomical family");
+  });
+});
+
+test("hard-to-identify muscles use focused anatomy references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    "splenius-cervicis": "Splenius_cervicis_muscle_back.png",
+    "levatores-costarum-breves": "Levatores_costarum.png",
+    "levatores-costarum-longi": "Levatores_costarum.png",
+    "pyramidalis": "PyramidalisMuscle.jpg",
+    "palmaris-brevis": "musculus_palmaris_brevis.png",
+    "adductor-minimus": "Adductor_minimus.gif",
+    "intertransversarii-cervicis": "Intertransversarii_muscles.jpg",
+    "intertransversarii-thoracis": "Intertransversarii_muscles.jpg",
+    "intertransversarii-lumborum": "Intertransversarii_muscles.jpg"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use its focused anatomy reference");
   });
 });
 

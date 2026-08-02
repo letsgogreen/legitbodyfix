@@ -28,6 +28,23 @@
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
 
+  function normalizedAnatomyName(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  }
+
+  function hasFocusedMuscleImage(item) {
+    if (!item || !item.title || !item.imageAlt) return false;
+    var title = normalizedAnatomyName(item.title);
+    var description = normalizedAnatomyName(item.imageAlt);
+    return Boolean(title) && description.indexOf(title) !== -1 && /highlight|focus|depict|render/.test(description);
+  }
+
+  function muscleImageLabel(item) {
+    return hasFocusedMuscleImage(item)
+      ? "Highlighted · " + item.title
+      : "Regional reference · locate " + item.title;
+  }
+
   var muscleRegions = {
     "head-neck": { title: "Neck", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1117_Muscles_of_the_Back.png", imageAlt: "OpenStax anatomy plate of the neck and upper back", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1117_Muscles_of_the_Back.png" },
     "shoulder-chest": { title: "Shoulder & chest", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Arm_shoulder_gray.png", imageAlt: "Gray's Anatomy plate of shoulder and chest muscles", credit: "Gray's Anatomy · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Arm_shoulder_gray.png" },
@@ -403,7 +420,9 @@
       if (detailRoles) facts.appendChild(detailRoles);
     }
     if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl)) {
+      var focusedMuscleImage = hasFocusedMuscleImage(item);
       var figure = element("figure", "detail-anatomy-image");
+      figure.classList.add(focusedMuscleImage ? "is-focused" : "is-regional");
       var anatomyButton = element("button", "anatomy-zoom-button");
       anatomyButton.type = "button";
       anatomyButton.setAttribute("aria-label", "Enlarge anatomy plate for " + item.title);
@@ -423,12 +442,18 @@
           creditLink.target = "_blank";
           creditLink.rel = "noopener noreferrer";
           creditLink.textContent = item.imageCredit;
-          caption.append("Plate context: " + (item.group || "body region") + ". Image: ", creditLink);
-        } else caption.textContent = "Plate context: " + (item.group || "body region") + ". Image: " + item.imageCredit;
-        caption.append(". This plate may show nearby muscles; use the listed attachments and actions to identify the selected muscle.");
+          caption.append(focusedMuscleImage ? "Highlighted anatomy: " : "Regional anatomy reference: ", creditLink);
+        } else caption.textContent = (focusedMuscleImage ? "Highlighted anatomy: " : "Regional anatomy reference: ") + item.imageCredit;
+        caption.append(focusedMuscleImage
+          ? ". The named muscle is highlighted; nearby structures remain visible for orientation."
+          : ". " + item.title + " is not separately highlighted in this plate. Use the body locator, attachments, and actions below to identify it.");
         figure.appendChild(caption);
       }
       facts.appendChild(figure);
+      if (!focusedMuscleImage) {
+        var supportingBodyMap = createBodyMap(item, false);
+        if (supportingBodyMap) facts.appendChild(supportingBodyMap);
+      }
     } else if (type === "muscles") {
       var region = muscleRegions[muscleRegion(item)];
       if (region) {
@@ -526,7 +551,9 @@
       image.alt = "";
       image.loading = "lazy";
       image.decoding = "async";
-      media.append(image, element("span", "knowledge-card-media-label", (record.item.group || "Anatomy") + " plate"));
+      var imageLabel = element("span", "knowledge-card-media-label", muscleImageLabel(record.item));
+      imageLabel.classList.add(hasFocusedMuscleImage(record.item) ? "is-focused" : "is-regional");
+      media.append(image, imageLabel);
       card.appendChild(media);
     } else if (record.type === "muscles") {
       var map = createBodyMap(record.item, true);
