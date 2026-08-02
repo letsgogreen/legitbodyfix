@@ -29,6 +29,10 @@
         video.relatedMuscleIds = saved.relatedMuscleIds.slice();
       }
 
+      if (!Array.isArray(video.relatedMuscleGroupIds) && Array.isArray(saved.relatedMuscleGroupIds)) {
+        video.relatedMuscleGroupIds = saved.relatedMuscleGroupIds.slice();
+      }
+
       return video;
     });
 

@@ -14,6 +14,12 @@
     "landingBenefit3": "Build a repeatable alignment practice for work and everyday movement.",
     "landingAudience": "Designed for people dealing with desk-related stiffness, recurring postural tension, or a neck that never feels settled.",
     "landingReassurance": "One payment gives you protected access through your personal movement library—no subscription required.",
+    "relatedMuscleGroupIds": [
+      "trapezius",
+      "superficial-neck",
+      "prevertebral-muscles",
+      "splenius"
+    ],
     "relatedMuscleIds": [
       "upper-trapezius",
       "sternocleidomastoid",
@@ -48,6 +54,11 @@
     "landingBenefit3": "Develop confidence before returning to more demanding movement.",
     "landingAudience": "For people progressing beyond the acute stage of an ankle sprain who have been cleared for rehabilitation exercise.",
     "landingReassurance": "One payment provides protected access to the full progression. Stop and consult a clinician if pain or swelling increases.",
+    "relatedMuscleGroupIds": [
+      "anterior-lower-leg",
+      "posterior-lower-leg",
+      "lateral-lower-leg"
+    ],
     "relatedMuscleIds": [
       "tibialis-anterior",
       "tibialis-posterior",
@@ -79,6 +90,10 @@
     "landingBenefit3": "Reduce avoidable compensations during everyday movement.",
     "landingAudience": "For anyone who feels uneven, disconnected through the hips, or unsure how pelvic position affects posture and movement.",
     "landingReassurance": "No equipment and no recurring fee—just a focused session available in your protected library.",
+    "relatedMuscleGroupIds": [
+      "hip-and-pelvis",
+      "medial-thigh"
+    ],
     "relatedMuscleIds": [
       "gluteus-medius",
       "gluteus-maximus",
@@ -109,6 +124,11 @@
     "landingBenefit3": "Improve awareness of the foot-and-ankle connection.",
     "landingAudience": "For people who feel unstable, disconnected from the ground, or want stronger foundations before progressing to larger movements.",
     "landingReassurance": "A short, repeatable session with one-time purchase and protected personal access.",
+    "relatedMuscleGroupIds": [
+      "foot",
+      "posterior-lower-leg",
+      "lateral-lower-leg"
+    ],
     "relatedMuscleIds": [
       "abductor-hallucis",
       "flexor-digitorum-brevis",
@@ -139,6 +159,11 @@
     "landingBenefit3": "Build a walking pattern that feels more coordinated and confident.",
     "landingAudience": "For people ready to apply alignment and balance work to the movement they repeat most: walking.",
     "landingReassurance": "Buy once and return to the protected session as your walking practice develops.",
+    "relatedMuscleGroupIds": [
+      "hip-and-pelvis",
+      "posterior-lower-leg",
+      "anterior-lower-leg"
+    ],
     "relatedMuscleIds": [
       "gluteus-medius",
       "gluteus-maximus",
@@ -169,6 +194,10 @@
     "landingBenefit3": "Create a repeatable recovery practice for movement days and rest days.",
     "landingAudience": "For beginners, tense breathers, or anyone who wants a simple way to support alignment and recovery.",
     "landingReassurance": "A guided practice you can revisit anytime with protected, one-time-purchase access.",
+    "relatedMuscleGroupIds": [
+      "thorax",
+      "abdomen"
+    ],
     "relatedMuscleIds": [
       "diaphragm",
       "external-intercostals",

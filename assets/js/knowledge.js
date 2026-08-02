@@ -926,6 +926,14 @@
     var params = new URLSearchParams(window.location.search);
     var type = params.get("type");
     var id = params.get("id");
+    var query = params.get("q");
+    if (labels[type] && !id && query) {
+      showDirectory(false);
+      search.value = query.slice(0, 120);
+      selectType(type);
+      render();
+      return;
+    }
     if (!labels[type] || !id) { showDirectory(false); return; }
     var item = data[type].find(function (candidate) { return candidate.id === id && candidate.published !== false; });
     if (item) openDetail(type, item, false);
