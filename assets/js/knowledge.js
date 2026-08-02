@@ -71,17 +71,18 @@
     { title: "Lower quarter", description: "Pelvic floor, hip, thigh, knee, lower-leg, ankle, and foot anatomy.", regions: ["pelvis-hip", "knee", "foot-ankle"] }
   ];
   var muscleGroupOrder = [
-    "Head and neck", "Deep neck flexors", "Splenius muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
+    "Head and neck", "Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
     "Upper arm", "Forearm", "Hand", "Thorax", "Posterior thorax", "Abdomen", "Back", "Erector spinae", "Deep back",
     "Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters",
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
-  var collectiveNeckGroups = ["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"];
+  var collectiveNeckGroups = ["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"];
   var collectiveNeckGroupDescriptions = {
     "Deep neck flexors": "The four prevertebral muscles that provide deep anterior head-and-neck flexion and segmental control.",
     "Splenius muscles": "Splenius capitis and splenius cervicis, the two named muscles in the splenius layer.",
     "Capitis muscles": "Muscles named for their attachment to the head, organized by anatomical family.",
+    "Cervicis muscles": "Muscles with a cervicis division associated with the cervical region, kept within their true anatomical families.",
     "Hyoid muscles": "The suprahyoid and infrahyoid muscles that position the hyoid during swallowing and jaw movement.",
     Scalenes: "Anterior, middle, and posterior scalenes considered as a functional neck group.",
     "Suboccipital muscles": "Four small deep muscles commonly referenced together at the upper cervical spine."
@@ -141,12 +142,21 @@
     return String(item && item.group || "Other");
   }
 
-  function neckDirectoryGroup(item) {
+  function neckDirectoryGroups(item) {
     var title = String(item && item.title || "").toLowerCase();
     var family = String(item && item.family || "").toLowerCase();
-    if (family === "prevertebral muscles" || ["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) return "Deep neck flexors";
-    if (family === "splenius" || title.indexOf("splenius ") === 0) return "Splenius muscles";
-    return muscleSectionGroup(item);
+    var groups = [];
+    if (family === "prevertebral muscles" || ["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) groups.push("Deep neck flexors");
+    if (family === "splenius" || title.indexOf("splenius ") === 0) groups.push("Splenius muscles");
+    if (title.indexOf("capitis") !== -1) groups.push("Capitis muscles");
+    if (title.indexOf("cervicis") !== -1) groups.push("Cervicis muscles");
+    var sectionGroup = muscleSectionGroup(item);
+    if (groups.indexOf(sectionGroup) === -1) groups.push(sectionGroup);
+    return groups;
+  }
+
+  function neckDirectoryGroup(item) {
+    return neckDirectoryGroups(item)[0];
   }
 
   function muscleFamily(item) {
@@ -702,7 +712,7 @@
     buttons.push(overview);
     buttons = buttons.concat(groupNames.map(function (groupName) {
       var count = regionalMuscles.filter(function (item) {
-        return (activeMuscleRegion === "head-neck" ? neckDirectoryGroup(item) : muscleSectionGroup(item)) === groupName;
+        return activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(groupName) !== -1 : muscleSectionGroup(item) === groupName;
       }).length;
       var button = element("button", activeMuscleGroup === groupName ? "is-active" : "");
       button.type = "button";
@@ -723,7 +733,7 @@
   function renderNeckDirectory(regionRecords, section, heading) {
     var collectiveIds = new Set();
     var directoryEntries = collectiveNeckGroups.map(function (groupName) {
-      var members = regionRecords.filter(function (record) { return neckDirectoryGroup(record.item) === groupName; });
+      var members = regionRecords.filter(function (record) { return neckDirectoryGroups(record.item).indexOf(groupName) !== -1; });
       if (!members.length) return null;
       members.forEach(function (record) { collectiveIds.add(record.item.id); });
       var imageRecord = members.find(function (record) { return hasFocusedMuscleImage(record.item); })
@@ -861,7 +871,12 @@
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && !muscleInRegion(record.item, activeMuscleRegion)) return false;
-      if (activeType === "muscles" && activeMuscleGroup !== "all" && !query && (activeMuscleRegion === "head-neck" ? neckDirectoryGroup(record.item) : muscleSectionGroup(record.item)) !== activeMuscleGroup) return false;
+      if (activeType === "muscles" && activeMuscleGroup !== "all" && !query) {
+        var matchesActiveGroup = activeMuscleRegion === "head-neck"
+          ? neckDirectoryGroups(record.item).indexOf(activeMuscleGroup) !== -1
+          : muscleSectionGroup(record.item) === activeMuscleGroup;
+        if (!matchesActiveGroup) return false;
+      }
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
       if (activeType === "muscles" && activeMuscleVisual !== "all" && muscleVisualType(record.item) !== activeMuscleVisual) return false;
       if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
