@@ -25,7 +25,7 @@
 
   var schemas = {
     conditions: [
-      ["title", "Condition name", 120], ["joints", "Related joints", 240], ["tags", "Tags", 400],
+      ["title", "Guide name", 120], ["pathway", "Content pathway", 40], ["joints", "Related joints", 240], ["tags", "Tags", 400],
       ["summary", "Clinical summary", 800, true], ["tightMuscles", "Commonly tight / overactive", 500],
       ["weakMuscles", "Commonly weak / underactive", 500], ["screening", "Screening signs", 600, true],
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
@@ -40,7 +40,7 @@
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     recipes: [
-      ["title", "Recipe title", 120], ["bodyRegion", "Body area", 120], ["time", "Estimated time", 80],
+      ["title", "Recipe title", 120], ["pathway", "Content pathway", 40], ["bodyRegion", "Body area", 120], ["time", "Estimated time", 80],
       ["goal", "Public goal", 500, true], ["whenToUse", "Useful starting point when", 800, true], ["equipment", "Equipment", 300],
       ["steps", "Starting sequence", 2400, true], ["dosage", "Suggested dose", 800, true],
       ["reassess", "Reassessment checkpoint", 800, true], ["regression", "Regression", 800, true],
@@ -60,6 +60,11 @@
   function normalizeMuscles(payload) {
     (payload.muscles || []).forEach(function (record) {
       if (!record.actions && record.function) record.actions = record.function;
+    });
+    ["conditions", "recipes"].forEach(function (type) {
+      (payload[type] || []).forEach(function (record) {
+        if (!record.pathway) record.pathway = "movement-alignment";
+      });
     });
     return payload;
   }
@@ -86,12 +91,24 @@
     label.className = "field" + (definition[3] ? " field-wide" : "");
     var caption = document.createElement("span");
     caption.textContent = definition[1];
-    var input = definition[3] ? document.createElement("textarea") : document.createElement("input");
+    var input;
+    if (name === "pathway") {
+      input = document.createElement("select");
+      [
+        ["movement-alignment", "Movement & alignment"],
+        ["injury-rehabilitation", "Injury rehabilitation"]
+      ].forEach(function (entry) {
+        var option = document.createElement("option");
+        option.value = entry[0];
+        option.textContent = entry[1];
+        input.appendChild(option);
+      });
+    } else input = definition[3] ? document.createElement("textarea") : document.createElement("input");
     if (definition[3]) input.rows = name === "steps" ? 7 : 4;
-    else input.type = "text";
+    else if (name !== "pathway") input.type = "text";
     input.name = name;
-    input.maxLength = definition[2];
-    input.value = record[name] || "";
+    if (name !== "pathway") input.maxLength = definition[2];
+    input.value = record[name] || (name === "pathway" ? "movement-alignment" : "");
     input.addEventListener("input", function () {
       record[name] = input.value;
       if (name === "title") {
@@ -174,6 +191,7 @@
   function addRecord() {
     var labels = { conditions: "New movement pattern", muscles: "New muscle", recipes: "New correction recipe" };
     var record = { id: uniqueId(labels[activeType]), title: labels[activeType], published: false };
+    if (activeType === "conditions" || activeType === "recipes") record.pathway = "movement-alignment";
     schemas[activeType].forEach(function (definition) { if (!(definition[0] in record)) record[definition[0]] = ""; });
     data[activeType].push(record);
     search.value = "";

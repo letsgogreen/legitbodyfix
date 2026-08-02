@@ -10,6 +10,7 @@
   var filterButtons = Array.from(document.querySelectorAll("[data-knowledge-filter]"));
   var muscleTools = document.getElementById("muscleTools");
   var recipeTools = document.getElementById("recipeTools");
+  var carePathTools = document.getElementById("carePathTools");
   var muscleAtlas = document.getElementById("muscleAtlas");
   var atlasGrid = document.getElementById("atlasGrid");
   var knowledgePaths = document.getElementById("knowledgePaths");
@@ -18,10 +19,12 @@
   var muscleSort = document.getElementById("muscleSort");
   var muscleReset = document.getElementById("muscleReset");
   var recipeRegionButtons = Array.from(document.querySelectorAll("[data-recipe-region]"));
+  var carePathButtons = Array.from(document.querySelectorAll("[data-care-path]"));
   var activeType = "all";
   var activeMuscleRegion = "all";
   var activeMuscleFunction = "all";
   var activeRecipeRegion = "all";
+  var activeCarePath = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
 
@@ -44,6 +47,25 @@
   ];
 
   var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
+  var carePaths = {
+    "movement-alignment": {
+      label: "Movement & alignment",
+      description: "Non-acute movement education for comfort, coordination, mobility, and preparation. It does not diagnose a structural misalignment."
+    },
+    "injury-rehabilitation": {
+      label: "Injury rehabilitation",
+      description: "A cautious recovery pathway after injury. Begin only when serious injury has been ruled out and the recommended starting criteria are met."
+    }
+  };
+
+  function carePath(item) {
+    return item && carePaths[item.pathway] ? item.pathway : "movement-alignment";
+  }
+
+  function contentLabel(type, item) {
+    if (type === "muscles") return labels[type];
+    return carePaths[carePath(item)].label;
+  }
   var summaries = {
     conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
     muscles: function (item) { return item.actions || item.function || "Explore this muscle's role in movement."; },
@@ -253,17 +275,30 @@
     muscleTools.hidden = type !== "muscles";
     muscleAtlas.hidden = type !== "muscles";
     recipeTools.hidden = type !== "recipes";
+    carePathTools.hidden = type !== "conditions" && type !== "recipes";
     render();
   }
 
   function updateRecipeCounts() {
-    var published = data.recipes.filter(function (item) { return item && item.published !== false; });
+    var published = data.recipes.filter(function (item) { return item && item.published !== false && (activeCarePath === "all" || carePath(item) === activeCarePath); });
     recipeRegionButtons.forEach(function (button) {
       var region = button.dataset.recipeRegion;
       var count = region === "all" ? published.length : published.filter(function (item) { return (item.bodyRegion || "Whole body") === region; }).length;
       var target = button.querySelector("[data-recipe-count]");
       if (target) target.textContent = String(count);
       button.hidden = region !== "all" && count === 0;
+    });
+  }
+
+  function updateCarePathCounts() {
+    var source = activeType === "conditions" || activeType === "recipes" ? data[activeType] : [];
+    var published = source.filter(function (item) { return item && item.published !== false; });
+    carePathButtons.forEach(function (button) {
+      var pathway = button.dataset.carePath;
+      var count = pathway === "all" ? published.length : published.filter(function (item) { return carePath(item) === pathway; }).length;
+      var target = button.querySelector("[data-care-count]");
+      if (target) target.textContent = String(count);
+      button.hidden = pathway !== "all" && count === 0;
     });
   }
 
@@ -321,7 +356,13 @@
   function openDetail(type, item, shouldUpdateUrl) {
     if (!labels[type] || !item) return;
     var intro = element("div", "detail-intro");
-    intro.append(element("p", "detail-kicker", labels[type]), element("h2", "", item.title || "Untitled"), element("p", "detail-summary", summaries[type](item)));
+    intro.append(element("p", "detail-kicker", contentLabel(type, item)), element("h2", "", item.title || "Untitled"), element("p", "detail-summary", summaries[type](item)));
+    if (type === "conditions" || type === "recipes") {
+      var path = carePath(item);
+      var pathNotice = element("div", "detail-care-path is-" + path);
+      pathNotice.append(element("strong", "", carePaths[path].label), element("p", "", carePaths[path].description));
+      intro.appendChild(pathNotice);
+    }
     var list = element("dl", "detail-fields");
     fields[type].forEach(function (definition) {
       var value = item[definition[0]];
@@ -385,7 +426,10 @@
       var bodyMap = createBodyMap(item, false);
       if (bodyMap) facts.appendChild(bodyMap);
     }
-    facts.append(list, element("p", "detail-disclaimer", "Use this resource for movement education only. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician."));
+    var disclaimer = type !== "muscles" && carePath(item) === "injury-rehabilitation"
+      ? "This injury-rehabilitation guide is educational and does not diagnose the injury or replace an individual recovery plan. Seek assessment for severe pain, inability to bear weight, deformity, substantial swelling, worsening symptoms, numbness, weakness, or uncertainty about readiness."
+      : "This movement and alignment resource describes observable patterns, not a diagnosis that a joint or bone is out of place. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician.";
+    facts.append(list, element("p", "detail-disclaimer", disclaimer));
     if (type === "muscles" && item.sourceName && typeof item.sourceUrl === "string" && /^https:\/\//i.test(item.sourceUrl)) {
       var source = element("p", "detail-source", "Reference: ");
       var sourceLink = document.createElement("a");
@@ -474,7 +518,8 @@
       recipeMeta.append(element("b", "", record.item.bodyRegion || "Whole body"), element("i", "", record.item.time || "10–15 min"));
       card.appendChild(recipeMeta);
     }
-    card.append(element("span", "knowledge-card-type", labels[record.type]), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Open the recipe →" : "Read the guide →"));
+    if (record.type === "conditions" || record.type === "recipes") card.classList.add("care-path-" + carePath(record.item));
+    card.append(element("span", "knowledge-card-type", contentLabel(record.type, record.item)), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Open the recipe →" : "Read the guide →"));
     card.addEventListener("click", function () { openDetail(record.type, record.item); });
     return card;
   }
@@ -561,11 +606,14 @@
   function render() {
     var query = search.value.trim().toLowerCase();
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
+    updateCarePathCounts();
+    updateRecipeCounts();
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
       if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
+      if ((activeType === "conditions" || activeType === "recipes") && activeCarePath !== "all" && carePath(record.item) !== activeCarePath) return false;
       if (!query) return true;
       var fieldMatch = Object.values(record.item).some(function (value) { return typeof value === "string" && value.toLowerCase().includes(query); });
       var roleQuery = query.endsWith("s") ? query.slice(0, -1) : query;
@@ -595,8 +643,8 @@
     status.textContent = activeType === "muscles"
       ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase())
       : activeType === "recipes"
-        ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeRecipeRegion === "all" ? " grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
-        : records.length + (records.length === 1 ? " movement guide" : " movement guides");
+        ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
+        : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase());
   }
 
   function openFromUrl() {
@@ -648,6 +696,17 @@
     button.addEventListener("click", function () {
       activeRecipeRegion = button.dataset.recipeRegion;
       recipeRegionButtons.forEach(function (candidate) {
+        var selected = candidate === button;
+        candidate.classList.toggle("is-active", selected);
+        candidate.setAttribute("aria-pressed", String(selected));
+      });
+      render();
+    });
+  });
+  carePathButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      activeCarePath = button.dataset.carePath;
+      carePathButtons.forEach(function (candidate) {
         var selected = candidate === button;
         candidate.classList.toggle("is-active", selected);
         candidate.setAttribute("aria-pressed", String(selected));

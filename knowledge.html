@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="assets/css/knowledge-related.css?v=20260802-2" />
   <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260802-7" />
   <link rel="stylesheet" href="assets/css/public-responsive-fixes.css?v=20260801-1" />
-  <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260802-2" />
+  <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260802-3" />
   <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260801-1" />
 </head>
 <body>
@@ -39,15 +39,27 @@
     <section class="knowledge-directory shell" aria-labelledby="directoryTitle">
       <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Choose one clear path.</h2></div><label class="knowledge-search"><span>Search the whole knowledge hub</span><input id="knowledgeSearch" type="search" placeholder="Try hip flexor, rotator cuff, or ankle…" autocomplete="off" /></label></header>
       <div class="knowledge-paths" id="knowledgePaths" aria-label="Knowledge collections">
-        <button type="button" data-knowledge-path="conditions"><span class="path-number">01</span><span class="path-copy"><b>Movement patterns</b><small>Start with a limitation or movement question.</small></span><span class="path-count" data-type-count="conditions"></span></button>
+        <button type="button" data-knowledge-path="conditions"><span class="path-number">01</span><span class="path-copy"><b>Movement &amp; recovery</b><small>Keep alignment questions separate from injury rehabilitation.</small></span><span class="path-count" data-type-count="conditions"></span></button>
         <button type="button" data-knowledge-path="muscles"><span class="path-number">02</span><span class="path-copy"><b>Muscle atlas</b><small>Explore anatomy by body region, attachment, and action.</small></span><span class="path-count" data-type-count="muscles"></span></button>
         <button type="button" data-knowledge-path="recipes"><span class="path-number">03</span><span class="path-copy"><b>Correction recipes</b><small>Follow a clear starting sequence, then reassess before progressing.</small></span><span class="path-count" data-type-count="recipes"></span></button>
       </div>
       <div class="knowledge-filters" role="group" aria-label="Filter knowledge type">
         <button class="is-active" type="button" data-knowledge-filter="all" aria-pressed="true">Overview</button>
-        <button type="button" data-knowledge-filter="conditions" aria-pressed="false">Movement patterns</button>
+        <button type="button" data-knowledge-filter="conditions" aria-pressed="false">Movement &amp; recovery</button>
         <button type="button" data-knowledge-filter="muscles" aria-pressed="false">Muscle dictionary</button>
         <button type="button" data-knowledge-filter="recipes" aria-pressed="false">Correction recipes</button>
+      </div>
+      <div class="care-path-tools" id="carePathTools" hidden>
+        <div class="care-path-intro">
+          <p class="eyebrow">Choose the right path</p>
+          <h3>Is this a movement question or an injury?</h3>
+          <p>Movement and alignment guides describe observable patterns and comfort; they do not diagnose a joint as “out of place.” Injury rehabilitation follows a more cautious recovery path after an injury has been assessed or the acute stage has settled.</p>
+        </div>
+        <div class="care-path-filters" role="group" aria-label="Filter by movement or injury pathway">
+          <button class="is-active" type="button" data-care-path="all" aria-pressed="true">All paths <span data-care-count="all"></span></button>
+          <button type="button" data-care-path="movement-alignment" aria-pressed="false"><b>Movement &amp; alignment</b><small>Non-acute patterns, control, mobility, and preparation</small><span data-care-count="movement-alignment"></span></button>
+          <button class="is-injury" type="button" data-care-path="injury-rehabilitation" aria-pressed="false"><b>Injury rehabilitation</b><small>Recovery after injury, with clinical safety checks</small><span data-care-count="injury-rehabilitation"></span></button>
+        </div>
       </div>
       <div class="muscle-tools" id="muscleTools" hidden>
         <div class="muscle-region-filters" role="group" aria-label="Filter muscles by body region">
@@ -81,8 +93,8 @@
       </div>
       <div class="recipe-tools" id="recipeTools" hidden>
         <div>
-          <p class="eyebrow">Choose a body area</p>
-          <p class="recipe-tools-copy">Start with the area you want to move more comfortably. Each recipe gives you a short sequence and a clear reassessment.</p>
+          <p class="eyebrow">Then choose a body area</p>
+          <p class="recipe-tools-copy">Each recipe gives you a short sequence and a clear reassessment within the pathway selected above.</p>
         </div>
         <div class="recipe-region-filters" role="group" aria-label="Filter correction recipes by body area">
           <button class="is-active" type="button" data-recipe-region="all" aria-pressed="true">All areas <span data-recipe-count="all"></span></button>
@@ -113,6 +125,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="index.html"><span>LBF</span><strong>LEGITBODYFIX</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260802-11" defer></script>
+  <script src="assets/js/knowledge.js?v=20260802-12" defer></script>
 </body>
 </html>
