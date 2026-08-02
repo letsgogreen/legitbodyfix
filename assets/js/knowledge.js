@@ -71,6 +71,13 @@
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
+  var collectiveNeckGroups = ["Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"];
+  var collectiveNeckGroupDescriptions = {
+    "Capitis muscles": "Muscles named for their attachment to the head, organized by anatomical family.",
+    "Hyoid muscles": "The suprahyoid and infrahyoid muscles that position the hyoid during swallowing and jaw movement.",
+    Scalenes: "Anterior, middle, and posterior scalenes considered as a functional neck group.",
+    "Suboccipital muscles": "Four small deep muscles commonly referenced together at the upper cervical spine."
+  };
   var muscleFamilyOrder = [
     "Superficial neck", "Splenius", "Prevertebral muscles", "Suprahyoid muscles", "Infrahyoid muscles",
     "Semispinalis", "Longissimus", "Iliocostalis", "Spinalis", "Scalenes", "Suboccipital muscles",
@@ -380,6 +387,7 @@
       card.append(image, copy);
       card.addEventListener("click", function () {
         activeMuscleRegion = region;
+        activeMuscleGroup = "all";
         muscleRegionButtons.forEach(function (candidate) {
           var selected = candidate.dataset.muscleRegion === region;
           candidate.classList.toggle("is-active", selected);
@@ -642,8 +650,25 @@
       return item && item.published !== false && muscleRegion(item) === activeMuscleRegion;
     });
     var groupNames = orderedMuscleGroups(regionalMuscles);
-    if (groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = groupNames[0] || "all";
-    var buttons = groupNames.map(function (groupName) {
+    if (activeMuscleRegion === "head-neck") {
+      groupNames = collectiveNeckGroups.filter(function (groupName) { return groupNames.indexOf(groupName) !== -1; });
+      if (activeMuscleGroup !== "all" && groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = "all";
+    } else if (groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = groupNames[0] || "all";
+    var buttons = [];
+    if (activeMuscleRegion === "head-neck") {
+      var overview = element("button", activeMuscleGroup === "all" ? "is-active" : "");
+      overview.type = "button";
+      overview.setAttribute("role", "tab");
+      overview.setAttribute("aria-selected", String(activeMuscleGroup === "all"));
+      overview.append(document.createTextNode("Neck directory "), element("span", "", String(regionalMuscles.length)));
+      overview.addEventListener("click", function () {
+        activeMuscleGroup = "all";
+        updateMuscleGroupFilters();
+        render();
+      });
+      buttons.push(overview);
+    }
+    buttons = buttons.concat(groupNames.map(function (groupName) {
       var count = regionalMuscles.filter(function (item) { return muscleSectionGroup(item) === groupName; }).length;
       var button = element("button", activeMuscleGroup === groupName ? "is-active" : "");
       button.type = "button";
@@ -656,9 +681,55 @@
         render();
       });
       return button;
-    });
+    }));
     muscleGroupFilters.replaceChildren.apply(muscleGroupFilters, buttons);
     muscleGroupFilterShell.hidden = !buttons.length;
+  }
+
+  function renderNeckDirectory(regionRecords, section, heading) {
+    var collectiveIds = new Set();
+    var groupCards = collectiveNeckGroups.map(function (groupName) {
+      var members = regionRecords.filter(function (record) { return muscleSectionGroup(record.item) === groupName; });
+      if (!members.length) return null;
+      members.forEach(function (record) { collectiveIds.add(record.item.id); });
+      var card = element("button", "muscle-collective-card");
+      card.type = "button";
+      card.append(
+        element("span", "muscle-collective-kicker", "Collective muscle group"),
+        element("h4", "", groupName),
+        element("p", "", collectiveNeckGroupDescriptions[groupName]),
+        element("span", "muscle-collective-meta", members.length + (members.length === 1 ? " muscle" : " muscles") + " — Open group")
+      );
+      card.addEventListener("click", function () {
+        activeMuscleGroup = groupName;
+        updateMuscleGroupFilters();
+        render();
+        grid.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return card;
+    }).filter(Boolean);
+    var namedRecords = regionRecords.filter(function (record) { return !collectiveIds.has(record.item.id); });
+    namedRecords.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
+    var directory = element("div", "neck-muscle-directory");
+    if (groupCards.length) {
+      var groupSection = element("section", "neck-directory-section");
+      var groupHeading = element("div", "neck-directory-heading");
+      groupHeading.append(element("h4", "", "Collective groups"), element("p", "", "Open a group when its smaller muscles are normally discussed together."));
+      var groupGrid = element("div", "muscle-collective-grid");
+      groupGrid.replaceChildren.apply(groupGrid, groupCards);
+      groupSection.append(groupHeading, groupGrid);
+      directory.appendChild(groupSection);
+    }
+    if (namedRecords.length) {
+      var namedSection = element("section", "neck-directory-section");
+      var namedHeading = element("div", "neck-directory-heading");
+      namedHeading.append(element("h4", "", "Named muscles"), element("p", "", "Open these directly. They are not hidden inside broad regional labels."));
+      var namedGrid = element("div", "muscle-region-grid");
+      namedGrid.replaceChildren.apply(namedGrid, namedRecords.map(createCard));
+      namedSection.append(namedHeading, namedGrid);
+      directory.appendChild(namedSection);
+    }
+    section.append(heading, directory);
   }
 
   function renderMuscleGroups(records) {
@@ -673,7 +744,12 @@
       var heading = element("header", "muscle-region-heading");
       var title = element("h3", "", meta.title);
       title.id = "muscle-region-" + region;
-      heading.append(title, element("span", "", regionRecords.length + (regionRecords.length === 1 ? " muscle" : " muscles")));
+      var regionalTotal = data.muscles.filter(function (item) { return item && item.published !== false && muscleRegion(item) === region; }).length;
+      heading.append(title, element("span", "", regionalTotal + (regionalTotal === 1 ? " muscle in directory" : " muscles in directory")));
+      if (region === "head-neck" && activeMuscleGroup === "all") {
+        renderNeckDirectory(regionRecords, section, heading);
+        return section;
+      }
       var subgroups = element("div", "muscle-subgroups");
       var groupNames = orderedMuscleGroups(regionRecords.map(function (record) { return record.item; }));
       groupNames.forEach(function (groupName) {
@@ -758,7 +834,7 @@
       var roleMatch = record.type === "muscles" && muscleFunctionalRoles(record.item).some(function (role) { return role.toLowerCase().includes(query) || role.toLowerCase().includes(roleQuery); });
       return fieldMatch || roleMatch;
     });
-    var groupMuscles = activeType === "muscles" && muscleSort.value === "body" && !query;
+    var groupMuscles = activeType === "muscles" && muscleSort.value === "body" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query;
     var groupRecipes = activeType === "recipes" && !query;
     if (activeType === "muscles" && muscleSort.value === "alpha") {
       records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
@@ -814,6 +890,7 @@
   muscleRegionButtons.forEach(function (button) {
     button.addEventListener("click", function () {
       activeMuscleRegion = button.dataset.muscleRegion;
+      activeMuscleGroup = "all";
       muscleRegionButtons.forEach(function (candidate) { var selected = candidate === button; candidate.classList.toggle("is-active", selected); candidate.setAttribute("aria-pressed", String(selected)); });
       updateFunctionOptions();
       updateMuscleGroupFilters();
