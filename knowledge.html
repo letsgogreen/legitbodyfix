@@ -79,6 +79,20 @@
           <button class="muscle-reset" id="muscleReset" type="button">Reset filters</button>
         </div>
       </div>
+      <div class="recipe-tools" id="recipeTools" hidden>
+        <div>
+          <p class="eyebrow">Choose a body area</p>
+          <p class="recipe-tools-copy">Start with the area you want to move more comfortably. Each recipe gives you a short sequence and a clear reassessment.</p>
+        </div>
+        <div class="recipe-region-filters" role="group" aria-label="Filter correction recipes by body area">
+          <button class="is-active" type="button" data-recipe-region="all" aria-pressed="true">All areas <span data-recipe-count="all"></span></button>
+          <button type="button" data-recipe-region="Neck &amp; shoulders" aria-pressed="false">Neck &amp; shoulders <span data-recipe-count="Neck &amp; shoulders"></span></button>
+          <button type="button" data-recipe-region="Trunk &amp; breathing" aria-pressed="false">Trunk &amp; breathing <span data-recipe-count="Trunk &amp; breathing"></span></button>
+          <button type="button" data-recipe-region="Hip &amp; pelvis" aria-pressed="false">Hip &amp; pelvis <span data-recipe-count="Hip &amp; pelvis"></span></button>
+          <button type="button" data-recipe-region="Knee" aria-pressed="false">Knee <span data-recipe-count="Knee"></span></button>
+          <button type="button" data-recipe-region="Ankle &amp; foot" aria-pressed="false">Ankle &amp; foot <span data-recipe-count="Ankle &amp; foot"></span></button>
+        </div>
+      </div>
       <section class="muscle-atlas" id="muscleAtlas" hidden aria-labelledby="muscleAtlasTitle">
         <div class="atlas-heading"><div><p class="eyebrow">Regional anatomy atlas</p><h3 id="muscleAtlasTitle">See the body area before opening a muscle.</h3></div><p>Historical anatomy plates provide regional context. Individual entries then show origin, insertion, and primary actions. Exact highlighted illustrations are used when available.</p></div>
         <div class="atlas-grid" id="atlasGrid"></div>
@@ -99,6 +113,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="index.html"><span>LBF</span><strong>LEGITBODYFIX</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260802-9" defer></script>
+  <script src="assets/js/knowledge.js?v=20260802-10" defer></script>
 </body>
 </html>

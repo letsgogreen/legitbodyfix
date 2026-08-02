@@ -44,6 +44,66 @@
   margin-top: 34px;
 }
 
+.recipe-tools {
+  margin: 0 0 36px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(220px, .72fr) 1.28fr;
+  gap: 34px;
+  align-items: center;
+  border: 1px solid var(--ink);
+  background: #e7e4dc;
+}
+
+.recipe-tools[hidden] { display: none; }
+
+.recipe-tools-copy {
+  max-width: 390px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.recipe-region-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.recipe-region-filters button {
+  min-height: 40px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.recipe-region-filters button:hover,
+.recipe-region-filters button.is-active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.recipe-region-filters span {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 99px;
+  background: var(--lime);
+  color: var(--ink);
+  font: 700 10px/1 var(--mono);
+}
+
 .recipe-region-section:first-child { margin-top: 0; }
 
 .recipe-region-heading {
@@ -91,10 +151,14 @@
 .knowledge-card.is-recipe:hover .recipe-card-meta i { color: #263000; }
 
 @media (max-width: 860px) {
+  .recipe-tools { grid-template-columns: 1fr; }
+  .recipe-region-filters { justify-content: flex-start; }
   .recipe-region-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 560px) {
+  .recipe-tools { padding: 18px; }
+  .recipe-region-filters button { flex: 1 1 calc(50% - 8px); justify-content: space-between; }
   .recipe-region-grid { grid-template-columns: 1fr; }
   .recipe-region-heading { padding: 0 14px; }
 }

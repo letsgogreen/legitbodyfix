@@ -9,6 +9,7 @@
   var directory = document.querySelector(".knowledge-directory");
   var filterButtons = Array.from(document.querySelectorAll("[data-knowledge-filter]"));
   var muscleTools = document.getElementById("muscleTools");
+  var recipeTools = document.getElementById("recipeTools");
   var muscleAtlas = document.getElementById("muscleAtlas");
   var atlasGrid = document.getElementById("atlasGrid");
   var knowledgePaths = document.getElementById("knowledgePaths");
@@ -16,9 +17,11 @@
   var muscleFunction = document.getElementById("muscleFunction");
   var muscleSort = document.getElementById("muscleSort");
   var muscleReset = document.getElementById("muscleReset");
+  var recipeRegionButtons = Array.from(document.querySelectorAll("[data-recipe-region]"));
   var activeType = "all";
   var activeMuscleRegion = "all";
   var activeMuscleFunction = "all";
+  var activeRecipeRegion = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
 
@@ -249,7 +252,19 @@
     });
     muscleTools.hidden = type !== "muscles";
     muscleAtlas.hidden = type !== "muscles";
+    recipeTools.hidden = type !== "recipes";
     render();
+  }
+
+  function updateRecipeCounts() {
+    var published = data.recipes.filter(function (item) { return item && item.published !== false; });
+    recipeRegionButtons.forEach(function (button) {
+      var region = button.dataset.recipeRegion;
+      var count = region === "all" ? published.length : published.filter(function (item) { return (item.bodyRegion || "Whole body") === region; }).length;
+      var target = button.querySelector("[data-recipe-count]");
+      if (target) target.textContent = String(count);
+      button.hidden = region !== "all" && count === 0;
+    });
   }
 
   function renderAtlas() {
@@ -385,9 +400,13 @@
       related = element("section", "related-sessions");
       var relatedHeading = element("div", "related-heading");
       var relatedHeadingCopy = element("div", "related-heading-copy");
-      relatedHeadingCopy.append(element("p", "detail-kicker", type === "muscles" ? "Train this area" : "Put it into practice"), element("h3", "", type === "muscles" ? "Related programs" : "Related guided sessions"));
+      relatedHeadingCopy.append(
+        element("p", "detail-kicker", type === "muscles" ? "Train this area" : type === "recipes" ? "Ready for guided progression" : "Put it into practice"),
+        element("h3", "", type === "muscles" ? "Related programs" : type === "recipes" ? "Continue with a complete program" : "Related guided sessions")
+      );
       relatedHeading.appendChild(relatedHeadingCopy);
       if (type === "muscles") relatedHeading.appendChild(element("p", "related-program-context", "Programs selected for the movement roles and body region described in this muscle guide."));
+      if (type === "recipes") relatedHeading.appendChild(element("p", "related-program-context", "Use this free recipe as a starting point. Choose a structured follow-along program when you want a complete progression."));
       var relatedGrid = element("div", "related-session-grid");
       relatedVideos.forEach(function (video) {
         var card = element("a", "related-session-card");
@@ -536,6 +555,7 @@
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
+      if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
       if (!query) return true;
       var fieldMatch = Object.values(record.item).some(function (value) { return typeof value === "string" && value.toLowerCase().includes(query); });
       var roleQuery = query.endsWith("s") ? query.slice(0, -1) : query;
@@ -565,7 +585,7 @@
     status.textContent = activeType === "muscles"
       ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase())
       : activeType === "recipes"
-        ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + " grouped by body area"
+        ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeRecipeRegion === "all" ? " grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
         : records.length + (records.length === 1 ? " movement guide" : " movement guides");
   }
 
@@ -614,6 +634,17 @@
     updateFunctionOptions();
     render();
   });
+  recipeRegionButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      activeRecipeRegion = button.dataset.recipeRegion;
+      recipeRegionButtons.forEach(function (candidate) {
+        var selected = candidate === button;
+        candidate.classList.toggle("is-active", selected);
+        candidate.setAttribute("aria-pressed", String(selected));
+      });
+      render();
+    });
+  });
   search.addEventListener("input", render);
   document.getElementById("detailBack").addEventListener("click", function () { showDirectory(); });
   window.addEventListener("popstate", openFromUrl);
@@ -630,6 +661,7 @@
       Object.keys(labels).forEach(function (type) { data[type] = Array.isArray(payload[type]) ? payload[type] : []; });
       updateMuscleCounts();
       updateFunctionOptions();
+      updateRecipeCounts();
       updateTypeCounts();
       renderAtlas();
       render();
