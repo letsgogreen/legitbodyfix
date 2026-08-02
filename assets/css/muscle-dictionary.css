@@ -28,6 +28,17 @@
   white-space: nowrap;
 }
 
+.knowledge-card-media-label.is-focused {
+  border: 1px solid var(--ink);
+  background: var(--lime);
+  color: var(--ink);
+}
+
+.knowledge-card-media-label.is-regional {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .knowledge-card-media img {
   width: 100%;
   height: 100%;
@@ -125,6 +136,16 @@
 
 .detail-anatomy-image figcaption a {
   text-underline-offset: 3px;
+}
+
+.detail-anatomy-image.is-focused figcaption {
+  border-top-color: var(--ink);
+  background: color-mix(in srgb, var(--lime) 18%, var(--paper));
+  color: var(--ink);
+}
+
+.detail-anatomy-image.is-regional figcaption {
+  border-top-color: var(--ink);
 }
 
 .knowledge-card-body-map {
@@ -235,7 +256,8 @@
 }
 
 .muscle-sort,
-.muscle-function {
+.muscle-function,
+.muscle-visual {
   min-width: 150px;
   display: grid;
   gap: 7px;
@@ -246,7 +268,8 @@
 }
 
 .muscle-sort select,
-.muscle-function select {
+.muscle-function select,
+.muscle-visual select {
   height: 38px;
   padding: 0 34px 0 11px;
   border: 1px solid var(--ink);
@@ -339,6 +362,39 @@
   font: 500 10px/1 var(--mono);
 }
 
+.muscle-family-list {
+  display: grid;
+  gap: 24px;
+}
+
+.muscle-family {
+  min-width: 0;
+  padding: 14px 0 0 18px;
+  border-left: 3px solid color-mix(in srgb, var(--teal) 58%, transparent);
+}
+
+.muscle-family-heading {
+  padding: 0 2px 10px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.muscle-family-heading h5 {
+  font: 700 12px/1.2 var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.muscle-family-heading span {
+  color: var(--muted);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
 .muscle-region-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -358,7 +414,8 @@
   .muscle-tools { align-items: stretch; flex-direction: column; }
   .muscle-tool-selects { align-items: stretch; flex-direction: column; }
   .muscle-sort,
-  .muscle-function { width: 100%; }
+  .muscle-function,
+  .muscle-visual { width: 100%; }
   .muscle-reset { width: 100%; }
   .muscle-region-section + .muscle-region-section { margin-top: 38px; }
   .muscle-region-heading { align-items: flex-start; flex-direction: column; gap: 9px; }

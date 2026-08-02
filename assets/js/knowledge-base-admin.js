@@ -31,7 +31,7 @@
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     muscles: [
-      ["title", "Muscle name", 120], ["group", "Body region", 160], ["origin", "Origin", 800, true],
+      ["title", "Muscle name", 120], ["group", "Anatomical group", 160], ["family", "Muscle family", 160], ["origin", "Origin", 800, true],
       ["insertion", "Insertion", 800, true], ["actions", "Functions and actions", 800, true],
       ["imageUrl", "Anatomy image URL (HTTPS)", 800], ["imageAlt", "Image description", 240],
       ["imageCredit", "Image credit", 240], ["imageCreditUrl", "Image source URL (HTTPS)", 800],

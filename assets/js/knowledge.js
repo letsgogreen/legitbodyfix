@@ -16,6 +16,7 @@
   var knowledgePaths = document.getElementById("knowledgePaths");
   var muscleRegionButtons = Array.from(document.querySelectorAll("[data-muscle-region]"));
   var muscleFunction = document.getElementById("muscleFunction");
+  var muscleVisual = document.getElementById("muscleVisual");
   var muscleSort = document.getElementById("muscleSort");
   var muscleReset = document.getElementById("muscleReset");
   var recipeRegionButtons = Array.from(document.querySelectorAll("[data-recipe-region]"));
@@ -23,10 +24,32 @@
   var activeType = "all";
   var activeMuscleRegion = "all";
   var activeMuscleFunction = "all";
+  var activeMuscleVisual = "all";
   var activeRecipeRegion = "all";
   var activeCarePath = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
+
+  function normalizedAnatomyName(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  }
+
+  function hasFocusedMuscleImage(item) {
+    if (!item || !item.title || !item.imageAlt) return false;
+    var title = normalizedAnatomyName(item.title);
+    var description = normalizedAnatomyName(item.imageAlt);
+    return Boolean(title) && description.indexOf(title) !== -1 && /highlight|focus|depict|render/.test(description);
+  }
+
+  function muscleImageLabel(item) {
+    return hasFocusedMuscleImage(item)
+      ? "Highlighted · " + item.title
+      : "Regional reference · locate " + item.title;
+  }
+
+  function muscleVisualType(item) {
+    return hasFocusedMuscleImage(item) ? "focused" : "regional";
+  }
 
   var muscleRegions = {
     "head-neck": { title: "Neck", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1117_Muscles_of_the_Back.png", imageAlt: "OpenStax anatomy plate of the neck and upper back", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1117_Muscles_of_the_Back.png" },
@@ -44,6 +67,12 @@
     "Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters",
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
+  ];
+  var muscleFamilyOrder = [
+    "Superficial neck", "Splenius", "Prevertebral muscles", "Suprahyoid muscles", "Infrahyoid muscles",
+    "Semispinalis", "Longissimus", "Iliocostalis", "Spinalis", "Scalenes", "Suboccipital muscles",
+    "Transversospinalis", "Interspinales", "Intertransversarii", "Rotatores", "Levatores costarum",
+    "Anterior abdominal wall", "Posterior abdominal wall", "Hypothenar muscles", "Hip adductors", "Inguinal muscles"
   ];
 
   var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
@@ -73,7 +102,7 @@
   };
   var fields = {
     conditions: [["joints", "Areas involved"], ["tags", "Common associations"], ["tightMuscles", "Often overactive or restricted"], ["weakMuscles", "Often underactive"], ["screening", "Movement screen"]],
-    muscles: [["group", "Body region"], ["origin", "Origin"], ["insertion", "Insertion"], ["actions", "Functions and actions"]],
+    muscles: [["group", "Anatomical group"], ["family", "Muscle family"], ["origin", "Origin"], ["insertion", "Insertion"], ["actions", "Functions and actions"]],
     recipes: [["bodyRegion", "Body area"], ["goal", "Goal"], ["whenToUse", "A useful starting point when"], ["equipment", "What you may need"], ["steps", "Starting sequence"], ["dosage", "Suggested dose"], ["reassess", "Reassess before progressing"], ["regression", "Make it easier"], ["progression", "Make it harder"], ["cautions", "Stop and get help when"], ["relatedConditions", "Related movement patterns"]]
   };
 
@@ -82,6 +111,24 @@
     if (className) node.className = className;
     if (typeof text === "string") node.textContent = text;
     return node;
+  }
+
+  function muscleFamily(item) {
+    var explicitFamily = String(item && item.family || "").trim();
+    if (explicitFamily) return explicitFamily;
+    var title = String(item && item.title || "").toLowerCase();
+    var families = [
+      ["splenius ", "Splenius"], ["semispinalis ", "Semispinalis"], ["longissimus ", "Longissimus"],
+      ["iliocostalis ", "Iliocostalis"], ["spinalis ", "Spinalis"], ["scalene", "Scalenes"]
+    ];
+    for (var index = 0; index < families.length; index += 1) {
+      if (title.indexOf(families[index][0]) === 0 || title.indexOf(" " + families[index][0]) !== -1) return families[index][1];
+    }
+    if (["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) return "Prevertebral muscles";
+    if (["digastric", "stylohyoid", "mylohyoid", "geniohyoid"].indexOf(title) !== -1) return "Suprahyoid muscles";
+    if (["sternohyoid", "omohyoid", "sternothyroid", "thyrohyoid"].indexOf(title) !== -1) return "Infrahyoid muscles";
+    if (/rectus capitis posterior|obliquus capitis/.test(title)) return "Suboccipital muscles";
+    return "";
   }
 
   function openAnatomyViewer(item) {
@@ -365,7 +412,7 @@
     }
     var list = element("dl", "detail-fields");
     fields[type].forEach(function (definition) {
-      var value = item[definition[0]];
+      var value = type === "muscles" && definition[0] === "family" ? muscleFamily(item) : item[definition[0]];
       if (type === "muscles" && definition[0] === "actions" && !value) value = item.function;
       if (typeof value !== "string" || !value.trim()) return;
       var row = element("div", "detail-field");
@@ -379,7 +426,9 @@
       if (detailRoles) facts.appendChild(detailRoles);
     }
     if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl)) {
+      var focusedMuscleImage = hasFocusedMuscleImage(item);
       var figure = element("figure", "detail-anatomy-image");
+      figure.classList.add(focusedMuscleImage ? "is-focused" : "is-regional");
       var anatomyButton = element("button", "anatomy-zoom-button");
       anatomyButton.type = "button";
       anatomyButton.setAttribute("aria-label", "Enlarge anatomy plate for " + item.title);
@@ -399,12 +448,18 @@
           creditLink.target = "_blank";
           creditLink.rel = "noopener noreferrer";
           creditLink.textContent = item.imageCredit;
-          caption.append("Plate context: " + (item.group || "body region") + ". Image: ", creditLink);
-        } else caption.textContent = "Plate context: " + (item.group || "body region") + ". Image: " + item.imageCredit;
-        caption.append(". This plate may show nearby muscles; use the listed attachments and actions to identify the selected muscle.");
+          caption.append(focusedMuscleImage ? "Highlighted anatomy: " : "Regional anatomy reference: ", creditLink);
+        } else caption.textContent = (focusedMuscleImage ? "Highlighted anatomy: " : "Regional anatomy reference: ") + item.imageCredit;
+        caption.append(focusedMuscleImage
+          ? ". The named muscle is highlighted; nearby structures remain visible for orientation."
+          : ". " + item.title + " is not separately highlighted in this plate. Use the body locator, attachments, and actions below to identify it.");
         figure.appendChild(caption);
       }
       facts.appendChild(figure);
+      if (!focusedMuscleImage) {
+        var supportingBodyMap = createBodyMap(item, false);
+        if (supportingBodyMap) facts.appendChild(supportingBodyMap);
+      }
     } else if (type === "muscles") {
       var region = muscleRegions[muscleRegion(item)];
       if (region) {
@@ -502,7 +557,9 @@
       image.alt = "";
       image.loading = "lazy";
       image.decoding = "async";
-      media.append(image, element("span", "knowledge-card-media-label", (record.item.group || "Anatomy") + " plate"));
+      var imageLabel = element("span", "knowledge-card-media-label", muscleImageLabel(record.item));
+      imageLabel.classList.add(hasFocusedMuscleImage(record.item) ? "is-focused" : "is-regional");
+      media.append(image, imageLabel);
       card.appendChild(media);
     } else if (record.type === "muscles") {
       var map = createBodyMap(record.item, true);
@@ -570,9 +627,34 @@
         var subgroup = element("section", "muscle-subgroup");
         var subgroupHeading = element("div", "muscle-subgroup-heading");
         subgroupHeading.append(element("h4", "", groupName), element("span", "", String(groupRecords.length)));
-        var regionGrid = element("div", "muscle-region-grid");
-        regionGrid.replaceChildren.apply(regionGrid, groupRecords.map(createCard));
-        subgroup.append(subgroupHeading, regionGrid);
+        var familyNames = Array.from(new Set(groupRecords.map(function (record) { return muscleFamily(record.item); }).filter(Boolean)));
+        familyNames.sort(function (a, b) {
+          var aIndex = muscleFamilyOrder.indexOf(a), bIndex = muscleFamilyOrder.indexOf(b);
+          if (aIndex === -1) aIndex = muscleFamilyOrder.length;
+          if (bIndex === -1) bIndex = muscleFamilyOrder.length;
+          return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
+        });
+        if (familyNames.length) {
+          var familyList = element("div", "muscle-family-list");
+          var ungrouped = groupRecords.filter(function (record) { return !muscleFamily(record.item); });
+          if (ungrouped.length) familyNames.push("Other " + groupName.toLowerCase() + " muscles");
+          familyNames.forEach(function (familyName) {
+            var isOther = familyName.indexOf("Other ") === 0;
+            var familyRecords = isOther ? ungrouped : groupRecords.filter(function (record) { return muscleFamily(record.item) === familyName; });
+            var family = element("section", "muscle-family");
+            var familyHeading = element("div", "muscle-family-heading");
+            familyHeading.append(element("h5", "", familyName), element("span", "", familyRecords.length + (familyRecords.length === 1 ? " muscle" : " muscles")));
+            var familyGrid = element("div", "muscle-region-grid");
+            familyGrid.replaceChildren.apply(familyGrid, familyRecords.map(createCard));
+            family.append(familyHeading, familyGrid);
+            familyList.appendChild(family);
+          });
+          subgroup.append(subgroupHeading, familyList);
+        } else {
+          var regionGrid = element("div", "muscle-region-grid");
+          regionGrid.replaceChildren.apply(regionGrid, groupRecords.map(createCard));
+          subgroup.append(subgroupHeading, regionGrid);
+        }
         subgroups.appendChild(subgroup);
       });
       section.append(heading, subgroups);
@@ -612,6 +694,7 @@
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
+      if (activeType === "muscles" && activeMuscleVisual !== "all" && muscleVisualType(record.item) !== activeMuscleVisual) return false;
       if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
       if ((activeType === "conditions" || activeType === "recipes") && activeCarePath !== "all" && carePath(record.item) !== activeCarePath) return false;
       if (!query) return true;
@@ -641,7 +724,7 @@
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
     status.textContent = activeType === "muscles"
-      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase())
+      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
       : activeType === "recipes"
         ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
         : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase());
@@ -677,11 +760,17 @@
     activeMuscleFunction = muscleFunction.value;
     render();
   });
+  muscleVisual.addEventListener("change", function () {
+    activeMuscleVisual = muscleVisual.value;
+    render();
+  });
   muscleSort.addEventListener("change", render);
   muscleReset.addEventListener("click", function () {
     activeMuscleRegion = "all";
     activeMuscleFunction = "all";
+    activeMuscleVisual = "all";
     muscleFunction.value = "all";
+    muscleVisual.value = "all";
     muscleSort.value = "body";
     search.value = "";
     muscleRegionButtons.forEach(function (candidate) {
