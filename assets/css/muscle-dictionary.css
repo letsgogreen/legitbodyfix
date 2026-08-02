@@ -256,7 +256,8 @@
 }
 
 .muscle-sort,
-.muscle-function {
+.muscle-function,
+.muscle-visual {
   min-width: 150px;
   display: grid;
   gap: 7px;
@@ -267,7 +268,8 @@
 }
 
 .muscle-sort select,
-.muscle-function select {
+.muscle-function select,
+.muscle-visual select {
   height: 38px;
   padding: 0 34px 0 11px;
   border: 1px solid var(--ink);
@@ -412,7 +414,8 @@
   .muscle-tools { align-items: stretch; flex-direction: column; }
   .muscle-tool-selects { align-items: stretch; flex-direction: column; }
   .muscle-sort,
-  .muscle-function { width: 100%; }
+  .muscle-function,
+  .muscle-visual { width: 100%; }
   .muscle-reset { width: 100%; }
   .muscle-region-section + .muscle-region-section { margin-top: 38px; }
   .muscle-region-heading { align-items: flex-start; flex-direction: column; gap: 9px; }

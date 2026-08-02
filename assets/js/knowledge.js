@@ -16,6 +16,7 @@
   var knowledgePaths = document.getElementById("knowledgePaths");
   var muscleRegionButtons = Array.from(document.querySelectorAll("[data-muscle-region]"));
   var muscleFunction = document.getElementById("muscleFunction");
+  var muscleVisual = document.getElementById("muscleVisual");
   var muscleSort = document.getElementById("muscleSort");
   var muscleReset = document.getElementById("muscleReset");
   var recipeRegionButtons = Array.from(document.querySelectorAll("[data-recipe-region]"));
@@ -23,6 +24,7 @@
   var activeType = "all";
   var activeMuscleRegion = "all";
   var activeMuscleFunction = "all";
+  var activeMuscleVisual = "all";
   var activeRecipeRegion = "all";
   var activeCarePath = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
@@ -43,6 +45,10 @@
     return hasFocusedMuscleImage(item)
       ? "Highlighted · " + item.title
       : "Regional reference · locate " + item.title;
+  }
+
+  function muscleVisualType(item) {
+    return hasFocusedMuscleImage(item) ? "focused" : "regional";
   }
 
   var muscleRegions = {
@@ -688,6 +694,7 @@
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
+      if (activeType === "muscles" && activeMuscleVisual !== "all" && muscleVisualType(record.item) !== activeMuscleVisual) return false;
       if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
       if ((activeType === "conditions" || activeType === "recipes") && activeCarePath !== "all" && carePath(record.item) !== activeCarePath) return false;
       if (!query) return true;
@@ -717,7 +724,7 @@
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
     status.textContent = activeType === "muscles"
-      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase())
+      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
       : activeType === "recipes"
         ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
         : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase());
@@ -753,11 +760,17 @@
     activeMuscleFunction = muscleFunction.value;
     render();
   });
+  muscleVisual.addEventListener("change", function () {
+    activeMuscleVisual = muscleVisual.value;
+    render();
+  });
   muscleSort.addEventListener("change", render);
   muscleReset.addEventListener("click", function () {
     activeMuscleRegion = "all";
     activeMuscleFunction = "all";
+    activeMuscleVisual = "all";
     muscleFunction.value = "all";
+    muscleVisual.value = "all";
     muscleSort.value = "body";
     search.value = "";
     muscleRegionButtons.forEach(function (candidate) {
