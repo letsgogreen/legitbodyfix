@@ -97,10 +97,11 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /function muscleSectionGroup/);
   assert.match(javascript, /function updateMuscleGroupFilters/);
   assert.match(javascript, /function renderNeckDirectory/);
-  assert.match(javascript, /collectiveNeckGroups = \["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"\]/);
+  assert.match(javascript, /collectiveNeckGroups = \["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"\]/);
   assert.match(javascript, /function neckDirectoryGroup/);
+  assert.match(javascript, /function neckDirectoryGroups/);
   assert.match(javascript, /function muscleInRegion/);
-  assert.match(javascript, /"Deep neck flexors", "Splenius muscles", "Capitis muscles"/);
+  assert.match(javascript, /"Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles"/);
   assert.doesNotMatch(javascript, /Deep cervical stabilizers/);
   assert.doesNotMatch(javascript, /Cervicoscapular muscles/);
   assert.match(javascript, /neck-visual-directory/);
@@ -258,6 +259,20 @@ test("neck directory exposes deep flexors, splenius, and upper trapezius", funct
     assert.ok(trapezius.imageUrl.includes("Trapezius_muscle_animation2.gif"));
   });
   assert.equal(data.muscles.find(function (muscle) { return muscle.id === "longissimus-cervicis"; }).group, "Erector spinae");
+});
+
+test("neck directory cross-lists capitis and cervicis descriptors without replacing true families", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  var cervicisIds = data.muscles
+    .filter(function (muscle) { return /\bcervicis\b/i.test(muscle.title); })
+    .map(function (muscle) { return muscle.id; });
+  ["splenius-cervicis", "semispinalis-cervicis", "longissimus-cervicis", "iliocostalis-cervicis", "spinalis-cervicis", "interspinales-cervicis", "intertransversarii-cervicis"].forEach(function (id) {
+    assert.ok(cervicisIds.includes(id), "Cervicis collection is missing " + id);
+  });
+  assert.equal(cervicisIds.length, 7);
+  assert.match(javascript, /title\.indexOf\("cervicis"\) !== -1\) groups\.push\("Cervicis muscles"\)/);
+  assert.match(javascript, /neckDirectoryGroups\(record\.item\)\.indexOf\(groupName\) !== -1/);
 });
 
 test("muscle dictionary includes the remaining distinct regional muscles", function () {
