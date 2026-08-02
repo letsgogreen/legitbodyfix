@@ -9,6 +9,8 @@
   var directory = document.querySelector(".knowledge-directory");
   var filterButtons = Array.from(document.querySelectorAll("[data-knowledge-filter]"));
   var muscleTools = document.getElementById("muscleTools");
+  var recipeTools = document.getElementById("recipeTools");
+  var carePathTools = document.getElementById("carePathTools");
   var muscleAtlas = document.getElementById("muscleAtlas");
   var atlasGrid = document.getElementById("atlasGrid");
   var knowledgePaths = document.getElementById("knowledgePaths");
@@ -16,9 +18,13 @@
   var muscleFunction = document.getElementById("muscleFunction");
   var muscleSort = document.getElementById("muscleSort");
   var muscleReset = document.getElementById("muscleReset");
+  var recipeRegionButtons = Array.from(document.querySelectorAll("[data-recipe-region]"));
+  var carePathButtons = Array.from(document.querySelectorAll("[data-care-path]"));
   var activeType = "all";
   var activeMuscleRegion = "all";
   var activeMuscleFunction = "all";
+  var activeRecipeRegion = "all";
+  var activeCarePath = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
 
@@ -40,16 +46,35 @@
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
 
-  var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Program preview" };
+  var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
+  var carePaths = {
+    "postural-movement": {
+      label: "Postural & movement issues",
+      description: "Non-acute education for posture, comfort, coordination, mobility, and load control. It does not diagnose a body part as structurally misaligned."
+    },
+    "musculoskeletal-condition": {
+      label: "Musculoskeletal conditions & injuries",
+      description: "A cautious pathway for sprains, dislocations, disc-related conditions, and nerve-related syndromes. Some conditions require assessment before exercise is appropriate."
+    }
+  };
+
+  function carePath(item) {
+    return item && carePaths[item.pathway] ? item.pathway : "postural-movement";
+  }
+
+  function contentLabel(type, item) {
+    if (type === "muscles") return labels[type];
+    return carePaths[carePath(item)].label;
+  }
   var summaries = {
     conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
     muscles: function (item) { return item.actions || item.function || "Explore this muscle's role in movement."; },
-    recipes: function (item) { return item.goal || "Preview the purpose of this guided program."; }
+    recipes: function (item) { return item.goal || "Use a focused sequence, then reassess before progressing."; }
   };
   var fields = {
     conditions: [["joints", "Areas involved"], ["tags", "Common associations"], ["tightMuscles", "Often overactive or restricted"], ["weakMuscles", "Often underactive"], ["screening", "Movement screen"]],
     muscles: [["group", "Body region"], ["origin", "Origin"], ["insertion", "Insertion"], ["actions", "Functions and actions"]],
-    recipes: [["goal", "What this program works toward"], ["equipment", "What you may need"], ["cautions", "Before you begin"], ["relatedConditions", "Related movement patterns"]]
+    recipes: [["bodyRegion", "Body area"], ["goal", "Goal"], ["whenToUse", "A useful starting point when"], ["equipment", "What you may need"], ["steps", "Starting sequence"], ["dosage", "Suggested dose"], ["reassess", "Reassess before progressing"], ["regression", "Make it easier"], ["progression", "Make it harder"], ["cautions", "Stop and get help when"], ["relatedConditions", "Related movement patterns"]]
   };
 
   function element(tag, className, text) {
@@ -57,6 +82,33 @@
     if (className) node.className = className;
     if (typeof text === "string") node.textContent = text;
     return node;
+  }
+
+  function openAnatomyViewer(item) {
+    var dialog = document.getElementById("anatomyViewer");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "anatomyViewer";
+      dialog.className = "anatomy-viewer";
+      var panel = element("div", "anatomy-viewer-panel");
+      var close = element("button", "anatomy-viewer-close", "Close");
+      close.type = "button";
+      close.addEventListener("click", function () { dialog.close(); });
+      var image = document.createElement("img");
+      image.className = "anatomy-viewer-image";
+      var copy = element("div", "anatomy-viewer-copy");
+      copy.append(element("p", "detail-kicker", "Anatomy plate"), element("h3", "anatomy-viewer-title"), element("p", "anatomy-viewer-note"));
+      panel.append(close, image, copy);
+      dialog.appendChild(panel);
+      dialog.addEventListener("click", function (event) { if (event.target === dialog) dialog.close(); });
+      document.body.appendChild(dialog);
+    }
+    dialog.querySelector(".anatomy-viewer-image").src = item.imageUrl;
+    dialog.querySelector(".anatomy-viewer-image").alt = item.imageAlt || (item.title + " anatomy illustration");
+    dialog.querySelector(".anatomy-viewer-title").textContent = item.title;
+    dialog.querySelector(".anatomy-viewer-note").textContent = (item.imageAlt || "Anatomical reference plate") + ". The plate may include nearby structures for orientation.";
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
   }
 
   var bodyMapHighlights = {
@@ -222,7 +274,32 @@
     });
     muscleTools.hidden = type !== "muscles";
     muscleAtlas.hidden = type !== "muscles";
+    recipeTools.hidden = type !== "recipes";
+    carePathTools.hidden = type !== "conditions" && type !== "recipes";
     render();
+  }
+
+  function updateRecipeCounts() {
+    var published = data.recipes.filter(function (item) { return item && item.published !== false && (activeCarePath === "all" || carePath(item) === activeCarePath); });
+    recipeRegionButtons.forEach(function (button) {
+      var region = button.dataset.recipeRegion;
+      var count = region === "all" ? published.length : published.filter(function (item) { return (item.bodyRegion || "Whole body") === region; }).length;
+      var target = button.querySelector("[data-recipe-count]");
+      if (target) target.textContent = String(count);
+      button.hidden = region !== "all" && count === 0;
+    });
+  }
+
+  function updateCarePathCounts() {
+    var source = activeType === "conditions" || activeType === "recipes" ? data[activeType] : [];
+    var published = source.filter(function (item) { return item && item.published !== false; });
+    carePathButtons.forEach(function (button) {
+      var pathway = button.dataset.carePath;
+      var count = pathway === "all" ? published.length : published.filter(function (item) { return carePath(item) === pathway; }).length;
+      var target = button.querySelector("[data-care-count]");
+      if (target) target.textContent = String(count);
+      button.hidden = pathway !== "all" && count === 0;
+    });
   }
 
   function renderAtlas() {
@@ -279,7 +356,13 @@
   function openDetail(type, item, shouldUpdateUrl) {
     if (!labels[type] || !item) return;
     var intro = element("div", "detail-intro");
-    intro.append(element("p", "detail-kicker", labels[type]), element("h2", "", item.title || "Untitled"), element("p", "detail-summary", summaries[type](item)));
+    intro.append(element("p", "detail-kicker", contentLabel(type, item)), element("h2", "", item.title || "Untitled"), element("p", "detail-summary", summaries[type](item)));
+    if (type === "conditions" || type === "recipes") {
+      var path = carePath(item);
+      var pathNotice = element("div", "detail-care-path is-" + path);
+      pathNotice.append(element("strong", "", carePaths[path].label), element("p", "", carePaths[path].description));
+      intro.appendChild(pathNotice);
+    }
     var list = element("dl", "detail-fields");
     fields[type].forEach(function (definition) {
       var value = item[definition[0]];
@@ -297,12 +380,17 @@
     }
     if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl)) {
       var figure = element("figure", "detail-anatomy-image");
+      var anatomyButton = element("button", "anatomy-zoom-button");
+      anatomyButton.type = "button";
+      anatomyButton.setAttribute("aria-label", "Enlarge anatomy plate for " + item.title);
       var anatomyImage = document.createElement("img");
       anatomyImage.src = item.imageUrl;
       anatomyImage.alt = item.imageAlt || (item.title + " anatomy illustration");
       anatomyImage.loading = "eager";
       anatomyImage.decoding = "async";
-      figure.appendChild(anatomyImage);
+      anatomyButton.append(anatomyImage, element("span", "anatomy-zoom-label", "Enlarge plate"));
+      anatomyButton.addEventListener("click", function () { openAnatomyViewer(item); });
+      figure.appendChild(anatomyButton);
       if (item.imageCredit) {
         var caption = document.createElement("figcaption");
         if (typeof item.imageCreditUrl === "string" && /^https:\/\//i.test(item.imageCreditUrl)) {
@@ -311,8 +399,9 @@
           creditLink.target = "_blank";
           creditLink.rel = "noopener noreferrer";
           creditLink.textContent = item.imageCredit;
-          caption.append("Image: ", creditLink);
-        } else caption.textContent = "Image: " + item.imageCredit;
+          caption.append("Plate context: " + (item.group || "body region") + ". Image: ", creditLink);
+        } else caption.textContent = "Plate context: " + (item.group || "body region") + ". Image: " + item.imageCredit;
+        caption.append(". This plate may show nearby muscles; use the listed attachments and actions to identify the selected muscle.");
         figure.appendChild(caption);
       }
       facts.appendChild(figure);
@@ -337,12 +426,25 @@
       var bodyMap = createBodyMap(item, false);
       if (bodyMap) facts.appendChild(bodyMap);
     }
-    facts.append(list, element("p", "detail-disclaimer", "Use this resource for movement education only. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician."));
+    var disclaimer = type !== "muscles" && carePath(item) === "musculoskeletal-condition"
+      ? "This guide is educational and does not diagnose or treat a musculoskeletal condition. A suspected dislocation, visible deformity, inability to bear weight, substantial swelling, worsening pain, numbness, weakness, or new bladder or bowel changes needs prompt medical assessment before self-guided exercise."
+      : "This postural and movement resource describes observable patterns, not a diagnosis that a joint or bone is out of place. Pain, acute injury, neurological symptoms, or uncertainty about exercise should be assessed by a qualified clinician.";
+    facts.append(list, element("p", "detail-disclaimer", disclaimer));
     if (type === "muscles" && item.sourceName && typeof item.sourceUrl === "string" && /^https:\/\//i.test(item.sourceUrl)) {
       var source = element("p", "detail-source", "Reference: ");
       var sourceLink = document.createElement("a");
       sourceLink.href = item.sourceUrl; sourceLink.target = "_blank"; sourceLink.rel = "noopener noreferrer"; sourceLink.textContent = item.sourceName;
       source.appendChild(sourceLink); facts.appendChild(source);
+    }
+    if (type === "recipes" && item.sourceName && typeof item.sourceUrl === "string" && /^https:\/\//i.test(item.sourceUrl)) {
+      var recipeSource = element("p", "detail-source", "General exercise reference: ");
+      var recipeSourceLink = document.createElement("a");
+      recipeSourceLink.href = item.sourceUrl;
+      recipeSourceLink.target = "_blank";
+      recipeSourceLink.rel = "noopener noreferrer";
+      recipeSourceLink.textContent = item.sourceName;
+      recipeSource.appendChild(recipeSourceLink);
+      facts.appendChild(recipeSource);
     }
     body.append(intro, facts);
     var relatedIds = typeof item.relatedVideoIds === "string" ? item.relatedVideoIds.split(",").map(function (id) { return id.trim(); }).filter(Boolean) : [];
@@ -351,13 +453,21 @@
     if (relatedVideos.length) {
       related = element("section", "related-sessions");
       var relatedHeading = element("div", "related-heading");
-      relatedHeading.append(element("p", "detail-kicker", "Put it into practice"), element("h3", "", "Related guided sessions"));
+      var relatedHeadingCopy = element("div", "related-heading-copy");
+      relatedHeadingCopy.append(
+        element("p", "detail-kicker", type === "muscles" ? "Train this area" : type === "recipes" ? "Ready for guided progression" : "Put it into practice"),
+        element("h3", "", type === "muscles" ? "Related programs" : type === "recipes" ? "Continue with a complete program" : "Related guided sessions")
+      );
+      relatedHeading.appendChild(relatedHeadingCopy);
+      if (type === "muscles") relatedHeading.appendChild(element("p", "related-program-context", "Programs selected for the movement roles and body region described in this muscle guide."));
+      if (type === "recipes") relatedHeading.appendChild(element("p", "related-program-context", "Use this free recipe as a starting point. Choose a structured follow-along program when you want a complete progression."));
       var relatedGrid = element("div", "related-session-grid");
       relatedVideos.forEach(function (video) {
         var card = element("a", "related-session-card");
+        if (type === "muscles") card.classList.add("is-program-match");
         card.href = "video.html?id=" + encodeURIComponent(video.id);
         var copy = element("div", "related-session-copy");
-        copy.append(element("span", "", String(video.durationMinutes || "") + " min · " + (video.level || "Session")), element("h4", "", video.title || "Movement session"), element("p", "", video.description || "Follow this focused guided session."), element("b", "", "View session →"));
+        copy.append(element("span", "", (type === "muscles" ? "Related program · " : "") + String(video.durationMinutes || "") + " min · " + (video.level || "Session")), element("h4", "", video.title || "Movement session"), element("p", "", video.description || "Follow this focused guided session."), element("b", "", type === "muscles" ? "Explore this program →" : "View session →"));
         var imageUrl = typeof video.thumbnailUrl === "string" && /^https:\/\//.test(video.thumbnailUrl) ? video.thumbnailUrl : "";
         if (imageUrl) { var image = document.createElement("img"); image.src = imageUrl; image.alt = ""; image.loading = "lazy"; card.appendChild(image); }
         card.appendChild(copy); relatedGrid.appendChild(card);
@@ -392,7 +502,7 @@
       image.alt = "";
       image.loading = "lazy";
       image.decoding = "async";
-      media.appendChild(image);
+      media.append(image, element("span", "knowledge-card-media-label", (record.item.group || "Anatomy") + " plate"));
       card.appendChild(media);
     } else if (record.type === "muscles") {
       var map = createBodyMap(record.item, true);
@@ -402,7 +512,14 @@
       var roles = createFunctionalRoleList(record.item);
       if (roles) card.appendChild(roles);
     }
-    card.append(element("span", "knowledge-card-type", labels[record.type]), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Preview the approach →" : "Read the guide →"));
+    if (record.type === "recipes") {
+      card.classList.add("is-recipe");
+      var recipeMeta = element("span", "recipe-card-meta");
+      recipeMeta.append(element("b", "", record.item.bodyRegion || "Whole body"), element("i", "", record.item.time || "10–15 min"));
+      card.appendChild(recipeMeta);
+    }
+    if (record.type === "conditions" || record.type === "recipes") card.classList.add("care-path-" + carePath(record.item));
+    card.append(element("span", "knowledge-card-type", contentLabel(record.type, record.item)), element("h3", "", record.item.title), element("p", "", summaries[record.type](record.item)), element("span", "knowledge-card-link", record.type === "recipes" ? "Open the recipe →" : "Read the guide →"));
     card.addEventListener("click", function () { openDetail(record.type, record.item); });
     return card;
   }
@@ -464,13 +581,39 @@
     grid.replaceChildren.apply(grid, sections);
   }
 
+  function renderRecipeGroups(records) {
+    var regionOrder = ["Neck & shoulders", "Trunk & breathing", "Hip & pelvis", "Knee", "Ankle & foot", "Whole body"];
+    var regions = Array.from(new Set(records.map(function (record) { return record.item.bodyRegion || "Whole body"; })));
+    regions.sort(function (a, b) {
+      var aIndex = regionOrder.indexOf(a), bIndex = regionOrder.indexOf(b);
+      if (aIndex === -1) aIndex = regionOrder.length;
+      if (bIndex === -1) bIndex = regionOrder.length;
+      return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
+    });
+    var sections = regions.map(function (region) {
+      var regionRecords = records.filter(function (record) { return (record.item.bodyRegion || "Whole body") === region; });
+      var section = element("section", "recipe-region-section");
+      var heading = element("header", "recipe-region-heading");
+      heading.append(element("h3", "", region), element("span", "", regionRecords.length + (regionRecords.length === 1 ? " recipe" : " recipes")));
+      var recipeGrid = element("div", "recipe-region-grid");
+      recipeGrid.replaceChildren.apply(recipeGrid, regionRecords.map(createCard));
+      section.append(heading, recipeGrid);
+      return section;
+    });
+    grid.replaceChildren.apply(grid, sections);
+  }
+
   function render() {
     var query = search.value.trim().toLowerCase();
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
+    updateCarePathCounts();
+    updateRecipeCounts();
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
+      if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
+      if ((activeType === "conditions" || activeType === "recipes") && activeCarePath !== "all" && carePath(record.item) !== activeCarePath) return false;
       if (!query) return true;
       var fieldMatch = Object.values(record.item).some(function (value) { return typeof value === "string" && value.toLowerCase().includes(query); });
       var roleQuery = query.endsWith("s") ? query.slice(0, -1) : query;
@@ -478,6 +621,7 @@
       return fieldMatch || roleMatch;
     });
     var groupMuscles = activeType === "muscles" && muscleSort.value === "body" && !query;
+    var groupRecipes = activeType === "recipes" && !query;
     if (activeType === "muscles" && muscleSort.value === "alpha") {
       records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
     }
@@ -490,14 +634,17 @@
       return;
     }
     grid.hidden = false;
-    grid.classList.toggle("is-grouped", groupMuscles && Boolean(records.length));
+    grid.classList.toggle("is-grouped", (groupMuscles || groupRecipes) && Boolean(records.length));
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
     else if (groupMuscles) renderMuscleGroups(records);
+    else if (groupRecipes) renderRecipeGroups(records);
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
     status.textContent = activeType === "muscles"
       ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 8 body regions" : " in this body region") : " matching " + activeMuscleFunction.toLowerCase())
-      : records.length + (records.length === 1 ? " movement guide" : " movement guides");
+      : activeType === "recipes"
+        ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
+        : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase());
   }
 
   function openFromUrl() {
@@ -545,6 +692,28 @@
     updateFunctionOptions();
     render();
   });
+  recipeRegionButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      activeRecipeRegion = button.dataset.recipeRegion;
+      recipeRegionButtons.forEach(function (candidate) {
+        var selected = candidate === button;
+        candidate.classList.toggle("is-active", selected);
+        candidate.setAttribute("aria-pressed", String(selected));
+      });
+      render();
+    });
+  });
+  carePathButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      activeCarePath = button.dataset.carePath;
+      carePathButtons.forEach(function (candidate) {
+        var selected = candidate === button;
+        candidate.classList.toggle("is-active", selected);
+        candidate.setAttribute("aria-pressed", String(selected));
+      });
+      render();
+    });
+  });
   search.addEventListener("input", render);
   document.getElementById("detailBack").addEventListener("click", function () { showDirectory(); });
   window.addEventListener("popstate", openFromUrl);
@@ -561,6 +730,7 @@
       Object.keys(labels).forEach(function (type) { data[type] = Array.isArray(payload[type]) ? payload[type] : []; });
       updateMuscleCounts();
       updateFunctionOptions();
+      updateRecipeCounts();
       updateTypeCounts();
       renderAtlas();
       render();

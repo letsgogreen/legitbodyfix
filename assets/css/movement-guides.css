@@ -38,3 +38,192 @@
   .guide-purpose article { min-height: 190px; }
   .guide-purpose h2 { margin-top: 36px; }
 }
+
+.recipe-region-section {
+  grid-column: 1 / -1;
+  margin-top: 34px;
+}
+
+.recipe-tools {
+  margin: 0 0 36px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(220px, .72fr) 1.28fr;
+  gap: 34px;
+  align-items: center;
+  border: 1px solid var(--ink);
+  background: #e7e4dc;
+}
+
+.recipe-tools[hidden] { display: none; }
+
+.recipe-tools-copy {
+  max-width: 390px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.recipe-region-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.recipe-region-filters button {
+  min-height: 40px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.recipe-region-filters button:hover,
+.recipe-region-filters button.is-active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.recipe-region-filters span {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 99px;
+  background: var(--lime);
+  color: var(--ink);
+  font: 700 10px/1 var(--mono);
+}
+
+.recipe-region-section:first-child { margin-top: 0; }
+
+.recipe-region-heading {
+  min-height: 64px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--ink);
+  border-bottom: 0;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.recipe-region-heading h3 {
+  font-size: 22px;
+  letter-spacing: -.04em;
+}
+
+.recipe-region-heading span,
+.recipe-card-meta {
+  font: 500 10px/1.2 var(--mono);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.recipe-region-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+.recipe-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: #39766e;
+}
+
+.recipe-card-meta i { color: var(--muted); font-style: normal; }
+.knowledge-card.is-recipe h3 { margin-top: 28px; }
+.knowledge-card.is-recipe:hover .recipe-card-meta,
+.knowledge-card.is-recipe:hover .recipe-card-meta i { color: #263000; }
+
+@media (max-width: 860px) {
+  .recipe-tools { grid-template-columns: 1fr; }
+  .recipe-region-filters { justify-content: flex-start; }
+  .recipe-region-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .recipe-tools { padding: 18px; }
+  .recipe-region-filters button { flex: 1 1 calc(50% - 8px); justify-content: space-between; }
+  .recipe-region-grid { grid-template-columns: 1fr; }
+  .recipe-region-heading { padding: 0 14px; }
+}
+
+.care-path-tools {
+  margin: 0 0 24px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(250px, .72fr) 1.28fr;
+  gap: 34px;
+  align-items: center;
+  border: 1px solid var(--ink);
+  background: #fff;
+}
+
+.care-path-tools[hidden] { display: none; }
+.care-path-intro h3 { margin-top: 10px; font-size: 24px; letter-spacing: -.045em; }
+.care-path-intro > p:last-child { max-width: 470px; margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.care-path-filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+.care-path-filters button {
+  min-height: 108px;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-content: start;
+  gap: 8px 12px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.care-path-filters button > b { font-size: 13px; line-height: 1.25; }
+.care-path-filters button > small { grid-column: 1 / -1; color: var(--muted); font-size: 10px; line-height: 1.45; }
+.care-path-filters button > span { min-width: 22px; height: 22px; display: grid; place-items: center; background: var(--lime); font: 700 10px/1 var(--mono); }
+.care-path-filters button:hover,
+.care-path-filters button.is-active { background: var(--ink); color: var(--paper); }
+.care-path-filters button:hover small,
+.care-path-filters button.is-active small { color: #d7d5cc; }
+.care-path-filters button.is-clinical:not(.is-active) { border-left: 7px solid #a34232; }
+
+.knowledge-card.care-path-musculoskeletal-condition { box-shadow: inset 7px 0 0 #a34232; }
+.knowledge-card.care-path-musculoskeletal-condition .knowledge-card-type { color: #a34232; }
+.knowledge-card.care-path-postural-movement .knowledge-card-type { color: #39766e; }
+.knowledge-card:hover .knowledge-card-type { color: var(--ink); }
+
+.detail-care-path {
+  margin-top: 30px;
+  padding: 18px;
+  border: 1px solid var(--ink);
+  background: #e5eee9;
+}
+
+.detail-care-path.is-musculoskeletal-condition { border-left: 8px solid #a34232; background: #f2e6e2; }
+.detail-care-path strong { display: block; font: 500 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.detail-care-path p { margin-top: 9px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+@media (max-width: 940px) {
+  .care-path-tools { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 650px) {
+  .care-path-tools { padding: 18px; }
+  .care-path-filters { grid-template-columns: 1fr; }
+  .care-path-filters button { min-height: 82px; }
+}

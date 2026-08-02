@@ -9,10 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/knowledge.css?v=20260801-1" />
-  <link rel="stylesheet" href="assets/css/knowledge-related.css?v=20260801-1" />
-  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260802-6" />
+  <link rel="stylesheet" href="assets/css/knowledge-related.css?v=20260802-2" />
+  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260802-7" />
   <link rel="stylesheet" href="assets/css/public-responsive-fixes.css?v=20260801-1" />
-  <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260801-1" />
+  <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260802-4" />
   <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260801-1" />
 </head>
 <body>
@@ -39,15 +39,27 @@
     <section class="knowledge-directory shell" aria-labelledby="directoryTitle">
       <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Choose one clear path.</h2></div><label class="knowledge-search"><span>Search the whole knowledge hub</span><input id="knowledgeSearch" type="search" placeholder="Try hip flexor, rotator cuff, or ankle…" autocomplete="off" /></label></header>
       <div class="knowledge-paths" id="knowledgePaths" aria-label="Knowledge collections">
-        <button type="button" data-knowledge-path="conditions"><span class="path-number">01</span><span class="path-copy"><b>Movement patterns</b><small>Start with a limitation or movement question.</small></span><span class="path-count" data-type-count="conditions"></span></button>
+        <button type="button" data-knowledge-path="conditions"><span class="path-number">01</span><span class="path-copy"><b>Posture &amp; conditions</b><small>Separate postural questions from musculoskeletal conditions and injuries.</small></span><span class="path-count" data-type-count="conditions"></span></button>
         <button type="button" data-knowledge-path="muscles"><span class="path-number">02</span><span class="path-copy"><b>Muscle atlas</b><small>Explore anatomy by body region, attachment, and action.</small></span><span class="path-count" data-type-count="muscles"></span></button>
-        <button type="button" data-knowledge-path="recipes"><span class="path-number">03</span><span class="path-copy"><b>Program previews</b><small>See how a guided progression is structured.</small></span><span class="path-count" data-type-count="recipes"></span></button>
+        <button type="button" data-knowledge-path="recipes"><span class="path-number">03</span><span class="path-copy"><b>Correction recipes</b><small>Follow a clear starting sequence, then reassess before progressing.</small></span><span class="path-count" data-type-count="recipes"></span></button>
       </div>
       <div class="knowledge-filters" role="group" aria-label="Filter knowledge type">
         <button class="is-active" type="button" data-knowledge-filter="all" aria-pressed="true">Overview</button>
-        <button type="button" data-knowledge-filter="conditions" aria-pressed="false">Movement patterns</button>
+        <button type="button" data-knowledge-filter="conditions" aria-pressed="false">Posture &amp; conditions</button>
         <button type="button" data-knowledge-filter="muscles" aria-pressed="false">Muscle dictionary</button>
-        <button type="button" data-knowledge-filter="recipes" aria-pressed="false">Program previews</button>
+        <button type="button" data-knowledge-filter="recipes" aria-pressed="false">Correction recipes</button>
+      </div>
+      <div class="care-path-tools" id="carePathTools" hidden>
+        <div class="care-path-intro">
+          <p class="eyebrow">Choose the right path</p>
+          <h3>Is this a postural issue or a musculoskeletal condition?</h3>
+          <p>Postural and movement guides describe non-acute patterns, comfort, and control. Musculoskeletal conditions include sprains, dislocations, disc-related conditions, and nerve-related syndromes, which may need assessment before exercise is appropriate.</p>
+        </div>
+        <div class="care-path-filters" role="group" aria-label="Filter by postural or musculoskeletal pathway">
+          <button class="is-active" type="button" data-care-path="all" aria-pressed="true">All paths <span data-care-count="all"></span></button>
+          <button type="button" data-care-path="postural-movement" aria-pressed="false"><b>Postural &amp; movement issues</b><small>Non-acute posture, control, mobility, and preparation</small><span data-care-count="postural-movement"></span></button>
+          <button class="is-clinical" type="button" data-care-path="musculoskeletal-condition" aria-pressed="false"><b>Musculoskeletal conditions &amp; injuries</b><small>Sprains, dislocations, disc and nerve-related conditions</small><span data-care-count="musculoskeletal-condition"></span></button>
+        </div>
       </div>
       <div class="muscle-tools" id="muscleTools" hidden>
         <div class="muscle-region-filters" role="group" aria-label="Filter muscles by body region">
@@ -79,6 +91,20 @@
           <button class="muscle-reset" id="muscleReset" type="button">Reset filters</button>
         </div>
       </div>
+      <div class="recipe-tools" id="recipeTools" hidden>
+        <div>
+          <p class="eyebrow">Then choose a body area</p>
+          <p class="recipe-tools-copy">Each recipe gives you a short sequence and a clear reassessment within the pathway selected above.</p>
+        </div>
+        <div class="recipe-region-filters" role="group" aria-label="Filter correction recipes by body area">
+          <button class="is-active" type="button" data-recipe-region="all" aria-pressed="true">All areas <span data-recipe-count="all"></span></button>
+          <button type="button" data-recipe-region="Neck &amp; shoulders" aria-pressed="false">Neck &amp; shoulders <span data-recipe-count="Neck &amp; shoulders"></span></button>
+          <button type="button" data-recipe-region="Trunk &amp; breathing" aria-pressed="false">Trunk &amp; breathing <span data-recipe-count="Trunk &amp; breathing"></span></button>
+          <button type="button" data-recipe-region="Hip &amp; pelvis" aria-pressed="false">Hip &amp; pelvis <span data-recipe-count="Hip &amp; pelvis"></span></button>
+          <button type="button" data-recipe-region="Knee" aria-pressed="false">Knee <span data-recipe-count="Knee"></span></button>
+          <button type="button" data-recipe-region="Ankle &amp; foot" aria-pressed="false">Ankle &amp; foot <span data-recipe-count="Ankle &amp; foot"></span></button>
+        </div>
+      </div>
       <section class="muscle-atlas" id="muscleAtlas" hidden aria-labelledby="muscleAtlasTitle">
         <div class="atlas-heading"><div><p class="eyebrow">Regional anatomy atlas</p><h3 id="muscleAtlasTitle">See the body area before opening a muscle.</h3></div><p>Historical anatomy plates provide regional context. Individual entries then show origin, insertion, and primary actions. Exact highlighted illustrations are used when available.</p></div>
         <div class="atlas-grid" id="atlasGrid"></div>
@@ -99,6 +125,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="index.html"><span>LBF</span><strong>LEGITBODYFIX</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260802-6" defer></script>
+  <script src="assets/js/knowledge.js?v=20260802-13" defer></script>
 </body>
 </html>

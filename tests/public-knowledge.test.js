@@ -10,13 +10,19 @@ var root = path.join(__dirname, "..");
 test("public knowledge hub exposes searchable published education safely", function () {
   var html = fs.readFileSync(path.join(root, "knowledge.html"), "utf8");
   var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  var css = fs.readFileSync(path.join(root, "assets/css/muscle-dictionary.css"), "utf8");
 
   assert.match(html, /id="knowledgeGrid"/);
   assert.match(html, /public-responsive-fixes\.css/);
   assert.match(html, /data-knowledge-filter="conditions"/);
   assert.match(html, /Complete follow-along progressions stay inside the paid programs/);
   assert.match(html, /How movement guides help/);
-  assert.match(html, /Program previews/);
+  assert.match(html, /Correction recipes/);
+  assert.match(html, /id="recipeTools"/);
+  assert.match(html, /id="carePathTools"/);
+  assert.match(html, /data-care-path="postural-movement"/);
+  assert.match(html, /data-care-path="musculoskeletal-condition"/);
+  assert.match(html, /data-recipe-region="Ankle &amp; foot"/);
   assert.match(html, /Muscle dictionary/);
   assert.match(html, /muscle-dictionary\.css/);
   assert.match(html, /data-muscle-region="lower-leg"/);
@@ -36,6 +42,12 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /textContent = text/);
   assert.match(javascript, /URLSearchParams/);
   assert.match(javascript, /relatedVideoIds/);
+  assert.match(javascript, /activeRecipeRegion/);
+  assert.match(javascript, /updateRecipeCounts/);
+  assert.match(javascript, /activeCarePath/);
+  assert.match(javascript, /does not diagnose a body part as structurally misaligned/);
+  assert.match(javascript, /sprains, dislocations, disc-related conditions, and nerve-related syndromes/);
+  assert.match(javascript, /Continue with a complete program/);
   assert.match(javascript, /video\.html\?id=/);
   assert.match(javascript, /assets\/data\/videos\.json/);
   assert.match(javascript, /Functions and actions/);
@@ -78,6 +90,17 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /muscle-region-section/);
   assert.match(javascript, /across 8 body regions/);
   assert.match(javascript, /muscle-subgroup-heading/);
+  assert.match(javascript, /openAnatomyViewer/);
+  assert.match(javascript, /Enlarge anatomy plate/);
+  assert.match(javascript, /This plate may show nearby muscles/);
+  assert.match(javascript, /Related programs/);
+  assert.match(javascript, /Programs selected for the movement roles/);
+  assert.match(javascript, /Explore this program/);
+  assert.match(javascript, /function renderRecipeGroups/);
+  assert.match(javascript, /Open the recipe/);
+  assert.match(javascript, /Reassess before progressing/);
+  assert.match(css, /\.anatomy-viewer/);
+  assert.match(css, /\.knowledge-card-media-label/);
   assert.match(javascript, /localeCompare/);
   assert.match(javascript, /detail-anatomy-image/);
   assert.match(javascript, /Regional anatomy reference/);
@@ -186,4 +209,31 @@ test("knowledge seed data provides unique public identifiers", function () {
     assert.equal(new Set(data[type].map(function (item) { return item.id; })).size, data[type].length);
     data[type].forEach(function (item) { assert.ok(item.title); assert.equal(typeof item.published, "boolean"); });
   });
+});
+
+test("correction recipes are grouped, actionable, and safety aware", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  assert.ok(data.recipes.length >= 15);
+  var regions = new Set(data.recipes.map(function (recipe) { return recipe.bodyRegion; }));
+  ["Neck & shoulders", "Trunk & breathing", "Hip & pelvis", "Knee", "Ankle & foot"].forEach(function (region) {
+    assert.ok(regions.has(region), "missing correction recipe region " + region);
+  });
+  data.recipes.forEach(function (recipe) {
+    ["pathway", "goal", "whenToUse", "steps", "dosage", "reassess", "regression", "progression", "cautions", "sourceName", "sourceUrl", "relatedVideoIds"].forEach(function (field) {
+      assert.ok(String(recipe[field] || "").trim(), recipe.id + " needs " + field);
+    });
+    assert.match(recipe.sourceUrl, /^https:\/\//);
+  });
+});
+
+test("musculoskeletal conditions stay distinct from postural and movement education", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var allowed = new Set(["postural-movement", "musculoskeletal-condition"]);
+  data.conditions.concat(data.recipes).forEach(function (item) {
+    assert.ok(allowed.has(item.pathway), item.id + " needs a valid pathway");
+  });
+  assert.equal(data.conditions.find(function (item) { return item.id === "ankle-sprain-recovery"; }).pathway, "musculoskeletal-condition");
+  assert.equal(data.recipes.find(function (item) { return item.id === "ankle-rehabilitation-progression"; }).pathway, "musculoskeletal-condition");
+  assert.equal(data.conditions.find(function (item) { return item.id === "round-shoulder"; }).pathway, "postural-movement");
+  assert.equal(data.recipes.find(function (item) { return item.id === "squat-preparation"; }).pathway, "postural-movement");
 });

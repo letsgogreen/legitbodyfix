@@ -25,7 +25,7 @@
 
   var schemas = {
     conditions: [
-      ["title", "Condition name", 120], ["joints", "Related joints", 240], ["tags", "Tags", 400],
+      ["title", "Guide name", 120], ["pathway", "Content pathway", 40], ["joints", "Related joints", 240], ["tags", "Tags", 400],
       ["summary", "Clinical summary", 800, true], ["tightMuscles", "Commonly tight / overactive", 500],
       ["weakMuscles", "Commonly weak / underactive", 500], ["screening", "Screening signs", 600, true],
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
@@ -40,9 +40,12 @@
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     recipes: [
-      ["title", "Program preview title", 120], ["goal", "Public goal", 500, true], ["equipment", "Equipment", 300],
-      ["steps", "Ordered steps", 2400, true], ["cautions", "Cautions", 800, true],
-      ["relatedConditions", "Related conditions", 500], ["relatedVideoIds", "Related session IDs (comma separated)", 500]
+      ["title", "Recipe title", 120], ["pathway", "Content pathway", 40], ["bodyRegion", "Body area", 120], ["time", "Estimated time", 80],
+      ["goal", "Public goal", 500, true], ["whenToUse", "Useful starting point when", 800, true], ["equipment", "Equipment", 300],
+      ["steps", "Starting sequence", 2400, true], ["dosage", "Suggested dose", 800, true],
+      ["reassess", "Reassessment checkpoint", 800, true], ["regression", "Regression", 800, true],
+      ["progression", "Progression", 800, true], ["cautions", "Stop / referral guidance", 800, true],
+      ["relatedConditions", "Related conditions", 500], ["sourceName", "Exercise reference name", 300], ["sourceUrl", "Exercise reference URL", 800], ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ]
   };
 
@@ -57,6 +60,11 @@
   function normalizeMuscles(payload) {
     (payload.muscles || []).forEach(function (record) {
       if (!record.actions && record.function) record.actions = record.function;
+    });
+    ["conditions", "recipes"].forEach(function (type) {
+      (payload[type] || []).forEach(function (record) {
+        if (!record.pathway) record.pathway = "postural-movement";
+      });
     });
     return payload;
   }
@@ -83,12 +91,24 @@
     label.className = "field" + (definition[3] ? " field-wide" : "");
     var caption = document.createElement("span");
     caption.textContent = definition[1];
-    var input = definition[3] ? document.createElement("textarea") : document.createElement("input");
+    var input;
+    if (name === "pathway") {
+      input = document.createElement("select");
+      [
+        ["postural-movement", "Postural & movement issues"],
+        ["musculoskeletal-condition", "Musculoskeletal conditions & injuries"]
+      ].forEach(function (entry) {
+        var option = document.createElement("option");
+        option.value = entry[0];
+        option.textContent = entry[1];
+        input.appendChild(option);
+      });
+    } else input = definition[3] ? document.createElement("textarea") : document.createElement("input");
     if (definition[3]) input.rows = name === "steps" ? 7 : 4;
-    else input.type = "text";
+    else if (name !== "pathway") input.type = "text";
     input.name = name;
-    input.maxLength = definition[2];
-    input.value = record[name] || "";
+    if (name !== "pathway") input.maxLength = definition[2];
+    input.value = record[name] || (name === "pathway" ? "postural-movement" : "");
     input.addEventListener("input", function () {
       record[name] = input.value;
       if (name === "title") {
@@ -169,8 +189,9 @@
   }
 
   function addRecord() {
-    var labels = { conditions: "New movement pattern", muscles: "New muscle", recipes: "New program preview" };
+    var labels = { conditions: "New movement pattern", muscles: "New muscle", recipes: "New correction recipe" };
     var record = { id: uniqueId(labels[activeType]), title: labels[activeType], published: false };
+    if (activeType === "conditions" || activeType === "recipes") record.pathway = "postural-movement";
     schemas[activeType].forEach(function (definition) { if (!(definition[0] in record)) record[definition[0]] = ""; });
     data[activeType].push(record);
     search.value = "";
