@@ -122,7 +122,7 @@ test("public knowledge hub exposes searchable published education safely", funct
 
 test("muscle dictionary records include anatomy fields, visual orientation, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  assert.ok(data.muscles.length >= 171);
+  assert.ok(data.muscles.length >= 179);
   data.muscles.forEach(function (muscle) {
     assert.ok(muscle.origin, muscle.id + " needs an origin");
     assert.ok(muscle.insertion, muscle.id + " needs an insertion");
@@ -200,6 +200,15 @@ test("anterior-neck and prevertebral families use named muscle records", functio
       assert.ok(muscle, "missing named neck muscle " + id);
       assert.equal(muscle.family, family, id + " should belong to " + family);
     });
+  });
+});
+
+test("muscle dictionary includes the remaining distinct regional muscles", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  ["platysma", "levatores-costarum-breves", "levatores-costarum-longi", "pyramidalis", "palmaris-brevis", "adductor-minimus", "cremaster", "intertransversarii-thoracis"].forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing distinct regional muscle " + id);
+    assert.ok(muscle.family, id + " needs an anatomical family");
   });
 });
 

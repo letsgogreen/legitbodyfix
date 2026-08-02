@@ -48,7 +48,8 @@
   var muscleFamilyOrder = [
     "Superficial neck", "Splenius", "Prevertebral muscles", "Suprahyoid muscles", "Infrahyoid muscles",
     "Semispinalis", "Longissimus", "Iliocostalis", "Spinalis", "Scalenes", "Suboccipital muscles",
-    "Transversospinalis", "Interspinales", "Intertransversarii", "Rotatores", "Posterior abdominal wall"
+    "Transversospinalis", "Interspinales", "Intertransversarii", "Rotatores", "Levatores costarum",
+    "Anterior abdominal wall", "Posterior abdominal wall", "Hypothenar muscles", "Hip adductors", "Inguinal muscles"
   ];
 
   var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
