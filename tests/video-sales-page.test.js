@@ -9,12 +9,19 @@ var root = path.join(__dirname, "..");
 
 test("every video has editable persuasive landing-page content", function () {
   var videos = JSON.parse(fs.readFileSync(path.join(root, "assets/data/videos.json"), "utf8"));
+  var knowledge = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var muscleIds = new Set(knowledge.muscles.filter(function (muscle) { return muscle.published !== false; }).map(function (muscle) { return muscle.id; }));
   var fields = ["landingEyebrow", "landingHeadline", "landingSummary", "landingBenefit1", "landingBenefit2", "landingBenefit3", "landingAudience", "landingReassurance"];
 
   videos.forEach(function (video) {
     fields.forEach(function (field) {
       assert.equal(typeof video[field], "string", video.id + " is missing " + field);
       assert.ok(video[field].trim().length > 0, video.id + " has empty " + field);
+    });
+    assert.ok(Array.isArray(video.relatedMuscleIds), video.id + " is missing relatedMuscleIds");
+    assert.ok(video.relatedMuscleIds.length >= 3 && video.relatedMuscleIds.length <= 8, video.id + " should feature 3-8 muscles");
+    video.relatedMuscleIds.forEach(function (id) {
+      assert.ok(muscleIds.has(id), video.id + " references missing muscle " + id);
     });
   });
 });
@@ -30,6 +37,8 @@ test("sales page links to checkout without exposing protected playback data", fu
   assert.match(page, /Simple access/);
   assert.match(page, /Questions, answered/);
   assert.match(page, /id="relatedKnowledge"/);
+  assert.match(page, /id="musclesMatter"/);
+  assert.match(page, /The muscles that matter/);
   assert.match(page, /Understand the movement before you practice/);
   assert.match(page, /class="mobile-checkout"/);
   assert.match(page, /class="quick-facts"/);
@@ -39,6 +48,8 @@ test("sales page links to checkout without exposing protected playback data", fu
   assert.match(script, /knowledge-base\.json/);
   assert.match(script, /knowledge\.html\?type=/);
   assert.match(script, /relatedVideoIds/);
+  assert.match(script, /relatedMuscleIds/);
+  assert.match(script, /renderMusclesThatMatter/);
   assert.match(script, /shoulder-reset/);
   assert.match(script, /ankle-sprain-rehabilitation/);
   assert.doesNotMatch(script, /streamVideoId/);
@@ -54,8 +65,11 @@ test("admin can preserve and edit landing-page fields", function () {
   assert.match(page, /name="landingHeadline"/);
   assert.match(page, /name="landingBenefit3"/);
   assert.match(page, /name="landingReassurance"/);
+  assert.match(page, /class="sales-muscle-selector/);
+  assert.match(page, /class="sales-muscle-search/);
   assert.match(script, /landingHeadline:/);
   assert.match(script, /landingReassurance:/);
+  assert.match(script, /relatedMuscleIds:/);
   assert.match(script, /legacyIds:/);
 });
 
@@ -69,11 +83,15 @@ test("admin gives every session a dedicated sales-page editor and safe live prev
   assert.match(page, /data-editor-tab="media"/);
   assert.match(page, /data-editor-panel="sales"/);
   assert.match(page, /class="sales-page-preview-card"/);
+  assert.match(page, /class="sales-preview-muscles"/);
   assert.match(page, /Open full preview/);
   assert.match(script, /function updateSalesPagePreview/);
   assert.match(script, /video\.html\?id=/);
   assert.match(script, /function showEditorPanel/);
+  assert.match(script, /function renderMuscleSelector/);
+  assert.match(script, /knowledge-base\.json/);
   assert.match(script, /item\.textContent = benefit/);
   assert.doesNotMatch(script, /sales-preview[^\n]+innerHTML/);
   assert.match(styles, /\.sales-page-editor-layout/);
+  assert.match(styles, /\.sales-muscle-selector/);
 });

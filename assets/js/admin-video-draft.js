@@ -25,6 +25,10 @@
         video.streamReady = true;
       }
 
+      if (!Array.isArray(video.relatedMuscleIds) && Array.isArray(saved.relatedMuscleIds)) {
+        video.relatedMuscleIds = saved.relatedMuscleIds.slice();
+      }
+
       return video;
     });
 

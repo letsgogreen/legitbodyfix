@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260801-4" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260802-8" />
 </head>
 <body class="auth-visible">
   <a class="skip-link" href="#authTitle">Skip to restricted access</a>
@@ -340,6 +340,14 @@
             <label class="field field-wide"><span>Benefit 3</span><input name="landingBenefit3" type="text" maxlength="140" /></label>
             <label class="field field-wide"><span>Who this is for</span><textarea name="landingAudience" rows="3" maxlength="300"></textarea></label>
             <label class="field field-wide"><span>Purchase reassurance</span><textarea name="landingReassurance" rows="3" maxlength="240"></textarea></label>
+            <section class="sales-muscle-selector field-wide" aria-label="The muscles that matter">
+              <div class="sales-muscle-selector-heading">
+                <div><span>The muscles that matter</span><small>Choose the muscles customers should understand before buying this session.</small></div>
+                <strong class="sales-muscle-count">0 / 8 selected</strong>
+              </div>
+              <label class="sales-muscle-search-label"><span class="sr-only">Search muscles</span><input class="sales-muscle-search" type="search" placeholder="Search by muscle, region, or family" autocomplete="off" /></label>
+              <div class="sales-muscle-options" role="group" aria-label="Muscles featured on this sales page"></div>
+            </section>
           </div>
           <aside class="sales-page-preview-card" aria-label="Sales page content preview">
             <div class="sales-preview-toolbar"><span>Live content preview</span><small>Updates as you type</small></div>
@@ -349,6 +357,7 @@
               <h4 class="sales-preview-headline"></h4>
               <p class="sales-preview-summary"></p>
               <ul class="sales-preview-benefits"></ul>
+              <div class="sales-preview-muscles" hidden><span>The muscles that matter</span><div class="sales-preview-muscle-list"></div></div>
               <div class="sales-preview-offer"><strong class="sales-preview-price"></strong><span>One-time access</span></div>
             </div>
           </aside>
@@ -399,8 +408,8 @@
 
   <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-2" defer></script>
-  <script src="assets/js/admin-video-draft.js?v=20260801-1" defer></script>
-  <script src="assets/js/admin.js?v=20260801-8" defer></script>
+  <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
+  <script src="assets/js/admin.js?v=20260802-9" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
   <script src="assets/js/knowledge-base-admin.js?v=20260802-7" defer></script>
 </body>
