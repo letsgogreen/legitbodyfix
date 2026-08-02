@@ -65,14 +65,17 @@
     foot: { title: "Foot", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1124_Intrinsic_Muscles_of_the_Foot_c.png", imageAlt: "OpenStax plantar view of intrinsic foot muscles", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1124_Intrinsic_Muscles_of_the_Foot_c.png" }
   };
   var muscleGroupOrder = [
-    "Head and neck", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
+    "Head and neck", "Deep neck flexors", "Deep cervical stabilizers", "Cervicoscapular muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
     "Upper arm", "Forearm", "Hand", "Thorax", "Posterior thorax", "Abdomen", "Back", "Erector spinae", "Deep back",
     "Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters",
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
-  var collectiveNeckGroups = ["Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"];
+  var collectiveNeckGroups = ["Deep neck flexors", "Deep cervical stabilizers", "Cervicoscapular muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"];
   var collectiveNeckGroupDescriptions = {
+    "Deep neck flexors": "The four prevertebral muscles that provide deep anterior head-and-neck flexion and segmental control.",
+    "Deep cervical stabilizers": "Deep posterior and segmental muscles that extend, laterally flex, rotate, or stabilize the cervical spine.",
+    "Cervicoscapular muscles": "Upper trapezius and levator scapulae bridge cervical motion with scapular position and control.",
     "Capitis muscles": "Muscles named for their attachment to the head, organized by anatomical family.",
     "Hyoid muscles": "The suprahyoid and infrahyoid muscles that position the hyoid during swallowing and jaw movement.",
     Scalenes: "Anterior, middle, and posterior scalenes considered as a functional neck group.",
@@ -131,6 +134,15 @@
     if (family === "suprahyoid muscles" || family === "infrahyoid muscles") return "Hyoid muscles";
     if (title.indexOf("capitis") !== -1) return "Capitis muscles";
     return String(item && item.group || "Other");
+  }
+
+  function neckDirectoryGroup(item) {
+    var title = String(item && item.title || "").toLowerCase();
+    var family = String(item && item.family || "").toLowerCase();
+    if (family === "prevertebral muscles" || ["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) return "Deep neck flexors";
+    if (/^(multifidus|semispinalis cervicis|longissimus cervicis|iliocostalis cervicis|spinalis cervicis|interspinales cervicis|intertransversarii cervicis)$/.test(title)) return "Deep cervical stabilizers";
+    if (title === "upper trapezius" || title === "levator scapulae") return "Cervicoscapular muscles";
+    return muscleSectionGroup(item);
   }
 
   function muscleFamily(item) {
@@ -231,7 +243,9 @@
 
   function muscleRegion(item) {
     var bodyMap = item && item.bodyMap;
+    var title = String(item && item.title || "").toLowerCase();
     var group = String(item && item.group || "").toLowerCase();
+    if (/\b(cervicis|capitis)\b/.test(title)) return "head-neck";
     if (["head and neck", "anterior neck", "lateral neck", "suboccipital neck"].indexOf(group) !== -1) return "head-neck";
     if (["shoulder", "shoulder girdle", "upper back", "chest", "rotator cuff"].indexOf(group) !== -1) return "shoulder-chest";
     if (["upper arm", "forearm", "hand"].indexOf(group) !== -1) return "arm-hand";
@@ -248,6 +262,12 @@
     if (["lower-leg-front", "lower-leg-back"].indexOf(bodyMap) !== -1) return "lower-leg";
     if (bodyMap === "foot") return "foot";
     return "other";
+  }
+
+  function muscleInRegion(item, region) {
+    if (muscleRegion(item) === region) return true;
+    var title = String(item && item.title || "").toLowerCase();
+    return region === "head-neck" && (title === "upper trapezius" || title === "multifidus");
   }
 
   function muscleFunctionalRoles(item) {
@@ -377,7 +397,7 @@
   function renderAtlas() {
     var cards = Object.keys(muscleRegions).map(function (region) {
       var meta = muscleRegions[region];
-      var count = data.muscles.filter(function (item) { return item && item.published !== false && muscleRegion(item) === region; }).length;
+      var count = data.muscles.filter(function (item) { return item && item.published !== false && muscleInRegion(item, region); }).length;
       var card = element("button", "atlas-card");
       card.type = "button";
       var image = document.createElement("img");
@@ -407,7 +427,7 @@
     var muscles = data.muscles.filter(function (item) { return item && item.published !== false; });
     document.querySelectorAll("[data-region-count]").forEach(function (node) {
       var region = node.dataset.regionCount;
-      var count = region === "all" ? muscles.length : muscles.filter(function (item) { return muscleRegion(item) === region; }).length;
+      var count = region === "all" ? muscles.length : muscles.filter(function (item) { return muscleInRegion(item, region); }).length;
       node.textContent = String(count);
     });
   }
@@ -610,7 +630,7 @@
 
   function updateFunctionOptions() {
     var availableMuscles = data.muscles.filter(function (item) {
-      return item && item.published !== false && (activeMuscleRegion === "all" || muscleRegion(item) === activeMuscleRegion);
+      return item && item.published !== false && (activeMuscleRegion === "all" || muscleInRegion(item, activeMuscleRegion));
     });
     Array.from(muscleFunction.options).forEach(function (option) {
       if (!option.dataset.baseLabel) option.dataset.baseLabel = option.textContent;
@@ -647,9 +667,11 @@
       return;
     }
     var regionalMuscles = data.muscles.filter(function (item) {
-      return item && item.published !== false && muscleRegion(item) === activeMuscleRegion;
+      return item && item.published !== false && muscleInRegion(item, activeMuscleRegion);
     });
-    var groupNames = orderedMuscleGroups(regionalMuscles);
+    var groupNames = activeMuscleRegion === "head-neck"
+      ? Array.from(new Set(regionalMuscles.map(neckDirectoryGroup)))
+      : orderedMuscleGroups(regionalMuscles);
     if (activeMuscleRegion === "head-neck") {
       groupNames = collectiveNeckGroups.filter(function (groupName) { return groupNames.indexOf(groupName) !== -1; });
       if (activeMuscleGroup !== "all" && groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = "all";
@@ -669,7 +691,9 @@
       buttons.push(overview);
     }
     buttons = buttons.concat(groupNames.map(function (groupName) {
-      var count = regionalMuscles.filter(function (item) { return muscleSectionGroup(item) === groupName; }).length;
+      var count = regionalMuscles.filter(function (item) {
+        return (activeMuscleRegion === "head-neck" ? neckDirectoryGroup(item) : muscleSectionGroup(item)) === groupName;
+      }).length;
       var button = element("button", activeMuscleGroup === groupName ? "is-active" : "");
       button.type = "button";
       button.setAttribute("role", "tab");
@@ -689,7 +713,7 @@
   function renderNeckDirectory(regionRecords, section, heading) {
     var collectiveIds = new Set();
     var groupCards = collectiveNeckGroups.map(function (groupName) {
-      var members = regionRecords.filter(function (record) { return muscleSectionGroup(record.item) === groupName; });
+      var members = regionRecords.filter(function (record) { return neckDirectoryGroup(record.item) === groupName; });
       if (!members.length) return null;
       members.forEach(function (record) { collectiveIds.add(record.item.id); });
       var card = element("button", "muscle-collective-card");
@@ -736,7 +760,9 @@
     var regionOrder = Object.keys(muscleRegions);
     var visibleRegions = activeMuscleRegion === "all" ? regionOrder : [activeMuscleRegion];
     var sections = visibleRegions.map(function (region) {
-      var regionRecords = records.filter(function (record) { return muscleRegion(record.item) === region; });
+      var regionRecords = records.filter(function (record) {
+        return activeMuscleRegion === "all" ? muscleRegion(record.item) === region : muscleInRegion(record.item, region);
+      });
       if (!regionRecords.length) return null;
       var meta = muscleRegions[region] || { title: "Other muscles" };
       var section = element("section", "muscle-region-section");
@@ -744,7 +770,7 @@
       var heading = element("header", "muscle-region-heading");
       var title = element("h3", "", meta.title);
       title.id = "muscle-region-" + region;
-      var regionalTotal = data.muscles.filter(function (item) { return item && item.published !== false && muscleRegion(item) === region; }).length;
+      var regionalTotal = data.muscles.filter(function (item) { return item && item.published !== false && muscleInRegion(item, region); }).length;
       heading.append(title, element("span", "", regionalTotal + (regionalTotal === 1 ? " muscle in directory" : " muscles in directory")));
       if (region === "head-neck" && activeMuscleGroup === "all") {
         renderNeckDirectory(regionRecords, section, heading);
@@ -822,8 +848,8 @@
     updateRecipeCounts();
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
-      if (activeType === "muscles" && activeMuscleRegion !== "all" && muscleRegion(record.item) !== activeMuscleRegion) return false;
-      if (activeType === "muscles" && activeMuscleGroup !== "all" && !query && muscleSectionGroup(record.item) !== activeMuscleGroup) return false;
+      if (activeType === "muscles" && activeMuscleRegion !== "all" && !muscleInRegion(record.item, activeMuscleRegion)) return false;
+      if (activeType === "muscles" && activeMuscleGroup !== "all" && !query && (activeMuscleRegion === "head-neck" ? neckDirectoryGroup(record.item) : muscleSectionGroup(record.item)) !== activeMuscleGroup) return false;
       if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
       if (activeType === "muscles" && activeMuscleVisual !== "all" && muscleVisualType(record.item) !== activeMuscleVisual) return false;
       if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;

@@ -91,13 +91,15 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /function muscleSectionGroup/);
   assert.match(javascript, /function updateMuscleGroupFilters/);
   assert.match(javascript, /function renderNeckDirectory/);
-  assert.match(javascript, /collectiveNeckGroups = \["Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"\]/);
+  assert.match(javascript, /collectiveNeckGroups = \["Deep neck flexors", "Deep cervical stabilizers", "Cervicoscapular muscles", "Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"\]/);
+  assert.match(javascript, /function neckDirectoryGroup/);
+  assert.match(javascript, /function muscleInRegion/);
   assert.match(javascript, /Named muscles/);
   assert.match(javascript, /They are not hidden inside broad regional labels/);
   assert.match(javascript, /muscles in directory/);
   assert.match(javascript, /activeMuscleGroup !== "all"/);
   assert.match(javascript, /Choose a body region, then choose one muscle group/);
-  assert.match(javascript, /"Capitis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"/);
+  assert.match(javascript, /"Deep neck flexors", "Deep cervical stabilizers", "Cervicoscapular muscles"/);
   assert.match(javascript, /family === "suprahyoid muscles" \|\| family === "infrahyoid muscles"/);
   assert.match(javascript, /rectus capitis posterior\|obliquus capitis/);
   assert.match(javascript, /muscle-region-section/);
@@ -218,6 +220,18 @@ test("anterior-neck and prevertebral families use named muscle records", functio
       assert.ok(muscle, "missing named neck muscle " + id);
       assert.equal(muscle.family, family, id + " should belong to " + family);
     });
+  });
+});
+
+test("neck directory exposes deep flexors, deep stabilizers, and upper trapezius", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  ["longus-colli", "longus-capitis", "rectus-capitis-anterior", "rectus-capitis-lateralis"].forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing deep neck flexor " + id);
+    assert.equal(muscle.family, "Prevertebral muscles");
+  });
+  ["multifidus", "semispinalis-cervicis", "longissimus-cervicis", "iliocostalis-cervicis", "spinalis-cervicis", "interspinales-cervicis", "intertransversarii-cervicis", "upper-trapezius", "levator-scapulae"].forEach(function (id) {
+    assert.ok(data.muscles.some(function (muscle) { return muscle.id === id; }), "missing cervical directory muscle " + id);
   });
 });
 
