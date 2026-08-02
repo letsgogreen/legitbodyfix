@@ -45,7 +45,7 @@
       ["steps", "Starting sequence", 2400, true], ["dosage", "Suggested dose", 800, true],
       ["reassess", "Reassessment checkpoint", 800, true], ["regression", "Regression", 800, true],
       ["progression", "Progression", 800, true], ["cautions", "Stop / referral guidance", 800, true],
-      ["relatedConditions", "Related conditions", 500], ["relatedVideoIds", "Related session IDs (comma separated)", 500]
+      ["relatedConditions", "Related conditions", 500], ["sourceName", "Exercise reference name", 300], ["sourceUrl", "Exercise reference URL", 800], ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ]
   };
 

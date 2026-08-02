@@ -392,6 +392,16 @@
       sourceLink.href = item.sourceUrl; sourceLink.target = "_blank"; sourceLink.rel = "noopener noreferrer"; sourceLink.textContent = item.sourceName;
       source.appendChild(sourceLink); facts.appendChild(source);
     }
+    if (type === "recipes" && item.sourceName && typeof item.sourceUrl === "string" && /^https:\/\//i.test(item.sourceUrl)) {
+      var recipeSource = element("p", "detail-source", "General exercise reference: ");
+      var recipeSourceLink = document.createElement("a");
+      recipeSourceLink.href = item.sourceUrl;
+      recipeSourceLink.target = "_blank";
+      recipeSourceLink.rel = "noopener noreferrer";
+      recipeSourceLink.textContent = item.sourceName;
+      recipeSource.appendChild(recipeSourceLink);
+      facts.appendChild(recipeSource);
+    }
     body.append(intro, facts);
     var relatedIds = typeof item.relatedVideoIds === "string" ? item.relatedVideoIds.split(",").map(function (id) { return id.trim(); }).filter(Boolean) : [];
     var relatedVideos = videos.filter(function (video) { return video && video.published !== false && relatedIds.indexOf(video.id) !== -1; });

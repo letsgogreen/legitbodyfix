@@ -207,14 +207,15 @@ test("knowledge seed data provides unique public identifiers", function () {
 
 test("correction recipes are grouped, actionable, and safety aware", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  assert.ok(data.recipes.length >= 8);
+  assert.ok(data.recipes.length >= 15);
   var regions = new Set(data.recipes.map(function (recipe) { return recipe.bodyRegion; }));
   ["Neck & shoulders", "Trunk & breathing", "Hip & pelvis", "Knee", "Ankle & foot"].forEach(function (region) {
     assert.ok(regions.has(region), "missing correction recipe region " + region);
   });
   data.recipes.forEach(function (recipe) {
-    ["goal", "whenToUse", "steps", "dosage", "reassess", "regression", "progression", "cautions", "relatedVideoIds"].forEach(function (field) {
+    ["goal", "whenToUse", "steps", "dosage", "reassess", "regression", "progression", "cautions", "sourceName", "sourceUrl", "relatedVideoIds"].forEach(function (field) {
       assert.ok(String(recipe[field] || "").trim(), recipe.id + " needs " + field);
     });
+    assert.match(recipe.sourceUrl, /^https:\/\//);
   });
 });
