@@ -90,6 +90,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /muscle-region-section/);
   assert.match(javascript, /across 8 body regions/);
   assert.match(javascript, /muscle-subgroup-heading/);
+  assert.match(javascript, /muscle-family-heading/);
+  assert.match(javascript, /"Splenius", "Semispinalis", "Longissimus"/);
   assert.match(javascript, /openAnatomyViewer/);
   assert.match(javascript, /Enlarge anatomy plate/);
   assert.match(javascript, /This plate may show nearby muscles/);
@@ -119,7 +121,7 @@ test("public knowledge hub exposes searchable published education safely", funct
 
 test("muscle dictionary records include anatomy fields, visual orientation, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  assert.ok(data.muscles.length >= 161);
+  assert.ok(data.muscles.length >= 165);
   data.muscles.forEach(function (muscle) {
     assert.ok(muscle.origin, muscle.id + " needs an origin");
     assert.ok(muscle.insertion, muscle.id + " needs an insertion");
@@ -134,6 +136,9 @@ test("muscle dictionary records include anatomy fields, visual orientation, and 
     assert.ok(muscle.sourceName, muscle.id + " needs a reference name");
     assert.match(muscle.sourceUrl, /^https:\/\//);
   });
+  ["splenius-capitis", "semispinalis-capitis", "longissimus-capitis"].forEach(function (id) {
+    assert.ok(data.muscles.find(function (muscle) { return muscle.id === id; }).family, id + " needs an anatomical family");
+  });
 });
 
 test("muscle dictionary covers the major whole-body regions", function () {
@@ -143,7 +148,7 @@ test("muscle dictionary covers the major whole-body regions", function () {
   ["head-neck", "shoulder", "chest", "forearm", "abdomen", "back", "hip-front", "hip-back", "thigh-front", "thigh-back", "lower-leg-front", "lower-leg-back", "foot"].forEach(function (bodyMap) {
     assert.ok(bodyMaps.has(bodyMap), "missing muscle coverage for " + bodyMap);
   });
-  ["supraspinatus", "subclavius", "internal-oblique", "gluteus-minimus", "psoas-major", "iliacus", "tibialis-posterior", "extensor-digitorum-brevis", "extensor-hallucis-brevis", "longus-colli", "anterior-scalene", "middle-scalene", "posterior-scalene", "sternohyoid", "omohyoid", "sternothyroid", "thyrohyoid", "rectus-capitis-posterior-major", "rectus-capitis-posterior-minor", "obliquus-capitis-superior", "obliquus-capitis-inferior", "iliocostalis-lumborum", "iliocostalis-thoracis", "iliocostalis-cervicis", "longissimus-thoracis", "spinalis-thoracis", "spinalis-cervicis", "spinalis-capitis", "flexor-digitorum-profundus", "dorsal-interossei-hand", "obturator-internus", "vastus-intermedius", "articularis-genus", "plantaris", "abductor-hallucis", "dorsal-interossei-foot", "rotatores", "internal-intercostals", "transversus-thoracis", "serratus-posterior-superior", "levator-ani", "puborectalis", "pubococcygeus", "iliococcygeus", "bulbospongiosus", "deep-transverse-perineal", "compressor-urethrae", "urethrovaginal-sphincter", "external-urethral-sphincter", "external-anal-sphincter", "extensor-pollicis-longus", "palmar-interossei-hand", "flexor-digiti-minimi-brevis-foot"].forEach(function (id) {
+  ["supraspinatus", "subclavius", "internal-oblique", "gluteus-minimus", "psoas-major", "iliacus", "tibialis-posterior", "extensor-digitorum-brevis", "extensor-hallucis-brevis", "longus-colli", "anterior-scalene", "middle-scalene", "posterior-scalene", "sternohyoid", "omohyoid", "sternothyroid", "thyrohyoid", "rectus-capitis-posterior-major", "rectus-capitis-posterior-minor", "obliquus-capitis-superior", "obliquus-capitis-inferior", "iliocostalis-lumborum", "iliocostalis-thoracis", "iliocostalis-cervicis", "longissimus-thoracis", "spinalis-thoracis", "spinalis-cervicis", "spinalis-capitis", "flexor-digitorum-profundus", "dorsal-interossei-hand", "obturator-internus", "vastus-intermedius", "articularis-genus", "plantaris", "abductor-hallucis", "dorsal-interossei-foot", "rotatores-breves", "rotatores-longi", "internal-intercostals", "transversus-thoracis", "serratus-posterior-superior", "levator-ani", "puborectalis", "pubococcygeus", "iliococcygeus", "bulbospongiosus", "deep-transverse-perineal", "compressor-urethrae", "urethrovaginal-sphincter", "external-urethral-sphincter", "external-anal-sphincter", "extensor-pollicis-longus", "palmar-interossei-hand", "flexor-digiti-minimi-brevis-foot"].forEach(function (id) {
     assert.ok(data.muscles.some(function (muscle) { return muscle.id === id; }), "missing foundational muscle " + id);
   });
 });
@@ -169,8 +174,11 @@ test("lower-leg and pelvic-floor records use useful anatomical subgroups", funct
 
 test("neck and erector-spinae families use named muscles instead of aggregate cards", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
-  ["scalenes", "erector-spinae", "iliocostalis", "spinalis"].forEach(function (id) {
+  ["scalenes", "erector-spinae", "iliocostalis", "spinalis", "interspinales", "intertransversarii", "rotatores"].forEach(function (id) {
     assert.ok(!data.muscles.some(function (muscle) { return muscle.id === id; }), "aggregate record should be removed: " + id);
+  });
+  ["interspinales-cervicis", "interspinales-thoracis", "interspinales-lumborum", "intertransversarii-cervicis", "intertransversarii-lumborum", "rotatores-breves", "rotatores-longi"].forEach(function (id) {
+    assert.ok(data.muscles.some(function (muscle) { return muscle.id === id; }), "missing named segmental muscle " + id);
   });
   var groups = new Set(data.muscles.map(function (muscle) { return muscle.group; }));
   ["Anterior neck", "Lateral neck", "Suboccipital neck", "Erector spinae"].forEach(function (group) {

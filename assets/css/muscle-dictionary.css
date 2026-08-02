@@ -339,6 +339,39 @@
   font: 500 10px/1 var(--mono);
 }
 
+.muscle-family-list {
+  display: grid;
+  gap: 24px;
+}
+
+.muscle-family {
+  min-width: 0;
+  padding: 14px 0 0 18px;
+  border-left: 3px solid color-mix(in srgb, var(--teal) 58%, transparent);
+}
+
+.muscle-family-heading {
+  padding: 0 2px 10px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.muscle-family-heading h5 {
+  font: 700 12px/1.2 var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.muscle-family-heading span {
+  color: var(--muted);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
 .muscle-region-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

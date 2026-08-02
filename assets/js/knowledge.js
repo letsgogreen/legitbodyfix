@@ -45,6 +45,10 @@
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
+  var muscleFamilyOrder = [
+    "Splenius", "Semispinalis", "Longissimus", "Iliocostalis", "Spinalis", "Scalenes", "Suboccipital muscles",
+    "Interspinales", "Intertransversarii", "Rotatores"
+  ];
 
   var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
   var carePaths = {
@@ -73,7 +77,7 @@
   };
   var fields = {
     conditions: [["joints", "Areas involved"], ["tags", "Common associations"], ["tightMuscles", "Often overactive or restricted"], ["weakMuscles", "Often underactive"], ["screening", "Movement screen"]],
-    muscles: [["group", "Body region"], ["origin", "Origin"], ["insertion", "Insertion"], ["actions", "Functions and actions"]],
+    muscles: [["group", "Anatomical group"], ["family", "Muscle family"], ["origin", "Origin"], ["insertion", "Insertion"], ["actions", "Functions and actions"]],
     recipes: [["bodyRegion", "Body area"], ["goal", "Goal"], ["whenToUse", "A useful starting point when"], ["equipment", "What you may need"], ["steps", "Starting sequence"], ["dosage", "Suggested dose"], ["reassess", "Reassess before progressing"], ["regression", "Make it easier"], ["progression", "Make it harder"], ["cautions", "Stop and get help when"], ["relatedConditions", "Related movement patterns"]]
   };
 
@@ -82,6 +86,21 @@
     if (className) node.className = className;
     if (typeof text === "string") node.textContent = text;
     return node;
+  }
+
+  function muscleFamily(item) {
+    var explicitFamily = String(item && item.family || "").trim();
+    if (explicitFamily) return explicitFamily;
+    var title = String(item && item.title || "").toLowerCase();
+    var families = [
+      ["splenius ", "Splenius"], ["semispinalis ", "Semispinalis"], ["longissimus ", "Longissimus"],
+      ["iliocostalis ", "Iliocostalis"], ["spinalis ", "Spinalis"], ["scalene", "Scalenes"]
+    ];
+    for (var index = 0; index < families.length; index += 1) {
+      if (title.indexOf(families[index][0]) === 0 || title.indexOf(" " + families[index][0]) !== -1) return families[index][1];
+    }
+    if (/rectus capitis posterior|obliquus capitis/.test(title)) return "Suboccipital muscles";
+    return "";
   }
 
   function openAnatomyViewer(item) {
@@ -570,9 +589,34 @@
         var subgroup = element("section", "muscle-subgroup");
         var subgroupHeading = element("div", "muscle-subgroup-heading");
         subgroupHeading.append(element("h4", "", groupName), element("span", "", String(groupRecords.length)));
-        var regionGrid = element("div", "muscle-region-grid");
-        regionGrid.replaceChildren.apply(regionGrid, groupRecords.map(createCard));
-        subgroup.append(subgroupHeading, regionGrid);
+        var familyNames = Array.from(new Set(groupRecords.map(function (record) { return muscleFamily(record.item); }).filter(Boolean)));
+        familyNames.sort(function (a, b) {
+          var aIndex = muscleFamilyOrder.indexOf(a), bIndex = muscleFamilyOrder.indexOf(b);
+          if (aIndex === -1) aIndex = muscleFamilyOrder.length;
+          if (bIndex === -1) bIndex = muscleFamilyOrder.length;
+          return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
+        });
+        if (familyNames.length) {
+          var familyList = element("div", "muscle-family-list");
+          var ungrouped = groupRecords.filter(function (record) { return !muscleFamily(record.item); });
+          if (ungrouped.length) familyNames.push("Other " + groupName.toLowerCase() + " muscles");
+          familyNames.forEach(function (familyName) {
+            var isOther = familyName.indexOf("Other ") === 0;
+            var familyRecords = isOther ? ungrouped : groupRecords.filter(function (record) { return muscleFamily(record.item) === familyName; });
+            var family = element("section", "muscle-family");
+            var familyHeading = element("div", "muscle-family-heading");
+            familyHeading.append(element("h5", "", familyName), element("span", "", familyRecords.length + (familyRecords.length === 1 ? " muscle" : " muscles")));
+            var familyGrid = element("div", "muscle-region-grid");
+            familyGrid.replaceChildren.apply(familyGrid, familyRecords.map(createCard));
+            family.append(familyHeading, familyGrid);
+            familyList.appendChild(family);
+          });
+          subgroup.append(subgroupHeading, familyList);
+        } else {
+          var regionGrid = element("div", "muscle-region-grid");
+          regionGrid.replaceChildren.apply(regionGrid, groupRecords.map(createCard));
+          subgroup.append(subgroupHeading, regionGrid);
+        }
         subgroups.appendChild(subgroup);
       });
       section.append(heading, subgroups);
