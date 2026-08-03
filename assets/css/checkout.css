@@ -22,6 +22,18 @@ h1 { margin:0; max-width:620px; font:400 clamp(52px,8vw,92px)/.87 var(--display)
 .price span { font:700 16px/1 var(--body); letter-spacing:-.03em; }
 .divider { height:1px; margin:31px 0 21px; background:var(--line); }
 #paypalButtonContainer { min-height:54px; }
+.card-payment-button { width:100%; min-height:58px; padding:0 18px; display:flex; align-items:center; justify-content:space-between; gap:14px; border:1px solid var(--ink); background:var(--ink); color:#fff; font:800 15px/1 var(--body); cursor:pointer; }
+.card-payment-button[hidden],.payment-divider[hidden],#paypalButtonContainer[hidden] { display:none; }
+.card-payment-button:hover { background:#292925; }
+.card-payment-button:focus-visible { outline:3px solid var(--lime); outline-offset:3px; }
+.card-payment-button:disabled { cursor:wait; opacity:.66; }
+.card-icon { width:27px; height:19px; position:relative; flex:0 0 auto; border:1px solid currentColor; border-radius:2px; }
+.card-icon::after { content:""; width:100%; height:4px; position:absolute; left:0; top:4px; background:currentColor; }
+.payment-divider { margin:20px 0; display:flex; align-items:center; gap:12px; color:var(--soft-ink); font:500 10px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+.payment-divider::before,.payment-divider::after { content:""; height:1px; flex:1; background:var(--line); }
+.checkout-assurance { margin:18px 0 0; padding:15px 0 0; display:grid; gap:8px; border-top:1px solid var(--line); list-style:none; }
+.checkout-assurance li { color:var(--soft-ink); font-size:11px; font-weight:700; }
+.checkout-assurance li::before { content:"✓"; margin-right:8px; color:#39766e; }
 #checkoutStatus { min-height:44px; margin-top:15px; color:var(--soft-ink); font-size:13px; line-height:1.45; }
 #checkoutStatus.error { color:#bf3429; }
 .note { margin-top:20px !important; color:var(--soft-ink); font-size:12px; line-height:1.6; }

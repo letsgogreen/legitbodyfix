@@ -65,3 +65,21 @@ test("does not create a second payment order for the same PayPal capture", async
   assert.equal(calls.length, 2);
   assert.equal(calls[1].options.method, "POST");
 });
+
+test("stores the verified provider instead of assuming every purchase is PayPal", async function () {
+  var calls = [];
+  var stripePayment = Object.assign({}, payment, {
+    provider: "stripe",
+    providerOrderId: "cs_test_exampleCheckoutSession123456789",
+    providerCaptureId: "pi_examplePaymentIntent123456"
+  });
+  var fetcher = async function (url, options) {
+    calls.push({ url: url, options: options || {} });
+    if (calls.length === 1) return response([]);
+    if (calls.length === 2) return response([{ id: "payment-order-2" }]);
+    return response([]);
+  };
+
+  await store.recordPurchase(config, stripePayment, fetcher);
+  assert.equal(JSON.parse(calls[1].options.body).provider, "stripe");
+});

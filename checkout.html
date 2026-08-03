@@ -24,9 +24,16 @@
       <p class="product" id="productName">Full Body Restoration Package</p>
       <p class="price" id="productPrice">$170<span> USD / one-time</span></p>
       <div class="divider"></div>
-      <div id="paypalButtonContainer" aria-live="polite"></div>
+      <button class="card-payment-button" id="cardPaymentButton" type="button" hidden>
+        <span class="card-icon" aria-hidden="true"></span>
+        <span>Pay securely by card</span>
+        <span aria-hidden="true">→</span>
+      </button>
+      <div class="payment-divider" id="paymentDivider" hidden><span>or use PayPal</span></div>
+      <div id="paypalButtonContainer" aria-live="polite" hidden></div>
       <p id="checkoutStatus" role="status" aria-live="polite">Preparing secure checkout…</p>
-      <p class="note">PayPal securely processes payment. Eligible visitors may also see debit or credit card options. After payment, use the email from checkout to open your library. By purchasing, you agree to the <a href="policies.html#terms">purchase terms</a> and <a href="policies.html#refunds">refund policy</a>.</p>
+      <ul class="checkout-assurance" aria-label="Checkout protections"><li>Encrypted payment</li><li>Instant library access</li><li>No recurring charge</li></ul>
+      <p class="note">Card details are handled securely by Stripe; PayPal remains available as an alternative. LegitBodyFix never receives or stores your full card number. After payment, use the email from checkout to open your library. By purchasing, you agree to the <a href="policies.html#terms">purchase terms</a> and <a href="policies.html#refunds">refund policy</a>.</p>
     </aside>
   </main>
   <script src="assets/js/checkout.js" defer></script>
