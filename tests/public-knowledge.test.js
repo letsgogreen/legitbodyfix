@@ -353,6 +353,28 @@ test("forearm muscles use individually highlighted references", function () {
   });
 });
 
+test("deep spinal muscles use focused anatomy references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    "semispinalis-thoracis": "Semispinalis.png",
+    "rotatores-breves": "Rotatores.png",
+    "rotatores-longi": "Rotatores.png",
+    "interspinales-cervicis": "Transversospinales_interspinales_enko.svg",
+    "interspinales-thoracis": "Transversospinales_interspinales_enko.svg",
+    "interspinales-lumborum": "Transversospinales_interspinales_enko.svg",
+    "iliocostalis-lumborum": "Iliostalis.png",
+    "iliocostalis-thoracis": "Iliostalis.png",
+    "longissimus-thoracis": "Longissimus.png",
+    "spinalis-thoracis": "Spinalis.png"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use its focused anatomy reference");
+    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+  });
+});
+
 test("intrinsic hand muscles use individually highlighted references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
