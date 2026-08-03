@@ -392,6 +392,26 @@ test("deep anterior neck muscles use focused anatomy references", function () {
   });
 });
 
+test("hyoid muscles use individually highlighted anatomy references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    "sternohyoid": "musculus%20sternohyoideus.png",
+    "omohyoid": "musculus%20omohyoideus.png",
+    "sternothyroid": "musculus%20sternothyroideus.png",
+    "thyrohyoid": "musculus%20thyrohyoideus.png",
+    "digastric": "musculus%20digastricus.png",
+    "stylohyoid": "musculus%20stylohyoideus.png",
+    "mylohyoid": "musculus%20mylohyoideus.png",
+    "geniohyoid": "musculus%20geniohyoideus.png"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use an individually highlighted reference");
+    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+  });
+});
+
 test("intrinsic hand muscles use individually highlighted references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
