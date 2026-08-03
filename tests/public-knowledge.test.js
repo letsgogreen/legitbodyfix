@@ -106,6 +106,10 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.doesNotMatch(javascript, /Cervicoscapular muscles/);
   assert.match(javascript, /neck-visual-directory/);
   assert.match(javascript, /Explore specific muscles/);
+  assert.match(javascript, /collectiveNeckGroupImages/);
+  assert.match(javascript, /groupImage\.label/);
+  assert.match(javascript, /color coding\|identif/);
+  assert.doesNotMatch(javascript, /members\.find\(function \(record\) \{ return hasFocusedMuscleImage/);
   assert.match(javascript, /directoryEntries\.sort/);
   assert.doesNotMatch(javascript, /Collective groups/);
   assert.doesNotMatch(javascript, /Named muscles/);
