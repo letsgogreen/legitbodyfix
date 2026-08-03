@@ -332,6 +332,27 @@ test("deep hip and posterior knee muscles use individually highlighted reference
   });
 });
 
+test("forearm muscles use individually highlighted references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    "flexor-carpi-ulnaris": "Flexor%20carpi%20ulnaris.png",
+    "palmaris-longus": "musculus%20palmaris%20longus.png",
+    "flexor-digitorum-superficialis": "musculus%20flexor%20digitorum%20superficialis.png",
+    "flexor-digitorum-profundus": "musculus%20flexor%20digitorum%20profundus.png",
+    "flexor-pollicis-longus": "musculus%20flexor%20pollicis%20longus.png",
+    "extensor-carpi-ulnaris": "Extensor%20carpi%20ulnaris%20muscle.png",
+    "extensor-digitorum": "musculus%20extensor%20digitorum.png",
+    supinator: "musculus%20supinator.png",
+    "pronator-quadratus": "musculus%20pronator%20quadratus.png"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use an individually highlighted reference");
+    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+  });
+});
+
 test("published knowledge records link to existing purchasable sessions", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var videos = JSON.parse(fs.readFileSync(path.join(root, "assets/data/videos.json"), "utf8"));
