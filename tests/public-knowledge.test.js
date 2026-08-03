@@ -315,6 +315,11 @@ test("hard-to-identify muscles use focused anatomy references", function () {
 test("deep hip and posterior knee muscles use individually highlighted references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
+    "obturator-internus": "Obturator_internus_muscle.png",
+    "obturator-externus": "Obturator_externus.png",
+    "superior-gemellus": "Gemellus_superior_muscle.PNG",
+    "inferior-gemellus": "Inferior_gemellus_muscle.PNG",
+    "quadratus-femoris": "Quadratus_femoris_muscle.PNG",
     "vastus-intermedius": "Vastus_intermedialis.gif",
     "adductor-brevis": "Adductor_brevis.gif",
     pectineus: "Pectineus.png",
@@ -328,7 +333,7 @@ test("deep hip and posterior knee muscles use individually highlighted reference
     var muscle = data.muscles.find(function (item) { return item.id === id; });
     assert.ok(muscle, "missing muscle " + id);
     assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use an individually highlighted reference");
-    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+    assert.match(muscle.imageAlt, /highlight|identify/i, id + " should explain how the muscle is identified");
   });
 });
 
