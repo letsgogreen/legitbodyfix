@@ -353,6 +353,28 @@ test("forearm muscles use individually highlighted references", function () {
   });
 });
 
+test("intrinsic hand muscles use individually highlighted references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    "abductor-pollicis-brevis": "musculus%20abductor%20pollicis%20brevis.png",
+    "opponens-pollicis": "musculus%20opponens%20pollicis.png",
+    "adductor-pollicis": "musculus%20adductor%20pollicis.png",
+    "hand-lumbricals": "musculus%20lumbricales.png",
+    "dorsal-interossei-hand": "musculus%20interossei%20dorsales.png",
+    "flexor-pollicis-brevis": "musculus%20flexor%20pollicis%20brevis.png",
+    "abductor-digiti-minimi-hand": "musculus%20abductor%20digiti%20minimi.png",
+    "flexor-digiti-minimi-brevis-hand": "musculus%20flexor%20digiti%20minimi%20brevis.png",
+    "opponens-digiti-minimi": "musculus%20opponens%20digiti%20minimi.png",
+    "palmar-interossei-hand": "musculus%20interossei%20palmares.png"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use an individually highlighted reference");
+    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+  });
+});
+
 test("published knowledge records link to existing purchasable sessions", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var videos = JSON.parse(fs.readFileSync(path.join(root, "assets/data/videos.json"), "utf8"));
