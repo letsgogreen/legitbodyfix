@@ -312,6 +312,26 @@ test("hard-to-identify muscles use focused anatomy references", function () {
   });
 });
 
+test("deep hip and posterior knee muscles use individually highlighted references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    "vastus-intermedius": "Vastus_intermedialis.gif",
+    "adductor-brevis": "Adductor_brevis.gif",
+    pectineus: "Pectineus.png",
+    "psoas-major": "Psoas_major_muscle01.png",
+    iliacus: "Iliacus_muscle01.png",
+    "psoas-minor": "Musculus_psoas_minor.png",
+    plantaris: "Gray438-Musculus_plantaris.png",
+    popliteus: "Gray439-Musculus_popliteus.png"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use an individually highlighted reference");
+    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+  });
+});
+
 test("published knowledge records link to existing purchasable sessions", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var videos = JSON.parse(fs.readFileSync(path.join(root, "assets/data/videos.json"), "utf8"));
