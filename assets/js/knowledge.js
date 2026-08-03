@@ -41,7 +41,7 @@
     if (!item || !item.title || !item.imageAlt) return false;
     var title = normalizedAnatomyName(item.title);
     var description = normalizedAnatomyName(item.imageAlt);
-    return Boolean(title) && description.indexOf(title) !== -1 && /highlight|focus|depict|render/.test(description);
+    return Boolean(title) && description.indexOf(title) !== -1 && /highlight|focus|depict|render|color coding|identif/.test(description);
   }
 
   function muscleImageLabel(item) {
@@ -86,6 +86,50 @@
     "Hyoid muscles": "The suprahyoid and infrahyoid muscles that position the hyoid during swallowing and jaw movement.",
     Scalenes: "Anterior, middle, and posterior scalenes considered as a functional neck group.",
     "Suboccipital muscles": "Four small deep muscles commonly referenced together at the upper cervical spine."
+  };
+  var collectiveNeckGroupImages = {
+    "Deep neck flexors": {
+      imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Gray378.png",
+      imageAlt: "Deep anterior neck anatomy plate showing the prevertebral muscle layer",
+      label: "Regional group reference",
+      focused: false
+    },
+    "Splenius muscles": {
+      imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Musculus_splenius_capitis_marked.png",
+      imageAlt: "Posterior anatomy illustration highlighting the splenius layer",
+      label: "Splenius region reference",
+      focused: false
+    },
+    "Capitis muscles": {
+      imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Semispinalis.png",
+      imageAlt: "Posterior neck anatomy plate providing regional context for capitis divisions",
+      label: "Regional group reference",
+      focused: false
+    },
+    "Cervicis muscles": {
+      imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1117_Muscles_of_the_Back.png",
+      imageAlt: "Posterior neck and upper-back anatomy plate providing regional context for cervicis divisions",
+      label: "Regional group reference",
+      focused: false
+    },
+    "Hyoid muscles": {
+      imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1110_Muscle_of_the_Anterior_Neck.jpg",
+      imageAlt: "Anterior neck anatomy plate identifying the suprahyoid and infrahyoid muscles",
+      label: "Hyoid group reference",
+      focused: true
+    },
+    Scalenes: {
+      imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Scalenus_anterior_-_animation04.gif",
+      imageAlt: "Lateral neck anatomy reference showing the scalene region",
+      label: "Scalene region reference",
+      focused: false
+    },
+    "Suboccipital muscles": {
+      imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Suboccipital_muscles01.png",
+      imageAlt: "Posterior anatomy illustration identifying the four suboccipital muscles",
+      label: "Highlighted muscle group",
+      focused: true
+    }
   };
   var muscleFamilyOrder = [
     "Superficial neck", "Splenius", "Prevertebral muscles", "Suprahyoid muscles", "Infrahyoid muscles",
@@ -736,21 +780,20 @@
       var members = regionRecords.filter(function (record) { return neckDirectoryGroups(record.item).indexOf(groupName) !== -1; });
       if (!members.length) return null;
       members.forEach(function (record) { collectiveIds.add(record.item.id); });
-      var imageRecord = members.find(function (record) { return hasFocusedMuscleImage(record.item); })
-        || members.find(function (record) { return typeof record.item.imageUrl === "string" && /^https:\/\//i.test(record.item.imageUrl); });
+      var groupImage = collectiveNeckGroupImages[groupName];
       var card = element("button", "knowledge-card muscle-collective-card");
       card.type = "button";
       card.setAttribute("aria-label", "Explore " + groupName);
-      if (imageRecord) {
+      if (groupImage) {
         card.classList.add("has-media");
         var media = element("span", "knowledge-card-media");
         var image = document.createElement("img");
-        image.src = imageRecord.item.imageUrl;
+        image.src = groupImage.imageUrl;
         image.alt = "";
         image.loading = "lazy";
         image.decoding = "async";
-        var imageLabel = element("span", "knowledge-card-media-label", members.length + (members.length === 1 ? " specific muscle" : " specific muscles"));
-        imageLabel.classList.add("is-focused");
+        var imageLabel = element("span", "knowledge-card-media-label", groupImage.label);
+        imageLabel.classList.add(groupImage.focused ? "is-focused" : "is-regional");
         media.append(image, imageLabel);
         card.appendChild(media);
       }
