@@ -414,6 +414,26 @@ test("intrinsic hand muscles use individually highlighted references", function 
   });
 });
 
+test("deep forearm and upper-arm muscles use individually highlighted references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    coracobrachialis: "musculus_coracobrachialis.png",
+    anconeus: "musculus_anconeus.png",
+    "extensor-carpi-radialis-brevis": "ECR-brevis.png",
+    "extensor-digiti-minimi": "musculus_extensor_digiti_minimi.png",
+    "abductor-pollicis-longus": "musculus_abductor_pollicis_longus.png",
+    "extensor-pollicis-brevis": "musculus_extensor_pollicis_brevis.png",
+    "extensor-pollicis-longus": "musculus_extensor_pollicis_longus.png",
+    "extensor-indicis": "musculus_extensor_indicis.png"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use an individually highlighted reference");
+    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+  });
+});
+
 test("published knowledge records link to existing purchasable sessions", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var videos = JSON.parse(fs.readFileSync(path.join(root, "assets/data/videos.json"), "utf8"));
