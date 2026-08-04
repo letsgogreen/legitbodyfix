@@ -219,6 +219,7 @@ test("condition library is grouped into useful clinical families", function () {
   });
   assert.match(javascript, /function renderConditionGroups/);
   assert.match(javascript, /grouped by condition family/);
+  assert.match(javascript, /headingCopy\.append\(element\("span", "", "Condition family"\), element\("h3", "", category\)\)/);
 });
 
 test("condition detail pages expose their clinical reference and skip animated initial scrolling", function () {

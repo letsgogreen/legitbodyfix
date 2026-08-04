@@ -992,7 +992,9 @@
       });
       var section = element("section", "condition-category-section");
       var heading = element("header", "condition-category-heading");
-      heading.append(element("div", "", [element("span", "", "Condition family"), element("h3", "", category)]), element("b", "", categoryRecords.length + (categoryRecords.length === 1 ? " guide" : " guides")));
+      var headingCopy = element("div");
+      headingCopy.append(element("span", "", "Condition family"), element("h3", "", category));
+      heading.append(headingCopy, element("b", "", categoryRecords.length + (categoryRecords.length === 1 ? " guide" : " guides")));
       var conditionGrid = element("div", "condition-category-grid");
       conditionGrid.replaceChildren.apply(conditionGrid, categoryRecords.map(createCard));
       section.append(heading, conditionGrid);
