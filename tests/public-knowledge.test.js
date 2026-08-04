@@ -15,15 +15,18 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /id="knowledgeGrid"/);
   assert.match(html, /public-responsive-fixes\.css/);
   assert.match(html, /data-knowledge-filter="conditions"/);
+  assert.match(html, /data-care-path-target="postural-movement"/);
+  assert.match(html, /data-care-path-target="musculoskeletal-condition"/);
   assert.match(html, /Complete follow-along progressions stay inside the paid programs/);
   assert.match(html, /How movement guides help/);
-  assert.match(html, /Correction recipes/);
+  assert.doesNotMatch(html, /data-knowledge-filter="recipes"/);
+  assert.doesNotMatch(html, /data-knowledge-path="recipes"/);
   assert.match(html, /id="recipeTools"/);
   assert.match(html, /id="carePathTools"/);
   assert.match(html, /data-care-path="postural-movement"/);
   assert.match(html, /data-care-path="musculoskeletal-condition"/);
   assert.match(html, /data-recipe-region="Ankle &amp; foot"/);
-  assert.match(html, /Muscle dictionary/);
+  assert.match(html, />Muscles</);
   assert.match(html, /muscle-dictionary\.css/);
   assert.match(html, /data-muscle-region="head-neck"/);
   assert.match(html, /data-muscle-region="shoulder-scapula"/);
@@ -51,6 +54,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /activeRecipeRegion/);
   assert.match(javascript, /updateRecipeCounts/);
   assert.match(javascript, /activeCarePath/);
+  assert.match(javascript, /primaryTypes = \["conditions", "muscles"\]/);
   assert.match(javascript, /does not diagnose a body part as structurally misaligned/);
   assert.match(javascript, /sprains, dislocations, disc-related conditions, and nerve-related syndromes/);
   assert.match(javascript, /Continue with a complete program/);
@@ -172,6 +176,31 @@ test("public knowledge hub exposes searchable published education safely", funct
   functionOptions.forEach(function (value) {
     assert.ok(javascript.includes('"' + value + '"'), "missing function classifier for " + value);
   });
+});
+
+test("muscles are a first-class site navigation destination", function () {
+  var home = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  var knowledge = fs.readFileSync(path.join(root, "knowledge.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  assert.match(home, /href="knowledge\.html\?type=muscles">Muscles</);
+  assert.match(knowledge, /href="knowledge\.html\?type=muscles">Muscles</);
+  assert.match(javascript, /if \(labels\[type\] && !id\)/);
+});
+
+test("posture and musculoskeletal conditions have separate primary paths", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var requiredPostureIds = [
+    "anterior-pelvic-tilt", "posterior-pelvic-tilt", "forward-head-posture", "rib-flare",
+    "knee-valgus-pattern", "knee-varus-pattern", "foot-valgus-pattern", "foot-varus-pattern",
+    "early-heel-rise", "asymmetric-hip-shift", "elevated-shoulder"
+  ];
+  requiredPostureIds.forEach(function (id) {
+    var record = data.conditions.find(function (item) { return item.id === id; });
+    assert.ok(record, "missing posture guide " + id);
+    assert.equal(record.pathway, "postural-movement");
+    assert.equal(record.published, true);
+  });
+  assert.ok(data.conditions.some(function (item) { return item.pathway === "musculoskeletal-condition"; }));
 });
 
 test("muscle dictionary records include anatomy fields, illustrations, and references", function () {
