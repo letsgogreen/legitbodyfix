@@ -337,6 +337,23 @@ test("deep hip and posterior knee muscles use individually highlighted reference
   });
 });
 
+test("intrinsic foot and levator ani entries use focused anatomy references", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    "quadratus-plantae": "Muscle_carr%C3%A9_plantaire.png",
+    "foot-lumbricals": "Lumbricales_pedis.png",
+    "flexor-digiti-minimi-brevis-foot": "Musculus_flexor_digiti_minimi_brevis_(foot).png",
+    "extensor-hallucis-brevis": "Extensor_hallucis_brevis_muscle_-_anteriror_view.png",
+    "levator-ani": "Levator_ani.png"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use a focused anatomy reference");
+    assert.match(muscle.imageAlt, /highlight|isolat/i, id + " should explain how the muscle is identified");
+  });
+});
+
 test("forearm muscles use individually highlighted references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
