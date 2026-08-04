@@ -677,6 +677,16 @@
       recipeSource.appendChild(recipeSourceLink);
       facts.appendChild(recipeSource);
     }
+    if (type === "conditions" && item.sourceName && typeof item.sourceUrl === "string" && /^https:\/\//i.test(item.sourceUrl)) {
+      var conditionSource = element("p", "detail-source", "Clinical education reference: ");
+      var conditionSourceLink = document.createElement("a");
+      conditionSourceLink.href = item.sourceUrl;
+      conditionSourceLink.target = "_blank";
+      conditionSourceLink.rel = "noopener noreferrer";
+      conditionSourceLink.textContent = item.sourceName;
+      conditionSource.appendChild(conditionSourceLink);
+      facts.appendChild(conditionSource);
+    }
     body.append(intro, facts);
     var relatedIds = typeof item.relatedVideoIds === "string" ? item.relatedVideoIds.split(",").map(function (id) { return id.trim(); }).filter(Boolean) : [];
     var relatedVideos = videos.filter(function (video) { return video && video.published !== false && relatedIds.indexOf(video.id) !== -1; });
@@ -712,7 +722,7 @@
     detail.hidden = false;
     document.title = (item.title || "Movement Guide") + " — LegitBodyFix";
     if (shouldUpdateUrl !== false) updateUrl(type, item.id);
-    detail.scrollIntoView({ behavior: "smooth", block: "start" });
+    detail.scrollIntoView({ behavior: shouldUpdateUrl === false ? "auto" : "smooth", block: "start" });
   }
 
   function showDirectory(shouldUpdateUrl) {

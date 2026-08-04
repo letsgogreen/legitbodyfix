@@ -221,6 +221,12 @@ test("condition library is grouped into useful clinical families", function () {
   assert.match(javascript, /grouped by condition family/);
 });
 
+test("condition detail pages expose their clinical reference and skip animated initial scrolling", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  assert.match(javascript, /Clinical education reference:/);
+  assert.match(javascript, /shouldUpdateUrl === false \? "auto" : "smooth"/);
+});
+
 test("muscle dictionary records include anatomy fields, illustrations, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   assert.ok(data.muscles.length >= 179);
