@@ -139,9 +139,10 @@
   ];
 
   var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
+  var primaryTypes = ["conditions", "muscles"];
   var carePaths = {
     "postural-movement": {
-      label: "Postural & movement issues",
+      label: "Posture patterns",
       description: "Non-acute education for posture, comfort, coordination, mobility, and load control. It does not diagnose a body part as structurally misaligned."
     },
     "musculoskeletal-condition": {
@@ -292,7 +293,7 @@
   }
 
   function allItems() {
-    return Object.keys(labels).flatMap(function (type) {
+    return primaryTypes.flatMap(function (type) {
       return data[type].filter(function (item) { return item && item.published !== false; }).map(function (item) { return { type: type, item: item }; });
     });
   }
@@ -484,17 +485,20 @@
     return records.some(function (record) { return record.item.id === item.id; });
   }
 
-  function selectType(type) {
+  function selectType(type, carePathTarget) {
     activeType = type;
+    if (type === "conditions") activeCarePath = carePathTarget || "all";
+    else if (type !== "recipes") activeCarePath = "all";
     filterButtons.forEach(function (candidate) {
-      var selected = candidate.dataset.knowledgeFilter === type;
+      var candidateCarePath = candidate.dataset.carePathTarget || "all";
+      var selected = candidate.dataset.knowledgeFilter === type && (type !== "conditions" || candidateCarePath === activeCarePath);
       candidate.classList.toggle("is-active", selected);
       candidate.setAttribute("aria-pressed", String(selected));
     });
     muscleTools.hidden = type !== "muscles";
     muscleAtlas.hidden = type !== "muscles";
-    recipeTools.hidden = type !== "recipes";
-    carePathTools.hidden = type !== "conditions" && type !== "recipes";
+    if (recipeTools) recipeTools.hidden = true;
+    if (carePathTools) carePathTools.hidden = true;
     render();
   }
 
@@ -572,6 +576,13 @@
     document.querySelectorAll("[data-type-count]").forEach(function (node) {
       var type = node.dataset.typeCount;
       var count = data[type].filter(function (item) { return item && item.published !== false; }).length;
+      node.textContent = count + (count === 1 ? " guide" : " guides");
+    });
+    document.querySelectorAll("[data-care-path-count]").forEach(function (node) {
+      var pathway = node.dataset.carePathCount;
+      var count = data.conditions.filter(function (item) {
+        return item && item.published !== false && carePath(item) === pathway;
+      }).length;
       node.textContent = count + (count === 1 ? " guide" : " guides");
     });
   }
@@ -1027,6 +1038,11 @@
       render();
       return;
     }
+    if (labels[type] && !id) {
+      showDirectory(false);
+      selectType(type);
+      return;
+    }
     if (!labels[type] || !id) { showDirectory(false); return; }
     var item = data[type].find(function (candidate) { return candidate.id === id && candidate.published !== false; });
     if (item) openDetail(type, item, false);
@@ -1035,11 +1051,11 @@
 
   filterButtons.forEach(function (button) {
     button.addEventListener("click", function () {
-      selectType(button.dataset.knowledgeFilter);
+      selectType(button.dataset.knowledgeFilter, button.dataset.carePathTarget);
     });
   });
   Array.from(document.querySelectorAll("[data-knowledge-path]")).forEach(function (button) {
-    button.addEventListener("click", function () { selectType(button.dataset.knowledgePath); });
+    button.addEventListener("click", function () { selectType(button.dataset.knowledgePath, button.dataset.carePathTarget); });
   });
   muscleRegionButtons.forEach(function (button) {
     button.addEventListener("click", function () {
