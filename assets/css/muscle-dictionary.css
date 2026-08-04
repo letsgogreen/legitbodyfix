@@ -148,37 +148,12 @@
   border-top-color: var(--ink);
 }
 
-.knowledge-card-body-map {
-  height: 150px;
-  margin: -28px -28px 24px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border-bottom: 1px solid var(--ink);
-  background: #e7e4dc;
-}
-
-.knowledge-card-body-map svg { width: 82px; height: 138px; }
-.knowledge-card-body-map circle,
-.knowledge-card-body-map path,
-.detail-body-map circle,
-.detail-body-map path { fill: #b9b7af; stroke: var(--ink); stroke-width: 2; }
-.body-map-highlight { fill: var(--lime); stroke: var(--ink); stroke-width: 2; opacity: .92; }
-
-.detail-body-map {
-  margin: 0 0 30px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--ink);
-  background: #e7e4dc;
-}
-
-.detail-body-map svg { width: 180px; height: 390px; margin: 24px; }
-.detail-body-map figcaption { width: 100%; padding: 10px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.5; }
 .detail-source { margin-top: 16px; color: var(--muted); font-size: 12px; }
 .detail-source a { text-underline-offset: 3px; }
 
 .muscle-role-list {
+  padding: 0;
+  list-style: none;
   margin: -4px 0 14px;
   display: flex;
   flex-wrap: wrap;
@@ -186,7 +161,9 @@
 }
 
 .muscle-role {
-  padding: 6px 8px;
+  padding: 0;
+  display: inline-flex;
+  align-items: stretch;
   border: 1px solid var(--ink);
   background: color-mix(in srgb, var(--lime) 22%, var(--paper));
   color: var(--ink);
@@ -194,6 +171,33 @@
   letter-spacing: .06em;
   text-transform: uppercase;
 }
+
+.muscle-role-id,
+.muscle-role-name { padding: 6px 8px; }
+.muscle-role-id { border-right: 1px solid var(--ink); background: var(--ink); color: var(--lime); }
+.detail-movement-functions { margin-bottom: 30px; padding: 22px; border: 1px solid var(--ink); background: var(--panel); }
+.detail-movement-functions h3 { margin: 10px 0 20px; font-size: 30px; letter-spacing: -.04em; }
+.detail-action-notes { margin-top: 18px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.focused-image-notice { margin: 0 0 30px; padding: 24px; border: 1px dashed var(--ink); background: color-mix(in srgb, var(--panel) 64%, transparent); }
+.focused-image-notice strong { display: block; margin-bottom: 8px; }
+.focused-image-notice p { color: var(--muted); font-size: 13px; line-height: 1.65; }
+
+.muscle-relationships { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--ink); }
+.muscle-relationships-heading { max-width: 820px; }
+.muscle-relationships-heading h3 { margin: 14px 0 16px; font-size: clamp(30px, 4vw, 52px); line-height: .98; letter-spacing: -.06em; }
+.muscle-relationships-heading > p:last-child { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.muscle-relationship-grid { margin-top: 30px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+.muscle-relationship-column { min-width: 0; padding: 26px; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.muscle-relationship-column.is-synergist { background: color-mix(in srgb, var(--lime) 12%, transparent); }
+.muscle-relationship-column h4 { font-size: 22px; letter-spacing: -.04em; }
+.muscle-relationship-description,
+.muscle-relationship-empty { margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.muscle-relationship-list { margin: 22px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.muscle-relationship-list li { border-bottom: 1px solid var(--line); }
+.muscle-relationship-link { width: 100%; padding: 14px 0; display: grid; gap: 6px; border: 0; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.muscle-relationship-link:hover strong,
+.muscle-relationship-link:focus-visible strong { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.muscle-relationship-link span { color: var(--muted); font: 500 9px/1.5 var(--mono); letter-spacing: .05em; text-transform: uppercase; }
 
 .detail-muscle-roles { margin: 0 0 22px; }
 
@@ -522,4 +526,5 @@
   .anatomy-viewer-panel { grid-template-columns: 1fr; }
   .anatomy-viewer-image { height: 58vh; }
   .anatomy-viewer-copy { padding: 24px; border-top: 1px solid var(--ink); border-left: 0; }
+  .muscle-relationship-grid { grid-template-columns: 1fr; }
 }

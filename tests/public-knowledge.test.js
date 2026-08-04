@@ -56,9 +56,17 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /Continue with a complete program/);
   assert.match(javascript, /video\.html\?id=/);
   assert.match(javascript, /assets\/data\/videos\.json/);
-  assert.match(javascript, /Functions and actions/);
+  assert.match(javascript, /Numbered function tags/);
   assert.match(javascript, /function muscleRegion/);
   assert.match(javascript, /function muscleFunctionalRoles/);
+  assert.match(javascript, /var movementTagOrder/);
+  assert.match(javascript, /function movementTagId/);
+  assert.match(javascript, /var antagonistRolePairs/);
+  assert.match(javascript, /function relationshipRecords/);
+  assert.match(javascript, /Synergistic muscles/);
+  assert.match(javascript, /Antagonistic muscles/);
+  assert.match(javascript, /synergist\|synergy\|antagonist/);
+  assert.match(html, /synergist: semispinalis capitis/);
   assert.match(javascript, /function updateFunctionOptions/);
   assert.match(javascript, /option\.dataset\.baseLabel/);
   assert.match(javascript, /option\.disabled/);
@@ -136,7 +144,12 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /activeMuscleVisual/);
   assert.match(html, /id="muscleVisual"/);
   assert.match(javascript, /Highlighted anatomy/);
-  assert.match(javascript, /is not separately highlighted/);
+  assert.match(javascript, /Focused illustration under review/);
+  assert.doesNotMatch(javascript, /is not separately highlighted/);
+  assert.doesNotMatch(javascript, /Orientation map/);
+  assert.doesNotMatch(javascript, /createBodyMap/);
+  assert.doesNotMatch(css, /detail-body-map/);
+  assert.doesNotMatch(css, /knowledge-card-body-map/);
   assert.match(javascript, /Related programs/);
   assert.match(javascript, /Programs selected for the movement roles/);
   assert.match(javascript, /Explore this program/);
@@ -147,7 +160,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(css, /\.knowledge-card-media-label/);
   assert.match(javascript, /localeCompare/);
   assert.match(javascript, /detail-anatomy-image/);
-  assert.match(javascript, /Regional anatomy reference/);
+  assert.doesNotMatch(javascript, /Regional anatomy reference/);
   assert.match(javascript, /Special:FilePath\/1117_Muscles_of_the_Back\.png/);
   assert.match(javascript, /Special:FilePath\/1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430\.png/);
   assert.match(javascript, /\^https:/);
@@ -161,14 +174,14 @@ test("public knowledge hub exposes searchable published education safely", funct
   });
 });
 
-test("muscle dictionary records include anatomy fields, visual orientation, and references", function () {
+test("muscle dictionary records include anatomy fields, illustrations, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   assert.ok(data.muscles.length >= 179);
   data.muscles.forEach(function (muscle) {
     assert.ok(muscle.origin, muscle.id + " needs an origin");
     assert.ok(muscle.insertion, muscle.id + " needs an insertion");
     assert.ok(muscle.actions, muscle.id + " needs functions and actions");
-    assert.ok(muscle.imageUrl || muscle.bodyMap, muscle.id + " needs an image or body map");
+    assert.ok(muscle.imageUrl, muscle.id + " needs an anatomy illustration");
     if (muscle.imageUrl) {
       assert.match(muscle.imageUrl, /^https:\/\//);
       assert.ok(muscle.imageAlt);
@@ -181,6 +194,26 @@ test("muscle dictionary records include anatomy fields, visual orientation, and 
   ["splenius-capitis", "semispinalis-capitis", "longissimus-capitis"].forEach(function (id) {
     assert.ok(data.muscles.find(function (muscle) { return muscle.id === id; }).family, id + " needs an anatomical family");
   });
+});
+
+test("individual muscle pages reject ambiguous regional plates and group cards require group images", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  ["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"].forEach(function (group) {
+    assert.match(javascript, new RegExp('"' + group + '"\\s*:\\s*\\{\\s*imageUrl:'), group + " needs a dedicated group image");
+  });
+  assert.match(javascript, /&& hasFocusedMuscleImage\(item\)/);
+  assert.match(javascript, /&& hasFocusedMuscleImage\(record\.item\)/);
+  assert.doesNotMatch(javascript, /createBodyMap/);
+});
+
+test("semispinalis capitis uses an individually highlighted anatomy image", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var muscle = data.muscles.find(function (item) { return item.id === "semispinalis-capitis"; });
+  assert.ok(muscle);
+  assert.ok(muscle.imageUrl.includes("Semispinalis_capitis02.png"));
+  assert.match(muscle.imageAlt, /semispinalis capitis/i);
+  assert.match(muscle.imageAlt, /highlight/i);
+  assert.match(muscle.imageCredit, /CC BY-SA 2\.1/);
 });
 
 test("muscle dictionary covers the major whole-body regions", function () {
