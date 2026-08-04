@@ -157,6 +157,7 @@
 
   function contentLabel(type, item) {
     if (type === "muscles") return labels[type];
+    if (type === "conditions" && carePath(item) === "musculoskeletal-condition" && item.conditionCategory) return item.conditionCategory;
     return carePaths[carePath(item)].label;
   }
   var summaries = {
@@ -964,6 +965,32 @@
     grid.replaceChildren.apply(grid, sections);
   }
 
+  function renderConditionGroups(records) {
+    var categoryOrder = ["Sprains & strains", "Dislocations & instability", "Disc-related & radiating symptoms", "Peripheral nerve compression"];
+    var categories = Array.from(new Set(records.map(function (record) { return record.item.conditionCategory || "Other conditions"; })));
+    categories.sort(function (a, b) {
+      var aIndex = categoryOrder.indexOf(a), bIndex = categoryOrder.indexOf(b);
+      if (aIndex === -1) aIndex = categoryOrder.length;
+      if (bIndex === -1) bIndex = categoryOrder.length;
+      return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
+    });
+    var sections = categories.map(function (category) {
+      var categoryRecords = records.filter(function (record) { return (record.item.conditionCategory || "Other conditions") === category; });
+      categoryRecords.sort(function (a, b) {
+        var regionCompare = String(a.item.bodyRegion || "").localeCompare(String(b.item.bodyRegion || ""));
+        return regionCompare || String(a.item.title || "").localeCompare(String(b.item.title || ""));
+      });
+      var section = element("section", "condition-category-section");
+      var heading = element("header", "condition-category-heading");
+      heading.append(element("div", "", [element("span", "", "Condition family"), element("h3", "", category)]), element("b", "", categoryRecords.length + (categoryRecords.length === 1 ? " guide" : " guides")));
+      var conditionGrid = element("div", "condition-category-grid");
+      conditionGrid.replaceChildren.apply(conditionGrid, categoryRecords.map(createCard));
+      section.append(heading, conditionGrid);
+      return section;
+    });
+    grid.replaceChildren.apply(grid, sections);
+  }
+
   function render() {
     var query = search.value.trim().toLowerCase();
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
@@ -993,6 +1020,7 @@
     });
     var groupMuscles = activeType === "muscles" && muscleSort.value === "body" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query;
     var groupRecipes = activeType === "recipes" && !query;
+    var groupConditions = activeType === "conditions" && activeCarePath === "musculoskeletal-condition" && !query;
     if (activeType === "muscles" && muscleSort.value === "alpha") {
       records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
     }
@@ -1013,17 +1041,18 @@
       return;
     }
     grid.hidden = false;
-    grid.classList.toggle("is-grouped", (groupMuscles || groupRecipes) && Boolean(records.length));
+    grid.classList.toggle("is-grouped", (groupMuscles || groupRecipes || groupConditions) && Boolean(records.length));
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
     else if (groupMuscles) renderMuscleGroups(records);
     else if (groupRecipes) renderRecipeGroups(records);
+    else if (groupConditions) renderConditionGroups(records);
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
     status.textContent = activeType === "muscles"
       ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 9 anatomical regions" : " in this anatomical region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
       : activeType === "recipes"
         ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
-        : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase());
+        : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (groupConditions ? ", grouped by condition family" : "");
   }
 
   function openFromUrl() {

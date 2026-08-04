@@ -203,6 +203,24 @@ test("posture and musculoskeletal conditions have separate primary paths", funct
   assert.ok(data.conditions.some(function (item) { return item.pathway === "musculoskeletal-condition"; }));
 });
 
+test("condition library is grouped into useful clinical families", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  var conditions = data.conditions.filter(function (item) { return item.pathway === "musculoskeletal-condition"; });
+  var requiredCategories = ["Sprains & strains", "Dislocations & instability", "Disc-related & radiating symptoms", "Peripheral nerve compression"];
+  assert.ok(conditions.length >= 8);
+  requiredCategories.forEach(function (category) {
+    assert.ok(conditions.some(function (item) { return item.conditionCategory === category; }), "missing condition category " + category);
+  });
+  conditions.forEach(function (item) {
+    assert.ok(item.conditionCategory, item.id + " needs a condition category");
+    assert.ok(item.bodyRegion, item.id + " needs a body region");
+    assert.match(item.sourceUrl, /^https:\/\//, item.id + " needs an authoritative source");
+  });
+  assert.match(javascript, /function renderConditionGroups/);
+  assert.match(javascript, /grouped by condition family/);
+});
+
 test("muscle dictionary records include anatomy fields, illustrations, and references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   assert.ok(data.muscles.length >= 179);
