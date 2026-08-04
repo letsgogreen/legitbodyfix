@@ -189,18 +189,30 @@ test("muscles are a first-class site navigation destination", function () {
 
 test("posture and musculoskeletal conditions have separate primary paths", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
   var requiredPostureIds = [
-    "anterior-pelvic-tilt", "posterior-pelvic-tilt", "forward-head-posture", "rib-flare",
+    "scapula-anterior-tilt", "round-shoulder", "anterior-pelvic-tilt", "posterior-pelvic-tilt", "forward-head-posture", "rib-flare",
     "knee-valgus-pattern", "knee-varus-pattern", "foot-valgus-pattern", "foot-varus-pattern",
     "early-heel-rise", "asymmetric-hip-shift", "elevated-shoulder"
   ];
+  var postureRecords = data.conditions.filter(function (item) { return item.pathway === "postural-movement"; });
+  var requiredCategories = ["Head & neck", "Shoulder & scapula", "Rib cage & trunk", "Pelvis & hip", "Knee & leg", "Foot & ankle"];
+  assert.equal(postureRecords.length, 13);
   requiredPostureIds.forEach(function (id) {
     var record = data.conditions.find(function (item) { return item.id === id; });
     assert.ok(record, "missing posture guide " + id);
     assert.equal(record.pathway, "postural-movement");
     assert.equal(record.published, true);
+    assert.ok(record.postureCategory, id + " needs a posture category");
+    assert.ok(record.bodyRegion, id + " needs a body region");
+  });
+  requiredCategories.forEach(function (category) {
+    assert.ok(postureRecords.some(function (item) { return item.postureCategory === category; }), "missing posture category " + category);
   });
   assert.ok(data.conditions.some(function (item) { return item.pathway === "musculoskeletal-condition"; }));
+  assert.match(javascript, /function renderPostureGroups/);
+  assert.match(javascript, /grouped by body area/);
+  assert.match(javascript, /headingCopy\.append\(element\("span", "", "Body area"\), element\("h3", "", category\)\)/);
 });
 
 test("condition library is grouped into useful clinical families", function () {

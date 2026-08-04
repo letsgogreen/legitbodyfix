@@ -25,7 +25,7 @@
 
   var schemas = {
     conditions: [
-      ["title", "Guide name", 120], ["pathway", "Content pathway", 40], ["conditionCategory", "Condition category", 120], ["bodyRegion", "Body region", 120],
+      ["title", "Guide name", 120], ["pathway", "Content pathway", 40], ["postureCategory", "Posture body-area group", 120], ["conditionCategory", "Condition category", 120], ["bodyRegion", "Body region", 120],
       ["joints", "Related joints", 240], ["tags", "Tags", 400],
       ["summary", "Clinical summary", 800, true], ["tightMuscles", "Commonly tight / overactive", 500],
       ["weakMuscles", "Commonly weak / underactive", 500], ["screening", "Screening signs", 600, true],

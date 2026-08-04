@@ -3,6 +3,8 @@
     {
       "id": "scapula-anterior-tilt",
       "pathway": "postural-movement",
+      "postureCategory": "Shoulder & scapula",
+      "bodyRegion": "Shoulder & scapula",
       "title": "Scapula anterior tilt",
       "joints": "Shoulder",
       "tags": "Shoulder impingement, upper crossed syndrome",
@@ -16,6 +18,8 @@
     {
       "id": "round-shoulder",
       "pathway": "postural-movement",
+      "postureCategory": "Shoulder & scapula",
+      "bodyRegion": "Shoulder & scapula",
       "title": "Round shoulder",
       "joints": "Neck, shoulder, thoracic spine",
       "tags": "Upper crossed syndrome, shoulder impingement, rib flare",
@@ -29,6 +33,8 @@
     {
       "id": "anterior-pelvic-tilt",
       "pathway": "postural-movement",
+      "postureCategory": "Pelvis & hip",
+      "bodyRegion": "Pelvis & hip",
       "title": "Anterior pelvic tilt",
       "joints": "Pelvis, lumbar spine, hip",
       "tags": "Pelvic position, hip extension, trunk control",
@@ -42,6 +48,8 @@
     {
       "id": "posterior-pelvic-tilt",
       "pathway": "postural-movement",
+      "postureCategory": "Pelvis & hip",
+      "bodyRegion": "Pelvis & hip",
       "title": "Posterior pelvic tilt",
       "joints": "Pelvis, lumbar spine, hip",
       "tags": "Pelvic position, lumbar flexion, hip mechanics",
@@ -55,6 +63,8 @@
     {
       "id": "forward-head-posture",
       "pathway": "postural-movement",
+      "postureCategory": "Head & neck",
+      "bodyRegion": "Head & neck",
       "title": "Forward head posture",
       "joints": "Cervical spine, upper thoracic spine",
       "tags": "Head position, neck comfort, thoracic position",
@@ -68,6 +78,8 @@
     {
       "id": "rib-flare",
       "pathway": "postural-movement",
+      "postureCategory": "Rib cage & trunk",
+      "bodyRegion": "Rib cage & trunk",
       "title": "Rib flare",
       "joints": "Rib cage, thoracic spine, lumbar spine",
       "tags": "Breathing, trunk position, overhead movement",
@@ -81,6 +93,8 @@
     {
       "id": "knee-valgus-pattern",
       "pathway": "postural-movement",
+      "postureCategory": "Knee & leg",
+      "bodyRegion": "Knee & leg",
       "title": "Knee valgus pattern",
       "joints": "Hip, knee, ankle, foot",
       "tags": "Knee alignment, squat, landing, gait",
@@ -94,6 +108,8 @@
     {
       "id": "knee-varus-pattern",
       "pathway": "postural-movement",
+      "postureCategory": "Knee & leg",
+      "bodyRegion": "Knee & leg",
       "title": "Knee varus pattern",
       "joints": "Hip, knee, ankle, foot",
       "tags": "Knee alignment, squat, gait, lateral loading",
@@ -107,6 +123,8 @@
     {
       "id": "foot-valgus-pattern",
       "pathway": "postural-movement",
+      "postureCategory": "Foot & ankle",
+      "bodyRegion": "Foot & ankle",
       "title": "Foot valgus / pronation pattern",
       "joints": "Rearfoot, midfoot, ankle",
       "tags": "Pronation, arch control, gait, balance",
@@ -120,6 +138,8 @@
     {
       "id": "foot-varus-pattern",
       "pathway": "postural-movement",
+      "postureCategory": "Foot & ankle",
+      "bodyRegion": "Foot & ankle",
       "title": "Foot varus / supination pattern",
       "joints": "Rearfoot, midfoot, ankle",
       "tags": "Supination, lateral foot pressure, gait, balance",
@@ -133,6 +153,8 @@
     {
       "id": "early-heel-rise",
       "pathway": "postural-movement",
+      "postureCategory": "Foot & ankle",
+      "bodyRegion": "Foot & ankle",
       "title": "Early heel rise",
       "joints": "Ankle, foot, knee, hip",
       "tags": "Squat, gait, ankle dorsiflexion, calf control",
@@ -146,6 +168,8 @@
     {
       "id": "asymmetric-hip-shift",
       "pathway": "postural-movement",
+      "postureCategory": "Pelvis & hip",
+      "bodyRegion": "Pelvis & hip",
       "title": "Asymmetric hip shift",
       "joints": "Pelvis, hip, knee, ankle",
       "tags": "Squat, stance, side-to-side loading, pelvic control",
@@ -159,6 +183,8 @@
     {
       "id": "elevated-shoulder",
       "pathway": "postural-movement",
+      "postureCategory": "Shoulder & scapula",
+      "bodyRegion": "Shoulder & scapula",
       "title": "Elevated shoulder",
       "joints": "Scapula, shoulder, cervical spine",
       "tags": "Shoulder height, scapular position, neck tension",

@@ -157,6 +157,7 @@
 
   function contentLabel(type, item) {
     if (type === "muscles") return labels[type];
+    if (type === "conditions" && carePath(item) === "postural-movement" && item.postureCategory) return item.postureCategory;
     if (type === "conditions" && carePath(item) === "musculoskeletal-condition" && item.conditionCategory) return item.conditionCategory;
     return carePaths[carePath(item)].label;
   }
@@ -1003,6 +1004,31 @@
     grid.replaceChildren.apply(grid, sections);
   }
 
+  function renderPostureGroups(records) {
+    var categoryOrder = ["Head & neck", "Shoulder & scapula", "Rib cage & trunk", "Pelvis & hip", "Knee & leg", "Foot & ankle"];
+    var categories = Array.from(new Set(records.map(function (record) { return record.item.postureCategory || "Other movement patterns"; })));
+    categories.sort(function (a, b) {
+      var aIndex = categoryOrder.indexOf(a), bIndex = categoryOrder.indexOf(b);
+      if (aIndex === -1) aIndex = categoryOrder.length;
+      if (bIndex === -1) bIndex = categoryOrder.length;
+      return aIndex === bIndex ? a.localeCompare(b) : aIndex - bIndex;
+    });
+    var sections = categories.map(function (category) {
+      var categoryRecords = records.filter(function (record) { return (record.item.postureCategory || "Other movement patterns") === category; });
+      categoryRecords.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
+      var section = element("section", "condition-category-section posture-category-section");
+      var heading = element("header", "condition-category-heading posture-category-heading");
+      var headingCopy = element("div");
+      headingCopy.append(element("span", "", "Body area"), element("h3", "", category));
+      heading.append(headingCopy, element("b", "", categoryRecords.length + (categoryRecords.length === 1 ? " guide" : " guides")));
+      var postureGrid = element("div", "condition-category-grid posture-category-grid");
+      postureGrid.replaceChildren.apply(postureGrid, categoryRecords.map(createCard));
+      section.append(heading, postureGrid);
+      return section;
+    });
+    grid.replaceChildren.apply(grid, sections);
+  }
+
   function render() {
     var query = search.value.trim().toLowerCase();
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
@@ -1033,6 +1059,7 @@
     var groupMuscles = activeType === "muscles" && muscleSort.value === "body" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query;
     var groupRecipes = activeType === "recipes" && !query;
     var groupConditions = activeType === "conditions" && activeCarePath === "musculoskeletal-condition" && !query;
+    var groupPosture = activeType === "conditions" && activeCarePath === "postural-movement" && !query;
     if (activeType === "muscles" && muscleSort.value === "alpha") {
       records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
     }
@@ -1053,18 +1080,19 @@
       return;
     }
     grid.hidden = false;
-    grid.classList.toggle("is-grouped", (groupMuscles || groupRecipes || groupConditions) && Boolean(records.length));
+    grid.classList.toggle("is-grouped", (groupMuscles || groupRecipes || groupConditions || groupPosture) && Boolean(records.length));
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
     else if (groupMuscles) renderMuscleGroups(records);
     else if (groupRecipes) renderRecipeGroups(records);
     else if (groupConditions) renderConditionGroups(records);
+    else if (groupPosture) renderPostureGroups(records);
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
     status.textContent = activeType === "muscles"
       ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 9 anatomical regions" : " in this anatomical region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
       : activeType === "recipes"
         ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
-        : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (groupConditions ? ", grouped by condition family" : "");
+        : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (groupConditions ? ", grouped by condition family" : groupPosture ? ", grouped by body area" : "");
   }
 
   function openFromUrl() {
