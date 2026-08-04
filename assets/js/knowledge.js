@@ -596,6 +596,25 @@
     history.pushState({}, "", url.pathname + url.search);
   }
 
+  function createRelatedRecipeSection(item) {
+    var recipeIds = typeof item.relatedRecipeIds === "string"
+      ? item.relatedRecipeIds.split(",").map(function (id) { return id.trim(); }).filter(Boolean)
+      : [];
+    var relatedRecipes = recipeIds.map(function (id) {
+      return data.recipes.find(function (recipe) { return recipe && recipe.published !== false && recipe.id === id; });
+    }).filter(Boolean);
+    if (!relatedRecipes.length) return null;
+    var section = element("section", "related-recipes");
+    var heading = element("div", "related-heading");
+    var headingCopy = element("div", "related-heading-copy");
+    headingCopy.append(element("p", "detail-kicker", "A practical next step"), element("h3", "", "Free starting recipes"));
+    heading.append(headingCopy, element("p", "related-program-context", "These short recipes were selected for this guide. Start with one, reassess the movement, and stop if symptoms worsen."));
+    var recipeGrid = element("div", "related-recipe-grid");
+    recipeGrid.replaceChildren.apply(recipeGrid, relatedRecipes.map(function (recipe) { return createCard({ type: "recipes", item: recipe }); }));
+    section.append(heading, recipeGrid);
+    return section;
+  }
+
   function openDetail(type, item, shouldUpdateUrl) {
     if (!labels[type] || !item) return;
     var intro = element("div", "detail-intro");
@@ -717,6 +736,10 @@
       related.append(relatedHeading, relatedGrid);
     }
     detailContent.replaceChildren(body);
+    if (type === "conditions") {
+      var relatedRecipes = createRelatedRecipeSection(item);
+      if (relatedRecipes) detailContent.appendChild(relatedRecipes);
+    }
     if (type === "muscles") detailContent.appendChild(createMovementRelationships(item));
     if (related) detailContent.appendChild(related);
     directory.hidden = true;

@@ -3,6 +3,11 @@
   padding-top: 54px;
   border-top: 1px solid var(--ink);
 }
+.related-recipes {
+  margin-top: 92px;
+  padding-top: 54px;
+  border-top: 1px solid var(--ink);
+}
 .related-heading {
   display: flex;
   align-items: end;
@@ -21,6 +26,14 @@
   gap: 18px;
   margin-top: 36px;
 }
+.related-recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 36px;
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+.related-recipe-grid .knowledge-card { min-height: 300px; }
 .related-session-card {
   min-height: 260px;
   display: grid;
@@ -70,8 +83,10 @@
 @media (max-width: 860px) {
   .related-heading { align-items: flex-start; flex-direction: column; }
   .related-session-grid { grid-template-columns: 1fr; }
+  .related-recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {
   .related-session-card { grid-template-columns: 1fr; }
   .related-session-card img { max-height: 220px; }
+  .related-recipe-grid { grid-template-columns: 1fr; }
 }
