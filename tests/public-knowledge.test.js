@@ -623,6 +623,23 @@ test("correction recipes are grouped, actionable, and safety aware", function ()
   });
 });
 
+test("movement guides expose only curated contextual recipes", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  var recipeIds = new Set(data.recipes.map(function (recipe) { return recipe.id; }));
+  var postureGuides = data.conditions.filter(function (item) { return item.pathway === "postural-movement"; });
+  postureGuides.forEach(function (guide) {
+    var ids = String(guide.relatedRecipeIds || "").split(",").map(function (id) { return id.trim(); }).filter(Boolean);
+    assert.ok(ids.length >= 1 && ids.length <= 3, guide.id + " needs one to three curated recipes");
+    ids.forEach(function (id) { assert.ok(recipeIds.has(id), guide.id + " links missing recipe " + id); });
+  });
+  var ankle = data.conditions.find(function (item) { return item.id === "ankle-sprain-recovery"; });
+  assert.equal(ankle.relatedRecipeIds, "ankle-rehabilitation-progression");
+  assert.match(javascript, /function createRelatedRecipeSection/);
+  assert.match(javascript, /Free starting recipes/);
+  assert.match(javascript, /These short recipes were selected for this guide/);
+});
+
 test("musculoskeletal conditions stay distinct from postural and movement education", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var allowed = new Set(["postural-movement", "musculoskeletal-condition"]);

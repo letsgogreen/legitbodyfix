@@ -30,6 +30,7 @@
       ["summary", "Clinical summary", 800, true], ["tightMuscles", "Commonly tight / overactive", 500],
       ["weakMuscles", "Commonly weak / underactive", 500], ["screening", "Screening signs", 600, true],
       ["sourceName", "Clinical reference name", 300], ["sourceUrl", "Clinical reference URL", 800],
+      ["relatedRecipeIds", "Related free recipe IDs (comma separated)", 500],
       ["relatedVideoIds", "Related session IDs (comma separated)", 500]
     ],
     muscles: [
