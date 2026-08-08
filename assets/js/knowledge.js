@@ -9,6 +9,8 @@
   var directory = document.querySelector(".knowledge-directory");
   var filterButtons = Array.from(document.querySelectorAll("[data-knowledge-filter]"));
   var muscleTools = document.getElementById("muscleTools");
+  var muscleDirectoryControls = document.getElementById("muscleDirectoryControls");
+  var muscleActionBrowser = document.querySelector(".muscle-action-browser");
   var recipeTools = document.getElementById("recipeTools");
   var carePathTools = document.getElementById("carePathTools");
   var muscleAtlas = document.getElementById("muscleAtlas");
@@ -282,6 +284,117 @@
     return "";
   }
 
+  function movementFamily(item, role) {
+    var title = String(item && item.title || "").toLowerCase();
+    var group = String(item && item.group || "").toLowerCase();
+    var region = muscleRegion(item);
+    var existingFamily = muscleFamily(item);
+    var movementRole = String(role || "");
+
+    if (/^Shoulder /.test(movementRole)) {
+      if (/latissimus dorsi|teres major/.test(title)) return "Posterior shoulder movers";
+      if (/pectoralis/.test(title)) return "Pectorals";
+      if (/deltoid/.test(title)) return "Deltoid";
+      if (group === "rotator cuff") return "Rotator cuff";
+      if (/biceps brachii|coracobrachialis/.test(title)) return "Anterior arm muscles";
+      if (/triceps brachii/.test(title)) return "Posterior arm muscles";
+    }
+    if (/^Hip /.test(movementRole)) {
+      if (/rectus femoris|sartorius/.test(title)) return "Anterior thigh muscles";
+      if (/biceps femoris|semitendinosus|semimembranosus/.test(title)) return "Hamstrings";
+      if (/adductor|gracilis|pectineus/.test(title)) return "Hip adductors";
+    }
+    if (/^Knee /.test(movementRole)) {
+      if (/rectus femoris|vastus |articularis genus/.test(title)) return "Quadriceps";
+      if (/biceps femoris|semitendinosus|semimembranosus/.test(title)) return "Hamstrings";
+      if (/sartorius|gracilis/.test(title)) return "Medial knee flexors";
+      if (/gastrocnemius|plantaris/.test(title)) return "Calf-assisted knee flexors";
+      if (/popliteus/.test(title)) return "Posterior knee rotators";
+    }
+
+    if (region === "head-neck") return existingFamily || muscleSectionGroup(item);
+
+    if (region === "shoulder-scapula") {
+      if (/trapezius/.test(title)) return "Trapezius";
+      if (/rhomboid/.test(title)) return "Rhomboids";
+      if (group === "rotator cuff") return "Rotator cuff";
+      if (/pectoralis/.test(title)) return "Pectorals";
+      if (/deltoid/.test(title)) return "Deltoid";
+      if (/serratus anterior/.test(title)) return "Scapular protractors";
+      if (/latissimus dorsi|teres major/.test(title)) return "Posterior shoulder movers";
+      if (/subclavius/.test(title)) return "Clavicular stabilizers";
+      return existingFamily || "Other shoulder muscles";
+    }
+
+    if (region === "elbow-forearm" || region === "wrist-hand") {
+      if (/biceps brachii|brachialis|coracobrachialis/.test(title)) return "Anterior arm muscles";
+      if (/triceps brachii|anconeus/.test(title)) return "Posterior arm muscles";
+      if (/brachioradialis|extensor carpi radialis longus|extensor carpi radialis brevis/.test(title)) return "Lateral forearm muscles";
+      if (/pronator teres|flexor carpi radialis|flexor carpi ulnaris|palmaris longus|flexor digitorum superficialis/.test(title)) return "Superficial flexor-pronator compartment";
+      if (/flexor digitorum profundus|flexor pollicis longus|pronator quadratus/.test(title)) return "Deep flexor-pronator compartment";
+      if (/extensor carpi ulnaris|extensor digitorum$|extensor digiti minimi/.test(title)) return "Superficial extensor compartment";
+      if (/supinator|abductor pollicis longus|extensor pollicis|extensor indicis/.test(title)) return "Deep extensor-supinator compartment";
+      if (/abductor pollicis brevis|opponens pollicis|flexor pollicis brevis|adductor pollicis/.test(title)) return "Thenar muscles";
+      if (/abductor digiti minimi of the hand|flexor digiti minimi brevis of the hand|opponens digiti minimi|palmaris brevis/.test(title)) return "Hypothenar muscles";
+      if (/lumbricals of the hand/.test(title)) return "Hand lumbricals";
+      if (/interossei of the hand/.test(title)) return "Hand interossei";
+      return existingFamily || "Other arm and hand muscles";
+    }
+
+    if (region === "thoracic-spine" || region === "lumbar-spine") {
+      if (/rectus abdominis|oblique|transversus abdominis|pyramidalis/.test(title)) return "Abdominal wall";
+      if (/iliocostalis|longissimus|spinalis/.test(title)) return "Erector spinae";
+      if (/semispinalis|multifidus|rotatores/.test(title)) return "Transversospinalis muscles";
+      if (/interspinales|intertransversarii/.test(title)) return "Segmental spinal stabilizers";
+      if (/quadratus lumborum/.test(title)) return "Posterior abdominal wall";
+      if (/diaphragm/.test(title)) return "Diaphragm";
+      if (/intercostals/.test(title)) return "Intercostal muscles";
+      if (/serratus posterior|levatores costarum|subcostals|transversus thoracis/.test(title)) return "Accessory rib movers";
+      return existingFamily || "Other trunk muscles";
+    }
+
+    if (region === "pelvis-hip") {
+      if (/gluteus/.test(title)) return "Gluteal muscles";
+      if (/psoas|iliacus/.test(title)) return "Iliopsoas group";
+      if (/tensor fasciae latae/.test(title)) return "Lateral hip stabilizers";
+      if (group === "deep hip") return "Deep hip rotators";
+      if (group === "medial thigh") return "Hip adductors";
+      if (/biceps femoris|semitendinosus|semimembranosus/.test(title)) return "Hamstrings";
+      if (/rectus femoris|sartorius/.test(title)) return "Anterior thigh hip flexors";
+      if (/levator ani|puborectalis|pubococcygeus|iliococcygeus/.test(title)) return "Levator ani group";
+      if (/coccygeus/.test(title)) return "Posterior pelvic diaphragm";
+      if (/urethral sphincter|compressor urethrae|urethrovaginal sphincter/.test(title)) return "Urethral sphincter complex";
+      if (/anal sphincter/.test(title)) return "Anal sphincter complex";
+      if (group === "deep perineum") return "Deep perineal muscles";
+      if (group === "superficial perineum") return "Superficial perineal muscles";
+      return existingFamily || "Other hip and pelvic muscles";
+    }
+
+    if (region === "knee") {
+      if (/rectus femoris|vastus |articularis genus/.test(title)) return "Quadriceps";
+      if (/biceps femoris|semitendinosus|semimembranosus/.test(title)) return "Hamstrings";
+      if (/sartorius|gracilis/.test(title)) return "Medial knee flexors";
+      if (/gastrocnemius|plantaris/.test(title)) return "Calf-assisted knee flexors";
+      if (/popliteus/.test(title)) return "Posterior knee rotators";
+      return existingFamily || "Other knee muscles";
+    }
+
+    if (region === "foot-ankle") {
+      if (group === "anterior lower leg") return "Anterior leg compartment";
+      if (group === "lateral lower leg") return "Lateral leg compartment";
+      if (/gastrocnemius|soleus|plantaris/.test(title)) return "Superficial posterior leg compartment";
+      if (/tibialis posterior|flexor hallucis longus|flexor digitorum longus/.test(title)) return "Deep posterior leg compartment";
+      if (/extensor digitorum brevis|extensor hallucis brevis/.test(title)) return "Dorsal intrinsic foot muscles";
+      if (/abductor hallucis|flexor hallucis brevis|adductor hallucis/.test(title)) return "Great-toe intrinsic muscles";
+      if (/abductor digiti minimi of the foot|flexor digiti minimi brevis of the foot/.test(title)) return "Fifth-toe intrinsic muscles";
+      if (/flexor digitorum brevis|quadratus plantae|lumbricals of the foot/.test(title)) return "Central plantar muscles";
+      if (/interossei of the foot/.test(title)) return "Foot interossei";
+      return existingFamily || "Other ankle and foot muscles";
+    }
+
+    return existingFamily || muscleSectionGroup(item) || "Other muscles";
+  }
+
   function openAnatomyViewer(item) {
     var dialog = document.getElementById("anatomyViewer");
     if (!dialog) {
@@ -342,7 +455,22 @@
   function muscleInRegion(item, region) {
     if (muscleRegion(item) === region) return true;
     var title = String(item && item.title || "").toLowerCase();
-    return region === "head-neck" && title === "upper trapezius";
+    if (region === "head-neck" && title === "upper trapezius") return true;
+    var rolePrefixes = {
+      "head-neck": ["Neck "],
+      "shoulder-scapula": ["Shoulder ", "Scapular "],
+      "elbow-forearm": ["Elbow ", "Forearm "],
+      "wrist-hand": ["Wrist ", "Finger ", "Thumb "],
+      "thoracic-spine": ["Trunk ", "Inspiratory ", "Expiratory "],
+      "lumbar-spine": ["Trunk "],
+      "pelvis-hip": ["Hip ", "Pelvic ", "Urinary ", "Fecal "],
+      knee: ["Knee "],
+      "foot-ankle": ["Ankle ", "Foot ", "Toe "]
+    };
+    var prefixes = rolePrefixes[region] || [];
+    return muscleFunctionalRoles(item).some(function (role) {
+      return prefixes.some(function (prefix) { return role.indexOf(prefix) === 0; });
+    });
   }
 
   function muscleFunctionalRoles(item) {
@@ -359,10 +487,8 @@
       add("Neck lateral flexor", /laterally flexes? (?:the head|the neck|the cervical vertebral column|it|to the)/);
       add("Neck rotator", /rotates? (?:and [^.;]+ )?(?:the head|the atlas)|rotates? or laterally flexes it|neck rotation/);
     }
-    if (region === "shoulder-scapula") {
-      add("Shoulder internal rotator", /medial(?:ly)? rotat(?:es|ion)|internal rotation/);
-      add("Shoulder external rotator", /lateral(?:ly)? rotat(?:es|ion)|external rotation/);
-    }
+    add("Shoulder internal rotator", /medial(?:ly)? rotat(?:es|ion).*(?:arm|shoulder)|internal rotation (?:of|at) the shoulder/);
+    add("Shoulder external rotator", /lateral(?:ly)? rotat(?:es|ion).*(?:arm|shoulder)|external rotation (?:of|at) the shoulder/);
     add("Shoulder flexor", /shoulder flexion|flexes? (?:and adducts? )?the arm at the shoulder|anterior fibers assist flexion/);
     add("Shoulder extensor", /shoulder extension|extends?(?:, [^.;]+)* the arm|posterior fibers assist extension/);
     add("Shoulder abductor", /abducts? the arm|arm abduction/);
@@ -379,7 +505,7 @@
     add("Forearm supinator", /supinates? the forearm/);
     add("Wrist flexor", /flexes? (?:and [^.;]+ )?(?:the hand at )?the wrist|wrist flexion/);
     add("Wrist extensor", /extends? (?:and [^.;]+ )?(?:the hand at )?the wrist|wrist extension/);
-    if (region === "wrist-hand") {
+    if (region === "elbow-forearm" || region === "wrist-hand") {
       add("Finger flexor", /flex(?:es|ion) (?:the )?(?:little )?finger|flexes? the (?:proximal|distal) interphalangeal|flexes? [^.;]*fingers|flex the metacarpophalangeal|finger flexion/);
       add("Finger extensor", /extends? (?:the )?(?:little|index)? ?finger|extends? digits|extending the interphalangeal|finger extension/);
       add("Finger abductor", /abducts? (?:the )?(?:little finger|digits?)/);
@@ -390,20 +516,20 @@
       add("Thumb adductor", /adducts? the thumb/);
       add("Thumb opposer", /opposes? the thumb|assists? opposition/);
     }
-    add("Trunk flexor", /flexes? (?:and [^.;]+ )?(?:the |lumbar )?trunk|trunk flexion/);
-    add("Trunk extensor", /extends? (?:and [^.;]+ )?(?:the |lumbar )?trunk|extends? [^.;]*(?:vertebral column|spine)|trunk extension/);
-    add("Trunk rotator", /rotates? the trunk|trunk rotation/);
-    add("Trunk lateral flexor", /laterally flexes? (?:the |lumbar )?trunk|lateral trunk flexion/);
-    add("Inspiratory muscle", /inspiration|elevates? (?:the )?(?:first|second|upper)? ?ribs?|expansion of the thoracic cavity/);
-    add("Expiratory muscle", /expiration|depresses? (?:the )?(?:lower )?ribs?/);
-    if (region === "pelvis-hip" || region === "knee") {
-      add("Hip flexor", /flexes? the (?:hip|thigh)|hip flexion|assists? flexion|^flexes,/);
-      add("Hip extensor", /extends? the (?:hip|thigh)|hip extension|assists? extension/);
-      add("Hip internal rotator", /medial(?:ly)? rotat(?:es|ion).*(?:hip|thigh)|anterior fibers assist medial rotation|hip flexion and medial rotation|medial rotation at the hip/);
-      add("Hip external rotator", /lateral(?:ly)? rotat(?:es|ion).*(?:hip|thigh)|external rotation/);
-      add("Hip abductor", /abducts?(?:, [^.;]+)* (?:the )?(?:hip|thigh)|hip abduction/);
-      add("Hip adductor", /adducts?(?:, [^.;]+)* (?:the )?(?:hip|thigh)|assists? adduction of the thigh|hip adduction/);
+    if (region === "thoracic-spine" || region === "lumbar-spine") {
+      add("Trunk flexor", /flexes? (?:and [^.;]+ )?(?:the |lumbar )?trunk|trunk flexion/);
+      add("Trunk extensor", /extends? (?:and [^.;]+ )?(?:the |lumbar )?trunk|extends? [^.;]*(?:vertebral column|spine)|trunk extension/);
+      add("Trunk rotator", /rotates? the trunk|trunk rotation/);
+      add("Trunk lateral flexor", /laterally flexes? (?:the |lumbar )?trunk|lateral trunk flexion/);
+      add("Inspiratory muscle", /inspiration|elevates? (?:the )?(?:first|second|upper)? ?ribs?|expansion of the thoracic cavity/);
+      add("Expiratory muscle", /expiration|depresses? (?:the )?(?:lower )?ribs?/);
     }
+    add("Hip flexor", /flexes? the (?:hip|thigh)|hip flexion|assists? flexion of the hip/);
+    add("Hip extensor", /extends? the (?:hip|thigh)|hip extension|assists? extension of the hip/);
+    add("Hip internal rotator", /medial(?:ly)? rotat(?:es|ion).*(?:hip|thigh)|anterior fibers assist medial rotation|hip flexion and medial rotation|medial rotation at the hip/);
+    add("Hip external rotator", /lateral(?:ly)? rotat(?:es|ion).*(?:hip|thigh)|external rotation (?:of|at) the hip/);
+    add("Hip abductor", /abducts?(?:, [^.;]+)* (?:the )?(?:hip|thigh)|hip abduction/);
+    add("Hip adductor", /adducts?(?:, [^.;]+)* (?:the )?(?:hip|thigh)|assists? adduction of the thigh|hip adduction/);
     add("Knee flexor", /flexes? (?:and [^.;]+ )?(?:the )?knee|knee flexion/);
     add("Knee extensor", /extends? (?:the leg at )?the knee|extends? the knee|knee extension/);
     add("Knee internal rotator", /medial(?:ly)? rotat(?:es|ing) the (?:flexed )?(?:knee|leg|tibia)/);
@@ -416,11 +542,9 @@
       add("Toe flexor", /flex(?:es|ing) (?:the )?(?:great|little|lateral four|toes?)/);
       add("Toe extensor", /extends? (?:the )?(?:great|little|lateral four|toes?|digits?)|extension of toes/);
     }
-    if (region === "pelvis-hip") {
-      add("Pelvic floor supporter", /supports? (?:and elevates? )?(?:the )?pelvic|pelvic support|supports? the central pelvic outlet|stabilizes? the perineal body/);
-      add("Urinary continence muscle", /urinary continence|compresses? the urethra|constricts? the urethral/);
-      add("Fecal continence muscle", /fecal continence|closes? the anal canal|anorectal angle/);
-    }
+    add("Pelvic floor supporter", /supports? (?:and elevates? )?(?:the )?pelvic|pelvic support|supports? the central pelvic outlet|stabilizes? the perineal body/);
+    add("Urinary continence muscle", /urinary continence|compresses? the urethra|constricts? the urethral/);
+    add("Fecal continence muscle", /fecal continence|closes? the anal canal|anorectal angle/);
     return roles;
   }
 
@@ -517,6 +641,22 @@
     if (recipeTools) recipeTools.hidden = true;
     if (carePathTools) carePathTools.hidden = true;
     render();
+  }
+
+  function positionMuscleDirectoryControls() {
+    if (!muscleDirectoryControls) return;
+    var placeBelowDirectory = activeType === "muscles" && activeMuscleRegion === "head-neck";
+    muscleDirectoryControls.hidden = activeType !== "muscles";
+    muscleDirectoryControls.classList.toggle("is-below-directory", placeBelowDirectory);
+    if (placeBelowDirectory) {
+      grid.insertAdjacentElement("afterend", muscleDirectoryControls);
+      return;
+    }
+    if (muscleTools && muscleDirectoryControls.parentElement !== muscleTools) {
+      muscleTools.insertBefore(muscleDirectoryControls, muscleActionBrowser || muscleTools.firstChild);
+    } else if (muscleTools && muscleTools.firstElementChild !== muscleDirectoryControls) {
+      muscleTools.insertBefore(muscleDirectoryControls, muscleActionBrowser || muscleTools.firstChild);
+    }
   }
 
   function updateRecipeCounts() {
@@ -1013,11 +1153,10 @@
   function renderMuscleActionResults(records) {
     var buckets = new Map();
     records.forEach(function (record) {
-      var familyName = muscleFamily(record.item);
-      var key = familyName || muscleSectionGroup(record.item) || "Other muscles";
-      if (!buckets.has(key)) buckets.set(key, { records: [], grouped: Boolean(familyName) });
+      var familyName = movementFamily(record.item, activeMuscleFunction);
+      var key = familyName || "Other muscles";
+      if (!buckets.has(key)) buckets.set(key, { records: [], grouped: true });
       buckets.get(key).records.push(record);
-      if (/pelvic|perine|sphincter|muscles$/i.test(key)) buckets.get(key).grouped = true;
     });
     var section = element("section", "movement-results");
     var heading = element("header", "movement-results-heading");
@@ -1026,12 +1165,6 @@
     Array.from(buckets.keys()).sort().forEach(function (name) {
       var bucket = buckets.get(name);
       var familyRecords = bucket.records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
-      if (familyRecords.length === 1 && !bucket.grouped) {
-        var single = element("section", "movement-family-single");
-        single.append(element("span", "movement-family-label", "Named muscle"), createCard(familyRecords[0]));
-        groups.appendChild(single);
-        return;
-      }
       var family = document.createElement("details");
       family.className = "movement-family";
       var summary = document.createElement("summary");
@@ -1122,6 +1255,7 @@
 
   function render() {
     var query = search.value.trim().toLowerCase();
+    positionMuscleDirectoryControls();
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
     updateCarePathCounts();
     updateRecipeCounts();
@@ -1165,7 +1299,7 @@
       status.textContent = "Choose a collection above, or search across all resources.";
       return;
     }
-    if (activeType === "muscles" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query) {
+    if (activeType === "muscles" && activeMuscleRegion === "all" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query) {
       grid.replaceChildren();
       grid.hidden = true;
       grid.classList.remove("is-grouped");
