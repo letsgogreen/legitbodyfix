@@ -147,7 +147,12 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(html, /data-knowledge-type="recipes"/);
   assert.match(html, /id="knowledgeSearch"/);
   assert.match(html, /id="publishKnowledge"/);
+  assert.match(html, /id="adminMuscleNavigator"/);
+  assert.match(html, /Edit muscles by movement/);
   assert.match(javascript, /publish-knowledge-base/);
+  assert.match(javascript, /function renderAdminMuscleNavigator/);
+  assert.match(javascript, /activeAdminMuscleRegion/);
+  assert.match(javascript, /activeAdminMuscleAction/);
   assert.match(javascript, /Related session IDs \(comma separated\)/);
   assert.match(javascript, /legitbodyfix\.knowledgeBaseDraft\.v1/);
   assert.ok(data.conditions.length >= 2);
