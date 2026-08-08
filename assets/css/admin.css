@@ -535,6 +535,16 @@ body.preview-open { overflow: hidden; }
 .knowledge-publish-toggle input { width: 16px; height: 16px; accent-color: var(--acid); }
 .knowledge-empty { min-height: 220px; display: grid; place-content: center; gap: 8px; border: 1px dashed var(--line-strong); color: var(--muted); text-align: center; }
 .knowledge-empty strong { color: var(--ink); font-size: 18px; }
+.admin-muscle-navigator { margin-bottom: 20px; padding: 24px; border: 1px solid var(--line-strong); background: var(--surface); }
+.admin-muscle-navigator[hidden] { display: none; }
+.admin-muscle-navigator-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+.admin-muscle-navigator-heading h2 { margin-top: 8px; font-size: clamp(28px, 4vw, 48px); line-height: .95; letter-spacing: -.055em; }
+.admin-muscle-navigator > p { max-width: 760px; margin: 14px 0 20px; color: var(--muted); line-height: 1.6; }
+.admin-muscle-regions, .admin-muscle-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.admin-muscle-actions { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.admin-muscle-regions button, .admin-muscle-actions button { min-height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font: 700 11px var(--sans); cursor: pointer; }
+.admin-muscle-actions button { font-family: var(--mono); font-size: 10px; text-transform: uppercase; }
+.admin-muscle-regions button:hover, .admin-muscle-regions button.is-active, .admin-muscle-actions button:hover, .admin-muscle-actions button.is-active { background: var(--acid); }
 
 @media (max-width: 1100px) { .knowledge-toolbar { grid-template-columns: 1fr; } .knowledge-tabs { width: 100%; } .knowledge-tabs button { flex: 1; } }
 @media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } }

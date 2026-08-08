@@ -40,6 +40,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /muscle-filter-heading">Upper quarter/);
   assert.match(html, /muscle-filter-heading">Lower quarter/);
   assert.match(html, /id="muscleGroupFilters" role="tablist"/);
+  assert.match(html, /id="muscleActionSections"/);
+  assert.match(html, /Start with movement/);
   assert.match(html, /id="knowledgePaths"/);
   assert.match(html, /id="muscleAtlas"/);
   assert.match(html, /knowledge-organization\.css/);
@@ -127,7 +129,12 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.doesNotMatch(javascript, /Named muscles/);
   assert.match(javascript, /muscles in directory/);
   assert.match(javascript, /activeMuscleGroup !== "all"/);
-  assert.match(javascript, /Choose a body region, then open a muscle group or named muscle/);
+  assert.match(javascript, /Choose a movement action, or narrow the action cards by body region/);
+  assert.match(javascript, /function renderMovementActions/);
+  assert.match(javascript, /function renderMuscleActionResults/);
+  assert.match(javascript, /Muscles are grouped by recognizable anatomy/);
+  assert.match(javascript, /Boolean\(familyName\)/);
+  assert.match(javascript, /pelvic\|perine\|sphincter\|muscles\$/);
   assert.match(javascript, /family === "suprahyoid muscles" \|\| family === "infrahyoid muscles"/);
   assert.match(javascript, /rectus capitis posterior\|obliquus capitis/);
   assert.match(javascript, /muscle-region-section/);
@@ -136,7 +143,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /title: "Upper quarter"/);
   assert.match(javascript, /title: "Trunk"/);
   assert.match(javascript, /title: "Lower quarter"/);
-  assert.match(javascript, /atlas-region-section/);
+  assert.match(javascript, /activeMuscleRegion === "all"/);
   assert.match(javascript, /muscle-subgroup-heading/);
   assert.match(javascript, /muscle-family-heading/);
   assert.match(javascript, /"Superficial neck", "Splenius", "Prevertebral muscles", "Suprahyoid muscles", "Infrahyoid muscles"/);

@@ -13,6 +13,9 @@
   var resetButton = document.getElementById("resetKnowledgeDraft");
   var addButton = document.getElementById("addKnowledgeRecord");
   var tabs = Array.prototype.slice.call(document.querySelectorAll("[data-knowledge-type]"));
+  var muscleNavigator = document.getElementById("adminMuscleNavigator");
+  var adminMuscleRegions = document.getElementById("adminMuscleRegions");
+  var adminMuscleActions = document.getElementById("adminMuscleActions");
   var countNodes = {
     conditions: document.getElementById("conditionCount"),
     muscles: document.getElementById("muscleCount"),
@@ -22,6 +25,23 @@
   var data = { conditions: [], muscles: [], recipes: [] };
   var repositoryData = null;
   var started = false;
+  var activeAdminMuscleRegion = "all";
+  var activeAdminMuscleAction = "all";
+  var adminRegionLabels = {
+    all: "All body areas", "head-neck": "Neck", "shoulder-scapula": "Shoulder & Scapula", "elbow-forearm": "Elbow & Forearm",
+    "wrist-hand": "Wrist & Hand", "thoracic-spine": "Thoracic Spine", "lumbar-spine": "Lumbar Spine", "pelvis-hip": "Pelvis & Hip", knee: "Knee", "foot-ankle": "Foot & Ankle"
+  };
+  var adminRoleSections = [
+    { region: "head-neck", roles: ["Neck flexor", "Neck extensor", "Neck lateral flexor", "Neck rotator"] },
+    { region: "shoulder-scapula", roles: ["Shoulder flexor", "Shoulder extensor", "Shoulder abductor", "Shoulder adductor", "Shoulder internal rotator", "Shoulder external rotator", "Scapular protractor", "Scapular retractor", "Scapular elevator", "Scapular depressor", "Scapular upward rotator", "Scapular downward rotator"] },
+    { region: "elbow-forearm", roles: ["Elbow flexor", "Elbow extensor", "Forearm pronator", "Forearm supinator", "Wrist flexor", "Wrist extensor"] },
+    { region: "wrist-hand", roles: ["Finger flexor", "Finger extensor", "Finger abductor", "Finger adductor", "Thumb flexor", "Thumb extensor", "Thumb abductor", "Thumb adductor", "Thumb opposer"] },
+    { region: "thoracic-spine", roles: ["Trunk extensor", "Trunk rotator", "Trunk lateral flexor", "Inspiratory muscle", "Expiratory muscle"] },
+    { region: "lumbar-spine", roles: ["Trunk flexor", "Trunk extensor", "Trunk rotator", "Trunk lateral flexor"] },
+    { region: "pelvis-hip", roles: ["Hip flexor", "Hip extensor", "Hip abductor", "Hip adductor", "Hip internal rotator", "Hip external rotator", "Pelvic floor supporter", "Urinary continence muscle", "Fecal continence muscle"] },
+    { region: "knee", roles: ["Hip flexor", "Hip extensor", "Hip abductor", "Hip adductor", "Hip internal rotator", "Hip external rotator", "Knee flexor", "Knee extensor", "Knee internal rotator", "Knee external rotator"] },
+    { region: "foot-ankle", roles: ["Ankle dorsiflexor", "Ankle plantarflexor", "Foot invertor", "Foot evertor", "Toe flexor", "Toe extensor"] }
+  ];
 
   var schemas = {
     conditions: [
@@ -73,6 +93,54 @@
 
   function slugify(value) {
     return String(value || "record").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70) || "record";
+  }
+
+  function adminMuscleRegion(record) {
+    var title = String(record.title || "").toLowerCase(), group = String(record.group || "").toLowerCase(), bodyMap = record.bodyMap;
+    if (/\b(cervicis|capitis)\b/.test(title) || ["head and neck", "anterior neck", "lateral neck", "suboccipital neck"].indexOf(group) !== -1 || bodyMap === "head-neck") return "head-neck";
+    if (["shoulder", "shoulder girdle", "upper back", "chest", "rotator cuff"].indexOf(group) !== -1 || ["shoulder", "chest"].indexOf(bodyMap) !== -1) return "shoulder-scapula";
+    if (["upper arm", "forearm"].indexOf(group) !== -1 || ["upper-arm-front", "upper-arm-back", "forearm"].indexOf(bodyMap) !== -1) return "elbow-forearm";
+    if (group === "hand") return "wrist-hand";
+    if (["thorax", "posterior thorax"].indexOf(group) !== -1 || /thoracis|thoracic|costarum/.test(title)) return "thoracic-spine";
+    if (["abdomen", "back", "erector spinae", "deep back"].indexOf(group) !== -1) return "lumbar-spine";
+    if (["pelvic diaphragm", "superficial perineum", "deep perineum", "pelvic sphincters", "hip and pelvis", "deep hip", "medial thigh"].indexOf(group) !== -1) return "pelvis-hip";
+    if (["anterior thigh", "posterior thigh"].indexOf(group) !== -1 || title === "popliteus") return "knee";
+    if (["anterior lower leg", "lateral lower leg", "posterior lower leg", "foot"].indexOf(group) !== -1) return "foot-ankle";
+    return "other";
+  }
+
+  function adminActionMatches(record, role) {
+    if (role === "all") return true;
+    var actions = String(record.actions || record.function || "").toLowerCase();
+    var words = role.toLowerCase().replace(/ muscle$/, "").split(" ");
+    var joint = words[0], movement = words.slice(1).join(" ");
+    var aliases = { flexor: /flex(?:es|ion)/, extensor: /extend|extends|extension/, "lateral flexor": /lateral(?:ly)? flex/, abductor: /abduct/, adductor: /adduct/, "internal rotator": /medial(?:ly)? rotat|internal rotation/, "external rotator": /lateral(?:ly)? rotat|external rotation/, "upward rotator": /upward(?:ly)? rotat/, "downward rotator": /downward(?:ly)? rotat/, rotator: /rotat/, protractor: /protract/, retractor: /retract/, elevator: /elevat/, depressor: /depress/, pronator: /pronat/, supinator: /supinat/, dorsiflexor: /dorsiflex/, plantarflexor: /plantarflex/, invertor: /invert|inversion/, evertor: /evert|eversion/, supporter: /support|stabiliz/, continence: /continence|urethr|anal canal|anorectal/, opposer: /oppos/ };
+    var pattern = aliases[movement] || aliases[words[words.length - 1]] || new RegExp(movement.replace(/[^a-z ]/g, ""));
+    var jointPattern = joint === "neck" ? /neck|head|cervical/ : joint === "trunk" ? /trunk|spine|vertebral|lumbar/ : ["pelvic", "urinary", "fecal"].indexOf(joint) !== -1 ? /pelvic|perine|continence|urethr|anal|anorectal/ : new RegExp(joint);
+    return jointPattern.test(actions) && pattern.test(actions);
+  }
+
+  function renderAdminMuscleNavigator() {
+    if (!muscleNavigator) return;
+    muscleNavigator.hidden = activeType !== "muscles";
+    if (activeType !== "muscles") return;
+    var regions = Object.keys(adminRegionLabels).map(function (region) {
+      var count = region === "all" ? data.muscles.length : data.muscles.filter(function (record) { return adminMuscleRegion(record) === region; }).length;
+      var button = document.createElement("button");
+      button.type = "button"; button.className = activeAdminMuscleRegion === region ? "is-active" : ""; button.textContent = adminRegionLabels[region] + " · " + count;
+      button.addEventListener("click", function () { activeAdminMuscleRegion = region; activeAdminMuscleAction = "all"; render(); });
+      return button;
+    });
+    adminMuscleRegions.replaceChildren.apply(adminMuscleRegions, regions);
+    var roles = Array.from(new Set(adminRoleSections.filter(function (section) { return activeAdminMuscleRegion === "all" || section.region === activeAdminMuscleRegion; }).flatMap(function (section) { return section.roles; })));
+    var all = document.createElement("button"); all.type = "button"; all.className = activeAdminMuscleAction === "all" ? "is-active" : ""; all.textContent = "All movements";
+    all.addEventListener("click", function () { activeAdminMuscleAction = "all"; render(); });
+    var actions = [all].concat(roles.map(function (role) {
+      var button = document.createElement("button"); button.type = "button"; button.className = activeAdminMuscleAction === role ? "is-active" : ""; button.textContent = role.replace(/ muscle$/, "");
+      button.addEventListener("click", function () { activeAdminMuscleAction = role; render(); });
+      return button;
+    }));
+    adminMuscleActions.replaceChildren.apply(adminMuscleActions, actions);
   }
 
   function saveDraft() {
@@ -127,7 +195,12 @@
   function render() {
     list.textContent = "";
     var query = search.value.trim().toLowerCase();
-    var visible = data[activeType].filter(function (record) { return !query || JSON.stringify(record).toLowerCase().indexOf(query) !== -1; });
+    renderAdminMuscleNavigator();
+    var visible = data[activeType].filter(function (record) {
+      if (activeType === "muscles" && activeAdminMuscleRegion !== "all" && adminMuscleRegion(record) !== activeAdminMuscleRegion) return false;
+      if (activeType === "muscles" && !adminActionMatches(record, activeAdminMuscleAction)) return false;
+      return !query || JSON.stringify(record).toLowerCase().indexOf(query) !== -1;
+    });
     visible.forEach(function (record) {
       var card = document.createElement("article");
       card.className = "knowledge-card";

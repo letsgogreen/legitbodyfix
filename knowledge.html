@@ -62,6 +62,13 @@
         </div>
       </div>
       <div class="muscle-tools" id="muscleTools" hidden>
+        <section class="muscle-action-browser" aria-labelledby="muscleActionTitle">
+          <div class="muscle-action-heading">
+            <div><p class="eyebrow">Start with movement</p><h3 id="muscleActionTitle">What action are you looking for?</h3></div>
+            <p>Choose an action first. Muscle families and individual anatomy appear only after you narrow the movement.</p>
+          </div>
+          <div class="muscle-action-sections" id="muscleActionSections"></div>
+        </section>
         <div class="muscle-region-filters" role="group" aria-label="Filter muscles by body region">
           <button class="is-active muscle-region-all" type="button" data-muscle-region="all" aria-pressed="true">All muscles <span data-region-count="all"></span></button>
           <div class="muscle-filter-section">
@@ -131,7 +138,7 @@
         </div>
       </div>
       <section class="muscle-atlas" id="muscleAtlas" hidden aria-labelledby="muscleAtlasTitle">
-        <div class="atlas-heading"><div><p class="eyebrow">Regional anatomy atlas</p><h3 id="muscleAtlasTitle">See the body area before opening a muscle.</h3></div><p>Historical anatomy plates provide regional context. Individual entries then show origin, insertion, and primary actions. Exact highlighted illustrations are used when available.</p></div>
+        <div class="atlas-heading"><div><p class="eyebrow">Selected body area</p><h3 id="muscleAtlasTitle">Regional anatomy reference</h3></div><p id="muscleAtlasDescription">The atlas follows your selected body region. Individual entries use a focused illustration only when the named muscle is distinctly highlighted.</p></div>
         <div class="atlas-grid" id="atlasGrid"></div>
         <p class="atlas-key"><b>Visual key:</b> anatomy plate = regional context &nbsp; / &nbsp; lime locator = approximate body area, not a diagnostic image.</p>
       </section>
@@ -150,6 +157,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="index.html"><span>LBF</span><strong>LEGITBODYFIX</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260804-30" defer></script>
+  <script src="assets/js/knowledge.js?v=20260809-1" defer></script>
 </body>
 </html>
