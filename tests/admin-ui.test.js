@@ -151,6 +151,12 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(html, /Edit muscles by movement/);
   assert.match(javascript, /publish-knowledge-base/);
   assert.match(javascript, /function renderAdminMuscleNavigator/);
+  assert.match(javascript, /function adminMuscleInRegion/);
+  assert.match(javascript, /function adminMovementFamily/);
+  assert.match(javascript, /admin-muscle-family-heading/);
+  assert.match(javascript, /Rotator cuff/);
+  assert.match(javascript, /Levator ani group/);
+  assert.match(javascript, /Deep posterior leg compartment/);
   assert.match(javascript, /activeAdminMuscleRegion/);
   assert.match(javascript, /activeAdminMuscleAction/);
   assert.match(javascript, /Related session IDs \(comma separated\)/);

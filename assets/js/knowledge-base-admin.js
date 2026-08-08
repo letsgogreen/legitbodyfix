@@ -111,6 +111,10 @@
 
   function adminActionMatches(record, role) {
     if (role === "all") return true;
+    var region = adminMuscleRegion(record);
+    if (/^(Finger|Thumb|Wrist) /.test(role) && ["elbow-forearm", "wrist-hand"].indexOf(region) === -1) return false;
+    if (/^(Ankle|Foot|Toe) /.test(role) && region !== "foot-ankle") return false;
+    if (/^Trunk /.test(role) && ["thoracic-spine", "lumbar-spine"].indexOf(region) === -1) return false;
     var actions = String(record.actions || record.function || "").toLowerCase();
     var words = role.toLowerCase().replace(/ muscle$/, "").split(" ");
     var joint = words[0], movement = words.slice(1).join(" ");
@@ -120,14 +124,121 @@
     return jointPattern.test(actions) && pattern.test(actions);
   }
 
+  function adminMuscleInRegion(record, region) {
+    if (region === "all" || adminMuscleRegion(record) === region) return true;
+    if ((region === "thoracic-spine" || region === "lumbar-spine") && adminMuscleRegion(record) === "head-neck") return false;
+    var rolePrefixes = {
+      "head-neck": ["Neck "], "shoulder-scapula": ["Shoulder ", "Scapular "],
+      "elbow-forearm": ["Elbow ", "Forearm "], "wrist-hand": ["Wrist ", "Finger ", "Thumb "],
+      "thoracic-spine": ["Trunk ", "Inspiratory ", "Expiratory "], "lumbar-spine": ["Trunk "],
+      "pelvis-hip": ["Hip ", "Pelvic ", "Urinary ", "Fecal "], knee: ["Knee "],
+      "foot-ankle": ["Ankle ", "Foot ", "Toe "]
+    };
+    return adminRoleSections.flatMap(function (section) { return section.roles; }).some(function (role) {
+      return (rolePrefixes[region] || []).some(function (prefix) { return role.indexOf(prefix) === 0; }) && adminActionMatches(record, role);
+    });
+  }
+
+  function adminMovementFamily(record, role) {
+    var title = String(record.title || "").toLowerCase();
+    var group = String(record.group || "").toLowerCase();
+    var region = adminMuscleRegion(record);
+    var family = String(record.family || "").trim();
+
+    if (/^Shoulder /.test(role)) {
+      if (/latissimus dorsi|teres major/.test(title)) return "Posterior shoulder movers";
+      if (/pectoralis/.test(title)) return "Pectorals";
+      if (/deltoid/.test(title)) return "Deltoid";
+      if (group === "rotator cuff") return "Rotator cuff";
+      if (/biceps brachii|coracobrachialis/.test(title)) return "Anterior arm muscles";
+      if (/triceps brachii/.test(title)) return "Posterior arm muscles";
+    }
+    if (/^Hip /.test(role)) {
+      if (/rectus femoris|sartorius/.test(title)) return "Anterior thigh muscles";
+      if (/biceps femoris|semitendinosus|semimembranosus/.test(title)) return "Hamstrings";
+      if (/adductor|gracilis|pectineus/.test(title)) return "Hip adductors";
+    }
+    if (/^Knee /.test(role)) {
+      if (/rectus femoris|vastus |articularis genus/.test(title)) return "Quadriceps";
+      if (/biceps femoris|semitendinosus|semimembranosus/.test(title)) return "Hamstrings";
+      if (/sartorius|gracilis/.test(title)) return "Medial knee flexors";
+      if (/gastrocnemius|plantaris/.test(title)) return "Calf-assisted knee flexors";
+      if (/popliteus/.test(title)) return "Posterior knee rotators";
+    }
+    if (region === "head-neck") return family || record.group || "Other neck muscles";
+    if (region === "shoulder-scapula") {
+      if (/trapezius/.test(title)) return "Trapezius";
+      if (/rhomboid/.test(title)) return "Rhomboids";
+      if (group === "rotator cuff") return "Rotator cuff";
+      if (/pectoralis/.test(title)) return "Pectorals";
+      if (/deltoid/.test(title)) return "Deltoid";
+      if (/serratus anterior/.test(title)) return "Scapular protractors";
+      if (/latissimus dorsi|teres major/.test(title)) return "Posterior shoulder movers";
+      return family || "Other shoulder muscles";
+    }
+    if (region === "elbow-forearm" || region === "wrist-hand") {
+      if (/biceps brachii|brachialis|coracobrachialis/.test(title)) return "Anterior arm muscles";
+      if (/triceps brachii|anconeus/.test(title)) return "Posterior arm muscles";
+      if (/brachioradialis|extensor carpi radialis/.test(title)) return "Lateral forearm muscles";
+      if (/pronator teres|flexor carpi|palmaris longus|flexor digitorum superficialis/.test(title)) return "Superficial flexor-pronator compartment";
+      if (/flexor digitorum profundus|flexor pollicis longus|pronator quadratus/.test(title)) return "Deep flexor-pronator compartment";
+      if (/extensor carpi ulnaris|extensor digitorum$|extensor digiti minimi/.test(title)) return "Superficial extensor compartment";
+      if (/supinator|abductor pollicis longus|extensor pollicis|extensor indicis/.test(title)) return "Deep extensor-supinator compartment";
+      if (/pollicis/.test(title)) return "Thenar muscles";
+      if (/digiti minimi|palmaris brevis/.test(title)) return "Hypothenar muscles";
+      if (/lumbrical/.test(title)) return "Hand lumbricals";
+      if (/interossei/.test(title)) return "Hand interossei";
+      return family || "Other arm and hand muscles";
+    }
+    if (region === "thoracic-spine" || region === "lumbar-spine") {
+      if (/rectus abdominis|oblique|transversus abdominis|pyramidalis/.test(title)) return "Abdominal wall";
+      if (/iliocostalis|longissimus|spinalis/.test(title)) return "Erector spinae";
+      if (/semispinalis|multifidus|rotatores/.test(title)) return "Transversospinalis muscles";
+      if (/interspinales|intertransversarii/.test(title)) return "Segmental spinal stabilizers";
+      if (/diaphragm/.test(title)) return "Diaphragm";
+      if (/intercostals/.test(title)) return "Intercostal muscles";
+      return family || "Other trunk muscles";
+    }
+    if (region === "pelvis-hip") {
+      if (/gluteus/.test(title)) return "Gluteal muscles";
+      if (/psoas|iliacus/.test(title)) return "Iliopsoas group";
+      if (/tensor fasciae latae/.test(title)) return "Lateral hip stabilizers";
+      if (group === "deep hip") return "Deep hip rotators";
+      if (group === "medial thigh") return "Hip adductors";
+      if (/biceps femoris|semitendinosus|semimembranosus/.test(title)) return "Hamstrings";
+      if (/levator ani|puborectalis|pubococcygeus|iliococcygeus/.test(title)) return "Levator ani group";
+      if (/coccygeus/.test(title)) return "Posterior pelvic diaphragm";
+      if (/urethral sphincter|compressor urethrae|urethrovaginal sphincter/.test(title)) return "Urethral sphincter complex";
+      if (/anal sphincter/.test(title)) return "Anal sphincter complex";
+      if (group === "deep perineum") return "Deep perineal muscles";
+      if (group === "superficial perineum") return "Superficial perineal muscles";
+      return family || "Other hip and pelvic muscles";
+    }
+    if (region === "knee") return family || "Other knee muscles";
+    if (region === "foot-ankle") {
+      if (group === "anterior lower leg") return "Anterior leg compartment";
+      if (group === "lateral lower leg") return "Lateral leg compartment";
+      if (/gastrocnemius|soleus|plantaris/.test(title)) return "Superficial posterior leg compartment";
+      if (/tibialis posterior|flexor hallucis longus|flexor digitorum longus/.test(title)) return "Deep posterior leg compartment";
+      if (/extensor digitorum brevis|extensor hallucis brevis/.test(title)) return "Dorsal intrinsic foot muscles";
+      if (/hallucis/.test(title)) return "Great-toe intrinsic muscles";
+      if (/digiti minimi/.test(title)) return "Fifth-toe intrinsic muscles";
+      if (/flexor digitorum brevis|quadratus plantae|lumbricals of the foot/.test(title)) return "Central plantar muscles";
+      if (/interossei/.test(title)) return "Foot interossei";
+      return family || "Other ankle and foot muscles";
+    }
+    return family || record.group || "Other muscles";
+  }
+
   function renderAdminMuscleNavigator() {
     if (!muscleNavigator) return;
     muscleNavigator.hidden = activeType !== "muscles";
     if (activeType !== "muscles") return;
     var regions = Object.keys(adminRegionLabels).map(function (region) {
-      var count = region === "all" ? data.muscles.length : data.muscles.filter(function (record) { return adminMuscleRegion(record) === region; }).length;
+      var count = region === "all" ? data.muscles.length : data.muscles.filter(function (record) { return adminMuscleInRegion(record, region); }).length;
       var button = document.createElement("button");
       button.type = "button"; button.className = activeAdminMuscleRegion === region ? "is-active" : ""; button.textContent = adminRegionLabels[region] + " · " + count;
+      button.textContent = adminRegionLabels[region] + " · " + count;
       button.addEventListener("click", function () { activeAdminMuscleRegion = region; activeAdminMuscleAction = "all"; render(); });
       return button;
     });
@@ -197,11 +308,30 @@
     var query = search.value.trim().toLowerCase();
     renderAdminMuscleNavigator();
     var visible = data[activeType].filter(function (record) {
-      if (activeType === "muscles" && activeAdminMuscleRegion !== "all" && adminMuscleRegion(record) !== activeAdminMuscleRegion) return false;
+      if (activeType === "muscles" && !adminMuscleInRegion(record, activeAdminMuscleRegion)) return false;
       if (activeType === "muscles" && !adminActionMatches(record, activeAdminMuscleAction)) return false;
       return !query || JSON.stringify(record).toLowerCase().indexOf(query) !== -1;
     });
+    if (activeType === "muscles" && activeAdminMuscleAction !== "all") {
+      visible.sort(function (left, right) {
+        return adminMovementFamily(left, activeAdminMuscleAction).localeCompare(adminMovementFamily(right, activeAdminMuscleAction)) || String(left.title || "").localeCompare(String(right.title || ""));
+      });
+    }
+    var previousFamily = "";
     visible.forEach(function (record) {
+      var currentFamily = activeType === "muscles" && activeAdminMuscleAction !== "all" ? adminMovementFamily(record, activeAdminMuscleAction) : "";
+      if (currentFamily && currentFamily !== previousFamily) {
+        var familyHeading = document.createElement("div");
+        familyHeading.className = "admin-muscle-family-heading";
+        var familyLabel = document.createElement("span");
+        familyLabel.textContent = "Muscle family";
+        var familyTitle = document.createElement("strong");
+        familyTitle.textContent = currentFamily;
+        familyHeading.appendChild(familyLabel);
+        familyHeading.appendChild(familyTitle);
+        list.appendChild(familyHeading);
+        previousFamily = currentFamily;
+      }
       var card = document.createElement("article");
       card.className = "knowledge-card";
       var header = document.createElement("header");
