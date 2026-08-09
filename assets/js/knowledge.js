@@ -44,9 +44,14 @@
 
   function hasFocusedMuscleImage(item) {
     if (!item || !item.title || !item.imageAlt) return false;
-    var title = normalizedAnatomyName(item.title);
+    var title = normalizedAnatomyName(String(item.title).replace(/\([^)]*\)/g, ""));
     var description = normalizedAnatomyName(item.imageAlt);
-    return Boolean(title) && description.indexOf(title) !== -1 && /highlight|focus|depict|render|color coding|identif/.test(description);
+    var titleWords = title.split(" ").filter(function (word) { return word.length > 3; });
+    var namesMuscle = description.indexOf(title) !== -1 || (titleWords.length > 0 && titleWords.every(function (word) {
+      return description.indexOf(word) !== -1;
+    }));
+    var describesFocusedReference = /highlight|focus|depict|render|color coding|identif|anatomical illustration|anatomy plate|line illustration/.test(description);
+    return Boolean(title) && namesMuscle && describesFocusedReference;
   }
 
   function muscleImageLabel(item) {
@@ -554,7 +559,7 @@
     var list = element("ol", className || "muscle-role-list");
     roles.forEach(function (role) {
       var tag = element("li", "muscle-role");
-      tag.append(element("span", "muscle-role-id", movementTagId(role)), element("span", "muscle-role-name", role));
+      tag.append(element("span", "muscle-role-name", role));
       list.appendChild(tag);
     });
     return list;
@@ -590,7 +595,7 @@
       var row = document.createElement("li");
       var button = element("button", "muscle-relationship-link");
       button.type = "button";
-      button.append(element("strong", "", record.item.title), element("span", "", record.shared.map(function (role) { return movementTagId(role) + " " + role; }).join(" · ")));
+      button.append(element("strong", "", record.item.title), element("span", "", record.shared.join(" · ")));
       button.addEventListener("click", function () { openDetail("muscles", record.item, true); });
       row.appendChild(button);
       list.appendChild(row);
@@ -603,7 +608,7 @@
     var relationships = relationshipRecords(item);
     var section = element("section", "muscle-relationships");
     var heading = element("header", "muscle-relationships-heading");
-    heading.append(element("p", "detail-kicker", "Movement relationships"), element("h3", "", "Muscles that work with or oppose this muscle"), element("p", "", "Synergists share at least one numbered function tag. Antagonists carry the paired opposite action. These are movement-role matches, not a claim that every muscle fires equally in every task."));
+    heading.append(element("p", "detail-kicker", "Movement relationships"), element("h3", "", "Muscles that work with or oppose this muscle"), element("p", "", "Synergists share at least one movement function. Antagonists carry the paired opposite action. These are movement-role matches, not a claim that every muscle fires equally in every task."));
     var grid = element("div", "muscle-relationship-grid");
     grid.append(
       createRelationshipColumn("Synergistic muscles", "Share one or more functions with this muscle.", relationships.synergists, "is-synergist"),
@@ -743,7 +748,7 @@
         var button = element("button", "muscle-action-card" + (activeMuscleFunction === role ? " is-active" : ""));
         button.type = "button";
         button.setAttribute("aria-pressed", String(activeMuscleFunction === role));
-        button.append(element("span", "muscle-action-code", movementTagId(role)), element("strong", "", pluralRole(role)), element("small", "", count + (count === 1 ? " muscle" : " muscles") + " · view families"));
+        button.append(element("strong", "", pluralRole(role)), element("small", "", count + (count === 1 ? " muscle" : " muscles") + " · view families"));
         button.addEventListener("click", function () {
           activeMuscleFunction = role;
           activeMuscleGroup = "all";
@@ -817,7 +822,7 @@
     var facts = element("div", "detail-facts");
     if (type === "muscles") {
       var movementFunctions = element("section", "detail-movement-functions");
-      movementFunctions.append(element("p", "detail-kicker", "Numbered function tags"), element("h3", "", "Functions"));
+      movementFunctions.append(element("p", "detail-kicker", "Movement functions"), element("h3", "", "Functions"));
       var detailRoles = createFunctionalRoleList(item, "muscle-role-list detail-muscle-roles");
       if (detailRoles) movementFunctions.appendChild(detailRoles);
       if (item.actions || item.function) movementFunctions.appendChild(element("p", "detail-action-notes", item.actions || item.function));
@@ -1160,7 +1165,7 @@
     });
     var section = element("section", "movement-results");
     var heading = element("header", "movement-results-heading");
-    heading.append(element("p", "eyebrow", movementTagId(activeMuscleFunction) + " · movement role"), element("h3", "", pluralRole(activeMuscleFunction)), element("p", "", "Muscles are grouped by recognizable anatomy. Expand a family only when you need the individual names."));
+    heading.append(element("p", "eyebrow", "Movement role"), element("h3", "", pluralRole(activeMuscleFunction)), element("p", "", "Muscles are grouped by recognizable anatomy. Expand a family only when you need the individual names."));
     var groups = element("div", "movement-family-grid");
     Array.from(buckets.keys()).sort().forEach(function (name) {
       var bucket = buckets.get(name);
