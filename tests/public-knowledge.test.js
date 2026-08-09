@@ -13,6 +13,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   var css = fs.readFileSync(path.join(root, "assets/css/muscle-dictionary.css"), "utf8");
 
   assert.match(html, /id="knowledgeGrid"/);
+  assert.doesNotMatch(html, /F-\d{3}/);
   assert.match(html, /public-responsive-fixes\.css/);
   assert.match(html, /data-knowledge-filter="conditions"/);
   assert.match(html, /data-care-path-target="postural-movement"/);
@@ -63,7 +64,10 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(javascript, /Continue with a complete program/);
   assert.match(javascript, /video\.html\?id=/);
   assert.match(javascript, /assets\/data\/videos\.json/);
-  assert.match(javascript, /Numbered function tags/);
+  assert.match(javascript, /Movement functions/);
+  assert.doesNotMatch(javascript, /element\("span", "muscle-role-id", movementTagId/);
+  assert.doesNotMatch(javascript, /element\("span", "muscle-action-code", movementTagId/);
+  assert.doesNotMatch(javascript, /movementTagId\(activeMuscleFunction\)/);
   assert.match(javascript, /function muscleRegion/);
   assert.match(javascript, /function muscleFunctionalRoles/);
   assert.match(javascript, /var movementTagOrder/);
@@ -301,6 +305,25 @@ test("semispinalis capitis uses an individually highlighted anatomy image", func
   assert.match(muscle.imageAlt, /semispinalis capitis/i);
   assert.match(muscle.imageAlt, /highlight/i);
   assert.match(muscle.imageCredit, /CC BY-SA 2\.1/);
+});
+
+test("posterior scalene, suboccipital, and intercostal cards use dedicated highlighted images", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expectedImages = {
+    "posterior-scalene": "Scalenus_posterior_-_animation04.gif",
+    "rectus-capitis-posterior-major": "Rectus_capitis_posterior_major_muscle_animation_small.gif",
+    "rectus-capitis-posterior-minor": "Rectus_capitis_posterior_minor_muscle_animation_small.gif",
+    "obliquus-capitis-superior": "Obliquus_capitis_superior_muscle_-_animation02.gif",
+    "obliquus-capitis-inferior": "Obliquus_capitis_inferior_muscle_animation_small.gif",
+    "internal-intercostals": "Internal_intercostal_muscles_animation.gif"
+  };
+  Object.keys(expectedImages).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use a dedicated image");
+    assert.match(muscle.imageAlt, new RegExp(muscle.title, "i"), id + " image text should name the muscle");
+    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+  });
 });
 
 test("muscle dictionary covers the major whole-body regions", function () {
