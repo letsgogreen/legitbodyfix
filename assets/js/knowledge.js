@@ -21,6 +21,8 @@
   var muscleGroupFilters = document.getElementById("muscleGroupFilters");
   var muscleActionSections = document.getElementById("muscleActionSections");
   var muscleActionTitle = document.getElementById("muscleActionTitle");
+  var muscleSelectionRegion = document.getElementById("muscleSelectionRegion");
+  var muscleSelectionAction = document.getElementById("muscleSelectionAction");
   var muscleAtlasTitle = document.getElementById("muscleAtlasTitle");
   var muscleFunction = document.getElementById("muscleFunction");
   var muscleVisual = document.getElementById("muscleVisual");
@@ -736,6 +738,13 @@
     if (!muscleActionSections) return;
     var published = data.muscles.filter(function (item) { return item && item.published !== false; });
     var scoped = activeMuscleRegion === "all" ? published : published.filter(function (item) { return muscleInRegion(item, activeMuscleRegion); });
+    if (muscleSelectionRegion) {
+      muscleSelectionRegion.textContent = activeMuscleRegion === "all" ? "All body areas" : muscleRegions[activeMuscleRegion].title;
+    }
+    if (muscleSelectionAction) {
+      muscleSelectionAction.textContent = activeMuscleFunction === "all" ? "Choose a movement" : pluralRole(activeMuscleFunction);
+      muscleSelectionAction.classList.toggle("is-selected", activeMuscleFunction !== "all");
+    }
     muscleActionTitle.textContent = activeMuscleRegion === "all"
       ? "What action are you looking for?"
       : "Explore " + muscleRegions[activeMuscleRegion].title + " by action";
@@ -760,9 +769,19 @@
         return button;
       }).filter(Boolean);
       if (!actions.length) return null;
-      var block = element("section", "muscle-action-section");
-      block.append(element("h4", "", section.title), element("div", "muscle-action-grid"));
-      block.lastChild.replaceChildren.apply(block.lastChild, actions);
+      var actionGrid = element("div", "muscle-action-grid");
+      actionGrid.replaceChildren.apply(actionGrid, actions);
+      var block;
+      if (activeMuscleRegion === "all") {
+        block = element("details", "muscle-action-section muscle-action-disclosure");
+        block.open = section.roles.indexOf(activeMuscleFunction) !== -1;
+        var summary = document.createElement("summary");
+        summary.append(element("span", "", section.title), element("small", "", actions.length + (actions.length === 1 ? " movement" : " movements")), element("b", "", "+"));
+        block.append(summary, actionGrid);
+      } else {
+        block = element("section", "muscle-action-section");
+        block.append(element("h4", "", section.title), actionGrid);
+      }
       return block;
     }).filter(Boolean);
     muscleActionSections.replaceChildren.apply(muscleActionSections, sections);
