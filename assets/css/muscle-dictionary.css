@@ -43,7 +43,7 @@
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 
@@ -68,10 +68,21 @@
   aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
+  overflow: hidden;
   border: 0;
   background: #f3f0df;
   color: var(--ink);
   cursor: zoom-in;
+}
+
+.detail-anatomy-image.is-focused .anatomy-zoom-button img {
+  transform: scale(1.08);
+  transition: transform 180ms ease;
+}
+
+.detail-anatomy-image.is-focused .anatomy-zoom-button:hover img,
+.detail-anatomy-image.is-focused .anatomy-zoom-button:focus-visible img {
+  transform: scale(1.11);
 }
 
 .anatomy-zoom-label {
