@@ -567,6 +567,7 @@
 }
 
 .muscle-region-grid .knowledge-card {
+  min-height: 260px;
   min-width: 0;
 }
 

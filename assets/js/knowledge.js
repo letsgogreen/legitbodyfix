@@ -958,20 +958,6 @@
     var card = element("button", "knowledge-card");
     card.type = "button";
     card.setAttribute("aria-label", "Read about " + record.item.title);
-    if (record.type === "muscles" && typeof record.item.imageUrl === "string" && /^https:\/\//i.test(record.item.imageUrl)) {
-      var focusedCardImage = hasFocusedMuscleImage(record.item);
-      card.classList.add("has-media");
-      var media = element("span", "knowledge-card-media");
-      var image = document.createElement("img");
-      image.src = record.item.imageUrl;
-      image.alt = "";
-      image.loading = "lazy";
-      image.decoding = "async";
-      var imageLabel = element("span", "knowledge-card-media-label", muscleImageLabel(record.item));
-      imageLabel.classList.add(focusedCardImage ? "is-focused" : "is-regional");
-      media.append(image, imageLabel);
-      card.appendChild(media);
-    }
     if (record.type === "muscles") {
       var roles = createFunctionalRoleList(record.item);
       if (roles) card.appendChild(roles);
