@@ -820,8 +820,18 @@
 
   function openDetail(type, item, shouldUpdateUrl) {
     if (!labels[type] || !item) return;
+    document.body.classList.add("knowledge-detail-open");
+    detail.classList.toggle("is-muscle-detail", type === "muscles");
     var intro = element("div", "detail-intro");
     intro.append(element("p", "detail-kicker", contentLabel(type, item)), element("h2", "", item.title || "Untitled"), element("p", "detail-summary", summaries[type](item)));
+    if (type === "muscles") {
+      var detailMeta = element("div", "detail-muscle-meta");
+      detailMeta.append(
+        element("span", "", item.group || "Muscle anatomy"),
+        element("span", "", (muscleRegions[muscleRegion(item)] || { title: "Regional anatomy" }).title)
+      );
+      intro.insertBefore(detailMeta, intro.querySelector(".detail-summary"));
+    }
     if (type === "conditions" || type === "recipes") {
       var path = carePath(item);
       var pathNotice = element("div", "detail-care-path is-" + path);
@@ -948,6 +958,8 @@
   }
 
   function showDirectory(shouldUpdateUrl) {
+    document.body.classList.remove("knowledge-detail-open");
+    detail.classList.remove("is-muscle-detail");
     detail.hidden = true;
     directory.hidden = false;
     document.title = "Movement Guides — LegitBodyFix";
