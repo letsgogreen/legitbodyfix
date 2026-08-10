@@ -249,11 +249,28 @@
 .muscle-action-sections { margin-top: 24px; display: grid; gap: 20px; }
 .muscle-action-section h4 { margin-bottom: 9px; color: var(--teal); font: 600 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
 .muscle-action-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
-.muscle-action-card { min-height: 98px; padding: 16px; display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-content: start; border: 0; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper); color: var(--ink); text-align: left; cursor: pointer; }
-.muscle-action-card:hover, .muscle-action-card:focus-visible, .muscle-action-card.is-active { background: var(--lime); }
+.muscle-action-card { min-height: 98px; padding: 16px; display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-content: start; border: 0; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--paper); color: var(--ink); text-align: left; cursor: pointer; transition: background .18s ease, transform .18s ease; }
+.muscle-action-card:hover, .muscle-action-card:focus-visible, .muscle-action-card.is-active { position: relative; z-index: 1; background: var(--lime); transform: translate(-2px, -2px); box-shadow: 3px 3px 0 var(--ink); }
 .muscle-action-code { grid-row: 1 / span 2; padding-top: 2px; color: var(--teal); font: 600 9px/1 var(--mono); }
 .muscle-action-card strong { font-size: 16px; line-height: 1.15; }
 .muscle-action-card small { color: var(--muted); font: 500 9px/1.35 var(--mono); text-transform: uppercase; }
+
+.muscle-action-disclosure { border: 1px solid var(--ink); background: var(--paper); }
+.muscle-action-disclosure + .muscle-action-disclosure { margin-top: -12px; }
+.muscle-action-disclosure > summary { min-height: 62px; padding: 0 18px; display: grid; grid-template-columns: 1fr auto 28px; align-items: center; gap: 18px; list-style: none; cursor: pointer; }
+.muscle-action-disclosure > summary::-webkit-details-marker { display: none; }
+.muscle-action-disclosure > summary:hover { background: color-mix(in srgb, var(--lime) 35%, var(--paper)); }
+.muscle-action-disclosure > summary span { font-size: 18px; font-weight: 850; letter-spacing: -.025em; }
+.muscle-action-disclosure > summary small { color: var(--muted); font: 500 9px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.muscle-action-disclosure > summary b { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--ink); font-size: 18px; line-height: 1; transition: transform .18s ease; }
+.muscle-action-disclosure[open] > summary { background: var(--ink); color: var(--paper); }
+.muscle-action-disclosure[open] > summary small { color: #b9b9b0; }
+.muscle-action-disclosure[open] > summary b { border-color: var(--lime); color: var(--lime); transform: rotate(45deg); }
+.muscle-action-disclosure .muscle-action-grid { margin: 0 -1px -1px; }
+
+.muscle-path-heading { flex: 1 1 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .6fr); gap: 32px; align-items: end; padding-bottom: 22px; border-bottom: 1px solid var(--ink); }
+.muscle-path-heading h3 { margin-top: 8px; font-size: clamp(28px, 4vw, 48px); line-height: .96; letter-spacing: -.06em; }
+.muscle-path-heading > p { max-width: 470px; color: var(--muted); font-size: 13px; line-height: 1.65; }
 
 .muscle-region-filters {
   flex: 1 1 100%;
@@ -262,6 +279,13 @@
   align-items: stretch;
   gap: 10px;
 }
+
+.muscle-selection-summary { flex: 1 1 100%; order: 2; min-height: 54px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
+.muscle-selection-summary > span { margin-right: auto; color: #aaa9a1; font: 500 9px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+.muscle-selection-summary strong { font-size: 12px; }
+.muscle-selection-summary strong:last-child { color: #aaa9a1; }
+.muscle-selection-summary strong.is-selected { color: var(--lime); }
+.muscle-selection-summary b { color: var(--lime); font-size: 16px; }
 
 .muscle-filter-section {
   padding: 11px;
@@ -322,8 +346,9 @@
   border-top: 1px solid var(--line);
 }
 
+.muscle-path-heading { order: 0; }
 .muscle-region-filters { order: 1; }
-.muscle-tool-selects { order: 2; }
+.muscle-tool-selects { order: 4; }
 
 .muscle-group-filter-shell[hidden] { display: none; }
 
@@ -561,9 +586,11 @@
   .muscle-tools { align-items: stretch; flex-direction: column; }
   .muscle-action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .muscle-region-grid { grid-template-columns: repeat(2, 1fr); }
+  .muscle-path-heading { grid-template-columns: 1fr; gap: 12px; }
 }
 
 @media (max-width: 560px) {
+  .knowledge-cta h2 { font-size: 42px; overflow-wrap: anywhere; }
   .muscle-tools { align-items: stretch; flex-direction: column; }
   .muscle-tool-selects { align-items: stretch; flex-direction: column; }
   .muscle-sort,
@@ -578,6 +605,10 @@
   .muscle-action-browser { padding: 18px; }
   .muscle-action-heading { grid-template-columns: 1fr; gap: 12px; }
   .muscle-action-grid { grid-template-columns: 1fr; }
+  .muscle-selection-summary { align-items: flex-start; flex-wrap: wrap; }
+  .muscle-selection-summary > span { width: 100%; margin-right: 0; }
+  .muscle-action-disclosure > summary { grid-template-columns: 1fr auto; }
+  .muscle-action-disclosure > summary small { display: none; }
   .movement-family summary { grid-template-columns: 1fr; gap: 8px; }
   .knowledge-card-media {
     height: 180px;

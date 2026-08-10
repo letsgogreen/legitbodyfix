@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/knowledge.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/knowledge-related.css?v=20260802-2" />
-  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260802-13" />
+  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260810-1" />
   <link rel="stylesheet" href="assets/css/public-responsive-fixes.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260804-5" />
   <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260801-1" />
@@ -64,12 +64,16 @@
       <div class="muscle-tools" id="muscleTools" hidden>
         <section class="muscle-action-browser" aria-labelledby="muscleActionTitle">
           <div class="muscle-action-heading">
-            <div><p class="eyebrow">Start with movement</p><h3 id="muscleActionTitle">What action are you looking for?</h3></div>
-            <p>Choose an action first. Muscle families and individual anatomy appear only after you narrow the movement.</p>
+            <div><p class="eyebrow">02 / Choose a movement</p><h3 id="muscleActionTitle">What action are you looking for?</h3></div>
+            <p>Open a movement family to see the muscles that create, control, or support that action.</p>
           </div>
           <div class="muscle-action-sections" id="muscleActionSections"></div>
         </section>
         <div class="muscle-directory-controls" id="muscleDirectoryControls">
+        <div class="muscle-path-heading">
+          <div><p class="eyebrow">01 / Choose a body area</p><h3>Start where movement feels limited.</h3></div>
+          <p>Select a region to shorten the list, or keep all muscles selected and explore movement families across the body.</p>
+        </div>
         <div class="muscle-region-filters" role="group" aria-label="Filter muscles by body region">
           <button class="is-active muscle-region-all" type="button" data-muscle-region="all" aria-pressed="true">All muscles <span data-region-count="all"></span></button>
           <div class="muscle-filter-section">
@@ -96,6 +100,12 @@
               <button type="button" data-muscle-region="foot-ankle" aria-pressed="false">Foot &amp; Ankle <span data-region-count="foot-ankle"></span></button>
             </div>
           </div>
+        </div>
+        <div class="muscle-selection-summary" aria-live="polite">
+          <span>Your path</span>
+          <strong id="muscleSelectionRegion">All body areas</strong>
+          <b aria-hidden="true">&#8594;</b>
+          <strong id="muscleSelectionAction">Choose a movement</strong>
         </div>
         <div class="muscle-group-filter-shell" id="muscleGroupFilterShell" hidden>
           <span class="muscle-group-filter-label">Muscle group</span>
@@ -159,6 +169,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="index.html"><span>LBF</span><strong>LEGITBODYFIX</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260809-1" defer></script>
+  <script src="assets/js/knowledge.js?v=20260810-1" defer></script>
 </body>
 </html>
