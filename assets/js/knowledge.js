@@ -1186,13 +1186,15 @@
     var heading = element("header", "movement-results-heading");
     heading.append(element("p", "eyebrow", "Movement role"), element("h3", "", pluralRole(activeMuscleFunction)), element("p", "", "Muscles are grouped by recognizable anatomy. Expand a family only when you need the individual names."));
     var groups = element("div", "movement-family-grid");
+    var openSingleFamily = buckets.size === 1;
     Array.from(buckets.keys()).sort().forEach(function (name) {
       var bucket = buckets.get(name);
       var familyRecords = bucket.records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
       var family = document.createElement("details");
       family.className = "movement-family";
+      family.open = openSingleFamily;
       var summary = document.createElement("summary");
-      summary.append(element("span", "", "Muscle family"), element("strong", "", name), element("small", "", familyRecords.length + (familyRecords.length === 1 ? " muscle" : " muscles") + " · expand"));
+      summary.append(element("span", "", "Muscle family"), element("strong", "", name), element("small", "", familyRecords.length + (familyRecords.length === 1 ? " muscle" : " muscles") + (openSingleFamily ? " · shown" : " · expand")));
       var familyGrid = element("div", "muscle-region-grid");
       familyGrid.replaceChildren.apply(familyGrid, familyRecords.map(createCard));
       family.append(summary, familyGrid);
@@ -1332,7 +1334,7 @@
       return;
     }
     grid.hidden = false;
-    grid.classList.toggle("is-grouped", (groupMuscles || groupRecipes || groupConditions || groupPosture) && Boolean(records.length));
+    grid.classList.toggle("is-grouped", (groupMuscles || groupMovementResults || groupRecipes || groupConditions || groupPosture) && Boolean(records.length));
     if (!records.length) grid.replaceChildren(element("p", "knowledge-empty", "No published resources match that search yet."));
     else if (groupMovementResults) renderMuscleActionResults(records);
     else if (groupMuscles) renderMuscleGroups(records);
