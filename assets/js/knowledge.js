@@ -847,9 +847,10 @@
       if (item.actions || item.function) movementFunctions.appendChild(element("p", "detail-action-notes", item.actions || item.function));
       facts.appendChild(movementFunctions);
     }
-    if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl) && hasFocusedMuscleImage(item)) {
+    if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl)) {
+      var focusedImage = hasFocusedMuscleImage(item);
       var figure = element("figure", "detail-anatomy-image");
-      figure.classList.add("is-focused");
+      figure.classList.add(focusedImage ? "is-focused" : "is-regional");
       var anatomyButton = element("button", "anatomy-zoom-button");
       anatomyButton.type = "button";
       anatomyButton.setAttribute("aria-label", "Enlarge anatomy plate for " + item.title);
@@ -869,16 +870,14 @@
           creditLink.target = "_blank";
           creditLink.rel = "noopener noreferrer";
           creditLink.textContent = item.imageCredit;
-          caption.append("Highlighted anatomy: ", creditLink);
-        } else caption.textContent = "Highlighted anatomy: " + item.imageCredit;
-        caption.append(". The named muscle is distinctly highlighted; nearby structures may remain visible for anatomical context.");
+          caption.append(focusedImage ? "Highlighted anatomy: " : "Regional anatomy reference: ", creditLink);
+        } else caption.textContent = (focusedImage ? "Highlighted anatomy: " : "Regional anatomy reference: ") + item.imageCredit;
+        caption.append(focusedImage
+          ? ". The named muscle is distinctly highlighted; nearby structures may remain visible for anatomical context."
+          : ". Use this plate for anatomical orientation; the named muscle may not be individually color-highlighted.");
         figure.appendChild(caption);
       }
       facts.appendChild(figure);
-    } else if (type === "muscles") {
-      var imageNotice = element("aside", "focused-image-notice");
-      imageNotice.append(element("strong", "", "Focused illustration under review"), element("p", "", "This individual muscle page will not show a regional or ambiguous plate. A verified image must distinctly highlight " + item.title + " before it appears here."));
-      facts.appendChild(imageNotice);
     }
     var disclaimer = type !== "muscles" && carePath(item) === "musculoskeletal-condition"
       ? "This guide is educational and does not diagnose or treat a musculoskeletal condition. A suspected dislocation, visible deformity, inability to bear weight, substantial swelling, worsening pain, numbness, weakness, or new bladder or bowel changes needs prompt medical assessment before self-guided exercise."
@@ -959,7 +958,8 @@
     var card = element("button", "knowledge-card");
     card.type = "button";
     card.setAttribute("aria-label", "Read about " + record.item.title);
-    if (record.type === "muscles" && typeof record.item.imageUrl === "string" && /^https:\/\//i.test(record.item.imageUrl) && hasFocusedMuscleImage(record.item)) {
+    if (record.type === "muscles" && typeof record.item.imageUrl === "string" && /^https:\/\//i.test(record.item.imageUrl)) {
+      var focusedCardImage = hasFocusedMuscleImage(record.item);
       card.classList.add("has-media");
       var media = element("span", "knowledge-card-media");
       var image = document.createElement("img");
@@ -968,7 +968,7 @@
       image.loading = "lazy";
       image.decoding = "async";
       var imageLabel = element("span", "knowledge-card-media-label", muscleImageLabel(record.item));
-      imageLabel.classList.add("is-focused");
+      imageLabel.classList.add(focusedCardImage ? "is-focused" : "is-regional");
       media.append(image, imageLabel);
       card.appendChild(media);
     }
