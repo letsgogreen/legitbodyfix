@@ -4,6 +4,9 @@
   var grid = document.getElementById("knowledgeGrid");
   var status = document.getElementById("knowledgeStatus");
   var search = document.getElementById("knowledgeSearch");
+  var directoryTitle = document.getElementById("directoryTitle");
+  var directoryEyebrow = document.querySelector(".directory-heading .eyebrow");
+  var directorySearchLabel = document.querySelector(".knowledge-search span");
   var detail = document.getElementById("knowledgeDetail");
   var detailContent = document.getElementById("knowledgeDetailContent");
   var directory = document.querySelector(".knowledge-directory");
@@ -635,6 +638,18 @@
 
   function selectType(type, carePathTarget) {
     activeType = type;
+    document.body.classList.toggle("muscle-directory-mode", type === "muscles");
+    if (type === "muscles") {
+      directoryEyebrow.textContent = "Muscle atlas / 179 references";
+      directoryTitle.textContent = "Explore anatomy by region and function.";
+      directorySearchLabel.textContent = "Search muscles, actions, attachments, and relationships";
+      search.placeholder = "Try infraspinatus, shoulder external rotation, or origin: scapula";
+    } else {
+      directoryEyebrow.textContent = "Explore by question";
+      directoryTitle.textContent = "Choose one clear path.";
+      directorySearchLabel.textContent = "Search posture, conditions, muscles, functions, and relationships";
+      search.placeholder = "Try forward head posture, neck flexors, or synergist: semispinalis capitis";
+    }
     if (type === "conditions") activeCarePath = carePathTarget || "all";
     else if (type !== "recipes") activeCarePath = "all";
     filterButtons.forEach(function (candidate) {
