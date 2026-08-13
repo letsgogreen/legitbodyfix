@@ -5,41 +5,44 @@
     "density": "spacious"
   },
   "navigation": {
-    "method": "Method",
-    "library": "Library",
+    "method": "How it works",
+    "library": "Programs",
     "myLibrary": "My library",
     "programs": "Programs",
     "howItWorks": "How it works",
-    "browsePrograms": "Browse programs"
+    "browsePrograms": "Find my starting point"
   },
   "layout": [
     { "id": "hero", "kind": "core", "visible": true },
     { "id": "method", "kind": "core", "visible": true },
-    { "id": "library", "kind": "core", "visible": true },
     { "id": "knowledge", "kind": "core", "visible": true },
+    { "id": "library", "kind": "core", "visible": true },
     { "id": "standard", "kind": "core", "visible": true },
-    { "id": "pricing", "kind": "core", "visible": true }
+    { "id": "purchase-questions", "kind": "custom", "visible": true },
+    { "id": "pricing", "kind": "core", "visible": true },
+    { "id": "starting-point-cta", "kind": "custom", "visible": true }
   ],
   "hero": {
-    "kicker": "Corrective movement. No fluff.",
-    "titleLines": ["MOVE", "BETTER.", "HURT", "LESS."],
-    "description": "Follow clear corrective exercise sessions that help you understand your body, rebuild weak links, and move with confidence again.",
-    "primaryButton": "Start your reset",
-    "primaryHref": "#pricing",
-    "secondaryButton": "See the library",
+    "kicker": "Movement clarity. No random routines.",
+    "titleLines": ["STOP", "GUESSING.", "MOVE WITH", "A PLAN."],
+    "description": "Check what feels limited, understand what may be influencing it, and follow a focused session built around your goal.",
+    "primaryButton": "Find my starting point",
+    "primaryHref": "knowledge.html",
+    "secondaryButton": "Browse focused sessions",
     "secondaryHref": "#library-preview",
-    "proofPoints": ["Built for real bodies", "Go at your own pace", "One-time purchase"],
+    "proofPoints": ["Clear starting points", "Guided progressions", "No subscription"],
     "imageUrl": "",
     "imageAlt": "Corrective movement body map showing shoulder, hip, and knee focus areas"
   },
   "method": {
     "label": "The LegitBodyFix method",
-    "titleLines": ["STOP GUESSING.", "START REBUILDING."],
-    "intro": "Random stretches are not a plan. Each session gives you a reason, a sequence, and a progression — so you know what to do and why it works.",
+    "titleLines": ["A CLEARER WAY", "TO MOVE FORWARD."],
+    "intro": "A useful plan starts with context. Check the movement, understand the pattern, practice a focused progression, then reassess what changed.",
     "steps": [
-      { "title": "Assess", "description": "Find the restriction or weak link driving the pattern." },
-      { "title": "Restore", "description": "Use focused mobility and control to reclaim range." },
-      { "title": "Rebuild", "description": "Load the new pattern so better movement actually sticks." }
+      { "title": "Check", "description": "Begin with a simple movement check and a clear baseline." },
+      { "title": "Understand", "description": "See what may influence the pattern without information overload." },
+      { "title": "Practice", "description": "Follow one focused sequence instead of collecting random exercises." },
+      { "title": "Reassess", "description": "Repeat the check and use the result to decide what comes next." }
     ]
   },
   "library": {
@@ -61,24 +64,68 @@
     "attribution": "— THE LEGITBODYFIX STANDARD"
   },
   "pricing": {
-    "label": "Complete corrective movement package",
-    "titleLines": ["YOUR BODY IS", "WORTH THE WORK."],
+    "label": "Focused sessions. One-time access.",
+    "titleLines": ["START SMALL.", "BUILD FROM THERE."],
     "benefits": [
-      "Full-body guided video package",
-      "Clear exercise sequence and progression",
-      "Replay every session at your own pace",
-      "Lifetime access after purchase"
+      "Choose by movement goal or body area",
+      "See the purpose before you purchase",
+      "Replay your session at your own pace",
+      "No subscription or recurring charge"
     ],
-    "programName": "Full Body Restoration Package",
-    "displayPrice": "$170",
+    "programName": "Individual guided sessions",
+    "displayPrice": "FROM $8",
     "priceSuffix": "one-time",
-    "description": "Get lifetime access to the complete corrective movement package. No subscription and no recurring charge.",
-    "buttonLabel": "Choose program",
-    "buttonHref": "checkout.html"
+    "description": "Start with the session that matches your goal. Review the focus, duration, and equipment before purchasing.",
+    "buttonLabel": "Browse sessions",
+    "buttonHref": "#library-preview"
   },
   "footer": {
     "tagline": "Move with more options.",
     "legal": "Educational movement content, not medical diagnosis or treatment."
   },
-  "customSections": []
+  "customSections": [
+    {
+      "id": "purchase-questions",
+      "type": "faq",
+      "theme": "paper",
+      "eyebrow": "Before you begin",
+      "title": "CLEAR ANSWERS. NO FINE PRINT.",
+      "body": "",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        {
+          "title": "Is this medical treatment?",
+          "body": "No. LegitBodyFix provides educational movement content, not diagnosis or medical treatment. If you have a recent injury, worsening symptoms, numbness, weakness, or significant pain, seek qualified clinical care."
+        },
+        {
+          "title": "How do I choose a session?",
+          "body": "Start with the movement or body area that feels most relevant. Each session page explains its goal, level, duration, equipment, and who it is designed for before you purchase."
+        },
+        {
+          "title": "Is there a subscription?",
+          "body": "No. Individual sessions use one-time pricing. There is no recurring membership charge."
+        },
+        {
+          "title": "How do I access a purchase?",
+          "body": "Your purchase is connected to your checkout email. Sign in with that email to open the protected session in My library."
+        }
+      ]
+    },
+    {
+      "id": "starting-point-cta",
+      "type": "cta",
+      "theme": "lime",
+      "eyebrow": "Still deciding?",
+      "title": "FIND THE RIGHT PLACE TO START.",
+      "body": "Explore the free movement guides first. Understand the pattern, see the related anatomy, and choose a focused session only when it makes sense for your goal.",
+      "buttonLabel": "Explore movement guides",
+      "buttonHref": "knowledge.html",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": []
+    }
+  ]
 }

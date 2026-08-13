@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="LegitBodyFix is a focused corrective movement library for building a stronger, more capable body." />
-  <title>LegitBodyFix — Move better. Hurt less.</title>
+  <meta name="description" content="Check what feels limited, understand the movement, and follow a focused plan with LegitBodyFix." />
+  <title>LegitBodyFix — Stop guessing. Move with a plan.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -55,14 +55,27 @@
     .button-lime { background: var(--lime); }
     .menu-button { display: none; width: 42px; height: 42px; border: 1px solid var(--ink); background: transparent; font-size: 22px; }
 
-    .hero { min-height: calc(100vh - 85px); display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 48px; padding: 76px 0 54px; }
+    .hero { min-height: calc(100vh - 85px); display: grid; grid-template-columns: 1.08fr .92fr; align-items: center; gap: 54px; padding: 70px 0 64px; }
     .kicker { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
-    .hero h1 { max-width: 650px; margin: 31px 0 24px; font-family: var(--display); font-size: clamp(62px, 9.2vw, 130px); font-weight: 400; line-height: .86; letter-spacing: -.085em; }
+    .hero h1 { max-width: 680px; margin: 27px 0 24px; font-family: var(--display); font-size: clamp(58px, 7.7vw, 112px); font-weight: 400; line-height: .87; letter-spacing: -.085em; }
     .hero h1 .outline { color: transparent; -webkit-text-stroke: 2px var(--ink); }
     .hero-copy { max-width: 550px; color: var(--soft-ink); font-size: 18px; line-height: 1.75; }
     .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 31px; }
     .proof-list { display: flex; flex-wrap: wrap; gap: 12px 18px; margin-top: 34px; color: var(--soft-ink); font-size: 12px; font-weight: 800; }
     .proof-list span::before { content: "✦"; color: var(--ink); margin-right: 5px; }
+
+    .start-panel { align-self: stretch; min-height: 570px; display: flex; flex-direction: column; border: 1px solid var(--ink); background: #ece9e1; }
+    .start-panel-head { padding: 23px 24px; display: flex; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--ink); background: var(--lime); }
+    .start-panel-head strong { max-width: 260px; font-size: 20px; line-height: 1.05; letter-spacing: -.04em; }
+    .start-panel-head span { font: 500 10px/1.35 var(--mono); letter-spacing: .08em; text-align: right; text-transform: uppercase; }
+    .start-option { flex: 1; display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; gap: 17px; min-height: 132px; padding: 24px; border-bottom: 1px solid var(--ink); text-decoration: none; transition: background .16s ease, color .16s ease; }
+    .start-option:last-child { border-bottom: 0; }
+    .start-option:hover, .start-option:focus-visible { background: var(--ink); color: var(--paper); }
+    .start-option-number { font: 500 11px/1 var(--mono); }
+    .start-option-copy strong { display: block; font-size: 21px; line-height: 1.05; letter-spacing: -.045em; }
+    .start-option-copy span { display: block; max-width: 310px; margin-top: 8px; color: var(--soft-ink); font-size: 13px; line-height: 1.55; }
+    .start-option:hover .start-option-copy span, .start-option:focus-visible .start-option-copy span { color: #c9c7bd; }
+    .start-option-arrow { font-size: 22px; }
 
     .body-map { min-height: 550px; position: relative; display: grid; place-items: center; overflow: hidden; }
     .body-map::before, .body-map::after { content: ""; position: absolute; border: 1px solid var(--line); border-radius: 50%; }
@@ -89,7 +102,7 @@
     .section-title { max-width: 790px; font-family: var(--display); font-size: clamp(39px, 6vw, 80px); font-weight: 400; line-height: .92; letter-spacing: -.07em; }
     .section-intro { max-width: 620px; margin-top: 24px; color: var(--soft-ink); font-size: 17px; line-height: 1.75; }
 
-    .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 62px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+    .method-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 62px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
     .method-card { min-height: 265px; padding: 28px 29px 34px; border-right: 1px solid var(--ink); display: flex; flex-direction: column; }
     .method-card:last-child { border-right: 0; }
     .step { color: var(--soft-ink); font: 500 12px/1 var(--mono); }
@@ -99,8 +112,14 @@
     .library-header { display: flex; align-items: end; justify-content: space-between; gap: 24px; }
     .library-header .section-title { max-width: 710px; }
     .library-link { color: var(--soft-ink); font-size: 14px; font-weight: 800; }
+    .course-filter-bar { margin-top: 42px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .course-filter-label { margin-right: 9px; color: var(--soft-ink); font: 500 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .course-filter { min-height: 36px; padding: 0 13px; border: 1px solid var(--ink); background: transparent; color: var(--ink); font: 700 11px/1 var(--body); cursor: pointer; }
+    .course-filter:hover, .course-filter[aria-pressed="true"] { background: var(--ink); color: var(--lime); }
     .course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 58px; }
+    .course-filter-bar + .course-grid { margin-top: 20px; }
     .course-card { position: relative; display: block; min-height: 395px; overflow: hidden; padding: 20px; background: var(--ink); color: var(--paper); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
+    .course-card[hidden] { display: none; }
     .course-card:hover { transform: translateY(-5px); box-shadow: 0 7px 0 var(--lime); }
     .course-media { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(150deg, #d4d0c6 0%, #8e8b84 100%); }
     .course-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(17,17,15,.08) 15%, rgba(17,17,15,.84) 100%); }
@@ -112,6 +131,8 @@
     .course-info .lvl { display: block; color: var(--lime); font: 500 11px/1 var(--mono); letter-spacing: .08em; }
     .course-info h4 { margin-top: 12px; font-size: 25px; line-height: 1.02; letter-spacing: -.055em; }
     .course-info .len { display: block; margin-top: 12px; color: #d9d7ce; font: 500 11px/1 var(--mono); }
+    .course-category { display: inline-block; margin-top: 11px; color: #d9d7ce; font: 500 10px/1 var(--mono); letter-spacing: .05em; text-transform: uppercase; }
+    .course-cta { display: inline-block; margin-top: 18px; padding-bottom: 3px; border-bottom: 1px solid currentColor; color: var(--lime); font-size: 12px; font-weight: 800; }
     .course-status { color: var(--soft-ink); grid-column: 1 / -1; }
 
     .knowledge-preview { background: var(--panel); }
@@ -152,18 +173,18 @@
       .nav { min-height: 70px; } .nav-links { display: none; } .nav-cta { display: none; } .menu-button { display: grid; place-items: center; }
       .nav-links.open { position: absolute; top: 70px; left: 0; right: 0; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 16px 24px 24px; background: var(--paper); border-bottom: 1px solid var(--line); }
       .nav-links.open a { display: block; padding: 12px 0; }
-      .hero, .membership { grid-template-columns: 1fr; } .hero { padding-top: 56px; } .body-map { min-height: 420px; order: -1; }
+      .hero, .membership { grid-template-columns: 1fr; } .hero { padding-top: 56px; } .start-panel { min-height: auto; }
       .body-figure { transform: scale(.78); } .map-label { font-size: 9px; } .map-side-label { right: 3%; }
       .library-header { display: block; } .library-link { display: inline-block; margin-top: 24px; }
-      .method-grid { grid-template-columns: 1fr; } .method-card { min-height: 200px; border-right: 0; border-bottom: 1px solid var(--ink); } .method-card:last-child { border-bottom: 0; }
+      .method-grid { grid-template-columns: repeat(2, 1fr); } .method-card { min-height: 220px; border-bottom: 1px solid var(--ink); } .method-card:nth-child(2) { border-right: 0; } .method-card:nth-last-child(-n+2) { border-bottom: 0; }
       .course-grid { grid-template-columns: repeat(2, 1fr); }
       .knowledge-preview-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 560px) {
       .wrap { width: min(100% - 32px, var(--max)); } .brand { font-size: 18px; } .brand-mark { width: 37px; height: 37px; }
-      .hero h1 { font-size: clamp(55px, 18vw, 84px); } .hero-copy { font-size: 16px; } .body-map { min-height: 330px; margin-inline: -8px; } .body-figure { transform: scale(.58); }
+      .hero h1 { font-size: clamp(52px, 16vw, 76px); } .hero-copy { font-size: 16px; } .start-option { grid-template-columns: 34px minmax(0, 1fr) auto; padding: 20px 18px; }
       .map-axis::before, .map-axis::after { left: -145px; width: 290px; } .map-label.shoulder { left: 4%; } .map-label.hip { right: 2%; }
-      .section { padding: 82px 0; } .section-title { font-size: clamp(38px, 12vw, 58px); } .course-grid { grid-template-columns: 1fr; } .course-card { min-height: 360px; }
+      .section { padding: 82px 0; } .section-title { font-size: clamp(38px, 12vw, 58px); } .method-grid { grid-template-columns: 1fr; } .method-card, .method-card:nth-child(2) { border-right: 0; border-bottom: 1px solid var(--ink); } .method-card:last-child { border-bottom: 0; } .course-grid { grid-template-columns: 1fr; } .course-card { min-height: 360px; }
       .price-panel { min-height: 276px; padding: 25px; } .footer { align-items: flex-start; flex-direction: column; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
@@ -176,15 +197,12 @@
     <nav class="nav wrap" aria-label="Primary navigation">
       <a class="brand" href="#main" aria-label="LegitBodyFix home"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="#method" data-content="navigation.method">Method</a></li>
-        <li><a href="#library-preview" data-content="navigation.library">Library</a></li>
-        <li><a href="knowledge.html">Movement guides</a></li>
-        <li><a href="knowledge.html?type=muscles">Muscles</a></li>
+        <li><a href="#method" data-content="navigation.method">How it works</a></li>
+        <li><a href="#library-preview" data-content="navigation.library">Programs</a></li>
+        <li><a href="knowledge.html">Learn</a></li>
         <li><a href="library.html" data-content="navigation.myLibrary">My library</a></li>
-        <li><a href="#pricing" data-content="navigation.programs">Programs</a></li>
-        <li><a href="#method" data-content="navigation.howItWorks">How it works</a></li>
       </ul>
-      <a class="button nav-cta" href="#pricing"><span data-content="navigation.browsePrograms">Browse programs</span> <span aria-hidden="true">↗</span></a>
+      <a class="button nav-cta" href="knowledge.html"><span data-content="navigation.browsePrograms">Find my starting point</span> <span aria-hidden="true">→</span></a>
       <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">☰</button>
     </nav>
   </header>
@@ -192,18 +210,20 @@
   <main id="main">
     <section class="hero wrap" aria-labelledby="hero-title" data-site-section="hero">
       <div>
-        <p class="kicker" data-content="hero.kicker">Corrective movement. No fluff.</p>
-        <h1 id="hero-title"><span data-content="hero.titleLines.0">MOVE</span><br /><span data-content="hero.titleLines.1">BETTER.</span><br /><span class="outline" data-content="hero.titleLines.2">HURT</span><br /><span class="outline" data-content="hero.titleLines.3">LESS.</span></h1>
-        <p class="hero-copy" data-content="hero.description">Follow clear corrective exercise sessions that help you understand your body, rebuild weak links, and move with confidence again.</p>
+        <p class="kicker" data-content="hero.kicker">Movement clarity. No random routines.</p>
+        <h1 id="hero-title"><span data-content="hero.titleLines.0">STOP</span><br /><span data-content="hero.titleLines.1">GUESSING.</span><br /><span class="outline" data-content="hero.titleLines.2">MOVE WITH</span><br /><span class="outline" data-content="hero.titleLines.3">A PLAN.</span></h1>
+        <p class="hero-copy" data-content="hero.description">Check what feels limited, understand what may be influencing it, and follow a focused session built around your goal.</p>
         <div class="hero-actions">
-          <a class="button button-dark" href="#pricing" data-content-href="hero.primaryHref"><span data-content="hero.primaryButton">Start your reset</span> <span aria-hidden="true">↗</span></a>
-          <a class="button" href="#library-preview" data-content="hero.secondaryButton" data-content-href="hero.secondaryHref">See the library</a>
+          <a class="button button-dark" href="knowledge.html" data-content-href="hero.primaryHref"><span data-content="hero.primaryButton">Find my starting point</span> <span aria-hidden="true">→</span></a>
+          <a class="button" href="#library-preview" data-content="hero.secondaryButton" data-content-href="hero.secondaryHref">Browse focused sessions</a>
         </div>
-        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Built for real bodies</span><span data-content="hero.proofPoints.1">Go at your own pace</span><span data-content="hero.proofPoints.2">One-time purchase</span></div>
+        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Clear starting points</span><span data-content="hero.proofPoints.1">Guided progressions</span><span data-content="hero.proofPoints.2">No subscription</span></div>
       </div>
-      <div class="body-map" id="heroBodyMap" aria-label="Corrective movement body map showing shoulder, hip, and knee focus areas" role="img">
-        <span class="map-axis" aria-hidden="true"></span><span class="map-label shoulder">01 / shoulder</span><span class="map-label hip">02 / hip</span><span class="map-label knee">03 / knee</span><span class="map-side-label">mobility / stability / strength</span>
-        <div class="body-figure" aria-hidden="true"><span class="head"></span><span class="torso"></span><span class="arm left"></span><span class="arm right"></span><span class="leg left"></span><span class="leg right"></span><span class="joint shoulder"></span><span class="joint hip"></span><span class="joint knee"></span></div>
+      <div class="start-panel" id="heroBodyMap" aria-label="Choose your starting point">
+        <div class="start-panel-head"><strong>WHAT BROUGHT YOU HERE?</strong><span>Choose a starting point<br />Not a diagnosis</span></div>
+        <a class="start-option" href="knowledge.html?type=conditions"><span class="start-option-number">01</span><span class="start-option-copy"><strong>Something feels limited</strong><span>Start with the movement or body area that is getting in your way.</span></span><span class="start-option-arrow">→</span></a>
+        <a class="start-option" href="knowledge.html?type=muscles"><span class="start-option-number">02</span><span class="start-option-copy"><strong>I want to understand why</strong><span>Explore clear anatomy and see how muscles contribute to movement.</span></span><span class="start-option-arrow">→</span></a>
+        <a class="start-option" href="#library-preview"><span class="start-option-number">03</span><span class="start-option-copy"><strong>I am ready to practice</strong><span>Choose a short, guided session with a clear goal and progression.</span></span><span class="start-option-arrow">→</span></a>
       </div>
       <img class="hero-custom-image" id="heroCustomImage" alt="" hidden />
     </section>
@@ -211,12 +231,13 @@
     <section class="section" id="method" aria-labelledby="method-title" data-site-section="method">
       <div class="wrap">
         <p class="section-label" data-content="method.label">The LegitBodyFix method</p>
-        <h2 class="section-title" id="method-title"><span data-content="method.titleLines.0">STOP GUESSING.</span><br /><span data-content="method.titleLines.1">START REBUILDING.</span></h2>
-        <p class="section-intro" data-content="method.intro">Random stretches are not a plan. Each session gives you a reason, a sequence, and a progression — so you know what to do and why it works.</p>
+        <h2 class="section-title" id="method-title"><span data-content="method.titleLines.0">A CLEARER WAY</span><br /><span data-content="method.titleLines.1">TO MOVE FORWARD.</span></h2>
+        <p class="section-intro" data-content="method.intro">A useful plan starts with context. Check the movement, understand the pattern, practice a focused progression, then reassess what changed.</p>
         <div class="method-grid">
-          <article class="method-card"><span class="step">01</span><h3 data-content="method.steps.0.title">Assess</h3><p data-content="method.steps.0.description">Find the restriction or weak link driving the pattern.</p></article>
-          <article class="method-card"><span class="step">02</span><h3 data-content="method.steps.1.title">Restore</h3><p data-content="method.steps.1.description">Use focused mobility and control to reclaim range.</p></article>
-          <article class="method-card"><span class="step">03</span><h3 data-content="method.steps.2.title">Rebuild</h3><p data-content="method.steps.2.description">Load the new pattern so better movement actually sticks.</p></article>
+          <article class="method-card"><span class="step">01</span><h3 data-content="method.steps.0.title">Check</h3><p data-content="method.steps.0.description">Begin with a simple movement check and a clear baseline.</p></article>
+          <article class="method-card"><span class="step">02</span><h3 data-content="method.steps.1.title">Understand</h3><p data-content="method.steps.1.description">See what may influence the pattern without information overload.</p></article>
+          <article class="method-card"><span class="step">03</span><h3 data-content="method.steps.2.title">Practice</h3><p data-content="method.steps.2.description">Follow one focused sequence instead of collecting random exercises.</p></article>
+          <article class="method-card"><span class="step">04</span><h3 data-content="method.steps.3.title">Reassess</h3><p data-content="method.steps.3.description">Repeat the check and use the result to decide what comes next.</p></article>
         </div>
       </div>
     </section>
@@ -227,6 +248,7 @@
           <div><p class="section-label" data-content="library.label">Inside the library</p><h2 class="section-title" id="library-title"><span data-content="library.titleLines.0">SHORT SESSIONS.</span><br /><span data-content="library.titleLines.1">SERIOUS INTENT.</span></h2><p class="section-intro" data-content="library.intro">Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.</p></div>
           <a class="library-link" href="#pricing" data-content-href="library.linkHref"><span data-content="library.linkLabel">Choose a program</span> →</a>
         </div>
+        <div class="course-filter-bar" id="courseFilters" aria-label="Filter sessions by goal"></div>
         <div class="course-grid" id="courseGrid" aria-live="polite" aria-busy="true"><p class="course-status">Loading the movement library…</p><noscript>Please enable JavaScript to view the movement library.</noscript></div>
       </div>
     </section>
@@ -250,11 +272,11 @@
     <section class="section" id="pricing" aria-labelledby="pricing-title" data-site-section="pricing">
       <div class="wrap membership">
         <div>
-          <p class="section-label" data-content="pricing.label">Complete corrective movement package</p>
-          <h2 class="section-title" id="pricing-title"><span data-content="pricing.titleLines.0">YOUR BODY IS</span><br /><span data-content="pricing.titleLines.1">WORTH THE WORK.</span></h2>
-          <ul class="membership-list"><li data-content="pricing.benefits.0">Full-body guided video package</li><li data-content="pricing.benefits.1">Clear exercise sequence and progression</li><li data-content="pricing.benefits.2">Replay every session at your own pace</li><li data-content="pricing.benefits.3">Lifetime access after purchase</li></ul>
+          <p class="section-label" data-content="pricing.label">Focused sessions. One-time access.</p>
+          <h2 class="section-title" id="pricing-title"><span data-content="pricing.titleLines.0">START SMALL.</span><br /><span data-content="pricing.titleLines.1">BUILD FROM THERE.</span></h2>
+          <ul class="membership-list"><li data-content="pricing.benefits.0">Choose by movement goal or body area</li><li data-content="pricing.benefits.1">See the purpose before you purchase</li><li data-content="pricing.benefits.2">Replay your session at your own pace</li><li data-content="pricing.benefits.3">No subscription or recurring charge</li></ul>
         </div>
-        <aside class="price-panel" aria-label="Program pricing"><p data-content="pricing.programName">Full Body Restoration Package</p><div><div class="price"><span class="price-value" data-content="pricing.displayPrice">$170</span><span class="price-suffix" data-content="pricing.priceSuffix">one-time</span></div><small data-content="pricing.description">Get lifetime access to the complete corrective movement package. No subscription and no recurring charge.</small></div><a class="button" href="checkout.html" data-content-href="pricing.buttonHref"><span data-content="pricing.buttonLabel">Choose program</span> <span aria-hidden="true">↗</span></a></aside>
+        <aside class="price-panel" aria-label="Program pricing"><p data-content="pricing.programName">Individual guided sessions</p><div><div class="price"><span class="price-value" data-content="pricing.displayPrice">FROM $8</span><span class="price-suffix" data-content="pricing.priceSuffix">one-time</span></div><small data-content="pricing.description">Start with the session that matches your goal. Review the focus, duration, and equipment before purchasing.</small></div><a class="button" href="#library-preview" data-content-href="pricing.buttonHref"><span data-content="pricing.buttonLabel">Browse sessions</span> <span aria-hidden="true">→</span></a></aside>
       </div>
     </section>
   </main>
@@ -291,7 +313,7 @@
       });
     })();
   </script>
-  <script src="assets/js/site-content.js?v=20260801-2" defer></script>
-  <script src="assets/js/videos.js?v=20260801-1" defer></script>
+  <script src="assets/js/site-content.js?v=20260814-1" defer></script>
+  <script src="assets/js/videos.js?v=20260814-1" defer></script>
 </body>
 </html>
