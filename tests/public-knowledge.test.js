@@ -597,6 +597,15 @@ test("admin thumbnail editor exposes a first-class HTTPS image-link workflow", f
   assert.match(stylesheet, /\.muscle-image-link/);
 });
 
+test("articularis genus avoids unrelated posture artwork", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var muscle = data.muscles.find(function (item) { return item.id === "articularis-genus"; });
+  assert.ok(muscle.imageUrl.includes("Gray245.png"));
+  assert.doesNotMatch(muscle.imageUrl, /Anatomy_posture_and_body_mechanics/i);
+  assert.match(muscle.imageAlt, /articularis genus.*distal anterior femur/i);
+  assert.match(muscle.imageCredit, /public domain/i);
+});
+
 test("deep anterior neck muscles use focused anatomy references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
