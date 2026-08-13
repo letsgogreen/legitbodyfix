@@ -568,12 +568,36 @@ body.preview-open { overflow: hidden; }
 .muscle-image-range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px 12px; color: var(--muted); font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
 .muscle-image-range output { color: var(--ink); font-variant-numeric: tabular-nums; }
 .muscle-image-range input { grid-column: 1 / -1; width: 100%; accent-color: var(--ink); cursor: ew-resize; }
-.muscle-image-presets { display: flex; flex-wrap: wrap; gap: 6px; }
-.muscle-image-presets button { min-height: 32px; padding: 0 10px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font: 600 9px var(--mono); text-transform: uppercase; cursor: pointer; }
-.muscle-image-presets button:hover { background: var(--acid); }
 .muscle-image-footer { display: flex; gap: 8px; margin-top: auto; }
 .muscle-image-footer [aria-disabled="true"] { opacity: .4; pointer-events: none; }
+.muscle-image-upload { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--line-strong); background: var(--acid); }
+.muscle-image-upload span { color: var(--muted); font: 500 10px/1.4 var(--mono); }
+.muscle-image-upload span[data-state="success"] { color: #285d28; }
+.muscle-image-upload span[data-state="error"] { color: var(--danger); }
+.muscle-image-advanced { border-top: 1px solid var(--line); }
+.muscle-image-advanced summary { padding: 15px 0; color: var(--muted); font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.muscle-image-advanced-body { display: grid; gap: 18px; padding-top: 4px; }
+.muscle-board-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding: 22px 24px; border: 1px solid var(--line-strong); background: var(--surface); }
+.muscle-board-heading h3 { margin: 8px 0 0; font-size: clamp(26px, 3vw, 40px); letter-spacing: -.045em; }
+.muscle-board-heading p { max-width: 280px; margin: 0; color: var(--muted); line-height: 1.5; text-align: right; }
+.muscle-board-heading p strong { color: var(--ink); }
+.muscle-image-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-left: 1px solid var(--line-strong); }
+.muscle-board-card { position: relative; min-width: 0; padding: 0; overflow: hidden; border: 0; border-right: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+.muscle-board-card:hover, .muscle-board-card:focus-visible { z-index: 1; outline: 3px solid var(--acid); outline-offset: -3px; }
+.muscle-board-visual { position: relative; height: 190px; overflow: hidden; display: grid; place-items: center; background: #fff; }
+.muscle-board-visual img { width: 100%; height: 100%; object-fit: contain; transition: transform .16s ease; }
+.muscle-board-visual.is-missing { background: repeating-linear-gradient(45deg, #f1eee6, #f1eee6 10px, #faf9f5 10px, #faf9f5 20px); color: var(--muted); font: 600 10px var(--mono); letter-spacing: .1em; }
+.muscle-board-badge { position: absolute; top: 10px; left: 10px; z-index: 2; padding: 6px 8px; border: 1px solid var(--ink); background: var(--acid); font: 600 8px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.muscle-board-card[data-image-state="missing"] .muscle-board-badge { background: #ffddd7; }
+.muscle-board-card[data-image-state="animated"] .muscle-board-badge, .muscle-board-card[data-image-state="regional"] .muscle-board-badge { background: #fff1ac; }
+.muscle-board-card[data-image-state="ready"] .muscle-board-badge { background: var(--surface); }
+.muscle-board-copy { min-height: 92px; display: grid; align-content: center; gap: 7px; padding: 16px 18px; border-top: 1px solid var(--line); }
+.muscle-board-copy small { color: var(--muted); font: 500 8px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.muscle-board-copy strong { overflow: hidden; font-size: 18px; line-height: 1.1; text-overflow: ellipsis; }
+.muscle-board-back { justify-self: start; }
 
 @media (max-width: 1100px) { .knowledge-toolbar { grid-template-columns: 1fr; } .knowledge-tabs { width: 100%; } .knowledge-tabs button { flex: 1; } }
+@media (max-width: 1200px) { .muscle-image-board { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 900px) { .muscle-image-studio { grid-template-columns: 1fr; } .muscle-image-stage { min-height: 300px; border-right: 0; border-bottom: 1px solid var(--line); } }
-@media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } .muscle-image-heading { align-items: flex-start; flex-direction: column; } .muscle-image-heading p { text-align: left; } .muscle-image-footer { flex-direction: column; } }
+@media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } .muscle-image-heading, .muscle-board-heading { align-items: flex-start; flex-direction: column; } .muscle-image-heading p, .muscle-board-heading p { text-align: left; } .muscle-image-footer, .muscle-image-upload { align-items: stretch; flex-direction: column; } .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .muscle-image-board { grid-template-columns: 1fr; } .muscle-board-visual { height: 220px; } }
