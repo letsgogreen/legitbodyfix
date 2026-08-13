@@ -592,14 +592,14 @@
 .muscle-collective-card:focus-visible { background: var(--lime); }
 
 .muscle-collective-card .knowledge-card-media {
-  height: 128px;
+  height: clamp(172px, 16vw, 204px);
   background: #fff;
 }
 
 .muscle-collective-card .knowledge-card-media img {
   object-fit: contain;
   object-position: center;
-  padding: 10px 14px;
+  padding: 4px 8px;
 }
 
 .movement-results { width: 100%; padding-top: 32px; border-top: 1px solid var(--ink); }
@@ -653,6 +653,9 @@
   .movement-family summary { grid-template-columns: 1fr; gap: 8px; }
   .knowledge-card-media {
     height: 120px;
+  }
+  .muscle-collective-card .knowledge-card-media {
+    height: 164px;
   }
   .anatomy-zoom-button { height: 300px; }
   .anatomy-viewer-panel { grid-template-columns: 1fr; }
