@@ -597,6 +597,13 @@ test("admin thumbnail editor exposes a first-class HTTPS image-link workflow", f
   assert.match(stylesheet, /\.muscle-image-link/);
 });
 
+test("admin image board prioritizes large inspection frames", function () {
+  var stylesheet = fs.readFileSync(path.join(root, "assets/css/admin.css"), "utf8");
+  assert.match(stylesheet, /\.muscle-image-board \{[^}]*repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(stylesheet, /\.muscle-board-visual \{[^}]*height: clamp\(360px, 30vw, 480px\)/);
+  assert.match(stylesheet, /\.muscle-board-visual img \{ width: 84%; height: 84%; object-fit: contain/);
+});
+
 test("articularis genus avoids unrelated posture artwork", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var muscle = data.muscles.find(function (item) { return item.id === "articularis-genus"; });
