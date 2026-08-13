@@ -992,10 +992,18 @@
     image.alt = item.imageAlt || (item.title + " anatomy illustration");
     image.loading = "lazy";
     image.decoding = "async";
+    if (Number(item.cardImageScale) > 1) {
+      image.style.transform = "scale(" + Number(item.cardImageScale) + ")";
+    }
+    if (typeof item.cardImagePosition === "string") {
+      image.style.transformOrigin = item.cardImagePosition;
+    }
     image.addEventListener("error", function () {
       image.replaceWith(element("span", "muscle-card-image-fallback", "Focused illustration under review"));
     }, { once: true });
     media.appendChild(image);
+    var label = element("span", "knowledge-card-media-label is-focused", "Target · " + item.title);
+    media.appendChild(label);
     return media;
   }
 
