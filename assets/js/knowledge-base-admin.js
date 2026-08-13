@@ -538,6 +538,7 @@
     var description = String(record.imageAlt || "").toLowerCase();
     if (!url) return { key: "missing", label: "Image missing" };
     if (/\.gif(?:$|\?)/i.test(url)) return { key: "animated", label: "Animated GIF" };
+    if (/%E2%80%94%20musculus%20/i.test(url)) return { key: "regional", label: "Line highlight / review" };
     if (/1128_Muscles_of_the_Perineum_Common_to_Men_and_Women/i.test(url)) return { key: "regional", label: "Chart / replace" };
     var matchingImageCount = data.muscles.filter(function (item) {
       return String(item.imageUrl || "").trim() === url;

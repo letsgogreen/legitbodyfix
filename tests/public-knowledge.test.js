@@ -654,10 +654,10 @@ test("deep anterior neck muscles use focused anatomy references", function () {
 test("hyoid muscles use individually highlighted anatomy references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
-    "sternohyoid": "musculus%20sternohyoideus.png",
-    "omohyoid": "musculus%20omohyoideus.png",
-    "sternothyroid": "musculus%20sternothyroideus.png",
-    "thyrohyoid": "musculus%20thyrohyoideus.png",
+    "sternohyoid": "Musculi%20colli%20sternohyoideus.svg",
+    "omohyoid": "Musculi%20colli%20omohyoideus.svg",
+    "sternothyroid": "Sternothyroideus.png",
+    "thyrohyoid": "Thyrohyoideus.png",
     "digastric": "musculus%20digastricus.png",
     "stylohyoid": "musculus%20stylohyoideus.png",
     "mylohyoid": "musculus%20mylohyoideus.png",
@@ -667,8 +667,14 @@ test("hyoid muscles use individually highlighted anatomy references", function (
     var muscle = data.muscles.find(function (item) { return item.id === id; });
     assert.ok(muscle, "missing muscle " + id);
     assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use an individually highlighted reference");
-    assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+    assert.match(muscle.imageAlt, /highlight|isolat/i, id + " should explain how the target is isolated");
   });
+});
+
+test("admin image audit flags subtle line-highlight plates for review", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  assert.match(javascript, /%E2%80%94%20musculus%20/);
+  assert.match(javascript, /Line highlight \/ review/);
 });
 
 test("intrinsic hand muscles use individually highlighted references", function () {
