@@ -981,11 +981,31 @@
     if (shouldUpdateUrl !== false) updateUrl();
   }
 
+  function createMuscleCardMedia(item) {
+    var media = element("span", "knowledge-card-media");
+    if (typeof item.imageUrl !== "string" || !/^https:\/\//i.test(item.imageUrl) || !hasFocusedMuscleImage(item)) {
+      media.appendChild(element("span", "muscle-card-image-fallback", "Focused illustration under review"));
+      return media;
+    }
+    var image = document.createElement("img");
+    image.src = item.imageUrl;
+    image.alt = item.imageAlt || (item.title + " anatomy illustration");
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.addEventListener("error", function () {
+      image.replaceWith(element("span", "muscle-card-image-fallback", "Focused illustration under review"));
+    }, { once: true });
+    media.appendChild(image);
+    return media;
+  }
+
   function createCard(record) {
     var card = element("button", "knowledge-card");
     card.type = "button";
     card.setAttribute("aria-label", "Read about " + record.item.title);
     if (record.type === "muscles") {
+      card.classList.add("has-media");
+      card.appendChild(createMuscleCardMedia(record.item));
       var roles = createFunctionalRoleList(record.item);
       if (roles) card.appendChild(roles);
     }
@@ -1199,7 +1219,7 @@
     var heading = element("header", "movement-results-heading");
     heading.append(element("p", "eyebrow", "Movement role"), element("h3", "", pluralRole(activeMuscleFunction)), element("p", "", "Muscles are grouped by recognizable anatomy. Expand a family only when you need the individual names."));
     var groups = element("div", "movement-family-grid");
-    var openSingleFamily = buckets.size === 1;
+    var openSingleFamily = true;
     Array.from(buckets.keys()).sort().forEach(function (name) {
       var bucket = buckets.get(name);
       var familyRecords = bucket.records.sort(function (a, b) { return String(a.item.title || "").localeCompare(String(b.item.title || "")); });
