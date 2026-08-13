@@ -588,6 +588,15 @@ test("admin image board flags shared and chart-based references for review", fun
   assert.match(javascript, /Chart \/ replace/);
 });
 
+test("admin thumbnail editor exposes a first-class HTTPS image-link workflow", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  var stylesheet = fs.readFileSync(path.join(root, "assets/css/admin.css"), "utf8");
+  assert.match(javascript, /Use image link/);
+  assert.match(javascript, /Paste a complete HTTPS image link/);
+  assert.match(javascript, /applyLink\.addEventListener\("click", useImageLink\)/);
+  assert.match(stylesheet, /\.muscle-image-link/);
+});
+
 test("deep anterior neck muscles use focused anatomy references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {

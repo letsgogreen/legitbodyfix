@@ -349,7 +349,7 @@
     var advanced = document.createElement("details");
     advanced.className = "muscle-image-advanced";
     var advancedSummary = document.createElement("summary");
-    advancedSummary.textContent = "URL and crop adjustments";
+    advancedSummary.textContent = "Crop adjustments";
     var advancedBody = document.createElement("div");
     advancedBody.className = "muscle-image-advanced-body";
     var urlLabel = document.createElement("label");
@@ -361,6 +361,13 @@
     urlInput.value = record.imageUrl || "";
     urlInput.maxLength = 800;
     urlLabel.appendChild(urlInput);
+    var linkPanel = document.createElement("div");
+    linkPanel.className = "muscle-image-link";
+    var applyLink = document.createElement("button");
+    applyLink.type = "button"; applyLink.className = "button"; applyLink.textContent = "Use image link";
+    var linkStatus = document.createElement("span");
+    linkStatus.setAttribute("aria-live", "polite");
+    linkPanel.appendChild(urlLabel); linkPanel.appendChild(applyLink); linkPanel.appendChild(linkStatus);
 
     var scaleLabel = document.createElement("label");
     scaleLabel.className = "muscle-image-range";
@@ -422,7 +429,22 @@
     }
     image.addEventListener("load", function () { studio.classList.remove("has-image-error"); empty.hidden = true; image.hidden = false; });
     image.addEventListener("error", function () { studio.classList.add("has-image-error"); empty.hidden = false; empty.querySelector("strong").textContent = "Image could not be loaded"; empty.querySelector("span").textContent = "Check the URL, permissions, or hotlink restrictions."; image.hidden = true; });
-    [urlInput, scaleInput, horizontal.input, vertical.input].forEach(function (input) { input.addEventListener("input", function () { studio.classList.remove("has-image-error"); update(true); }); });
+    [scaleInput, horizontal.input, vertical.input].forEach(function (input) { input.addEventListener("input", function () { studio.classList.remove("has-image-error"); update(true); }); });
+    function useImageLink() {
+      var candidate = urlInput.value.trim();
+      if (!/^https:\/\//i.test(candidate)) {
+        linkStatus.textContent = "Paste a complete HTTPS image link.";
+        linkStatus.dataset.state = "error";
+        return;
+      }
+      delete linkStatus.dataset.state;
+      studio.classList.remove("has-image-error");
+      update(true);
+      linkStatus.textContent = "Link applied. Publish guides when ready.";
+      linkStatus.dataset.state = "success";
+    }
+    applyLink.addEventListener("click", useImageLink);
+    urlInput.addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); useImageLink(); } });
     reset.addEventListener("click", function () { scaleInput.value = "1"; horizontal.input.value = "50"; vertical.input.value = "50"; update(true); });
 
     choose.addEventListener("click", function () { fileInput.click(); });
@@ -447,10 +469,10 @@
         .finally(function () { choose.disabled = false; });
     });
 
-    controls.appendChild(heading); controls.appendChild(uploadPanel);
+    controls.appendChild(heading); controls.appendChild(uploadPanel); controls.appendChild(linkPanel);
     var ranges = document.createElement("div"); ranges.className = "muscle-image-ranges";
     ranges.appendChild(scaleLabel); ranges.appendChild(horizontal.label); ranges.appendChild(vertical.label);
-    advancedBody.appendChild(urlLabel); advancedBody.appendChild(ranges); advancedBody.appendChild(footer);
+    advancedBody.appendChild(ranges); advancedBody.appendChild(footer);
     advanced.appendChild(advancedSummary); advanced.appendChild(advancedBody); controls.appendChild(advanced);
     studio.appendChild(stage); studio.appendChild(controls);
     update(false);
