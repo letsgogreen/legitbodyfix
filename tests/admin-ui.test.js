@@ -157,7 +157,10 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(javascript, /function makeImageStudio/);
   assert.match(javascript, /cardImageScale/);
   assert.match(javascript, /cardImagePosition/);
-  assert.match(html, /live thumbnail studio/);
+  assert.match(javascript, /renderMuscleBoard/);
+  assert.match(javascript, /kind: "thumbnail"/);
+  assert.match(javascript, /Upload new image/);
+  assert.match(html, /Scan the image board first/);
   assert.match(javascript, /Rotator cuff/);
   assert.match(javascript, /Levator ani group/);
   assert.match(javascript, /Deep posterior leg compartment/);

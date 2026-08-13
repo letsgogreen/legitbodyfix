@@ -3,6 +3,7 @@
 
   var DATA_URL = "assets/data/knowledge-base.json";
   var PUBLISH_URL = "/api/admin/videos";
+  var UPLOAD_URL = "/api/admin/uploads";
   var DRAFT_KEY = "legitbodyfix.knowledgeBaseDraft.v1";
   var list = document.getElementById("knowledgeList");
   if (!list) return;
@@ -27,6 +28,7 @@
   var started = false;
   var activeAdminMuscleRegion = "all";
   var activeAdminMuscleAction = "all";
+  var selectedMuscleId = "";
   var adminRegionLabels = {
     all: "All body areas", "head-neck": "Neck", "shoulder-scapula": "Shoulder & Scapula", "elbow-forearm": "Elbow & Forearm",
     "wrist-hand": "Wrist & Hand", "thoracic-spine": "Thoracic Spine", "lumbar-spine": "Lumbar Spine", "pelvis-hip": "Pelvis & Hip", knee: "Knee", "foot-ankle": "Foot & Ankle"
@@ -334,6 +336,22 @@
     heading.className = "muscle-image-heading";
     heading.innerHTML = "<div><span class=\"module-chip\">Visual editor</span><h4>Frame the public thumbnail</h4></div><p>Adjust the crop without editing the source file.</p>";
 
+    var uploadPanel = document.createElement("div");
+    uploadPanel.className = "muscle-image-upload";
+    var fileInput = document.createElement("input");
+    fileInput.type = "file"; fileInput.accept = "image/jpeg,image/png,image/webp"; fileInput.hidden = true;
+    var choose = document.createElement("button");
+    choose.type = "button"; choose.className = "button button-dark"; choose.textContent = "Upload new image";
+    var uploadStatus = document.createElement("span");
+    uploadStatus.textContent = "JPG, PNG or WebP · max 10 MB";
+    uploadPanel.appendChild(fileInput); uploadPanel.appendChild(choose); uploadPanel.appendChild(uploadStatus);
+
+    var advanced = document.createElement("details");
+    advanced.className = "muscle-image-advanced";
+    var advancedSummary = document.createElement("summary");
+    advancedSummary.textContent = "URL and crop adjustments";
+    var advancedBody = document.createElement("div");
+    advancedBody.className = "muscle-image-advanced-body";
     var urlLabel = document.createElement("label");
     urlLabel.className = "field muscle-image-url";
     urlLabel.innerHTML = "<span>Image URL</span>";
@@ -372,15 +390,6 @@
     var horizontal = rangeControl("Horizontal focus", position.x);
     var vertical = rangeControl("Vertical focus", position.y);
 
-    var presets = document.createElement("div");
-    presets.className = "muscle-image-presets";
-    [["Top", 50, 20], ["Center", 50, 50], ["Left", 25, 50], ["Right", 75, 50], ["Bottom", 50, 80]].forEach(function (preset) {
-      var button = document.createElement("button");
-      button.type = "button"; button.textContent = preset[0];
-      button.addEventListener("click", function () { horizontal.input.value = preset[1]; vertical.input.value = preset[2]; update(true); });
-      presets.appendChild(button);
-    });
-
     var footer = document.createElement("div");
     footer.className = "muscle-image-footer";
     var source = document.createElement("a");
@@ -416,13 +425,77 @@
     [urlInput, scaleInput, horizontal.input, vertical.input].forEach(function (input) { input.addEventListener("input", function () { studio.classList.remove("has-image-error"); update(true); }); });
     reset.addEventListener("click", function () { scaleInput.value = "1"; horizontal.input.value = "50"; vertical.input.value = "50"; update(true); });
 
-    controls.appendChild(heading); controls.appendChild(urlLabel);
+    choose.addEventListener("click", function () { fileInput.click(); });
+    fileInput.addEventListener("change", function () {
+      var file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      var type = String(file.type || "").toLowerCase();
+      if (["image/jpeg", "image/png", "image/webp"].indexOf(type) === -1 || file.size < 1 || file.size > 10 * 1024 * 1024) {
+        uploadStatus.textContent = "Use a JPG, PNG or WebP file up to 10 MB.";
+        uploadStatus.dataset.state = "error";
+        return;
+      }
+      choose.disabled = true;
+      uploadStatus.textContent = "Preparing upload…";
+      delete uploadStatus.dataset.state;
+      var details;
+      fetch(UPLOAD_URL, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fileName: file.name, contentType: type, size: file.size, kind: "thumbnail" }) })
+        .then(function (response) { return response.json().catch(function () { return {}; }).then(function (body) { if (!response.ok) { var error = new Error(body.error || "upload_failed"); error.status = response.status; error.code = body.error; throw error; } return body; }); })
+        .then(function (result) { details = result; uploadStatus.textContent = "Uploading " + file.name + "…"; return fetch(result.uploadUrl, { method: "PUT", headers: { "Content-Type": result.contentType }, body: file }); })
+        .then(function (response) { if (!response.ok) throw new Error("upload_rejected"); urlInput.value = details.assetUrl; record.imageUrl = details.assetUrl; fileInput.value = ""; update(true); uploadStatus.textContent = "Uploaded. Publish guides when ready."; uploadStatus.dataset.state = "success"; })
+        .catch(function (error) { uploadStatus.textContent = error.status === 401 ? "Session expired. Sign in again." : error.code === "uploads_disabled_in_preview" ? "Uploads work on the production admin page." : "Upload failed. Try again."; uploadStatus.dataset.state = "error"; })
+        .finally(function () { choose.disabled = false; });
+    });
+
+    controls.appendChild(heading); controls.appendChild(uploadPanel);
     var ranges = document.createElement("div"); ranges.className = "muscle-image-ranges";
     ranges.appendChild(scaleLabel); ranges.appendChild(horizontal.label); ranges.appendChild(vertical.label);
-    controls.appendChild(ranges); controls.appendChild(presets); controls.appendChild(footer);
+    advancedBody.appendChild(urlLabel); advancedBody.appendChild(ranges); advancedBody.appendChild(footer);
+    advanced.appendChild(advancedSummary); advanced.appendChild(advancedBody); controls.appendChild(advanced);
     studio.appendChild(stage); studio.appendChild(controls);
     update(false);
     return studio;
+  }
+
+  function muscleImageState(record) {
+    var url = String(record.imageUrl || "").trim();
+    var description = String(record.imageAlt || "").toLowerCase();
+    if (!url) return { key: "missing", label: "Image missing" };
+    if (/\.gif(?:$|\?)/i.test(url)) return { key: "animated", label: "Animated GIF" };
+    if (/regional|reference|group|plate/.test(description) && description.indexOf(String(record.title || "").toLowerCase()) === -1) return { key: "regional", label: "Regional reference" };
+    return { key: "ready", label: "Image ready" };
+  }
+
+  function renderMuscleBoard(visible) {
+    var boardHeader = document.createElement("div");
+    boardHeader.className = "muscle-board-heading";
+    var issueCount = visible.filter(function (record) { return muscleImageState(record).key !== "ready"; }).length;
+    boardHeader.innerHTML = "<div><span class=\"module-chip\">Image board</span><h3>Review the atlas visually</h3></div><p><strong>" + issueCount + "</strong> cards may need attention. Select any card to edit.</p>";
+    list.appendChild(boardHeader);
+    var board = document.createElement("div");
+    board.className = "muscle-image-board";
+    visible.forEach(function (record) {
+      var state = muscleImageState(record);
+      var button = document.createElement("button");
+      button.type = "button"; button.className = "muscle-board-card"; button.dataset.imageState = state.key;
+      var visual = document.createElement("span"); visual.className = "muscle-board-visual";
+      if (record.imageUrl) {
+        var image = document.createElement("img"); image.src = record.imageUrl; image.alt = ""; image.loading = "lazy";
+        if (Number(record.cardImageScale) > 1) image.style.transform = "scale(" + Number(record.cardImageScale) + ")";
+        image.style.transformOrigin = record.cardImagePosition || "50% 50%";
+        image.addEventListener("error", function () { button.dataset.imageState = "missing"; badge.textContent = "Load failed"; visual.classList.add("is-missing"); });
+        visual.appendChild(image);
+      } else { visual.classList.add("is-missing"); visual.textContent = "NO IMAGE"; }
+      var badge = document.createElement("span"); badge.className = "muscle-board-badge"; badge.textContent = state.label;
+      var copy = document.createElement("span"); copy.className = "muscle-board-copy";
+      var group = document.createElement("small"); group.textContent = record.group || "Muscle";
+      var title = document.createElement("strong"); title.textContent = record.title || "Untitled muscle";
+      copy.appendChild(group); copy.appendChild(title);
+      button.appendChild(visual); button.appendChild(badge); button.appendChild(copy);
+      button.addEventListener("click", function () { selectedMuscleId = record.id; render(); window.scrollTo({ top: list.offsetTop - 90, behavior: "smooth" }); });
+      board.appendChild(button);
+    });
+    list.appendChild(board);
   }
 
   function render() {
@@ -434,6 +507,19 @@
       if (activeType === "muscles" && !adminActionMatches(record, activeAdminMuscleAction)) return false;
       return !query || JSON.stringify(record).toLowerCase().indexOf(query) !== -1;
     });
+    if (activeType === "muscles" && !selectedMuscleId) {
+      renderMuscleBoard(visible);
+      list.setAttribute("aria-busy", "false");
+      updateCounts();
+      return;
+    }
+    if (activeType === "muscles" && selectedMuscleId) {
+      visible = data.muscles.filter(function (record) { return record.id === selectedMuscleId; });
+      var back = document.createElement("button");
+      back.type = "button"; back.className = "button muscle-board-back"; back.textContent = "← Back to image board";
+      back.addEventListener("click", function () { selectedMuscleId = ""; render(); });
+      list.appendChild(back);
+    }
     if (activeType === "muscles" && activeAdminMuscleAction !== "all") {
       visible.sort(function (left, right) {
         return adminMovementFamily(left, activeAdminMuscleAction).localeCompare(adminMovementFamily(right, activeAdminMuscleAction)) || String(left.title || "").localeCompare(String(right.title || ""));
@@ -548,6 +634,7 @@
   tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
       activeType = tab.dataset.knowledgeType;
+      selectedMuscleId = "";
       tabs.forEach(function (item) { var selected = item === tab; item.classList.toggle("is-active", selected); item.setAttribute("aria-selected", selected ? "true" : "false"); });
       render();
     });
