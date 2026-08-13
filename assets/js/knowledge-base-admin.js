@@ -93,6 +93,25 @@
     return payload;
   }
 
+  function isDirectAnatomyPhoto(record) {
+    var evidence = [record && record.imageUrl, record && record.imageAlt, record && record.imageCredit].join(" ");
+    return /cadaver|dissection|specimen|surgical photograph|Gluteus_medius_muscle\.jpg|Anatomist90/i.test(evidence);
+  }
+
+  function sanitizeDraftImages(draft, repository) {
+    var canonical = new Map((repository.muscles || []).map(function (record) { return [record.id, record]; }));
+    (draft.muscles || []).forEach(function (record) {
+      if (!isDirectAnatomyPhoto(record)) return;
+      var replacement = canonical.get(record.id);
+      if (!replacement || isDirectAnatomyPhoto(replacement)) return;
+      ["imageUrl", "imageAlt", "imageCredit", "imageCreditUrl", "cardImageScale", "cardImagePosition"].forEach(function (key) {
+        if (key in replacement) record[key] = replacement[key];
+        else delete record[key];
+      });
+    });
+    return draft;
+  }
+
   function slugify(value) {
     return String(value || "record").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70) || "record";
   }
@@ -537,6 +556,7 @@
     var url = String(record.imageUrl || "").trim();
     var description = String(record.imageAlt || "").toLowerCase();
     if (!url) return { key: "missing", label: "Image missing" };
+    if (isDirectAnatomyPhoto(record)) return { key: "regional", label: "Direct photo / replace" };
     if (/\.gif(?:$|\?)/i.test(url)) return { key: "animated", label: "Animated GIF" };
     if (/%E2%80%94%20musculus%20/i.test(url)) return { key: "regional", label: "Line highlight / review" };
     if (/1128_Muscles_of_the_Perineum_Common_to_Men_and_Women/i.test(url)) return { key: "regional", label: "Chart / replace" };
@@ -705,7 +725,7 @@
       repositoryData = normalizeMuscles(clone(loaded));
       var saved = localStorage.getItem(DRAFT_KEY);
       if (saved) {
-        try { data = normalizeMuscles(JSON.parse(saved)); setStatus("Browser draft restored.", "draft"); }
+        try { data = sanitizeDraftImages(normalizeMuscles(JSON.parse(saved)), repositoryData); localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); setStatus("Browser draft restored. Unsuitable direct anatomy photos were replaced with current repository illustrations.", "draft"); }
         catch (error) { data = clone(repositoryData); localStorage.removeItem(DRAFT_KEY); }
       } else data = clone(repositoryData);
       render();

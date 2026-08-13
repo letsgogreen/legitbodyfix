@@ -677,6 +677,14 @@ test("admin image audit flags subtle line-highlight plates for review", function
   assert.match(javascript, /Line highlight \/ review/);
 });
 
+test("admin replaces direct anatomy photos restored from stale browser drafts", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  assert.match(javascript, /function isDirectAnatomyPhoto/);
+  assert.match(javascript, /function sanitizeDraftImages/);
+  assert.match(javascript, /Direct photo \/ replace/);
+  assert.match(javascript, /sanitizeDraftImages\(normalizeMuscles\(JSON\.parse\(saved\)\), repositoryData\)/);
+});
+
 test("intrinsic hand muscles use individually highlighted references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {

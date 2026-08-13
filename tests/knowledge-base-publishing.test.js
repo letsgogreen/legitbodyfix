@@ -30,6 +30,15 @@ test("knowledge base validation rejects unsupported muscle functions", function 
   });
 });
 
+test("knowledge base validation rejects direct anatomy photography", function () {
+  var input = JSON.parse(JSON.stringify(valid));
+  input.muscles[0].imageUrl = "https://commons.wikimedia.org/wiki/Special:FilePath/Gluteus_medius_muscle.jpg";
+  input.muscles[0].imageCredit = "Anatomist90";
+  assert.throws(function () { publishing.validateKnowledgeBase(input); }, function (error) {
+    return error.code === "invalid_knowledge_base" && error.details.some(function (detail) { return /direct anatomy photograph/.test(detail); });
+  });
+});
+
 test("knowledge base validation rejects duplicate or unsafe identifiers", function () {
   var input = JSON.parse(JSON.stringify(valid));
   input.conditions.push({ id: "round-shoulder", title: "Duplicate", published: true });
