@@ -621,15 +621,29 @@
 .movement-results-heading .eyebrow { grid-column: 1; }
 .movement-results-heading h3 { grid-column: 1; margin: 10px 0 0; font-size: clamp(34px, 5vw, 64px); line-height: .92; letter-spacing: -.065em; }
 .movement-results-heading > p:last-child { grid-column: 2; grid-row: 1 / span 2; color: var(--muted); line-height: 1.65; }
-.movement-family-grid { display: grid; gap: 14px; }
+.movement-family-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  align-items: stretch;
+  gap: 14px;
+}
 .movement-family, .movement-family-single { border: 1px solid var(--ink); background: var(--paper); }
+.movement-family {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
 .movement-family summary { min-height: 92px; padding: 18px 22px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px; cursor: pointer; list-style: none; }
 .movement-family summary::-webkit-details-marker { display: none; }
 .movement-family summary > span, .movement-family-label { color: var(--teal); font: 600 9px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 .movement-family summary strong { font-size: 22px; }
 .movement-family summary small { color: var(--muted); font: 500 9px/1 var(--mono); text-transform: uppercase; }
 .movement-family[open] summary { border-bottom: 1px solid var(--ink); background: var(--lime); }
-.movement-family .muscle-region-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.movement-family .muscle-region-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  flex: 1;
+}
+.movement-family .knowledge-card { height: 100%; }
 .movement-family .knowledge-card-media {
   height: clamp(172px, 16vw, 204px);
 }
@@ -648,6 +662,7 @@
   .muscle-path-heading { grid-template-columns: 1fr; gap: 12px; }
   .movement-results-heading { grid-template-columns: 1fr; gap: 14px; }
   .movement-results-heading > p:last-child { grid-column: 1; grid-row: auto; }
+  .movement-family-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 560px) {
