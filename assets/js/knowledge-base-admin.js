@@ -55,7 +55,7 @@
     muscles: [
       ["title", "Muscle name", 120], ["group", "Anatomical group", 160], ["family", "Muscle family", 160], ["origin", "Origin", 800, true],
       ["insertion", "Insertion", 800, true], ["actions", "Functions and actions", 800, true],
-      ["imageUrl", "Anatomy image URL (HTTPS)", 800], ["imageAlt", "Image description", 240],
+      ["imageAlt", "Image description", 240],
       ["imageCredit", "Image credit", 240], ["imageCreditUrl", "Image source URL (HTTPS)", 800],
       ["bodyMap", "Body map region", 80], ["sourceName", "Anatomy reference name", 240],
       ["sourceUrl", "Anatomy reference URL (HTTPS)", 800],
@@ -303,6 +303,128 @@
     return label;
   }
 
+  function imagePosition(record) {
+    var match = String(record.cardImagePosition || "50% 50%").match(/([\d.]+)%\s+([\d.]+)%/);
+    return match ? { x: Number(match[1]), y: Number(match[2]) } : { x: 50, y: 50 };
+  }
+
+  function makeImageStudio(record) {
+    var studio = document.createElement("section");
+    studio.className = "muscle-image-studio";
+    studio.setAttribute("aria-label", "Thumbnail editor for " + (record.title || "muscle"));
+
+    var stage = document.createElement("div");
+    stage.className = "muscle-image-stage";
+    var image = document.createElement("img");
+    image.alt = record.imageAlt || "Thumbnail preview";
+    image.loading = "lazy";
+    var target = document.createElement("span");
+    target.className = "muscle-image-target";
+    target.textContent = "TARGET · " + (record.title || "MUSCLE").toUpperCase();
+    var empty = document.createElement("div");
+    empty.className = "muscle-image-empty";
+    empty.innerHTML = "<strong>No usable image</strong><span>Paste an HTTPS image URL below to start framing.</span>";
+    stage.appendChild(image);
+    stage.appendChild(empty);
+    stage.appendChild(target);
+
+    var controls = document.createElement("div");
+    controls.className = "muscle-image-controls";
+    var heading = document.createElement("div");
+    heading.className = "muscle-image-heading";
+    heading.innerHTML = "<div><span class=\"module-chip\">Visual editor</span><h4>Frame the public thumbnail</h4></div><p>Adjust the crop without editing the source file.</p>";
+
+    var urlLabel = document.createElement("label");
+    urlLabel.className = "field muscle-image-url";
+    urlLabel.innerHTML = "<span>Image URL</span>";
+    var urlInput = document.createElement("input");
+    urlInput.type = "url";
+    urlInput.placeholder = "https://…";
+    urlInput.value = record.imageUrl || "";
+    urlInput.maxLength = 800;
+    urlLabel.appendChild(urlInput);
+
+    var scaleLabel = document.createElement("label");
+    scaleLabel.className = "muscle-image-range";
+    var scaleValue = document.createElement("output");
+    scaleLabel.innerHTML = "<span>Zoom</span>";
+    scaleLabel.appendChild(scaleValue);
+    var scaleInput = document.createElement("input");
+    scaleInput.type = "range";
+    scaleInput.min = "1";
+    scaleInput.max = "3";
+    scaleInput.step = ".05";
+    scaleInput.value = String(Number(record.cardImageScale) >= 1 ? Number(record.cardImageScale) : 1);
+    scaleLabel.appendChild(scaleInput);
+
+    var position = imagePosition(record);
+    function rangeControl(labelText, value) {
+      var label = document.createElement("label");
+      label.className = "muscle-image-range";
+      var output = document.createElement("output");
+      label.innerHTML = "<span>" + labelText + "</span>";
+      label.appendChild(output);
+      var input = document.createElement("input");
+      input.type = "range"; input.min = "0"; input.max = "100"; input.step = "1"; input.value = String(value);
+      label.appendChild(input);
+      return { label: label, input: input, output: output };
+    }
+    var horizontal = rangeControl("Horizontal focus", position.x);
+    var vertical = rangeControl("Vertical focus", position.y);
+
+    var presets = document.createElement("div");
+    presets.className = "muscle-image-presets";
+    [["Top", 50, 20], ["Center", 50, 50], ["Left", 25, 50], ["Right", 75, 50], ["Bottom", 50, 80]].forEach(function (preset) {
+      var button = document.createElement("button");
+      button.type = "button"; button.textContent = preset[0];
+      button.addEventListener("click", function () { horizontal.input.value = preset[1]; vertical.input.value = preset[2]; update(true); });
+      presets.appendChild(button);
+    });
+
+    var footer = document.createElement("div");
+    footer.className = "muscle-image-footer";
+    var source = document.createElement("a");
+    source.className = "button button-quiet"; source.target = "_blank"; source.rel = "noopener"; source.textContent = "Open original ↗";
+    var reset = document.createElement("button");
+    reset.className = "button button-quiet"; reset.type = "button"; reset.textContent = "Reset framing";
+    footer.appendChild(source); footer.appendChild(reset);
+
+    function update(shouldSave) {
+      var src = urlInput.value.trim();
+      var scale = Number(scaleInput.value);
+      var x = Number(horizontal.input.value), y = Number(vertical.input.value);
+      image.hidden = !src;
+      empty.hidden = !!src;
+      target.hidden = !src;
+      if (src && image.getAttribute("src") !== src) image.src = src;
+      image.style.transform = "scale(" + scale + ")";
+      image.style.transformOrigin = x + "% " + y + "%";
+      scaleValue.value = scale.toFixed(2) + "×";
+      horizontal.output.value = x + "%";
+      vertical.output.value = y + "%";
+      source.href = src || "#";
+      source.setAttribute("aria-disabled", src ? "false" : "true");
+      if (shouldSave) {
+        record.imageUrl = src;
+        record.cardImageScale = scale;
+        record.cardImagePosition = x + "% " + y + "%";
+        saveDraft();
+      }
+    }
+    image.addEventListener("load", function () { studio.classList.remove("has-image-error"); empty.hidden = true; image.hidden = false; });
+    image.addEventListener("error", function () { studio.classList.add("has-image-error"); empty.hidden = false; empty.querySelector("strong").textContent = "Image could not be loaded"; empty.querySelector("span").textContent = "Check the URL, permissions, or hotlink restrictions."; image.hidden = true; });
+    [urlInput, scaleInput, horizontal.input, vertical.input].forEach(function (input) { input.addEventListener("input", function () { studio.classList.remove("has-image-error"); update(true); }); });
+    reset.addEventListener("click", function () { scaleInput.value = "1"; horizontal.input.value = "50"; vertical.input.value = "50"; update(true); });
+
+    controls.appendChild(heading); controls.appendChild(urlLabel);
+    var ranges = document.createElement("div"); ranges.className = "muscle-image-ranges";
+    ranges.appendChild(scaleLabel); ranges.appendChild(horizontal.label); ranges.appendChild(vertical.label);
+    controls.appendChild(ranges); controls.appendChild(presets); controls.appendChild(footer);
+    studio.appendChild(stage); studio.appendChild(controls);
+    update(false);
+    return studio;
+  }
+
   function render() {
     list.textContent = "";
     var query = search.value.trim().toLowerCase();
@@ -369,6 +491,7 @@
       fields.className = "form-grid knowledge-fields";
       schemas[activeType].forEach(function (definition) { fields.appendChild(makeField(record, definition)); });
       card.appendChild(header);
+      if (activeType === "muscles") card.appendChild(makeImageStudio(record));
       card.appendChild(fields);
       list.appendChild(card);
     });
