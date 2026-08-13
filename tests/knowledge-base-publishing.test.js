@@ -39,6 +39,22 @@ test("knowledge base validation rejects direct anatomy photography", function ()
   });
 });
 
+test("knowledge base validation rejects Korean-labeled muscle images", function () {
+  var input = JSON.parse(JSON.stringify(valid));
+  input.muscles[0].imageUrl = "https://commons.wikimedia.org/wiki/Special:FilePath/Transversospinales_interspinales_enko.svg";
+  assert.throws(function () { publishing.validateKnowledgeBase(input); }, function (error) {
+    return error.code === "invalid_knowledge_base" && error.details.some(function (detail) { return /without Korean labels/.test(detail); });
+  });
+});
+
+test("knowledge base validation rejects movement chart thumbnails", function () {
+  var input = JSON.parse(JSON.stringify(valid));
+  input.muscles[0].imageUrl = "https://commons.wikimedia.org/wiki/Special:FilePath/1128_Muscles_of_the_Perineum_Common_to_Men_and_Women.jpg";
+  assert.throws(function () { publishing.validateKnowledgeBase(input); }, function (error) {
+    return error.code === "invalid_knowledge_base" && error.details.some(function (detail) { return /movement chart thumbnail/.test(detail); });
+  });
+});
+
 test("knowledge base validation rejects duplicate or unsafe identifiers", function () {
   var input = JSON.parse(JSON.stringify(valid));
   input.conditions.push({ id: "round-shoulder", title: "Duplicate", published: true });

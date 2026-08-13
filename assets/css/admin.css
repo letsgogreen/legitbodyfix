@@ -278,6 +278,20 @@ body.preview-open { overflow: hidden; }
 
 /* Site editor generated content */
 .site-content-groups { display: grid; gap: 14px; }
+.site-editor-visual-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(420px, .85fr); align-items: start; gap: 18px; }
+.site-editor-live-preview { position: sticky; top: 92px; min-width: 0; overflow: hidden; border: 1px solid var(--ink); border-radius: 5px; background: #181816; color: var(--surface); box-shadow: 8px 8px 0 var(--acid); }
+.site-editor-live-preview > header { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; border-bottom: 1px solid #393935; }
+.site-editor-live-preview > header > div { display: grid; gap: 6px; }
+.site-editor-live-preview > header strong { font-size: 13px; }
+.site-editor-live-preview > header .module-chip { color: var(--acid); }
+.site-editor-live-preview .button { border-color: #55554f; background: #262622; color: var(--surface); }
+.site-editor-live-browser { height: 28px; display: flex; align-items: center; gap: 5px; padding: 0 9px; border-bottom: 1px solid #d4d1c7; background: #eeece5; color: #6f6d66; }
+.site-editor-live-browser span { width: 6px; height: 6px; border-radius: 50%; background: #aaa79e; }
+.site-editor-live-browser b { margin-left: 5px; font: 500 7px var(--mono); letter-spacing: .06em; }
+.site-editor-live-preview iframe { width: 100%; height: min(68vh, 760px); display: block; border: 0; background: var(--canvas); }
+.site-editor-live-preview > p { margin: 0; padding: 11px 14px; border-top: 1px solid #393935; color: #aaa79e; font-size: 9px; line-height: 1.5; }
+.site-editor-card.is-previewing { border-color: var(--ink); box-shadow: 0 0 0 3px var(--acid); }
+.site-section-view { min-height: 32px; padding: 7px 10px; }
 .site-editor-card { overflow: hidden; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); }
 .site-editor-card:target { box-shadow: 0 0 0 3px var(--acid); }
 .site-editor-card-header { display: flex; align-items: start; justify-content: space-between; gap: 22px; padding: 22px; }
@@ -599,7 +613,7 @@ body.preview-open { overflow: hidden; }
 .muscle-image-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-left: 1px solid var(--line-strong); }
 .muscle-board-card { position: relative; min-width: 0; padding: 0; overflow: hidden; border: 0; border-right: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
 .muscle-board-card:hover, .muscle-board-card:focus-visible { z-index: 1; outline: 3px solid var(--acid); outline-offset: -3px; }
-.muscle-board-visual { position: relative; height: clamp(360px, 30vw, 480px); overflow: hidden; display: grid; place-items: center; background: #fff; }
+.muscle-board-visual { position: relative; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; display: grid; place-items: center; background: #fff; }
 .muscle-board-visual img { width: 84%; height: 84%; object-fit: contain; transition: transform .16s ease; }
 .muscle-board-visual.is-missing { background: repeating-linear-gradient(45deg, #f1eee6, #f1eee6 10px, #faf9f5 10px, #faf9f5 20px); color: var(--muted); font: 600 10px var(--mono); letter-spacing: .1em; }
 .muscle-board-badge { position: absolute; top: 10px; left: 10px; z-index: 2; padding: 6px 8px; border: 1px solid var(--ink); background: var(--acid); font: 600 8px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
@@ -612,8 +626,11 @@ body.preview-open { overflow: hidden; }
 .muscle-board-back { justify-self: start; }
 
 @media (max-width: 1100px) { .knowledge-toolbar { grid-template-columns: 1fr; } .knowledge-tabs { width: 100%; } .knowledge-tabs button { flex: 1; } }
-@media (max-width: 1200px) { .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .muscle-board-visual { height: clamp(320px, 40vw, 420px); } }
+@media (max-width: 1380px) { .site-editor-visual-layout { grid-template-columns: 1fr; } .site-editor-live-preview { position: relative; top: auto; order: -1; } .site-editor-live-preview iframe { height: 620px; } }
+@media (min-width: 1800px) { .muscle-image-board { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 2800px) { .muscle-image-board { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (max-width: 1200px) { .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 900px) { .muscle-image-studio { grid-template-columns: 1fr; } .muscle-image-stage { min-height: 300px; border-right: 0; border-bottom: 1px solid var(--line); } }
-@media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } .muscle-image-heading, .muscle-board-heading { align-items: flex-start; flex-direction: column; } .muscle-image-heading p, .muscle-board-heading p { text-align: left; } .muscle-image-footer, .muscle-image-upload { align-items: stretch; flex-direction: column; } .muscle-image-link { grid-template-columns: 1fr; } .muscle-image-link > span { grid-column: 1; } .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .muscle-board-visual { height: clamp(300px, 48vw, 380px); } }
-@media (max-width: 520px) { .muscle-image-board { grid-template-columns: 1fr; } .muscle-board-visual { height: clamp(280px, 88vw, 360px); } }
+@media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } .muscle-image-heading, .muscle-board-heading { align-items: flex-start; flex-direction: column; } .muscle-image-heading p, .muscle-board-heading p { text-align: left; } .muscle-image-footer, .muscle-image-upload { align-items: stretch; flex-direction: column; } .muscle-image-link { grid-template-columns: 1fr; } .muscle-image-link > span { grid-column: 1; } .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .muscle-image-board { grid-template-columns: 1fr; } }
 @media (max-width: 780px) { .muscle-function-editor { grid-template-columns: 1fr; } .muscle-function-editor > div:first-child { flex-direction: column; } .muscle-function-editor p { text-align: left; } .muscle-function-controls { grid-column: 1; grid-template-columns: 1fr; } }
