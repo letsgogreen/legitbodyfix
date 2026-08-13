@@ -606,6 +606,14 @@ test("articularis genus avoids unrelated posture artwork", function () {
   assert.match(muscle.imageCredit, /public domain/i);
 });
 
+test("fibularis brevis uses a lateral-compartment view", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var muscle = data.muscles.find(function (item) { return item.id === "fibularis-brevis"; });
+  assert.ok(muscle.imageUrl.includes("Lateral_compartment_of_leg_-_Fibularis_brevis.png"));
+  assert.doesNotMatch(muscle.imageUrl, /anterior_view/i);
+  assert.match(muscle.imageAlt, /lateral.*isolat/i);
+});
+
 test("deep anterior neck muscles use focused anatomy references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
