@@ -69,6 +69,33 @@
     return hasFocusedMuscleImage(item) ? "focused" : "regional";
   }
 
+  function anatomyFallback(title, message) {
+    var fallback = element("div", "anatomy-image-fallback");
+    fallback.setAttribute("role", "img");
+    fallback.setAttribute("aria-label", "Reference image unavailable for " + title);
+    fallback.append(
+      element("strong", "", "Focused illustration under review"),
+      element("span", "", message || "The anatomy and movement information remains available below.")
+    );
+    return fallback;
+  }
+
+  function replaceBrokenAnatomyImage(image, title) {
+    image.addEventListener("error", function () {
+      var container = image.parentElement;
+      if (!container || container.querySelector(".anatomy-image-fallback")) return;
+      var fallback = anatomyFallback(title, "This image could not be loaded. The reference is being reviewed.");
+      image.replaceWith(fallback);
+      container.classList.add("has-image-error");
+      if (container.tagName === "BUTTON") {
+        container.disabled = true;
+        container.removeAttribute("aria-label");
+        var zoomLabel = container.querySelector(".anatomy-zoom-label");
+        if (zoomLabel) zoomLabel.remove();
+      }
+    }, { once: true });
+  }
+
   var muscleRegions = {
     "head-neck": { title: "Neck", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1117_Muscles_of_the_Back.png", imageAlt: "OpenStax anatomy plate of the neck and upper back", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1117_Muscles_of_the_Back.png" },
     "shoulder-scapula": { title: "Shoulder & Scapula", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Arm_shoulder_gray.png", imageAlt: "Gray's Anatomy plate of shoulder, scapular, and chest muscles", credit: "Gray's Anatomy · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:Arm_shoulder_gray.png" },
@@ -872,7 +899,7 @@
       if (item.actions || item.function) movementFunctions.appendChild(element("p", "detail-action-notes", item.actions || item.function));
       facts.appendChild(movementFunctions);
     }
-    if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl)) {
+    if (type === "muscles" && typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl) && hasFocusedMuscleImage(item)) {
       var focusedImage = hasFocusedMuscleImage(item);
       var figure = element("figure", "detail-anatomy-image");
       figure.classList.add(focusedImage ? "is-focused" : "is-regional");
@@ -884,6 +911,7 @@
       anatomyImage.alt = item.imageAlt || (item.title + " anatomy illustration");
       anatomyImage.loading = "eager";
       anatomyImage.decoding = "async";
+      replaceBrokenAnatomyImage(anatomyImage, item.title);
       anatomyButton.append(anatomyImage, element("span", "anatomy-zoom-label", "Enlarge plate"));
       anatomyButton.addEventListener("click", function () { openAnatomyViewer(item); });
       figure.appendChild(anatomyButton);
@@ -895,14 +923,16 @@
           creditLink.target = "_blank";
           creditLink.rel = "noopener noreferrer";
           creditLink.textContent = item.imageCredit;
-          caption.append(focusedImage ? "Highlighted anatomy: " : "Regional anatomy reference: ", creditLink);
-        } else caption.textContent = (focusedImage ? "Highlighted anatomy: " : "Regional anatomy reference: ") + item.imageCredit;
-        caption.append(focusedImage
-          ? ". The named muscle is distinctly highlighted; nearby structures may remain visible for anatomical context."
-          : ". Use this plate for anatomical orientation; the named muscle may not be individually color-highlighted.");
+          caption.append("Highlighted anatomy: ", creditLink);
+        } else caption.textContent = "Highlighted anatomy: " + item.imageCredit;
+        caption.append(". The named muscle is distinctly highlighted; nearby structures may remain visible for anatomical context.");
         figure.appendChild(caption);
       }
       facts.appendChild(figure);
+    } else if (type === "muscles") {
+      var missingFigure = element("figure", "detail-anatomy-image is-missing");
+      missingFigure.appendChild(anatomyFallback(item.title));
+      facts.appendChild(missingFigure);
     }
     var disclaimer = type !== "muscles" && carePath(item) === "musculoskeletal-condition"
       ? "This guide is educational and does not diagnose or treat a musculoskeletal condition. A suspected dislocation, visible deformity, inability to bear weight, substantial swelling, worsening pain, numbness, weakness, or new bladder or bowel changes needs prompt medical assessment before self-guided exercise."
@@ -986,6 +1016,22 @@
     card.type = "button";
     card.setAttribute("aria-label", "Read about " + record.item.title);
     if (record.type === "muscles") {
+      card.classList.add("has-media");
+      var media = element("span", "knowledge-card-media");
+      if (typeof record.item.imageUrl === "string" && /^https:\/\//i.test(record.item.imageUrl) && hasFocusedMuscleImage(record.item)) {
+        var image = document.createElement("img");
+        image.src = record.item.imageUrl;
+        image.alt = record.item.imageAlt || (record.item.title + " anatomy illustration");
+        image.loading = "lazy";
+        image.decoding = "async";
+        image.addEventListener("error", function () {
+          image.replaceWith(element("span", "muscle-card-image-fallback", "Focused illustration under review"));
+        }, { once: true });
+        media.appendChild(image);
+      } else {
+        media.appendChild(element("span", "muscle-card-image-fallback", "Focused illustration under review"));
+      }
+      card.appendChild(media);
       var roles = createFunctionalRoleList(record.item);
       if (roles) card.appendChild(roles);
     }
