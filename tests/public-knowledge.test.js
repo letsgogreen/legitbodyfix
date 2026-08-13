@@ -287,6 +287,14 @@ test("muscle dictionary records include anatomy fields, illustrations, and refer
   });
 });
 
+test("muscle cards avoid direct cadaver and surgical photography", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  data.muscles.forEach(function (muscle) {
+    var evidence = [muscle.imageUrl, muscle.imageAlt, muscle.imageCredit].join(" ");
+    assert.doesNotMatch(evidence, /cadaver|dissection|specimen|surgical photograph|Gluteus_medius_muscle\.jpg/i, muscle.id + " should use an educational illustration instead of direct anatomical photography");
+  });
+});
+
 test("individual muscle pages reject ambiguous regional plates and group cards require group images", function () {
   var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
   ["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"].forEach(function (group) {
@@ -524,9 +532,6 @@ test("deep spinal muscles use focused anatomy references", function () {
     "semispinalis-thoracis": "Semispinalis.png",
     "rotatores-breves": "Rotatores.png",
     "rotatores-longi": "Rotatores.png",
-    "interspinales-cervicis": "Transversospinales_interspinales_enko.svg",
-    "interspinales-thoracis": "Transversospinales_interspinales_enko.svg",
-    "interspinales-lumborum": "Transversospinales_interspinales_enko.svg",
     "iliocostalis-lumborum": "Iliostalis.png",
     "iliocostalis-thoracis": "Iliostalis.png",
     "longissimus-thoracis": "Longissimus.png",
@@ -538,6 +543,88 @@ test("deep spinal muscles use focused anatomy references", function () {
     assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use its focused anatomy reference");
     assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
   });
+});
+
+test("interspinales references avoid Korean labels without misrepresenting a regional plate", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  ["interspinales-cervicis", "interspinales-thoracis", "interspinales-lumborum"].forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes("1117_Muscles_of_the_Back.png"));
+    assert.match(muscle.imageAlt, /English-labeled.*regional reference/i);
+    assert.doesNotMatch([muscle.imageUrl, muscle.imageAlt, muscle.imageCredit].join(" "), /enko|korean|[가-힣]/i);
+  });
+});
+
+test("muscle card image metadata avoids Korean-language assets", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  data.muscles.forEach(function (muscle) {
+    assert.doesNotMatch(
+      [muscle.imageUrl, muscle.imageAlt, muscle.imageCredit, muscle.imageCreditUrl].join(" "),
+      /enko|korean|[가-힣]/i,
+      muscle.id + " should not use a Korean-labeled image"
+    );
+  });
+});
+
+test("pelvic floor audit uses focused public-domain images when available", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expected = {
+    bulbospongiosus: "Bulbospongiosus-Female.png",
+    ischiocavernosus: "Ischiocavernosus-male.png"
+  };
+  Object.keys(expected).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle.imageUrl.includes(expected[id]));
+    assert.match(muscle.imageAlt, /focused.*isolat/i);
+    assert.match(muscle.imageCredit, /public domain/i);
+  });
+});
+
+test("admin image board flags shared and chart-based references for review", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  assert.match(javascript, /matchingImageCount > 1/);
+  assert.match(javascript, /Shared reference/);
+  assert.match(javascript, /Chart \/ replace/);
+});
+
+test("admin thumbnail editor exposes a first-class HTTPS image-link workflow", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  var stylesheet = fs.readFileSync(path.join(root, "assets/css/admin.css"), "utf8");
+  assert.match(javascript, /Use image link/);
+  assert.match(javascript, /Paste a complete HTTPS image link/);
+  assert.match(javascript, /applyLink\.addEventListener\("click", useImageLink\)/);
+  assert.match(stylesheet, /\.muscle-image-link/);
+});
+
+test("articularis genus avoids unrelated posture artwork", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var muscle = data.muscles.find(function (item) { return item.id === "articularis-genus"; });
+  assert.ok(muscle.imageUrl.includes("Gray245.png"));
+  assert.doesNotMatch(muscle.imageUrl, /Anatomy_posture_and_body_mechanics/i);
+  assert.match(muscle.imageAlt, /articularis genus.*distal anterior femur/i);
+  assert.match(muscle.imageCredit, /public domain/i);
+});
+
+test("fibularis brevis uses a lateral-compartment view", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var muscle = data.muscles.find(function (item) { return item.id === "fibularis-brevis"; });
+  assert.ok(muscle.imageUrl.includes("Lateral_compartment_of_leg_-_Fibularis_brevis.png"));
+  assert.doesNotMatch(muscle.imageUrl, /anterior_view/i);
+  assert.match(muscle.imageAlt, /lateral.*isolat/i);
+});
+
+test("explicit muscle functions override text inference and remain editable in admin", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var publicJavascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  var adminJavascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  var triceps = data.muscles.find(function (item) { return item.id === "triceps-brachii"; });
+  assert.deepEqual(triceps.functionalRoles, ["Elbow extensor", "Shoulder extensor", "Shoulder adductor"]);
+  assert.ok(triceps.functionalRoles.indexOf("Neck extensor") === -1);
+  assert.match(publicJavascript, /Array\.isArray\(item\.functionalRoles\)/);
+  assert.match(adminJavascript, /Remove " \+ role/);
+  assert.match(adminJavascript, /Add function/);
+  assert.match(adminJavascript, /neck\|cervical\|\(\?:the\|of the\) head/);
 });
 
 test("deep anterior neck muscles use focused anatomy references", function () {

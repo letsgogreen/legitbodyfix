@@ -574,17 +574,32 @@ body.preview-open { overflow: hidden; }
 .muscle-image-upload span { color: var(--muted); font: 500 10px/1.4 var(--mono); }
 .muscle-image-upload span[data-state="success"] { color: #285d28; }
 .muscle-image-upload span[data-state="error"] { color: var(--danger); }
+.muscle-image-link { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 8px 10px; padding: 14px; border: 1px solid var(--line-strong); background: #fff; }
+.muscle-image-link .muscle-image-url { min-width: 0; }
+.muscle-image-link > span { grid-column: 1 / -1; min-height: 1em; color: var(--muted); font: 500 10px/1.4 var(--mono); }
+.muscle-image-link > span[data-state="success"] { color: #285d28; }
+.muscle-image-link > span[data-state="error"] { color: var(--danger); }
 .muscle-image-advanced { border-top: 1px solid var(--line); }
 .muscle-image-advanced summary { padding: 15px 0; color: var(--muted); font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
 .muscle-image-advanced-body { display: grid; gap: 18px; padding-top: 4px; }
+.muscle-function-editor { display: grid; grid-template-columns: minmax(260px, .65fr) minmax(320px, 1.35fr); gap: 20px 28px; padding: 22px 24px; border-bottom: 1px solid var(--line-strong); background: var(--surface); }
+.muscle-function-editor > div:first-child { display: flex; align-items: start; justify-content: space-between; gap: 18px; }
+.muscle-function-editor h4 { margin: 7px 0 0; font-size: 22px; line-height: 1; }
+.muscle-function-editor p { max-width: 220px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.4; text-align: right; }
+.muscle-function-chips { min-height: 38px; display: flex; align-items: center; align-content: center; flex-wrap: wrap; gap: 7px; }
+.muscle-function-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 8px 7px 10px; border: 1px solid var(--ink); background: var(--acid); font: 600 10px/1 var(--mono); text-transform: uppercase; }
+.muscle-function-chip button { width: 20px; height: 20px; padding: 0; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); font: 700 15px/1 sans-serif; cursor: pointer; }
+.muscle-function-empty { color: var(--muted); font: 500 11px var(--mono); }
+.muscle-function-controls { grid-column: 2; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.muscle-function-controls select { min-width: 0; }
 .muscle-board-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding: 22px 24px; border: 1px solid var(--line-strong); background: var(--surface); }
 .muscle-board-heading h3 { margin: 8px 0 0; font-size: clamp(26px, 3vw, 40px); letter-spacing: -.045em; }
 .muscle-board-heading p { max-width: 280px; margin: 0; color: var(--muted); line-height: 1.5; text-align: right; }
 .muscle-board-heading p strong { color: var(--ink); }
-.muscle-image-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-left: 1px solid var(--line-strong); }
+.muscle-image-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-left: 1px solid var(--line-strong); }
 .muscle-board-card { position: relative; min-width: 0; padding: 0; overflow: hidden; border: 0; border-right: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
 .muscle-board-card:hover, .muscle-board-card:focus-visible { z-index: 1; outline: 3px solid var(--acid); outline-offset: -3px; }
-.muscle-board-visual { position: relative; height: 190px; overflow: hidden; display: grid; place-items: center; background: #fff; }
+.muscle-board-visual { position: relative; height: clamp(250px, 22vw, 340px); overflow: hidden; display: grid; place-items: center; background: #fff; }
 .muscle-board-visual img { width: 100%; height: 100%; object-fit: contain; transition: transform .16s ease; }
 .muscle-board-visual.is-missing { background: repeating-linear-gradient(45deg, #f1eee6, #f1eee6 10px, #faf9f5 10px, #faf9f5 20px); color: var(--muted); font: 600 10px var(--mono); letter-spacing: .1em; }
 .muscle-board-badge { position: absolute; top: 10px; left: 10px; z-index: 2; padding: 6px 8px; border: 1px solid var(--ink); background: var(--acid); font: 600 8px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
@@ -597,7 +612,8 @@ body.preview-open { overflow: hidden; }
 .muscle-board-back { justify-self: start; }
 
 @media (max-width: 1100px) { .knowledge-toolbar { grid-template-columns: 1fr; } .knowledge-tabs { width: 100%; } .knowledge-tabs button { flex: 1; } }
-@media (max-width: 1200px) { .muscle-image-board { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1200px) { .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .muscle-board-visual { height: clamp(240px, 34vw, 320px); } }
 @media (max-width: 900px) { .muscle-image-studio { grid-template-columns: 1fr; } .muscle-image-stage { min-height: 300px; border-right: 0; border-bottom: 1px solid var(--line); } }
-@media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } .muscle-image-heading, .muscle-board-heading { align-items: flex-start; flex-direction: column; } .muscle-image-heading p, .muscle-board-heading p { text-align: left; } .muscle-image-footer, .muscle-image-upload { align-items: stretch; flex-direction: column; } .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } .muscle-image-heading, .muscle-board-heading { align-items: flex-start; flex-direction: column; } .muscle-image-heading p, .muscle-board-heading p { text-align: left; } .muscle-image-footer, .muscle-image-upload { align-items: stretch; flex-direction: column; } .muscle-image-link { grid-template-columns: 1fr; } .muscle-image-link > span { grid-column: 1; } .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .muscle-board-visual { height: clamp(210px, 42vw, 280px); } }
 @media (max-width: 520px) { .muscle-image-board { grid-template-columns: 1fr; } .muscle-board-visual { height: 220px; } }
+@media (max-width: 780px) { .muscle-function-editor { grid-template-columns: 1fr; } .muscle-function-editor > div:first-child { flex-direction: column; } .muscle-function-editor p { text-align: left; } .muscle-function-controls { grid-column: 1; grid-template-columns: 1fr; } }

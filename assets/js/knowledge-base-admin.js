@@ -113,6 +113,7 @@
 
   function adminActionMatches(record, role) {
     if (role === "all") return true;
+    if (Array.isArray(record.functionalRoles)) return record.functionalRoles.indexOf(role) !== -1;
     var region = adminMuscleRegion(record);
     if (/^(Finger|Thumb|Wrist) /.test(role) && ["elbow-forearm", "wrist-hand"].indexOf(region) === -1) return false;
     if (/^(Ankle|Foot|Toe) /.test(role) && region !== "foot-ankle") return false;
@@ -122,8 +123,61 @@
     var joint = words[0], movement = words.slice(1).join(" ");
     var aliases = { flexor: /flex(?:es|ion)/, extensor: /extend|extends|extension/, "lateral flexor": /lateral(?:ly)? flex/, abductor: /abduct/, adductor: /adduct/, "internal rotator": /medial(?:ly)? rotat|internal rotation/, "external rotator": /lateral(?:ly)? rotat|external rotation/, "upward rotator": /upward(?:ly)? rotat/, "downward rotator": /downward(?:ly)? rotat/, rotator: /rotat/, protractor: /protract/, retractor: /retract/, elevator: /elevat/, depressor: /depress/, pronator: /pronat/, supinator: /supinat/, dorsiflexor: /dorsiflex/, plantarflexor: /plantarflex/, invertor: /invert|inversion/, evertor: /evert|eversion/, supporter: /support|stabiliz/, continence: /continence|urethr|anal canal|anorectal/, opposer: /oppos/ };
     var pattern = aliases[movement] || aliases[words[words.length - 1]] || new RegExp(movement.replace(/[^a-z ]/g, ""));
-    var jointPattern = joint === "neck" ? /neck|head|cervical/ : joint === "trunk" ? /trunk|spine|vertebral|lumbar/ : ["pelvic", "urinary", "fecal"].indexOf(joint) !== -1 ? /pelvic|perine|continence|urethr|anal|anorectal/ : new RegExp(joint);
+    var jointPattern = joint === "neck" ? /neck|cervical|(?:the|of the) head/ : joint === "trunk" ? /trunk|spine|vertebral|lumbar/ : ["pelvic", "urinary", "fecal"].indexOf(joint) !== -1 ? /pelvic|perine|continence|urethr|anal|anorectal/ : new RegExp(joint);
     return jointPattern.test(actions) && pattern.test(actions);
+  }
+
+  function adminFunctionalRoles(record) {
+    if (Array.isArray(record.functionalRoles)) return record.functionalRoles.slice();
+    return Array.from(new Set(adminRoleSections.flatMap(function (section) { return section.roles; }))).filter(function (role) {
+      return adminActionMatches(record, role);
+    });
+  }
+
+  function makeFunctionalRoleEditor(record) {
+    var editor = document.createElement("section");
+    editor.className = "muscle-function-editor";
+    var heading = document.createElement("div");
+    heading.innerHTML = "<div><span class=\"module-chip\">Movement roles</span><h4>Muscle functions</h4></div><p>Add or remove the categories used on the public muscle page.</p>";
+    var chips = document.createElement("div");
+    chips.className = "muscle-function-chips";
+    var controls = document.createElement("div");
+    controls.className = "muscle-function-controls";
+    var select = document.createElement("select");
+    select.setAttribute("aria-label", "Choose a muscle function");
+    var add = document.createElement("button");
+    add.type = "button"; add.className = "button"; add.textContent = "Add function";
+    var allRoles = Array.from(new Set(adminRoleSections.flatMap(function (section) { return section.roles; })));
+
+    function commit(roles) {
+      record.functionalRoles = Array.from(new Set(roles));
+      saveDraft();
+      draw();
+    }
+    function draw() {
+      var roles = adminFunctionalRoles(record);
+      chips.textContent = "";
+      if (!roles.length) {
+        var empty = document.createElement("span"); empty.className = "muscle-function-empty"; empty.textContent = "No movement functions assigned."; chips.appendChild(empty);
+      }
+      roles.forEach(function (role) {
+        var chip = document.createElement("span"); chip.className = "muscle-function-chip";
+        chip.appendChild(document.createTextNode(role));
+        var remove = document.createElement("button"); remove.type = "button"; remove.setAttribute("aria-label", "Remove " + role); remove.textContent = "×";
+        remove.addEventListener("click", function () { commit(roles.filter(function (item) { return item !== role; })); });
+        chip.appendChild(remove); chips.appendChild(chip);
+      });
+      select.textContent = "";
+      var available = allRoles.filter(function (role) { return roles.indexOf(role) === -1; });
+      var prompt = document.createElement("option"); prompt.value = ""; prompt.textContent = available.length ? "Choose a function…" : "All functions assigned"; select.appendChild(prompt);
+      available.forEach(function (role) { var option = document.createElement("option"); option.value = role; option.textContent = role; select.appendChild(option); });
+      add.disabled = !available.length;
+    }
+    add.addEventListener("click", function () { if (select.value) commit(adminFunctionalRoles(record).concat(select.value)); });
+    controls.appendChild(select); controls.appendChild(add);
+    editor.appendChild(heading); editor.appendChild(chips); editor.appendChild(controls);
+    draw();
+    return editor;
   }
 
   function adminMuscleInRegion(record, region) {
@@ -349,7 +403,7 @@
     var advanced = document.createElement("details");
     advanced.className = "muscle-image-advanced";
     var advancedSummary = document.createElement("summary");
-    advancedSummary.textContent = "URL and crop adjustments";
+    advancedSummary.textContent = "Crop adjustments";
     var advancedBody = document.createElement("div");
     advancedBody.className = "muscle-image-advanced-body";
     var urlLabel = document.createElement("label");
@@ -361,6 +415,13 @@
     urlInput.value = record.imageUrl || "";
     urlInput.maxLength = 800;
     urlLabel.appendChild(urlInput);
+    var linkPanel = document.createElement("div");
+    linkPanel.className = "muscle-image-link";
+    var applyLink = document.createElement("button");
+    applyLink.type = "button"; applyLink.className = "button"; applyLink.textContent = "Use image link";
+    var linkStatus = document.createElement("span");
+    linkStatus.setAttribute("aria-live", "polite");
+    linkPanel.appendChild(urlLabel); linkPanel.appendChild(applyLink); linkPanel.appendChild(linkStatus);
 
     var scaleLabel = document.createElement("label");
     scaleLabel.className = "muscle-image-range";
@@ -422,7 +483,22 @@
     }
     image.addEventListener("load", function () { studio.classList.remove("has-image-error"); empty.hidden = true; image.hidden = false; });
     image.addEventListener("error", function () { studio.classList.add("has-image-error"); empty.hidden = false; empty.querySelector("strong").textContent = "Image could not be loaded"; empty.querySelector("span").textContent = "Check the URL, permissions, or hotlink restrictions."; image.hidden = true; });
-    [urlInput, scaleInput, horizontal.input, vertical.input].forEach(function (input) { input.addEventListener("input", function () { studio.classList.remove("has-image-error"); update(true); }); });
+    [scaleInput, horizontal.input, vertical.input].forEach(function (input) { input.addEventListener("input", function () { studio.classList.remove("has-image-error"); update(true); }); });
+    function useImageLink() {
+      var candidate = urlInput.value.trim();
+      if (!/^https:\/\//i.test(candidate)) {
+        linkStatus.textContent = "Paste a complete HTTPS image link.";
+        linkStatus.dataset.state = "error";
+        return;
+      }
+      delete linkStatus.dataset.state;
+      studio.classList.remove("has-image-error");
+      update(true);
+      linkStatus.textContent = "Link applied. Publish guides when ready.";
+      linkStatus.dataset.state = "success";
+    }
+    applyLink.addEventListener("click", useImageLink);
+    urlInput.addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); useImageLink(); } });
     reset.addEventListener("click", function () { scaleInput.value = "1"; horizontal.input.value = "50"; vertical.input.value = "50"; update(true); });
 
     choose.addEventListener("click", function () { fileInput.click(); });
@@ -447,10 +523,10 @@
         .finally(function () { choose.disabled = false; });
     });
 
-    controls.appendChild(heading); controls.appendChild(uploadPanel);
+    controls.appendChild(heading); controls.appendChild(uploadPanel); controls.appendChild(linkPanel);
     var ranges = document.createElement("div"); ranges.className = "muscle-image-ranges";
     ranges.appendChild(scaleLabel); ranges.appendChild(horizontal.label); ranges.appendChild(vertical.label);
-    advancedBody.appendChild(urlLabel); advancedBody.appendChild(ranges); advancedBody.appendChild(footer);
+    advancedBody.appendChild(ranges); advancedBody.appendChild(footer);
     advanced.appendChild(advancedSummary); advanced.appendChild(advancedBody); controls.appendChild(advanced);
     studio.appendChild(stage); studio.appendChild(controls);
     update(false);
@@ -462,6 +538,11 @@
     var description = String(record.imageAlt || "").toLowerCase();
     if (!url) return { key: "missing", label: "Image missing" };
     if (/\.gif(?:$|\?)/i.test(url)) return { key: "animated", label: "Animated GIF" };
+    if (/1128_Muscles_of_the_Perineum_Common_to_Men_and_Women/i.test(url)) return { key: "regional", label: "Chart / replace" };
+    var matchingImageCount = data.muscles.filter(function (item) {
+      return String(item.imageUrl || "").trim() === url;
+    }).length;
+    if (matchingImageCount > 1) return { key: "regional", label: "Shared reference" };
     if (/regional|reference|group|plate/.test(description) && description.indexOf(String(record.title || "").toLowerCase()) === -1) return { key: "regional", label: "Regional reference" };
     return { key: "ready", label: "Image ready" };
   }
@@ -577,7 +658,7 @@
       fields.className = "form-grid knowledge-fields";
       schemas[activeType].forEach(function (definition) { fields.appendChild(makeField(record, definition)); });
       card.appendChild(header);
-      if (activeType === "muscles") card.appendChild(makeImageStudio(record));
+      if (activeType === "muscles") { card.appendChild(makeImageStudio(record)); card.appendChild(makeFunctionalRoleEditor(record)); }
       card.appendChild(fields);
       list.appendChild(card);
     });

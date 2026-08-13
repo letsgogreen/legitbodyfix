@@ -485,6 +485,9 @@
 
   function muscleFunctionalRoles(item) {
     if (!item) return [];
+    if (Array.isArray(item.functionalRoles)) {
+      return movementTagOrder.filter(function (role) { return item.functionalRoles.indexOf(role) !== -1; });
+    }
     var actions = String(item.actions || item.function || "").toLowerCase();
     var region = muscleRegion(item);
     var roles = [];
