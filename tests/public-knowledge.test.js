@@ -567,6 +567,27 @@ test("muscle card image metadata avoids Korean-language assets", function () {
   });
 });
 
+test("pelvic floor audit uses focused public-domain images when available", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var expected = {
+    bulbospongiosus: "Bulbospongiosus-Female.png",
+    ischiocavernosus: "Ischiocavernosus-male.png"
+  };
+  Object.keys(expected).forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle.imageUrl.includes(expected[id]));
+    assert.match(muscle.imageAlt, /focused.*isolat/i);
+    assert.match(muscle.imageCredit, /public domain/i);
+  });
+});
+
+test("admin image board flags shared and chart-based references for review", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  assert.match(javascript, /matchingImageCount > 1/);
+  assert.match(javascript, /Shared reference/);
+  assert.match(javascript, /Chart \/ replace/);
+});
+
 test("deep anterior neck muscles use focused anatomy references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {

@@ -462,6 +462,11 @@
     var description = String(record.imageAlt || "").toLowerCase();
     if (!url) return { key: "missing", label: "Image missing" };
     if (/\.gif(?:$|\?)/i.test(url)) return { key: "animated", label: "Animated GIF" };
+    if (/1128_Muscles_of_the_Perineum_Common_to_Men_and_Women/i.test(url)) return { key: "regional", label: "Chart / replace" };
+    var matchingImageCount = data.muscles.filter(function (item) {
+      return String(item.imageUrl || "").trim() === url;
+    }).length;
+    if (matchingImageCount > 1) return { key: "regional", label: "Shared reference" };
     if (/regional|reference|group|plate/.test(description) && description.indexOf(String(record.title || "").toLowerCase()) === -1) return { key: "regional", label: "Regional reference" };
     return { key: "ready", label: "Image ready" };
   }
