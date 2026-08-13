@@ -16,6 +16,7 @@
   var previewDialog = document.getElementById("sitePreviewDialog");
   var previewShell = previewDialog && previewDialog.querySelector(".site-preview-shell");
   var previewFrame = document.getElementById("sitePreviewFrame");
+  var livePreviewFrame = document.getElementById("siteEditorLiveFrame");
   var previewDeviceButtons = previewDialog ? previewDialog.querySelectorAll("[data-preview-device]") : [];
   var previewReturnFocus = null;
 
@@ -74,13 +75,19 @@
 
   function saveDraft(message) {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(content));
+    localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
     updateOpenPreview();
+    sendContentToFrame(livePreviewFrame);
     setStatus(message || "Complete site draft saved in this browser.");
   }
 
+  function sendContentToFrame(frame) {
+    if (!frame || !frame.contentWindow || !content) return;
+    frame.contentWindow.postMessage({ type: "legitbodyfix:site-preview", content: clone(content) }, window.location.origin);
+  }
+
   function sendPreviewContent() {
-    if (!previewFrame || !previewFrame.contentWindow || !content) return;
-    previewFrame.contentWindow.postMessage({ type: "legitbodyfix:site-preview", content: clone(content) }, window.location.origin);
+    sendContentToFrame(previewFrame);
   }
 
   function updateOpenPreview() {
@@ -216,6 +223,18 @@
     var note = document.createElement("p"); note.textContent = description;
     copy.append(eyebrow, title, note);
     var controls = document.createElement("div"); controls.className = "site-editor-card-actions";
+    var view = document.createElement("button"); view.type = "button"; view.className = "button button-quiet site-section-view"; view.textContent = "View";
+    view.addEventListener("click", function () {
+      if (!livePreviewFrame) return;
+      var targets = { hero: ".hero", method: "#method", library: "#library-preview", knowledge: "#knowledge-preview", standard: ".standard", pricing: "#pricing" };
+      try {
+        var previewDocument = livePreviewFrame.contentDocument;
+        var target = previewDocument && previewDocument.querySelector(targets[entry.id] || '[data-page-section-id="' + entry.id + '"]');
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {}
+      document.querySelectorAll(".site-editor-card.is-previewing").forEach(function (card) { card.classList.remove("is-previewing"); });
+      var card = header.closest(".site-editor-card"); if (card) card.classList.add("is-previewing");
+    });
     var visible = document.createElement("label"); visible.className = "toggle-field";
     var checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = entry.visible !== false;
     var visibleText = document.createElement("span"); visibleText.textContent = "Visible";
@@ -225,7 +244,7 @@
     var down = document.createElement("button"); down.type = "button"; down.className = "icon-button"; down.textContent = "↓"; down.setAttribute("aria-label", "Move section down"); down.disabled = index === content.layout.length - 1;
     up.addEventListener("click", function () { content.layout.splice(index - 1, 0, content.layout.splice(index, 1)[0]); render(); saveDraft("Section order updated."); });
     down.addEventListener("click", function () { content.layout.splice(index + 1, 0, content.layout.splice(index, 1)[0]); render(); saveDraft("Section order updated."); });
-    controls.append(visible, up, down);
+    controls.append(view, visible, up, down);
     if (isCustom) {
       var duplicate = document.createElement("button"); duplicate.type = "button"; duplicate.className = "icon-button"; duplicate.textContent = "Duplicate";
       var remove = document.createElement("button"); remove.type = "button"; remove.className = "icon-button danger"; remove.textContent = "Remove";
@@ -351,6 +370,7 @@
       else if (entry.kind === "custom") renderCustom(entry, index);
     });
     renderFooter();
+    sendContentToFrame(livePreviewFrame);
   }
 
   function fetchContent() {
@@ -408,6 +428,11 @@
         .catch(function () { setStatus("The live website could not be reloaded.", "error"); });
     });
     document.getElementById("previewSiteContent").addEventListener("click", openPreview);
+    if (livePreviewFrame) {
+      livePreviewFrame.src = "index.html?site-preview=1&inline=1";
+      livePreviewFrame.addEventListener("load", function () { sendContentToFrame(livePreviewFrame); });
+      document.getElementById("expandSitePreview").addEventListener("click", openPreview);
+    }
     if (previewDialog) {
       document.getElementById("closeSitePreview").addEventListener("click", closePreview);
       document.getElementById("refreshSitePreview").addEventListener("click", refreshPreview);

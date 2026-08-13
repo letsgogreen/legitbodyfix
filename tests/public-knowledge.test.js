@@ -600,8 +600,14 @@ test("admin thumbnail editor exposes a first-class HTTPS image-link workflow", f
 test("admin image board prioritizes large inspection frames", function () {
   var stylesheet = fs.readFileSync(path.join(root, "assets/css/admin.css"), "utf8");
   assert.match(stylesheet, /\.muscle-image-board \{[^}]*repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.match(stylesheet, /\.muscle-board-visual \{[^}]*height: clamp\(360px, 30vw, 480px\)/);
+  assert.match(stylesheet, /\.muscle-board-visual \{[^}]*aspect-ratio: 4 \/ 3/);
   assert.match(stylesheet, /\.muscle-board-visual img \{ width: 84%; height: 84%; object-fit: contain/);
+});
+
+test("admin image board adds columns instead of cropping when the browser is zoomed out", function () {
+  var stylesheet = fs.readFileSync(path.join(root, "assets/css/admin.css"), "utf8");
+  assert.match(stylesheet, /@media \(min-width: 1800px\)[^{]*\{[^}]*repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.match(stylesheet, /@media \(min-width: 2800px\)[^{]*\{[^}]*repeat\(6, minmax\(0, 1fr\)\)/);
 });
 
 test("articularis genus avoids unrelated posture artwork", function () {
@@ -683,6 +689,40 @@ test("admin replaces direct anatomy photos restored from stale browser drafts", 
   assert.match(javascript, /function sanitizeDraftImages/);
   assert.match(javascript, /Direct photo \/ replace/);
   assert.match(javascript, /sanitizeDraftImages\(normalizeMuscles\(JSON\.parse\(saved\)\), repositoryData\)/);
+});
+
+test("pelvic floor cards use anatomy plates instead of movement charts", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var pelvicGroups = new Set(["Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters"]);
+  data.muscles.filter(function (muscle) { return pelvicGroups.has(muscle.group); }).forEach(function (muscle) {
+    assert.doesNotMatch(muscle.imageUrl, /1128_Muscles_of_the_Perineum_Common_to_Men_and_Women/i, muscle.id + " should not use the movement chart");
+  });
+});
+
+test("rotatores references do not falsely claim to isolate breves from longi", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  ["rotatores-breves", "rotatores-longi"].forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle.imageUrl.includes("Rotatores.png"));
+    assert.match(muscle.imageAlt, /combined rotatores muscle series/i);
+    assert.match(muscle.imageAlt, /not isolated/i);
+  });
+  assert.ok(data.muscles.find(function (item) { return item.id === "multifidus"; }).imageUrl.includes("Multifidi.png"));
+});
+
+test("admin replaces Korean-labeled images restored from stale browser drafts", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  assert.match(javascript, /function hasKoreanImageLabels/);
+  assert.match(javascript, /function hasUnsuitableMuscleImage/);
+  assert.match(javascript, /Korean labels \/ replace/);
+  assert.match(javascript, /Direct photos, Korean-labeled images, and chart thumbnails were replaced/);
+});
+
+test("admin replaces chart thumbnails restored from stale browser drafts", function () {
+  var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  assert.match(javascript, /function isChartImage/);
+  assert.match(javascript, /\|\| isChartImage\(record\)/);
+  assert.match(javascript, /chart thumbnails were replaced/);
 });
 
 test("intrinsic hand muscles use individually highlighted references", function () {

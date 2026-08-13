@@ -272,3 +272,16 @@ test("website editor includes responsive private preview controls", function () 
   assert.match(publicSite, /legitbodyfix:site-preview/);
 });
 
+test("website editor keeps a visual live preview beside editable sections", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  assert.match(html, /id="siteEditorLiveFrame"/);
+  assert.match(html, /id="expandSitePreview"/);
+  assert.match(editor, /sendContentToFrame\(livePreviewFrame\)/);
+  assert.match(editor, /view\.textContent = "View"/);
+  assert.match(editor, /scrollIntoView\(\{ behavior: "smooth", block: "start" \}\)/);
+  assert.match(css, /\.site-editor-visual-layout/);
+  assert.match(css, /\.site-editor-live-preview \{ position: sticky/);
+});
+

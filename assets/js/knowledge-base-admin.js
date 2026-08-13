@@ -98,12 +98,25 @@
     return /cadaver|dissection|specimen|surgical photograph|Gluteus_medius_muscle\.jpg|Anatomist90/i.test(evidence);
   }
 
+  function hasKoreanImageLabels(record) {
+    var evidence = [record && record.imageUrl, record && record.imageAlt, record && record.imageCredit, record && record.imageCreditUrl].join(" ");
+    return /enko|korean|[\uac00-\ud7af]/i.test(evidence);
+  }
+
+  function isChartImage(record) {
+    return /1128_Muscles_of_the_Perineum_Common_to_Men_and_Women/i.test(String(record && record.imageUrl || ""));
+  }
+
+  function hasUnsuitableMuscleImage(record) {
+    return isDirectAnatomyPhoto(record) || hasKoreanImageLabels(record) || isChartImage(record);
+  }
+
   function sanitizeDraftImages(draft, repository) {
     var canonical = new Map((repository.muscles || []).map(function (record) { return [record.id, record]; }));
     (draft.muscles || []).forEach(function (record) {
-      if (!isDirectAnatomyPhoto(record)) return;
+      if (!hasUnsuitableMuscleImage(record)) return;
       var replacement = canonical.get(record.id);
-      if (!replacement || isDirectAnatomyPhoto(replacement)) return;
+      if (!replacement || hasUnsuitableMuscleImage(replacement)) return;
       ["imageUrl", "imageAlt", "imageCredit", "imageCreditUrl", "cardImageScale", "cardImagePosition"].forEach(function (key) {
         if (key in replacement) record[key] = replacement[key];
         else delete record[key];
@@ -557,9 +570,10 @@
     var description = String(record.imageAlt || "").toLowerCase();
     if (!url) return { key: "missing", label: "Image missing" };
     if (isDirectAnatomyPhoto(record)) return { key: "regional", label: "Direct photo / replace" };
+    if (hasKoreanImageLabels(record)) return { key: "regional", label: "Korean labels / replace" };
     if (/\.gif(?:$|\?)/i.test(url)) return { key: "animated", label: "Animated GIF" };
     if (/%E2%80%94%20musculus%20/i.test(url)) return { key: "regional", label: "Line highlight / review" };
-    if (/1128_Muscles_of_the_Perineum_Common_to_Men_and_Women/i.test(url)) return { key: "regional", label: "Chart / replace" };
+    if (isChartImage(record)) return { key: "regional", label: "Chart / replace" };
     var matchingImageCount = data.muscles.filter(function (item) {
       return String(item.imageUrl || "").trim() === url;
     }).length;
@@ -725,7 +739,7 @@
       repositoryData = normalizeMuscles(clone(loaded));
       var saved = localStorage.getItem(DRAFT_KEY);
       if (saved) {
-        try { data = sanitizeDraftImages(normalizeMuscles(JSON.parse(saved)), repositoryData); localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); setStatus("Browser draft restored. Unsuitable direct anatomy photos were replaced with current repository illustrations.", "draft"); }
+        try { data = sanitizeDraftImages(normalizeMuscles(JSON.parse(saved)), repositoryData); localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); setStatus("Browser draft restored. Direct photos, Korean-labeled images, and chart thumbnails were replaced with current repository illustrations.", "draft"); }
         catch (error) { data = clone(repositoryData); localStorage.removeItem(DRAFT_KEY); }
       } else data = clone(repositoryData);
       render();
