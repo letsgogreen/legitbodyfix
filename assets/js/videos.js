@@ -2,6 +2,7 @@
   "use strict";
 
   var grid = document.getElementById("courseGrid");
+  var filters = document.getElementById("courseFilters");
   if (!grid) return;
 
   function createElement(tagName, className, text) {
@@ -46,6 +47,7 @@
     // remains available only inside the authenticated buyer library.
     var card = createElement("a", "course-card reveal");
     card.dataset.videoId = video.id;
+    card.dataset.category = video.homepageCategory || "Other";
     card.href = "video.html?id=" + encodeURIComponent(video.id);
     card.setAttribute("aria-label", "Learn more about " + video.title);
 
@@ -71,11 +73,39 @@
     info.append(
       createElement("span", "lvl mono", moduleLabel),
       createElement("h4", "", video.title),
-      createElement("span", "len", lengthText)
+      createElement("span", "len", lengthText),
+      createElement("span", "course-category", video.homepageCategory || "Focused movement"),
+      createElement("span", "course-cta", "View session →")
     );
 
     card.append(media, info);
     return card;
+  }
+
+  function renderFilters(videos) {
+    if (!filters) return;
+    var categories = Array.from(new Set(videos.map(function (video) {
+      return video.homepageCategory || "Other";
+    })));
+    var label = createElement("span", "course-filter-label", "Filter by goal");
+    var buttons = ["All"].concat(categories).map(function (category) {
+      var button = createElement("button", "course-filter", category);
+      button.type = "button";
+      button.dataset.category = category;
+      button.setAttribute("aria-pressed", category === "All" ? "true" : "false");
+      button.addEventListener("click", function () {
+        filters.querySelectorAll(".course-filter").forEach(function (candidate) {
+          candidate.setAttribute("aria-pressed", String(candidate === button));
+        });
+        grid.querySelectorAll(".course-card").forEach(function (card) {
+          card.hidden = category !== "All" && card.dataset.category !== category;
+        });
+        var visibleCount = grid.querySelectorAll(".course-card:not([hidden])").length;
+        grid.setAttribute("aria-label", visibleCount + " sessions shown for " + category);
+      });
+      return button;
+    });
+    filters.replaceChildren.apply(filters, [label].concat(buttons));
   }
 
   function revealCards() {
@@ -135,13 +165,14 @@
       }
 
       var fragment = document.createDocumentFragment();
-      publishedVideos
+      var sortedVideos = publishedVideos
         .slice()
-        .sort(function (a, b) { return a.moduleNumber - b.moduleNumber; })
-        .forEach(function (video) { fragment.appendChild(createCard(video)); });
+        .sort(function (a, b) { return a.moduleNumber - b.moduleNumber; });
+      sortedVideos.forEach(function (video) { fragment.appendChild(createCard(video)); });
 
       grid.replaceChildren(fragment);
       grid.setAttribute("aria-busy", "false");
+      renderFilters(sortedVideos);
       revealCards();
     })
     .catch(showError);

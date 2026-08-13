@@ -29,11 +29,12 @@
       ["hero.proofPoints.0", "Proof point 1", 60], ["hero.proofPoints.1", "Proof point 2", 60], ["hero.proofPoints.2", "Proof point 3", 60],
       ["hero.imageUrl", "Feature image URL (optional)", 500, "image"], ["hero.imageAlt", "Feature image description", 160]
     ]},
-    method: { title: "Method", description: "The three-step explanation of the LegitBodyFix approach.", fields: [
+    method: { title: "Method", description: "The four-step explanation of the LegitBodyFix approach.", fields: [
       ["method.label", "Section label", 80], ["method.titleLines.0", "Title line 1", 40], ["method.titleLines.1", "Title line 2", 40],
       ["method.intro", "Introduction", 360, "textarea"], ["method.steps.0.title", "Step 1 title", 50], ["method.steps.0.description", "Step 1 description", 220, "textarea"],
       ["method.steps.1.title", "Step 2 title", 50], ["method.steps.1.description", "Step 2 description", 220, "textarea"],
-      ["method.steps.2.title", "Step 3 title", 50], ["method.steps.2.description", "Step 3 description", 220, "textarea"]
+      ["method.steps.2.title", "Step 3 title", 50], ["method.steps.2.description", "Step 3 description", 220, "textarea"],
+      ["method.steps.3.title", "Step 4 title", 50], ["method.steps.3.description", "Step 4 description", 220, "textarea"]
     ]},
     library: { title: "Library preview", description: "The public preview above the live product cards.", fields: [
       ["library.label", "Section label", 80], ["library.titleLines.0", "Title line 1", 40], ["library.titleLines.1", "Title line 2", 40],
