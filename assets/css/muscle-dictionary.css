@@ -65,6 +65,14 @@
   text-transform: uppercase;
 }
 
+.muscle-region-grid > .knowledge-card .knowledge-card-media {
+  height: clamp(172px, 16vw, 204px);
+}
+
+.muscle-region-grid > .knowledge-card .knowledge-card-media img {
+  padding: 4px 8px;
+}
+
 .knowledge-card.has-media h3 {
   margin: 30px 0 12px;
   font-size: 26px;
@@ -686,6 +694,7 @@
   .muscle-action-disclosure > summary small { display: none; }
   .movement-family summary { grid-template-columns: 1fr; gap: 8px; }
   .movement-family .knowledge-card-media { height: 164px; }
+  .muscle-region-grid > .knowledge-card .knowledge-card-media { height: 164px; }
   .knowledge-card-media {
     height: 120px;
   }
