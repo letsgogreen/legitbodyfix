@@ -529,6 +529,7 @@
       "origin": "Infraglenoid tubercle of the scapula and posterior humerus",
       "insertion": "Olecranon of the ulna",
       "actions": "Extends the elbow; the long head also assists shoulder extension and adduction.",
+      "functionalRoles": ["Elbow extensor", "Shoulder extensor", "Shoulder adductor"],
       "imageUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/TricepsBrachii.jpg",
       "imageAlt": "Posterior anatomical illustration of the triceps brachii muscle",
       "imageCredit": "Leo Testut, Wikimedia Commons, public domain",

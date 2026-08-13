@@ -614,6 +614,19 @@ test("fibularis brevis uses a lateral-compartment view", function () {
   assert.match(muscle.imageAlt, /lateral.*isolat/i);
 });
 
+test("explicit muscle functions override text inference and remain editable in admin", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  var publicJavascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  var adminJavascript = fs.readFileSync(path.join(root, "assets/js/knowledge-base-admin.js"), "utf8");
+  var triceps = data.muscles.find(function (item) { return item.id === "triceps-brachii"; });
+  assert.deepEqual(triceps.functionalRoles, ["Elbow extensor", "Shoulder extensor", "Shoulder adductor"]);
+  assert.ok(triceps.functionalRoles.indexOf("Neck extensor") === -1);
+  assert.match(publicJavascript, /Array\.isArray\(item\.functionalRoles\)/);
+  assert.match(adminJavascript, /Remove " \+ role/);
+  assert.match(adminJavascript, /Add function/);
+  assert.match(adminJavascript, /neck\|cervical\|\(\?:the\|of the\) head/);
+});
+
 test("deep anterior neck muscles use focused anatomy references", function () {
   var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
   var expectedImages = {
