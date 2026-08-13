@@ -624,7 +624,7 @@
 .movement-family-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-  align-items: stretch;
+  align-items: start;
   gap: 14px;
 }
 .movement-family, .movement-family-single { border: 1px solid var(--ink); background: var(--paper); }
@@ -643,7 +643,6 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   flex: 1;
 }
-.movement-family .knowledge-card { height: 100%; }
 .movement-family .knowledge-card-media {
   height: clamp(172px, 16vw, 204px);
 }
