@@ -45,8 +45,10 @@
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
+  padding: 8px;
+  background: #fff;
 }
 
 .knowledge-card.has-media h3 {
@@ -589,7 +591,16 @@
 .muscle-collective-card:hover,
 .muscle-collective-card:focus-visible { background: var(--lime); }
 
-.muscle-collective-card .knowledge-card-media { background: #fff; }
+.muscle-collective-card .knowledge-card-media {
+  height: 128px;
+  background: #fff;
+}
+
+.muscle-collective-card .knowledge-card-media img {
+  object-fit: contain;
+  object-position: center;
+  padding: 10px 14px;
+}
 
 .movement-results { width: 100%; padding-top: 32px; border-top: 1px solid var(--ink); }
 .movement-results-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 0 40px; align-items: end; margin-bottom: 34px; }
