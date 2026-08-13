@@ -287,6 +287,14 @@ test("muscle dictionary records include anatomy fields, illustrations, and refer
   });
 });
 
+test("muscle cards avoid direct cadaver and surgical photography", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  data.muscles.forEach(function (muscle) {
+    var evidence = [muscle.imageUrl, muscle.imageAlt, muscle.imageCredit].join(" ");
+    assert.doesNotMatch(evidence, /cadaver|dissection|specimen|surgical photograph|Gluteus_medius_muscle\.jpg/i, muscle.id + " should use an educational illustration instead of direct anatomical photography");
+  });
+});
+
 test("individual muscle pages reject ambiguous regional plates and group cards require group images", function () {
   var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
   ["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"].forEach(function (group) {
@@ -524,9 +532,6 @@ test("deep spinal muscles use focused anatomy references", function () {
     "semispinalis-thoracis": "Semispinalis.png",
     "rotatores-breves": "Rotatores.png",
     "rotatores-longi": "Rotatores.png",
-    "interspinales-cervicis": "Transversospinales_interspinales_enko.svg",
-    "interspinales-thoracis": "Transversospinales_interspinales_enko.svg",
-    "interspinales-lumborum": "Transversospinales_interspinales_enko.svg",
     "iliocostalis-lumborum": "Iliostalis.png",
     "iliocostalis-thoracis": "Iliostalis.png",
     "longissimus-thoracis": "Longissimus.png",
@@ -537,6 +542,28 @@ test("deep spinal muscles use focused anatomy references", function () {
     assert.ok(muscle, "missing muscle " + id);
     assert.ok(muscle.imageUrl.includes(expectedImages[id]), id + " should use its focused anatomy reference");
     assert.match(muscle.imageAlt, /highlight/i, id + " should explain what is highlighted");
+  });
+});
+
+test("interspinales references avoid Korean labels without misrepresenting a regional plate", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  ["interspinales-cervicis", "interspinales-thoracis", "interspinales-lumborum"].forEach(function (id) {
+    var muscle = data.muscles.find(function (item) { return item.id === id; });
+    assert.ok(muscle, "missing muscle " + id);
+    assert.ok(muscle.imageUrl.includes("1117_Muscles_of_the_Back.png"));
+    assert.match(muscle.imageAlt, /English-labeled.*regional reference/i);
+    assert.doesNotMatch([muscle.imageUrl, muscle.imageAlt, muscle.imageCredit].join(" "), /enko|korean|[가-힣]/i);
+  });
+});
+
+test("muscle card image metadata avoids Korean-language assets", function () {
+  var data = JSON.parse(fs.readFileSync(path.join(root, "assets/data/knowledge-base.json"), "utf8"));
+  data.muscles.forEach(function (muscle) {
+    assert.doesNotMatch(
+      [muscle.imageUrl, muscle.imageAlt, muscle.imageCredit, muscle.imageCreditUrl].join(" "),
+      /enko|korean|[가-힣]/i,
+      muscle.id + " should not use a Korean-labeled image"
+    );
   });
 });
 
