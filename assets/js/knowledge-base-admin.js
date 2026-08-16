@@ -29,6 +29,7 @@
   var activeAdminMuscleRegion = "all";
   var activeAdminMuscleAction = "all";
   var selectedMuscleId = "";
+  var selectedConditionId = "";
   var adminRegionLabels = {
     all: "All body areas", "head-neck": "Neck", "shoulder-scapula": "Shoulder & Scapula", "elbow-forearm": "Elbow & Forearm",
     "wrist-hand": "Wrist & Hand", "thoracic-spine": "Thoracic Spine", "lumbar-spine": "Lumbar Spine", "pelvis-hip": "Pelvis & Hip", knee: "Knee", "foot-ankle": "Foot & Ankle"
@@ -48,6 +49,7 @@
   var schemas = {
     conditions: [
       ["title", "Guide name", 120], ["pathway", "Content pathway", 40], ["postureCategory", "Posture body-area group", 120], ["conditionCategory", "Condition category", 120], ["bodyRegion", "Body region", 120],
+      ["imageDescription", "Thumbnail description", 240], ["imageCredit", "Image credit", 240], ["imageCreditUrl", "Image source URL (HTTPS)", 800],
       ["joints", "Related joints", 240], ["tags", "Tags", 400],
       ["summary", "Clinical summary", 800, true], ["tightMuscles", "Commonly tight / overactive", 500],
       ["weakMuscles", "Commonly weak / underactive", 500], ["screening", "Screening signs", 600, true],
@@ -350,6 +352,10 @@
 
   function updateCounts() {
     Object.keys(countNodes).forEach(function (type) { if (countNodes[type]) countNodes[type].textContent = data[type].length; });
+    document.querySelectorAll("[data-knowledge-tab-count]").forEach(function (node) {
+      var type = node.dataset.knowledgeTabCount;
+      node.textContent = data[type] ? data[type].length : 0;
+    });
     var sidebar = document.getElementById("sidebarKnowledgeCount");
     if (sidebar) sidebar.textContent = data.conditions.length + data.muscles.length + data.recipes.length;
   }
@@ -391,24 +397,30 @@
     return label;
   }
 
-  function imagePosition(record) {
-    var match = String(record.cardImagePosition || "50% 50%").match(/([\d.]+)%\s+([\d.]+)%/);
+  function imagePosition(record, key) {
+    var match = String(record[key || "cardImagePosition"] || "50% 50%").match(/([\d.]+)%\s+([\d.]+)%/);
     return match ? { x: Number(match[1]), y: Number(match[2]) } : { x: 50, y: 50 };
   }
 
-  function makeImageStudio(record) {
+  function makeImageStudio(record, options) {
+    options = options || {};
+    var isPosture = options.kind === "posture";
+    var altKey = isPosture ? "imageDescription" : "imageAlt";
+    var scaleKey = isPosture ? "imageScale" : "cardImageScale";
+    var positionKey = isPosture ? "imageFocus" : "cardImagePosition";
     var studio = document.createElement("section");
     studio.className = "muscle-image-studio";
-    studio.setAttribute("aria-label", "Thumbnail editor for " + (record.title || "muscle"));
+    if (isPosture) studio.classList.add("posture-image-studio");
+    studio.setAttribute("aria-label", "Thumbnail editor for " + (record.title || (isPosture ? "posture" : "muscle")));
 
     var stage = document.createElement("div");
     stage.className = "muscle-image-stage";
     var image = document.createElement("img");
-    image.alt = record.imageAlt || "Thumbnail preview";
+    image.alt = record[altKey] || "Thumbnail preview";
     image.loading = "lazy";
     var target = document.createElement("span");
     target.className = "muscle-image-target";
-    target.textContent = "TARGET · " + (record.title || "MUSCLE").toUpperCase();
+    target.textContent = (isPosture ? "POSTURE · " : "TARGET · ") + (record.title || (isPosture ? "PATTERN" : "MUSCLE")).toUpperCase();
     var empty = document.createElement("div");
     empty.className = "muscle-image-empty";
     empty.innerHTML = "<strong>No usable image</strong><span>Paste an HTTPS image URL below to start framing.</span>";
@@ -420,7 +432,7 @@
     controls.className = "muscle-image-controls";
     var heading = document.createElement("div");
     heading.className = "muscle-image-heading";
-    heading.innerHTML = "<div><span class=\"module-chip\">Visual editor</span><h4>Frame the public thumbnail</h4></div><p>Adjust the crop without editing the source file.</p>";
+    heading.innerHTML = "<div><span class=\"module-chip\">Visual editor</span><h4>" + (isPosture ? "Change the posture thumbnail" : "Frame the public thumbnail") + "</h4></div><p>" + (isPosture ? "Upload, paste a link, then position the subject." : "Adjust the crop without editing the source file.") + "</p>";
 
     var uploadPanel = document.createElement("div");
     uploadPanel.className = "muscle-image-upload";
@@ -435,7 +447,7 @@
     var advanced = document.createElement("details");
     advanced.className = "muscle-image-advanced";
     var advancedSummary = document.createElement("summary");
-    advancedSummary.textContent = "Crop adjustments";
+    advancedSummary.textContent = isPosture ? "Fine-tune crop and source" : "Crop adjustments";
     var advancedBody = document.createElement("div");
     advancedBody.className = "muscle-image-advanced-body";
     var urlLabel = document.createElement("label");
@@ -465,10 +477,10 @@
     scaleInput.min = "1";
     scaleInput.max = "3";
     scaleInput.step = ".05";
-    scaleInput.value = String(Number(record.cardImageScale) >= 1 ? Number(record.cardImageScale) : 1);
+    scaleInput.value = String(Number(record[scaleKey]) >= 1 ? Number(record[scaleKey]) : 1);
     scaleLabel.appendChild(scaleInput);
 
-    var position = imagePosition(record);
+    var position = imagePosition(record, positionKey);
     function rangeControl(labelText, value) {
       var label = document.createElement("label");
       label.className = "muscle-image-range";
@@ -490,6 +502,14 @@
     var reset = document.createElement("button");
     reset.className = "button button-quiet"; reset.type = "button"; reset.textContent = "Reset framing";
     footer.appendChild(source); footer.appendChild(reset);
+    var removeImage;
+    if (isPosture) {
+      removeImage = document.createElement("button");
+      removeImage.className = "button button-quiet";
+      removeImage.type = "button";
+      removeImage.textContent = "Use auto diagram";
+      footer.appendChild(removeImage);
+    }
 
     function update(shouldSave) {
       var src = urlInput.value.trim();
@@ -508,8 +528,8 @@
       source.setAttribute("aria-disabled", src ? "false" : "true");
       if (shouldSave) {
         record.imageUrl = src;
-        record.cardImageScale = scale;
-        record.cardImagePosition = x + "% " + y + "%";
+        record[scaleKey] = scale;
+        record[positionKey] = x + "% " + y + "%";
         saveDraft();
       }
     }
@@ -518,8 +538,8 @@
     [scaleInput, horizontal.input, vertical.input].forEach(function (input) { input.addEventListener("input", function () { studio.classList.remove("has-image-error"); update(true); }); });
     function useImageLink() {
       var candidate = urlInput.value.trim();
-      if (!/^https:\/\//i.test(candidate)) {
-        linkStatus.textContent = "Paste a complete HTTPS image link.";
+      if (!/^(?:https:\/\/|\/|assets\/)/i.test(candidate)) {
+        linkStatus.textContent = "Use an HTTPS link or a site asset path.";
         linkStatus.dataset.state = "error";
         return;
       }
@@ -532,6 +552,15 @@
     applyLink.addEventListener("click", useImageLink);
     urlInput.addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); useImageLink(); } });
     reset.addEventListener("click", function () { scaleInput.value = "1"; horizontal.input.value = "50"; vertical.input.value = "50"; update(true); });
+    if (removeImage) removeImage.addEventListener("click", function () {
+      urlInput.value = "";
+      scaleInput.value = "1";
+      horizontal.input.value = "50";
+      vertical.input.value = "50";
+      update(true);
+      linkStatus.textContent = "Custom image removed. The public card will use its posture diagram.";
+      linkStatus.dataset.state = "success";
+    });
 
     choose.addEventListener("click", function () { fileInput.click(); });
     fileInput.addEventListener("change", function () {
@@ -614,6 +643,49 @@
     list.appendChild(board);
   }
 
+  function conditionImageState(record) {
+    if (record.pathway !== "postural-movement") return { key: "reference", label: "Guide fields" };
+    if (!String(record.imageUrl || "").trim()) return { key: "diagram", label: "Auto diagram" };
+    return { key: "ready", label: "Image ready" };
+  }
+
+  function renderConditionBoard(visible) {
+    var boardHeader = document.createElement("div");
+    boardHeader.className = "muscle-board-heading posture-board-heading";
+    var postureRecords = visible.filter(function (record) { return record.pathway === "postural-movement"; });
+    var customCount = postureRecords.filter(function (record) { return String(record.imageUrl || "").trim(); }).length;
+    boardHeader.innerHTML = "<div><span class=\"module-chip\">Posture image board</span><h3>See every guide before editing</h3></div><p><strong>" + customCount + " / " + postureRecords.length + "</strong> posture cards use custom images. Select a card to replace or reframe it.</p>";
+    list.appendChild(boardHeader);
+    var board = document.createElement("div");
+    board.className = "muscle-image-board posture-image-board";
+    visible.forEach(function (record) {
+      var state = conditionImageState(record);
+      var button = document.createElement("button");
+      button.type = "button"; button.className = "muscle-board-card posture-board-card"; button.dataset.imageState = state.key;
+      var visual = document.createElement("span"); visual.className = "muscle-board-visual posture-board-visual";
+      if (record.imageUrl) {
+        var image = document.createElement("img"); image.src = record.imageUrl; image.alt = record.imageDescription || ""; image.loading = "lazy";
+        image.style.objectFit = "cover";
+        image.style.objectPosition = record.imageFocus || "50% 50%";
+        if (Number(record.imageScale) > 1) image.style.transform = "scale(" + Number(record.imageScale) + ")";
+        image.addEventListener("error", function () { button.dataset.imageState = "missing"; badge.textContent = "Load failed"; visual.classList.add("is-missing"); });
+        visual.appendChild(image);
+      } else {
+        visual.classList.add("is-diagram");
+        visual.innerHTML = "<span class=\"posture-board-axis\"></span><span class=\"posture-board-person\">○<br>╱│╲<br>╱ ╲</span>";
+      }
+      var badge = document.createElement("span"); badge.className = "muscle-board-badge"; badge.textContent = state.label;
+      var copy = document.createElement("span"); copy.className = "muscle-board-copy";
+      var group = document.createElement("small"); group.textContent = record.postureCategory || record.conditionCategory || record.bodyRegion || "Movement guide";
+      var title = document.createElement("strong"); title.textContent = record.title || "Untitled guide";
+      copy.appendChild(group); copy.appendChild(title);
+      button.appendChild(visual); button.appendChild(badge); button.appendChild(copy);
+      button.addEventListener("click", function () { selectedConditionId = record.id; render(); window.scrollTo({ top: list.offsetTop - 90, behavior: "smooth" }); });
+      board.appendChild(button);
+    });
+    list.appendChild(board);
+  }
+
   function render() {
     list.textContent = "";
     var query = search.value.trim().toLowerCase();
@@ -623,6 +695,19 @@
       if (activeType === "muscles" && !adminActionMatches(record, activeAdminMuscleAction)) return false;
       return !query || JSON.stringify(record).toLowerCase().indexOf(query) !== -1;
     });
+    if (activeType === "conditions" && !selectedConditionId) {
+      renderConditionBoard(visible);
+      list.setAttribute("aria-busy", "false");
+      updateCounts();
+      return;
+    }
+    if (activeType === "conditions" && selectedConditionId) {
+      visible = data.conditions.filter(function (record) { return record.id === selectedConditionId; });
+      var conditionBack = document.createElement("button");
+      conditionBack.type = "button"; conditionBack.className = "button muscle-board-back"; conditionBack.textContent = "← Back to posture image board";
+      conditionBack.addEventListener("click", function () { selectedConditionId = ""; render(); });
+      list.appendChild(conditionBack);
+    }
     if (activeType === "muscles" && !selectedMuscleId) {
       renderMuscleBoard(visible);
       list.setAttribute("aria-busy", "false");
@@ -694,6 +779,7 @@
       schemas[activeType].forEach(function (definition) { fields.appendChild(makeField(record, definition)); });
       card.appendChild(header);
       if (activeType === "muscles") { card.appendChild(makeImageStudio(record)); card.appendChild(makeFunctionalRoleEditor(record)); }
+      if (activeType === "conditions" && record.pathway === "postural-movement") card.appendChild(makeImageStudio(record, { kind: "posture" }));
       card.appendChild(fields);
       list.appendChild(card);
     });
@@ -751,6 +837,7 @@
     tab.addEventListener("click", function () {
       activeType = tab.dataset.knowledgeType;
       selectedMuscleId = "";
+      selectedConditionId = "";
       tabs.forEach(function (item) { var selected = item === tab; item.classList.toggle("is-active", selected); item.setAttribute("aria-selected", selected ? "true" : "false"); });
       render();
     });
