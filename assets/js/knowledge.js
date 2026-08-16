@@ -1010,6 +1010,111 @@
     return media;
   }
 
+  var postureVisuals = {
+    "scapula-anterior-tilt": { view: "side", marks: ["shoulder-forward", "scapula-tilt"] },
+    "round-shoulder": { view: "side", marks: ["shoulder-forward", "thoracic-curve"] },
+    "anterior-pelvic-tilt": { view: "side", marks: ["pelvis-anterior"] },
+    "posterior-pelvic-tilt": { view: "side", marks: ["pelvis-posterior"] },
+    "forward-head-posture": { view: "side", marks: ["head-forward"] },
+    "rib-flare": { view: "side", marks: ["rib-flare"] },
+    "knee-valgus-pattern": { view: "front", marks: ["knee-valgus"] },
+    "knee-varus-pattern": { view: "front", marks: ["knee-varus"] },
+    "foot-valgus-pattern": { view: "front", marks: ["foot-valgus"] },
+    "foot-varus-pattern": { view: "front", marks: ["foot-varus"] },
+    "early-heel-rise": { view: "side", marks: ["heel-rise"] },
+    "asymmetric-hip-shift": { view: "front", marks: ["hip-shift"] },
+    "elevated-shoulder": { view: "front", marks: ["shoulder-elevated"] }
+  };
+
+  function svgNode(name, attributes) {
+    var node = document.createElementNS("http://www.w3.org/2000/svg", name);
+    Object.keys(attributes || {}).forEach(function (key) { node.setAttribute(key, attributes[key]); });
+    return node;
+  }
+
+  function createPostureDiagram(item) {
+    var visual = postureVisuals[item.id] || { view: "front", marks: [] };
+    var svg = svgNode("svg", { viewBox: "0 0 320 170", role: "img", "aria-label": item.title + " movement pattern diagram" });
+    svg.classList.add("posture-card-diagram");
+    var guide = svgNode("line", { x1: visual.view === "side" ? 164 : 160, y1: 15, x2: visual.view === "side" ? 164 : 160, y2: 154, class: "posture-guide" });
+    svg.appendChild(guide);
+    if (visual.view === "side") {
+      svg.append(
+        svgNode("circle", { cx: 160, cy: 31, r: 14, class: "posture-body" }),
+        svgNode("path", { d: "M158 46 C151 68 153 91 164 111", class: "posture-body" }),
+        svgNode("line", { x1: 153, y1: 60, x2: 140, y2: 91, class: "posture-body" }),
+        svgNode("line", { x1: 163, y1: 110, x2: 153, y2: 151, class: "posture-body" }),
+        svgNode("line", { x1: 165, y1: 110, x2: 174, y2: 151, class: "posture-body" }),
+        svgNode("line", { x1: 153, y1: 151, x2: 166, y2: 151, class: "posture-body" }),
+        svgNode("line", { x1: 174, y1: 151, x2: 187, y2: 151, class: "posture-body" })
+      );
+    } else {
+      svg.append(
+        svgNode("circle", { cx: 160, cy: 30, r: 14, class: "posture-body" }),
+        svgNode("line", { x1: 160, y1: 45, x2: 160, y2: 108, class: "posture-body" }),
+        svgNode("line", { x1: 126, y1: 59, x2: 194, y2: 59, class: "posture-body" }),
+        svgNode("line", { x1: 128, y1: 60, x2: 142, y2: 103, class: "posture-body" }),
+        svgNode("line", { x1: 192, y1: 60, x2: 178, y2: 103, class: "posture-body" }),
+        svgNode("line", { x1: 143, y1: 108, x2: 177, y2: 108, class: "posture-body" }),
+        svgNode("line", { x1: 148, y1: 108, x2: 142, y2: 150, class: "posture-body" }),
+        svgNode("line", { x1: 172, y1: 108, x2: 178, y2: 150, class: "posture-body" }),
+        svgNode("line", { x1: 130, y1: 151, x2: 143, y2: 151, class: "posture-body" }),
+        svgNode("line", { x1: 177, y1: 151, x2: 190, y2: 151, class: "posture-body" })
+      );
+    }
+    visual.marks.forEach(function (mark) {
+      var shapes = {
+        "head-forward": ["circle", { cx: 180, cy: 31, r: 18 }],
+        "shoulder-forward": ["path", { d: "M147 56 Q165 64 177 58" }],
+        "scapula-tilt": ["line", { x1: 145, y1: 59, x2: 153, y2: 83 }],
+        "thoracic-curve": ["path", { d: "M154 48 Q134 75 158 102" }],
+        "pelvis-anterior": ["line", { x1: 145, y1: 105, x2: 180, y2: 115 }],
+        "pelvis-posterior": ["line", { x1: 145, y1: 115, x2: 180, y2: 104 }],
+        "rib-flare": ["path", { d: "M153 72 Q182 77 184 95" }],
+        "knee-valgus": ["path", { d: "M148 108 L158 133 L142 151 M172 108 L162 133 L178 151" }],
+        "knee-varus": ["path", { d: "M148 108 L136 132 L143 151 M172 108 L184 132 L177 151" }],
+        "foot-valgus": ["path", { d: "M142 141 L126 153 L147 151 M178 141 L194 153 L173 151" }],
+        "foot-varus": ["path", { d: "M142 141 L151 153 L132 151 M178 141 L169 153 L188 151" }],
+        "heel-rise": ["path", { d: "M151 151 L177 140 L188 151" }],
+        "hip-shift": ["path", { d: "M143 108 L181 101" }],
+        "shoulder-elevated": ["path", { d: "M126 66 L194 52" }]
+      };
+      var definition = shapes[mark];
+      if (definition) {
+        definition[1].class = "posture-accent";
+        svg.appendChild(svgNode(definition[0], definition[1]));
+      }
+    });
+    return svg;
+  }
+
+  function createPostureCardMedia(item) {
+    var media = element("span", "posture-card-media");
+    if (item.imageUrl) {
+      var image = document.createElement("img");
+      image.className = "posture-card-image";
+      image.src = item.imageUrl;
+      image.alt = item.imageDescription || (item.title + " posture reference");
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.style.objectPosition = item.imageFocus || "50% 50%";
+      if (item.imageScale) image.style.setProperty("--posture-image-scale", String(item.imageScale));
+      media.append(image, element("span", "posture-card-media-label", "Posture reference"));
+      if (item.imageCreditUrl) {
+        var credit = element("a", "posture-card-credit", "Source ↗");
+        credit.href = item.imageCreditUrl;
+        credit.target = "_blank";
+        credit.rel = "noopener noreferrer";
+        credit.setAttribute("aria-label", "Open image source for " + item.title);
+        credit.addEventListener("click", function (event) { event.stopPropagation(); });
+        media.appendChild(credit);
+      }
+    } else {
+      media.append(createPostureDiagram(item), element("span", "posture-card-media-label", "Pattern diagram · " + (postureVisuals[item.id] && postureVisuals[item.id].view === "side" ? "side" : "front")));
+    }
+    return media;
+  }
+
   function createCard(record) {
     var card = element("button", "knowledge-card");
     card.type = "button";
@@ -1019,6 +1124,10 @@
       card.appendChild(createMuscleCardMedia(record.item));
       var roles = createFunctionalRoleList(record.item);
       if (roles) card.appendChild(roles);
+    }
+    if (record.type === "conditions" && carePath(record.item) === "postural-movement") {
+      card.classList.add("has-posture-media");
+      card.appendChild(createPostureCardMedia(record.item));
     }
     if (record.type === "recipes") {
       card.classList.add("is-recipe");
