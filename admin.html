@@ -203,11 +203,11 @@
       <section class="workspace-panel site-content-editor" id="site-copy" data-workspace-panel="site-copy" aria-labelledby="siteContentTitle" hidden>
         <header class="page-heading">
           <div><p class="eyebrow">Control Room / Website</p><h1 id="siteContentTitle">Website editor</h1><p class="lede">Edit the homepage without touching code. Your checkout, login, and video protection remain locked.</p></div>
-          <div class="page-heading-actions"><button class="button" id="previewSiteContent" type="button">Preview website</button><button class="button button-lime" id="publishSiteContent" type="button">Publish website <span aria-hidden="true">→</span></button></div>
+          <div class="page-heading-actions"><span class="editor-save-state" id="siteEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button" id="previewSiteContent" type="button">Preview website</button><button class="button button-lime" id="publishSiteContent" type="button">Publish website <span aria-hidden="true">→</span></button></div>
         </header>
         <div class="workspace-toolbar site-editor-toolbar">
           <div class="site-editor-add"><label class="field compact-field"><span>Add a homepage section</span><select id="siteSectionType"><option value="hero">Campaign hero</option><option value="split">Text and image</option><option value="benefits">Benefits grid</option><option value="testimonials">Testimonials</option><option value="faq">FAQ</option><option value="cta">Call to action</option></select></label><button class="button button-dark" id="addSiteSection" type="button">+ Add section</button></div>
-          <button class="button button-quiet" id="resetSiteContent" type="button">Discard draft</button>
+          <div class="site-history-actions"><button class="button button-quiet" id="undoSiteContent" type="button" disabled>Undo</button><button class="button button-quiet" id="redoSiteContent" type="button" disabled>Redo</button><button class="button button-quiet" id="resetSiteContent" type="button">Discard draft</button></div>
         </div>
         <details class="template-picker" aria-labelledby="templatePickerTitle">
           <summary class="template-picker-heading"><div><p class="eyebrow">Section templates</p><h2 id="templatePickerTitle">Add to your homepage</h2></div><p>Browse 6 ready-made sections <span aria-hidden="true">↓</span></p></summary>
@@ -231,6 +231,7 @@
           </section>
           <aside class="site-editor-inspector" aria-label="Selected section settings"><div class="site-editor-inspector-heading"><span class="module-chip">INSPECTOR</span><strong id="siteInspectorTitle">Page settings</strong><p id="siteInspectorHint">Select text or a section in the canvas.</p></div><form id="siteContentForm" class="site-content-groups" aria-label="Homepage section settings"></form></aside>
         </div>
+        <div class="site-insert-menu" id="siteInsertMenu" hidden role="dialog" aria-modal="false" aria-labelledby="siteInsertTitle"><div><span class="module-chip">INSERT SECTION</span><strong id="siteInsertTitle">What should come next?</strong><button class="site-insert-close" id="closeSiteInsertMenu" type="button" aria-label="Close section menu">×</button></div><div class="site-insert-options"><button type="button" data-insert-site-section="hero"><strong>Campaign hero</strong><small>Headline and action</small></button><button type="button" data-insert-site-section="split"><strong>Text + image</strong><small>Story beside a visual</small></button><button type="button" data-insert-site-section="benefits"><strong>Benefits</strong><small>Clear selling points</small></button><button type="button" data-insert-site-section="testimonials"><strong>Testimonials</strong><small>Customer proof</small></button><button type="button" data-insert-site-section="faq"><strong>FAQ</strong><small>Buyer questions</small></button><button type="button" data-insert-site-section="cta"><strong>Call to action</strong><small>Focused next step</small></button></div></div>
       </section>
 
       <section class="workspace-panel sales-workspace" id="sales" data-workspace-panel="sales" aria-labelledby="salesTitle" hidden>
@@ -425,8 +426,8 @@
     </article>
   </template>
 
-  <script src="assets/js/admin-interface.js?v=20260817-2" defer></script>
-  <script src="assets/js/site-editor.js?v=20260817-4" defer></script>
+  <script src="assets/js/admin-interface.js?v=20260817-3" defer></script>
+  <script src="assets/js/site-editor.js?v=20260817-5" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
   <script src="assets/js/admin.js?v=20260802-9" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>

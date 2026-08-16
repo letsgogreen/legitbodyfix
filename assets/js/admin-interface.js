@@ -31,6 +31,17 @@
   var RAIL_PREFERENCE_KEY = "legitbodyfix.adminRailCollapsed.v1";
   var DENSITY_PREFERENCE_KEY = "legitbodyfix.adminDensity.v1";
 
+  function observeSafely(target, callback, options) {
+    if (!target || typeof target.nodeType !== "number") return null;
+    try {
+      var observer = new MutationObserver(callback);
+      observer.observe(target, options);
+      return observer;
+    } catch (error) {
+      return null;
+    }
+  }
+
   function workspaceFromHash(hash) {
     var target = String(hash || "").replace(/^#/, "");
     if (labels[target]) return target;
@@ -263,7 +274,7 @@
         filterVideos();
       }
     });
-    new MutationObserver(filterVideos).observe(editorList, { childList: true, subtree: true, characterData: true });
+    observeSafely(editorList, filterVideos, { childList: true, subtree: true, characterData: true });
   }
 
   if (sidebarVideoCount && dashboardVideoCount) {
@@ -271,7 +282,7 @@
       sidebarVideoCount.textContent = dashboardVideoCount.textContent || "0";
     }
     syncSidebarVideoCount();
-    new MutationObserver(syncSidebarVideoCount).observe(dashboardVideoCount, { childList: true, characterData: true, subtree: true });
+    observeSafely(dashboardVideoCount, syncSidebarVideoCount, { childList: true, characterData: true, subtree: true });
   }
 
   var sidebarKnowledgeCount = document.getElementById("sidebarKnowledgeCount");
@@ -281,7 +292,7 @@
       dashboardKnowledgeCount.textContent = sidebarKnowledgeCount.textContent || "0";
     }
     syncKnowledgeCount();
-    new MutationObserver(syncKnowledgeCount).observe(sidebarKnowledgeCount, { childList: true, characterData: true, subtree: true });
+    observeSafely(sidebarKnowledgeCount, syncKnowledgeCount, { childList: true, characterData: true, subtree: true });
   }
 
   showWorkspace(workspaceFromHash(window.location.hash), { updateHash: false, instant: true });
