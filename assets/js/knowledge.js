@@ -856,6 +856,35 @@
       pathNotice.append(element("strong", "", carePaths[path].label), element("p", "", carePaths[path].description));
       intro.appendChild(pathNotice);
     }
+    if (type === "conditions" && typeof item.imageUrl === "string" && /^(?:https:\/\/|\/|assets\/)/i.test(item.imageUrl)) {
+      var postureFigure = element("figure", "detail-posture-image");
+      var postureFrame = element("div", "detail-posture-frame");
+      var postureImage = document.createElement("img");
+      postureImage.src = item.imageUrl;
+      postureImage.alt = item.imageDescription || ((item.title || "Posture") + " visual reference");
+      postureImage.loading = "eager";
+      postureImage.decoding = "async";
+      postureImage.style.objectPosition = item.imageFocus || "50% 50%";
+      if (Number(item.imageScale) > 1) {
+        postureImage.style.transform = "scale(" + Number(item.imageScale) + ")";
+        postureImage.style.transformOrigin = item.imageFocus || "50% 50%";
+      }
+      postureFrame.appendChild(postureImage);
+      postureFigure.appendChild(postureFrame);
+      if (item.imageCredit) {
+        var postureCaption = document.createElement("figcaption");
+        if (typeof item.imageCreditUrl === "string" && /^https:\/\//i.test(item.imageCreditUrl)) {
+          var postureCreditLink = document.createElement("a");
+          postureCreditLink.href = item.imageCreditUrl;
+          postureCreditLink.target = "_blank";
+          postureCreditLink.rel = "noopener noreferrer";
+          postureCreditLink.textContent = item.imageCredit;
+          postureCaption.append("Visual reference: ", postureCreditLink);
+        } else postureCaption.textContent = "Visual reference: " + item.imageCredit;
+        postureFigure.appendChild(postureCaption);
+      }
+      intro.insertBefore(postureFigure, pathNotice || null);
+    }
     var list = element("dl", "detail-fields");
     fields[type].forEach(function (definition) {
       var value = type === "muscles" && definition[0] === "family" ? muscleFamily(item) : item[definition[0]];

@@ -742,4 +742,48 @@ body.preview-open { overflow: hidden; }
   .operations-summary { grid-template-columns: 1fr; }
   .operations-summary article { border-right: 0; }
 }
+
+/* Document-style posture guide editor */
+.condition-page-card > header { border-bottom: 0; }
+.condition-page-card .posture-image-studio { margin: 0 22px; border: 1px solid var(--line-strong); border-radius: 8px; }
+.condition-document-editor { padding: 34px 22px 24px; background: #eceae2; }
+.condition-document-editor > header { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin: 0 auto 18px; max-width: 1040px; }
+.condition-document-editor > header h4 { margin: 7px 0 0; font-size: 23px; letter-spacing: -.04em; }
+.condition-document-editor > header p { max-width: 320px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.55; text-align: right; }
+.condition-document-page { max-width: 1040px; margin: 0 auto; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); box-shadow: 0 16px 46px rgba(17,17,15,.07); }
+.condition-document-title { padding: clamp(30px,5vw,64px) clamp(24px,6vw,76px) 42px; }
+.condition-document-title .field { gap: 5px; }
+.condition-document-title .field > span { color: var(--muted); font: 500 8px var(--mono); letter-spacing: .1em; text-transform: uppercase; opacity: 0; transition: opacity .16s ease; }
+.condition-document-title .field:focus-within > span, .condition-document-title .field:hover > span { opacity: 1; }
+.condition-document-title [data-field-name="title"] input { min-height: 84px; padding: 0; border: 0; border-radius: 0; background: transparent; font: 400 clamp(38px,5vw,68px)/.95 var(--display); letter-spacing: -.065em; }
+.condition-document-title [data-field-name="summary"] { margin-top: 22px; }
+.condition-document-title [data-field-name="summary"] textarea { min-height: 100px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--muted); font-size: 17px; line-height: 1.75; }
+.condition-document-title input:focus, .condition-document-title textarea:focus { box-shadow: none; }
+.condition-document-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding: 17px clamp(24px,6vw,76px); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--canvas); }
+.condition-document-section-heading span { font: 600 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.condition-document-section-heading small { color: var(--muted); font-size: 9px; }
+.condition-document-properties { padding: 0 clamp(24px,6vw,76px); }
+.condition-document-properties .field { min-height: 82px; grid-template-columns: minmax(150px, .38fr) minmax(0,1fr); align-items: center; gap: 28px; border-bottom: 1px solid var(--line); }
+.condition-document-properties .field > span { color: var(--ink); font: 500 9px/1.4 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+.condition-document-properties .field input, .condition-document-properties .field textarea { min-height: 50px; padding: 13px 0; border: 0; border-radius: 0; background: transparent; font-size: 14px; line-height: 1.6; }
+.condition-document-properties .field textarea { resize: vertical; }
+.condition-document-properties .field input:focus, .condition-document-properties .field textarea:focus { box-shadow: inset 3px 0 0 var(--acid); padding-left: 14px; }
+.condition-document-settings { border-top: 1px solid var(--ink); }
+.condition-document-settings > summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px clamp(24px,6vw,76px); list-style: none; background: #181816; color: var(--surface); }
+.condition-document-settings > summary::-webkit-details-marker { display: none; }
+.condition-document-settings > summary span { display: grid; gap: 3px; }
+.condition-document-settings > summary b { font-size: 11px; }
+.condition-document-settings > summary small { color: #96958d; font-size: 9px; }
+.condition-document-settings > summary i { color: var(--acid); font: normal 24px/1 var(--body); transition: transform .18s ease; }
+.condition-document-settings[open] > summary i { transform: rotate(45deg); }
+.condition-document-settings-fields { border-top: 1px solid #3a3a35; }
+
+@media (max-width: 780px) {
+  .condition-page-card .posture-image-studio { margin-inline: 12px; }
+  .condition-document-editor { padding: 24px 12px 12px; }
+  .condition-document-editor > header { align-items: flex-start; flex-direction: column; }
+  .condition-document-editor > header p { text-align: left; }
+  .condition-document-properties .field { grid-template-columns: 1fr; gap: 3px; padding: 16px 0; }
+  .condition-document-section-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+}
 @media (max-width: 780px) { .muscle-function-editor { grid-template-columns: 1fr; } .muscle-function-editor > div:first-child { flex-direction: column; } .muscle-function-editor p { text-align: left; } .muscle-function-controls { grid-column: 1; grid-template-columns: 1fr; } }

@@ -1,0 +1,46 @@
+.detail-posture-image {
+  margin: 34px 0 0;
+}
+
+.detail-posture-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--ink);
+  background: #fff;
+}
+
+.detail-posture-frame::after {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  padding: 6px 8px;
+  background: var(--lime);
+  font: 500 8px var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  content: "Visual reference";
+}
+
+.detail-posture-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform .2s ease;
+}
+
+.detail-posture-image figcaption {
+  padding-top: 9px;
+  color: var(--muted);
+  font: 500 9px/1.5 var(--mono);
+}
+
+.detail-posture-image figcaption a {
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 860px) {
+  .detail-posture-frame { aspect-ratio: 16 / 9; }
+  .detail-posture-image { max-width: 720px; }
+}
