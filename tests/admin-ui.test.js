@@ -165,6 +165,10 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(javascript, /cardImagePosition/);
   assert.match(javascript, /renderMuscleBoard/);
   assert.match(javascript, /renderConditionBoard/);
+  assert.match(javascript, /makeConditionDocumentEditor/);
+  assert.match(javascript, /Edit the guide like a document/);
+  assert.match(javascript, /Public information blocks/);
+  assert.match(javascript, /Page settings &amp; sources/);
   assert.match(javascript, /Change the posture thumbnail/);
   assert.match(javascript, /Use auto diagram/);
   assert.match(javascript, /imageFocus/);

@@ -364,6 +364,7 @@
     var name = definition[0];
     var label = document.createElement("label");
     label.className = "field" + (definition[3] ? " field-wide" : "");
+    label.dataset.fieldName = name;
     var caption = document.createElement("span");
     caption.textContent = definition[1];
     var input;
@@ -395,6 +396,50 @@
     label.appendChild(caption);
     label.appendChild(input);
     return label;
+  }
+
+  function makeConditionDocumentEditor(record) {
+    var editor = document.createElement("section");
+    editor.className = "condition-document-editor";
+    var editorHeading = document.createElement("header");
+    editorHeading.innerHTML = "<div><span class=\"module-chip\">Page editor</span><h4>Edit the guide like a document</h4></div><p>Write directly in the blocks below. Every change is saved to your private draft.</p>";
+    editor.appendChild(editorHeading);
+
+    var definitions = {};
+    schemas.conditions.forEach(function (definition) { definitions[definition[0]] = definition; });
+    function addFields(container, names) {
+      names.forEach(function (name) {
+        if (definitions[name]) container.appendChild(makeField(record, definitions[name]));
+      });
+    }
+
+    var page = document.createElement("div");
+    page.className = "condition-document-page";
+    var titleBlock = document.createElement("div");
+    titleBlock.className = "condition-document-title";
+    addFields(titleBlock, ["title", "summary"]);
+    page.appendChild(titleBlock);
+
+    var propertyHeading = document.createElement("div");
+    propertyHeading.className = "condition-document-section-heading";
+    propertyHeading.innerHTML = "<span>Public information blocks</span><small>These appear beside the title and image.</small>";
+    page.appendChild(propertyHeading);
+    var properties = document.createElement("div");
+    properties.className = "condition-document-properties";
+    addFields(properties, ["joints", "tags", "tightMuscles", "weakMuscles", "screening"]);
+    page.appendChild(properties);
+
+    var settings = document.createElement("details");
+    settings.className = "condition-document-settings";
+    var settingsSummary = document.createElement("summary");
+    settingsSummary.innerHTML = "<span><b>Page settings &amp; sources</b><small>Category, image credit, references, and related sessions</small></span><i aria-hidden=\"true\">+</i>";
+    var settingsFields = document.createElement("div");
+    settingsFields.className = "form-grid condition-document-settings-fields";
+    addFields(settingsFields, ["pathway", "postureCategory", "conditionCategory", "bodyRegion", "imageDescription", "imageCredit", "imageCreditUrl", "sourceName", "sourceUrl", "relatedVideoIds"]);
+    settings.append(settingsSummary, settingsFields);
+    page.appendChild(settings);
+    editor.appendChild(page);
+    return editor;
   }
 
   function imagePosition(record, key) {
@@ -465,6 +510,7 @@
     applyLink.type = "button"; applyLink.className = "button"; applyLink.textContent = "Use image link";
     var linkStatus = document.createElement("span");
     linkStatus.setAttribute("aria-live", "polite");
+    if (isPosture) linkStatus.textContent = "Paste a complete HTTPS image link, or upload a file above.";
     linkPanel.appendChild(urlLabel); linkPanel.appendChild(applyLink); linkPanel.appendChild(linkStatus);
 
     var scaleLabel = document.createElement("label");
@@ -779,8 +825,11 @@
       schemas[activeType].forEach(function (definition) { fields.appendChild(makeField(record, definition)); });
       card.appendChild(header);
       if (activeType === "muscles") { card.appendChild(makeImageStudio(record)); card.appendChild(makeFunctionalRoleEditor(record)); }
-      if (activeType === "conditions" && record.pathway === "postural-movement") card.appendChild(makeImageStudio(record, { kind: "posture" }));
-      card.appendChild(fields);
+      if (activeType === "conditions" && record.pathway === "postural-movement") {
+        card.classList.add("condition-page-card");
+        card.appendChild(makeImageStudio(record, { kind: "posture" }));
+        card.appendChild(makeConditionDocumentEditor(record));
+      } else card.appendChild(fields);
       list.appendChild(card);
     });
     if (!visible.length) {

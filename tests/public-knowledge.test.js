@@ -261,7 +261,12 @@ test("condition library is grouped into useful clinical families", function () {
 
 test("condition detail pages expose their clinical reference and skip animated initial scrolling", function () {
   var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
+  var detailCss = fs.readFileSync(path.join(root, "assets/css/knowledge-detail.css"), "utf8");
   assert.match(javascript, /Clinical education reference:/);
+  assert.match(javascript, /detail-posture-image/);
+  assert.match(javascript, /item\.imageFocus/);
+  assert.match(javascript, /item\.imageScale/);
+  assert.match(detailCss, /detail-posture-frame/);
   assert.match(javascript, /shouldUpdateUrl === false \? "auto" : "smooth"/);
 });
 
