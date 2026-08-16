@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260814-1" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260817-2" />
 </head>
 <body class="auth-visible">
   <a class="skip-link" href="#authTitle">Skip to restricted access</a>
@@ -27,6 +27,7 @@
     <div class="topbar-meta">
       <span class="current-workspace" id="currentWorkspaceName">Dashboard</span>
       <button class="command-trigger" id="commandButton" type="button" aria-haspopup="dialog" aria-controls="commandPalette"><span>Find a tool</span><kbd>Ctrl K</kbd></button>
+      <button class="density-toggle" id="densityToggle" type="button" aria-pressed="false" title="Switch workspace density"><span aria-hidden="true">≡</span><b>Compact</b></button>
       <span class="live-state"><i aria-hidden="true"></i> Secure admin</span>
       <button class="text-button" id="logoutButton" type="button" hidden>Sign out</button>
       <a class="site-link" href="index.html" target="_blank" rel="noopener">View website <span aria-hidden="true">↗</span></a>
@@ -173,22 +174,23 @@
 
     <div class="workspace">
       <section class="workspace-panel dashboard-panel" id="overview" data-workspace-panel="overview" aria-labelledby="page-title">
-        <header class="page-heading dashboard-heading">
-          <div><p class="eyebrow">Control Room / Dashboard</p><h1 id="page-title">Your<br class="mobile-break" /> business,<br />at a glance.</h1><p class="lede">Choose a task below. Draft changes stay private until you publish them.</p></div>
-          <a class="button button-dark" href="index.html" target="_blank" rel="noopener">View live website <span aria-hidden="true">↗</span></a>
+        <header class="page-heading dashboard-heading dashboard-hero">
+          <div class="dashboard-hero-copy"><p class="eyebrow">LegitBodyFix / Control Room</p><h1 id="page-title">Run the<br />business.<br /><em>Not the backend.</em></h1><p class="lede">Your high-impact work is one click away. Draft privately, inspect the customer view, then publish deliberately.</p></div>
+          <aside class="dashboard-focus" aria-label="Recommended next action"><span class="module-chip">Recommended next</span><strong>Review the public experience</strong><p>Check the homepage message and the posture guide thumbnails before driving traffic.</p><div><button class="button button-lime" type="button" data-workspace-open="site-copy">Edit homepage</button><a class="button dashboard-live-link" href="index.html" target="_blank" rel="noopener">Live site ↗</a></div></aside>
         </header>
-        <div class="summary" aria-label="Video summary" aria-live="polite">
-          <article><span>Total sessions</span><strong id="videoCount">0</strong><small>In your video library</small></article>
-          <article><span>Published</span><strong id="publishedCount">0</strong><small>Visible to eligible buyers</small></article>
-          <article class="summary-accent"><span>Delivery</span><strong class="summary-word">Secure</strong><small>Cloudflare Stream protected</small></article>
+        <div class="summary operations-summary" aria-label="Business summary" aria-live="polite">
+          <article><span>Video library</span><strong id="videoCount">0</strong><small>Total guided sessions</small></article>
+          <article><span>Live sessions</span><strong id="publishedCount">0</strong><small>Available to eligible buyers</small></article>
+          <article><span>Knowledge records</span><strong id="dashboardKnowledgeCount">0</strong><small>Patterns, muscles, and recipes</small></article>
+          <article class="summary-accent"><span>System status</span><strong class="summary-word">Ready</strong><small>Payments · access · streaming</small></article>
         </div>
         <section class="dashboard-block" aria-labelledby="quickActionsTitle">
           <div class="block-heading"><div><p class="eyebrow">Quick actions</p><h2 id="quickActionsTitle">What would you like to do?</h2></div></div>
-          <div class="quick-action-grid">
-            <button class="quick-action" type="button" data-workspace-open="site-copy"><span class="quick-number">01</span><span><strong>Edit the website</strong><small>Update copy, layout, buttons, and homepage sections.</small></span><b aria-hidden="true">→</b></button>
-            <button class="quick-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span class="quick-number">02</span><span><strong>Add a video</strong><small>Upload a protected session and prepare it for buyers.</small></span><b aria-hidden="true">→</b></button>
-            <button class="quick-action" type="button" data-workspace-open="sales"><span class="quick-number">03</span><span><strong>Review sales</strong><small>See buyers, purchases, revenue, and payment status.</small></span><b aria-hidden="true">→</b></button>
-            <button class="quick-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span class="quick-number">04</span><span><strong>Help a customer</strong><small>Grant program access for a verified support case.</small></span><b aria-hidden="true">→</b></button>
+          <div class="quick-action-grid operations-grid">
+            <button class="quick-action action-primary" type="button" data-workspace-open="site-copy"><span class="quick-number">01 / SELL</span><span><strong>Shape the storefront</strong><small>Refine the promise, offer, sections, and purchase path—with a live responsive preview.</small></span><b aria-hidden="true">Open editor →</b></button>
+            <button class="quick-action" type="button" data-workspace-open="knowledge-base"><span class="quick-number">02 / TEACH</span><span><strong>Curate movement guides</strong><small>Review posture thumbnails, muscle imagery, functions, and public education.</small></span><b aria-hidden="true">Open atlas →</b></button>
+            <button class="quick-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span class="quick-number">03 / DELIVER</span><span><strong>Build a program</strong><small>Upload protected sessions and prepare the paid customer experience.</small></span><b aria-hidden="true">Manage videos →</b></button>
+            <button class="quick-action" type="button" data-workspace-open="sales"><span class="quick-number">04 / LEARN</span><span><strong>Read buyer signals</strong><small>Review purchases and customer access before deciding what to build next.</small></span><b aria-hidden="true">Review sales →</b></button>
           </div>
         </section>
         <section class="dashboard-block system-block" aria-labelledby="systemTitle">
@@ -207,8 +209,8 @@
           <div class="site-editor-add"><label class="field compact-field"><span>Add a homepage section</span><select id="siteSectionType"><option value="hero">Campaign hero</option><option value="split">Text and image</option><option value="benefits">Benefits grid</option><option value="testimonials">Testimonials</option><option value="faq">FAQ</option><option value="cta">Call to action</option></select></label><button class="button button-dark" id="addSiteSection" type="button">+ Add section</button></div>
           <button class="button button-quiet" id="resetSiteContent" type="button">Discard draft</button>
         </div>
-        <section class="template-picker" aria-labelledby="templatePickerTitle">
-          <div class="template-picker-heading"><div><p class="eyebrow">Section templates</p><h2 id="templatePickerTitle">Add to your homepage</h2></div><p>Choose a ready-made block. You can edit its text, image, colors, and position after adding it.</p></div>
+        <details class="template-picker" aria-labelledby="templatePickerTitle">
+          <summary class="template-picker-heading"><div><p class="eyebrow">Section templates</p><h2 id="templatePickerTitle">Add to your homepage</h2></div><p>Browse 6 ready-made sections <span aria-hidden="true">↓</span></p></summary>
           <div class="template-grid">
             <button type="button" data-add-site-section="hero"><span>01</span><strong>Campaign hero</strong><small>Large headline and action</small></button>
             <button type="button" data-add-site-section="split"><span>02</span><strong>Text + image</strong><small>Story beside a visual</small></button>
@@ -287,9 +289,9 @@
         </div>
         <div class="workspace-toolbar knowledge-toolbar">
           <div class="knowledge-tabs" role="tablist" aria-label="Knowledge record type">
-            <button class="is-active" type="button" role="tab" aria-selected="true" data-knowledge-type="conditions">Movement patterns</button>
-            <button type="button" role="tab" aria-selected="false" data-knowledge-type="muscles">Muscle dictionary</button>
-            <button type="button" role="tab" aria-selected="false" data-knowledge-type="recipes">Correction recipes</button>
+            <button class="is-active" type="button" role="tab" aria-selected="true" data-knowledge-type="conditions"><span>Movement patterns</span><b data-knowledge-tab-count="conditions">0</b></button>
+            <button type="button" role="tab" aria-selected="false" data-knowledge-type="muscles"><span>Muscle dictionary</span><b data-knowledge-tab-count="muscles">0</b></button>
+            <button type="button" role="tab" aria-selected="false" data-knowledge-type="recipes"><span>Correction recipes</span><b data-knowledge-tab-count="recipes">0</b></button>
           </div>
           <label class="video-search"><span class="sr-only">Search movement guides</span><input id="knowledgeSearch" type="search" placeholder="Search movement guides..." autocomplete="off" /></label>
           <div class="toolbar-group"><button class="button button-dark" id="addKnowledgeRecord" type="button">+ New record</button><button class="button button-quiet" id="resetKnowledgeDraft" type="button">Discard draft</button></div>
@@ -299,7 +301,7 @@
           <p>Scan the image board first. Open only the muscle that needs a new image or a framing adjustment.</p>
           <div class="admin-muscle-regions" id="adminMuscleRegions" role="group" aria-label="Filter muscle editors by body region"></div>
           <div class="admin-muscle-actions" id="adminMuscleActions" role="group" aria-label="Filter muscle editors by movement action"></div>
-        </section>
+        </details>
         <div class="context-note" role="note"><span aria-hidden="true">i</span><p><strong>Keep the complete method paid.</strong> Public guides should explain the problem and the reasoning, then direct readers to a related program. Drafts remain in this browser until published.</p></div>
         <p class="status" id="knowledgeStatus" role="status" aria-live="polite">Loading knowledge base...</p>
         <section class="knowledge-list" id="knowledgeList" aria-label="Knowledge records" aria-busy="true"></section>
@@ -423,11 +425,11 @@
     </article>
   </template>
 
-  <script src="assets/js/admin-interface.js?v=20260731-3" defer></script>
+  <script src="assets/js/admin-interface.js?v=20260817-2" defer></script>
   <script src="assets/js/site-editor.js?v=20260801-2" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
   <script src="assets/js/admin.js?v=20260802-9" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
-  <script src="assets/js/knowledge-base-admin.js?v=20260814-1" defer></script>
+  <script src="assets/js/knowledge-base-admin.js?v=20260817-1" defer></script>
 </body>
 </html>

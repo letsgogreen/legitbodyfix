@@ -10,6 +10,7 @@
   var sidebarVideoCount = document.getElementById("sidebarVideoCount");
   var dashboardVideoCount = document.getElementById("videoCount");
   var railCollapseButton = document.getElementById("railCollapseButton");
+  var densityToggle = document.getElementById("densityToggle");
   var commandButton = document.getElementById("commandButton");
   var commandPalette = document.getElementById("commandPalette");
   var commandClose = document.getElementById("commandClose");
@@ -28,6 +29,7 @@
   var activeWorkspace = "overview";
   var activeCommandIndex = 0;
   var RAIL_PREFERENCE_KEY = "legitbodyfix.adminRailCollapsed.v1";
+  var DENSITY_PREFERENCE_KEY = "legitbodyfix.adminDensity.v1";
 
   function workspaceFromHash(hash) {
     var target = String(hash || "").replace(/^#/, "");
@@ -106,6 +108,33 @@
     setRailCollapsed(savedRailPreference === "1");
     railCollapseButton.addEventListener("click", function () {
       setRailCollapsed(shell.dataset.railCollapsed !== "true");
+    });
+  }
+
+  function setCompactDensity(compact) {
+    shell.dataset.density = compact ? "compact" : "comfortable";
+    if (densityToggle) {
+      densityToggle.setAttribute("aria-pressed", compact ? "true" : "false");
+      var label = densityToggle.querySelector("b");
+      if (label) label.textContent = compact ? "Comfortable" : "Compact";
+    }
+    try {
+      window.localStorage.setItem(DENSITY_PREFERENCE_KEY, compact ? "compact" : "comfortable");
+    } catch (error) {
+      // Density preference is optional when browser storage is unavailable.
+    }
+  }
+
+  if (densityToggle) {
+    var savedDensity = "comfortable";
+    try {
+      savedDensity = window.localStorage.getItem(DENSITY_PREFERENCE_KEY) || "comfortable";
+    } catch (error) {
+      savedDensity = "comfortable";
+    }
+    setCompactDensity(savedDensity === "compact");
+    densityToggle.addEventListener("click", function () {
+      setCompactDensity(shell.dataset.density !== "compact");
     });
   }
 
@@ -243,6 +272,16 @@
     }
     syncSidebarVideoCount();
     new MutationObserver(syncSidebarVideoCount).observe(dashboardVideoCount, { childList: true, characterData: true, subtree: true });
+  }
+
+  var sidebarKnowledgeCount = document.getElementById("sidebarKnowledgeCount");
+  var dashboardKnowledgeCount = document.getElementById("dashboardKnowledgeCount");
+  if (sidebarKnowledgeCount && dashboardKnowledgeCount) {
+    function syncKnowledgeCount() {
+      dashboardKnowledgeCount.textContent = sidebarKnowledgeCount.textContent || "0";
+    }
+    syncKnowledgeCount();
+    new MutationObserver(syncKnowledgeCount).observe(sidebarKnowledgeCount, { childList: true, characterData: true, subtree: true });
   }
 
   showWorkspace(workspaceFromHash(window.location.hash), { updateHash: false, instant: true });

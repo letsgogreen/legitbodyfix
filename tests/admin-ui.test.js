@@ -134,6 +134,12 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(html, /id="videoSearch"/);
   assert.match(javascript, /showWorkspace/);
   assert.match(javascript, /filterVideos/);
+  assert.match(html, /id="densityToggle"/);
+  assert.match(html, /Run the/);
+  assert.match(html, /Recommended next/);
+  assert.match(html, /id="dashboardKnowledgeCount"/);
+  assert.match(javascript, /setCompactDensity/);
+  assert.match(javascript, /DENSITY_PREFERENCE_KEY/);
 });
 
 test("admin includes an editable versioned knowledge base", function () {
@@ -158,6 +164,11 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(javascript, /cardImageScale/);
   assert.match(javascript, /cardImagePosition/);
   assert.match(javascript, /renderMuscleBoard/);
+  assert.match(javascript, /renderConditionBoard/);
+  assert.match(javascript, /Change the posture thumbnail/);
+  assert.match(javascript, /Use auto diagram/);
+  assert.match(javascript, /imageFocus/);
+  assert.match(javascript, /imageScale/);
   assert.match(javascript, /kind: "thumbnail"/);
   assert.match(javascript, /Upload new image/);
   assert.match(html, /Scan the image board first/);
