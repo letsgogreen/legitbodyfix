@@ -255,6 +255,84 @@
 .knowledge-card.care-path-postural-movement .knowledge-card-type { color: #39766e; }
 .knowledge-card:hover .knowledge-card-type { color: var(--ink); }
 
+.knowledge-card.has-posture-media {
+  min-height: 390px;
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.posture-card-media {
+  position: relative;
+  height: 174px;
+  margin: 0 -28px 24px;
+  display: block;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ink);
+  background: #fff;
+}
+
+.posture-card-diagram {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.posture-card-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: scale(var(--posture-image-scale, 1));
+}
+
+.posture-body,
+.posture-accent,
+.posture-guide {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.posture-body { stroke: var(--ink); stroke-width: 5; }
+.posture-guide { stroke: var(--lime); stroke-width: 2; stroke-dasharray: 5 5; }
+.posture-accent { stroke: #d7482f; stroke-width: 7; }
+.posture-card-media circle.posture-accent { fill: color-mix(in srgb, #d7482f 18%, transparent); }
+
+.posture-card-media-label {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--ink);
+  background: var(--lime);
+  color: var(--ink);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.posture-card-credit {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--ink);
+  background: rgba(255, 255, 255, .92);
+  color: var(--ink);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.posture-card-credit:hover { background: var(--lime); }
+
+.knowledge-card.has-posture-media h3 { margin-top: 22px; }
+
+@media (max-width: 560px) {
+  .posture-card-media { height: 190px; }
+}
+
 .detail-care-path {
   margin-top: 30px;
   padding: 18px;
