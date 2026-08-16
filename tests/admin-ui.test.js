@@ -266,7 +266,7 @@ test("admin offers one complete site editor with safe layout controls", function
   assert.match(javascript, /action: "publish-site-content"/);
   assert.match(javascript, /customSections/);
   assert.match(javascript, /Move section down/);
-  assert.doesNotMatch(javascript, /contenteditable/);
+  assert.match(javascript, /contenteditable/);
   assert.doesNotMatch(javascript, /innerHTML/);
 });
 
@@ -297,6 +297,21 @@ test("website editor keeps a visual live preview beside editable sections", func
   assert.match(editor, /view\.textContent = "View"/);
   assert.match(editor, /scrollIntoView\(\{ behavior: "smooth", block: "start" \}\)/);
   assert.match(css, /\.site-editor-visual-layout/);
-  assert.match(css, /\.site-editor-live-preview \{ position: sticky/);
+  assert.match(css, /\.site-editor-live-preview \{ min-width: 0/);
+  assert.match(css, /\.site-editor-inspector \{ position: sticky/);
+});
+
+test("website editor supports direct canvas editing and a contextual inspector", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  assert.match(html, /VISUAL CANVAS/);
+  assert.match(html, /site-editor-inspector/);
+  assert.match(html, /data-canvas-device="mobile"/);
+  assert.match(editor, /function enableInlineEditing/);
+  assert.match(editor, /contenteditable/);
+  assert.match(editor, /selectInspectorSection/);
+  assert.match(editor, /Replace image/);
+  assert.match(css, /\.site-editor-canvas-stage\[data-canvas-device="mobile"\]/);
 });
 

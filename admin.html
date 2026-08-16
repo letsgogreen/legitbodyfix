@@ -223,13 +223,13 @@
         <div class="context-note" role="note"><span aria-hidden="true">✓</span><p><strong>Protected settings stay protected.</strong> You can change visible prices and destinations, but payment amounts, buyer access, and secure video delivery are server-controlled.</p></div>
         <p class="status" id="siteContentStatus" role="status" aria-live="polite">Loading website…</p>
         <div class="site-editor-visual-layout">
-          <form id="siteContentForm" class="site-content-groups" aria-label="Complete homepage editor"></form>
-          <aside class="site-editor-live-preview" aria-label="Live homepage preview">
-            <header><div><span class="module-chip">LIVE PREVIEW</span><strong>See changes as you type</strong></div><button class="button button-quiet" id="expandSitePreview" type="button">Expand</button></header>
+          <section class="site-editor-live-preview" aria-label="Visual homepage editor">
+            <header><div><span class="module-chip">VISUAL CANVAS</span><strong>Click any text to edit it in place</strong></div><div class="site-canvas-actions"><div class="site-canvas-devices" aria-label="Canvas width"><button class="is-active" type="button" data-canvas-device="desktop" aria-pressed="true">Desktop</button><button type="button" data-canvas-device="tablet" aria-pressed="false">Tablet</button><button type="button" data-canvas-device="mobile" aria-pressed="false">Mobile</button></div><button class="button button-quiet" id="expandSitePreview" type="button">Expand</button></div></header>
             <div class="site-editor-live-browser"><span></span><span></span><span></span><b>legitbodyfix.com</b></div>
-            <iframe id="siteEditorLiveFrame" title="Live homepage editing preview" loading="eager"></iframe>
-            <p>Use <strong>View</strong> on a section to jump to the matching area. The full responsive preview remains available above.</p>
-          </aside>
+            <div class="site-editor-canvas-stage" data-canvas-device="desktop"><iframe id="siteEditorLiveFrame" title="Editable homepage canvas" loading="eager"></iframe></div>
+            <p><strong>Editing mode is on.</strong> Links are disabled inside the canvas. Select a section to reveal its layout, image, and destination settings.</p>
+          </section>
+          <aside class="site-editor-inspector" aria-label="Selected section settings"><div class="site-editor-inspector-heading"><span class="module-chip">INSPECTOR</span><strong id="siteInspectorTitle">Page settings</strong><p id="siteInspectorHint">Select text or a section in the canvas.</p></div><form id="siteContentForm" class="site-content-groups" aria-label="Homepage section settings"></form></aside>
         </div>
       </section>
 
@@ -426,7 +426,7 @@
   </template>
 
   <script src="assets/js/admin-interface.js?v=20260817-2" defer></script>
-  <script src="assets/js/site-editor.js?v=20260801-2" defer></script>
+  <script src="assets/js/site-editor.js?v=20260817-4" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
   <script src="assets/js/admin.js?v=20260802-9" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
