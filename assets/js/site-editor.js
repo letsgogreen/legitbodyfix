@@ -84,6 +84,7 @@
     localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
     updateOpenPreview();
     sendContentToFrame(livePreviewFrame);
+    window.setTimeout(enableInlineEditing, 50);
     setStatus(message || "Complete site draft saved in this browser.");
   }
 
@@ -126,10 +127,12 @@
     if (!style) {
       style = previewDocument.createElement("style");
       style.id = "legitbodyfixVisualEditorStyles";
-      style.textContent = '[data-content]{cursor:text;outline:1px dashed transparent;outline-offset:4px;border-radius:2px}[data-content]:hover{outline-color:#087b78;background:rgba(203,255,50,.2)}[data-content]:focus{outline:3px solid #cbff32;background:#fff;color:#111}[data-site-section],[data-page-section-id]{position:relative}[data-site-section]:hover,[data-page-section-id]:hover{box-shadow:inset 0 0 0 2px rgba(8,123,120,.55)}';
+      style.textContent = '[data-content]{cursor:text;outline:1px dashed transparent;outline-offset:4px;border-radius:2px}[data-content]:hover{outline-color:#087b78;background:rgba(203,255,50,.2)}[data-content]:focus{outline:3px solid #cbff32;background:#fff;color:#111}[data-site-section],[data-page-section-id]{position:relative}[data-site-section]:hover,[data-page-section-id]:hover{box-shadow:inset 0 0 0 2px rgba(8,123,120,.55)}.lbf-media-edit-button{position:absolute;z-index:20;right:14px;top:14px;min-height:36px;padding:8px 12px;border:1px solid #111;background:#cbff32;color:#111;font:700 11px Arial,sans-serif;box-shadow:3px 3px 0 #111;cursor:pointer}.lbf-media-edit-button:hover{background:#fff}';
       previewDocument.head.appendChild(style);
     }
     previewDocument.querySelectorAll("[data-content]").forEach(function (element) {
+      if (element.dataset.visualEditorBound === "true") return;
+      element.dataset.visualEditorBound = "true";
       element.setAttribute("contenteditable", "plaintext-only");
       element.setAttribute("spellcheck", "true");
       element.addEventListener("click", function (event) {
@@ -143,7 +146,7 @@
         if (control) control.value = element.textContent.trim();
         saveInlineDraft();
       });
-      element.addEventListener("blur", function () { sendContentToFrame(livePreviewFrame); });
+      element.addEventListener("blur", function () { sendContentToFrame(livePreviewFrame); window.setTimeout(enableInlineEditing, 50); });
       element.addEventListener("keydown", function (event) {
         if (event.key === "Enter" && element.tagName !== "P") { event.preventDefault(); element.blur(); }
       });
@@ -152,7 +155,31 @@
     var selectors = { hero: ".hero", method: "#method", library: "#library-preview", knowledge: "#knowledge-preview", standard: ".standard", pricing: "#pricing" };
     Object.keys(selectors).forEach(function (id) {
       var section = previewDocument.querySelector(selectors[id]);
-      if (section) section.addEventListener("click", function () { selectInspectorSection(id); });
+      if (section && section.dataset.visualSectionBound !== "true") {
+        section.dataset.visualSectionBound = "true";
+        section.addEventListener("click", function () { selectInspectorSection(id); });
+      }
+    });
+    content.customSections.forEach(function (section) {
+      var customSection = previewDocument.querySelector('[data-site-section="' + section.id + '"]');
+      if (customSection && customSection.dataset.visualSectionBound !== "true") {
+        customSection.dataset.visualSectionBound = "true";
+        customSection.addEventListener("click", function () { selectInspectorSection(section.id); });
+      }
+    });
+    function mediaButton(container, sectionId, fieldPath) {
+      if (!container || container.querySelector(".lbf-media-edit-button")) return;
+      var button = previewDocument.createElement("button");
+      button.type = "button"; button.className = "lbf-media-edit-button"; button.textContent = "Replace image";
+      button.addEventListener("click", function (event) {
+        event.preventDefault(); event.stopPropagation(); selectInspectorSection(sectionId, fieldPath);
+        var fieldControl = form.querySelector('[data-site-field="' + fieldPath + '"]'); if (fieldControl) fieldControl.focus();
+      });
+      container.appendChild(button);
+    }
+    mediaButton(previewDocument.querySelector(".hero"), "hero", "hero.imageUrl");
+    content.customSections.forEach(function (section, index) {
+      if (section.type === "split") mediaButton(previewDocument.querySelector('[data-site-section="' + section.id + '"] .site-block-media'), section.id, "customSections." + index + ".imageUrl");
     });
   }
 
@@ -362,12 +389,14 @@
 
   function customFields(section) {
     var grid = document.createElement("div"); grid.className = "content-field-grid";
+    var sectionPath = "customSections." + content.customSections.indexOf(section);
     function customField(labelText, property, maximum, kind, required) {
       var label = document.createElement("label"); label.className = "field" + (kind === "textarea" || kind === "image" ? " field-wide" : "");
       var name = document.createElement("span"); name.textContent = labelText;
       var input = document.createElement(kind === "textarea" ? "textarea" : "input");
       if (kind === "textarea") input.rows = 4; else input.type = kind === "image" ? "url" : "text";
       input.value = section[property] || ""; input.maxLength = maximum; input.required = required === true;
+      input.dataset.siteField = sectionPath + "." + property;
       input.addEventListener("input", function () { section[property] = input.value; saveDraft(); });
       label.append(name, input); return label;
     }

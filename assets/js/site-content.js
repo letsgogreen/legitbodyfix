@@ -65,10 +65,14 @@
     }
   }
 
-  function action(section) {
+  function action(section, basePath) {
     var href = safeLink(section.buttonHref);
     if (!href || !section.buttonLabel) return null;
     var link = text("a", "button site-block-button", section.buttonLabel);
+    if (basePath) {
+      link.dataset.content = basePath + ".buttonLabel";
+      link.dataset.contentHref = basePath + ".buttonHref";
+    }
     link.href = href;
     if (/^https:\/\//i.test(href)) {
       link.target = "_blank";
@@ -77,26 +81,43 @@
     return link;
   }
 
-  function heading(section, container) {
-    if (section.eyebrow) container.appendChild(text("p", "site-block-eyebrow", section.eyebrow));
-    container.appendChild(text("h2", "site-block-title", section.title));
-    if (section.body) container.appendChild(text("p", "site-block-body", section.body));
+  function heading(section, container, basePath) {
+    if (section.eyebrow) {
+      var eyebrow = text("p", "site-block-eyebrow", section.eyebrow);
+      if (basePath) eyebrow.dataset.content = basePath + ".eyebrow";
+      container.appendChild(eyebrow);
+    }
+    var title = text("h2", "site-block-title", section.title);
+    if (basePath) title.dataset.content = basePath + ".title";
+    container.appendChild(title);
+    if (section.body) {
+      var body = text("p", "site-block-body", section.body);
+      if (basePath) body.dataset.content = basePath + ".body";
+      container.appendChild(body);
+    }
   }
 
-  function renderItems(section, container) {
+  function renderItems(section, container, basePath) {
     var list = document.createElement("div");
     list.className = "site-block-items site-block-items-" + section.type;
-    (section.items || []).forEach(function (item) {
+    (section.items || []).forEach(function (item, itemIndex) {
       var article = document.createElement("article");
       article.className = "site-block-item";
-      if (section.type === "testimonials") article.append(text("blockquote", "", item.body), text("p", "site-block-item-title", item.title));
-      else article.append(text("h3", "site-block-item-title", item.title), text("p", "", item.body));
+      var itemTitle = text(section.type === "testimonials" ? "p" : "h3", "site-block-item-title", item.title);
+      var itemBody = text(section.type === "testimonials" ? "blockquote" : "p", "", item.body);
+      if (basePath) {
+        itemTitle.dataset.content = basePath + ".items." + itemIndex + ".title";
+        itemBody.dataset.content = basePath + ".items." + itemIndex + ".body";
+      }
+      if (section.type === "testimonials") article.append(itemBody, itemTitle);
+      else article.append(itemTitle, itemBody);
       list.appendChild(article);
     });
     container.appendChild(list);
   }
 
-  function renderCustomSection(section) {
+  function renderCustomSection(section, sectionIndex) {
+    var basePath = "customSections." + sectionIndex;
     var wrapper = document.createElement("section");
     wrapper.className = "site-block site-block-" + section.type + " theme-" + section.theme;
     wrapper.dataset.siteSection = section.id;
@@ -105,8 +126,8 @@
     if (section.type === "split") {
       var copy = document.createElement("div");
       copy.className = "site-block-copy";
-      heading(section, copy);
-      var splitAction = action(section);
+      heading(section, copy, basePath);
+      var splitAction = action(section, basePath);
       if (splitAction) copy.appendChild(splitAction);
       var media = document.createElement("div");
       media.className = "site-block-media";
@@ -120,9 +141,9 @@
       } else media.appendChild(text("span", "site-block-placeholder", "IMAGE / OPTIONAL"));
       inner.append(copy, media);
     } else {
-      heading(section, inner);
-      if (["benefits", "testimonials", "faq"].indexOf(section.type) !== -1) renderItems(section, inner);
-      var sectionAction = action(section);
+      heading(section, inner, basePath);
+      if (["benefits", "testimonials", "faq"].indexOf(section.type) !== -1) renderItems(section, inner, basePath);
+      var sectionAction = action(section, basePath);
       if (sectionAction) inner.appendChild(sectionAction);
     }
     wrapper.appendChild(inner);
@@ -138,8 +159,8 @@
       if (node) coreNodes[id] = node;
     });
     var customNodes = {};
-    (content.customSections || []).forEach(function (section) {
-      if (section && CUSTOM_TYPES.indexOf(section.type) !== -1) customNodes[section.id] = renderCustomSection(section);
+    (content.customSections || []).forEach(function (section, sectionIndex) {
+      if (section && CUSTOM_TYPES.indexOf(section.type) !== -1) customNodes[section.id] = renderCustomSection(section, sectionIndex);
     });
     var ordered = [];
     (content.layout || []).forEach(function (entry) {

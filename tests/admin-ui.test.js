@@ -311,6 +311,7 @@ test("website editor supports direct canvas editing and a contextual inspector",
   assert.match(editor, /function enableInlineEditing/);
   assert.match(editor, /contenteditable/);
   assert.match(editor, /selectInspectorSection/);
+  assert.match(editor, /Replace image/);
   assert.match(css, /\.site-editor-canvas-stage\[data-canvas-device="mobile"\]/);
 });
 
