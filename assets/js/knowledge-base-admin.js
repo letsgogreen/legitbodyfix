@@ -13,6 +13,9 @@
   var publishButton = document.getElementById("publishKnowledge");
   var resetButton = document.getElementById("resetKnowledgeDraft");
   var addButton = document.getElementById("addKnowledgeRecord");
+  var saveState = document.getElementById("knowledgeEditorSaveState");
+  var undoButton = document.getElementById("undoKnowledgeChanges");
+  var redoButton = document.getElementById("redoKnowledgeChanges");
   var tabs = Array.prototype.slice.call(document.querySelectorAll("[data-knowledge-type]"));
   var muscleNavigator = document.getElementById("adminMuscleNavigator");
   var adminMuscleRegions = document.getElementById("adminMuscleRegions");
@@ -25,6 +28,10 @@
   var activeType = "conditions";
   var data = { conditions: [], muscles: [], recipes: [] };
   var repositoryData = null;
+  var history = [];
+  var historyIndex = -1;
+  var historyKey = "";
+  var historyTime = 0;
   var started = false;
   var activeAdminMuscleRegion = "all";
   var activeAdminMuscleAction = "all";
@@ -82,6 +89,60 @@
   }
 
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
+
+  function signature(value) { return JSON.stringify(value || {}); }
+
+  function updateHistoryControls() {
+    if (undoButton) undoButton.disabled = historyIndex <= 0;
+    if (redoButton) redoButton.disabled = historyIndex < 0 || historyIndex >= history.length - 1;
+  }
+
+  function updateSaveState(state) {
+    if (!saveState) return;
+    var effective = state || (repositoryData && signature(data) === signature(repositoryData) ? "live" : "draft");
+    var labels = { loading: "Loading", live: "Live version", draft: "Draft saved", publishing: "Publishing" };
+    saveState.dataset.state = effective;
+    saveState.querySelector("span").textContent = labels[effective] || labels.draft;
+    if (publishButton && effective !== "publishing") publishButton.disabled = effective === "live";
+  }
+
+  function seedHistory() {
+    var liveSnapshot = signature(repositoryData);
+    var currentSnapshot = signature(data);
+    history = liveSnapshot !== currentSnapshot ? [liveSnapshot, currentSnapshot] : [currentSnapshot];
+    historyIndex = history.length - 1;
+    historyKey = "";
+    updateHistoryControls();
+    updateSaveState();
+  }
+
+  function recordHistory(key) {
+    var snapshot = signature(data);
+    if (history[historyIndex] === snapshot) return;
+    var now = Date.now();
+    if (key && key === historyKey && now - historyTime < 900 && historyIndex >= 0) history[historyIndex] = snapshot;
+    else {
+      history = history.slice(0, historyIndex + 1);
+      history.push(snapshot);
+      historyIndex = history.length - 1;
+    }
+    historyKey = key || "";
+    historyTime = now;
+    updateHistoryControls();
+  }
+
+  function restoreHistory(nextIndex) {
+    if (nextIndex < 0 || nextIndex >= history.length) return;
+    historyIndex = nextIndex;
+    data = JSON.parse(history[historyIndex]);
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    selectedMuscleId = data.muscles.some(function (record) { return record.id === selectedMuscleId; }) ? selectedMuscleId : "";
+    selectedConditionId = data.conditions.some(function (record) { return record.id === selectedConditionId; }) ? selectedConditionId : "";
+    render();
+    updateHistoryControls();
+    updateSaveState();
+    setStatus("Draft history restored.", "draft");
+  }
 
   function normalizeMuscles(payload) {
     (payload.muscles || []).forEach(function (record) {
@@ -344,8 +405,10 @@
     adminMuscleActions.replaceChildren.apply(adminMuscleActions, actions);
   }
 
-  function saveDraft() {
+  function saveDraft(coalesceKey) {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    recordHistory(coalesceKey);
+    updateSaveState();
     updateCounts();
     setStatus("Draft saved in this browser. Publish when ready.", "draft");
   }
@@ -357,7 +420,10 @@
       node.textContent = data[type] ? data[type].length : 0;
     });
     var sidebar = document.getElementById("sidebarKnowledgeCount");
-    if (sidebar) sidebar.textContent = data.conditions.length + data.muscles.length + data.recipes.length;
+    var total = data.conditions.length + data.muscles.length + data.recipes.length;
+    if (sidebar) sidebar.textContent = total;
+    var dashboard = document.getElementById("dashboardKnowledgeCount");
+    if (dashboard) dashboard.textContent = total;
   }
 
   function makeField(record, definition) {
@@ -391,7 +457,7 @@
         var heading = label.closest(".knowledge-card").querySelector("h3");
         heading.textContent = input.value || "Untitled record";
       }
-      saveDraft();
+      saveDraft(activeType + ":" + record.id + ":" + name);
     });
     label.appendChild(caption);
     label.appendChild(input);
@@ -878,6 +944,7 @@
         catch (error) { data = clone(repositoryData); localStorage.removeItem(DRAFT_KEY); }
       } else data = clone(repositoryData);
       render();
+      seedHistory();
       if (!saved) setStatus("Knowledge base loaded. Start editing to create a private draft.");
     }).catch(function () { setStatus("The knowledge base could not be loaded. Refresh and try again.", "error"); });
   }
@@ -893,19 +960,32 @@
   });
   search.addEventListener("input", render);
   addButton.addEventListener("click", addRecord);
-  resetButton.addEventListener("click", function () { localStorage.removeItem(DRAFT_KEY); data = clone(repositoryData); render(); setStatus("Draft discarded. Repository data restored."); });
+  resetButton.addEventListener("click", function () {
+    if (!window.confirm("Discard this browser draft and restore the live guide data?")) return;
+    localStorage.removeItem(DRAFT_KEY);
+    data = clone(repositoryData);
+    selectedMuscleId = "";
+    selectedConditionId = "";
+    render();
+    seedHistory();
+    setStatus("Draft discarded. Live guide data restored.", "success");
+  });
+  if (undoButton) undoButton.addEventListener("click", function () { restoreHistory(historyIndex - 1); });
+  if (redoButton) redoButton.addEventListener("click", function () { restoreHistory(historyIndex + 1); });
   publishButton.addEventListener("click", function () {
     publishButton.disabled = true;
+    updateSaveState("publishing");
     setStatus("Publishing knowledge base...", "working");
     fetch(PUBLISH_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "publish-knowledge-base", content: data }) }).then(function (response) {
       return response.json().catch(function () { return {}; }).then(function (body) { if (!response.ok) { var error = new Error(body.error || "publish_failed"); error.details = body.details; throw error; } return body; });
     }).then(function (result) {
       repositoryData = clone(data); localStorage.removeItem(DRAFT_KEY);
+      seedHistory();
       setStatus(result.unchanged ? "Everything is already published." : "Published successfully. Vercel is updating the live admin.", "success");
     }).catch(function (error) {
       var detail = error.details && error.details[0] ? " " + error.details[0] : "";
       setStatus("Knowledge base could not be published." + detail, "error");
-    }).finally(function () { publishButton.disabled = false; });
+    }).finally(function () { updateSaveState(); });
   });
 
   window.addEventListener("legitbodyfix:admin-authenticated", load);

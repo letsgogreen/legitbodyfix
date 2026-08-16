@@ -271,17 +271,18 @@
       </section>
 
       <section class="workspace-panel video-workspace" id="video-library" data-workspace-panel="video-library" aria-labelledby="videoEditorTitle" hidden>
-        <header class="page-heading video-heading"><div><p class="eyebrow">Control Room / Videos</p><h1 id="videoEditorTitle">Video library</h1><p class="lede">Create sessions, upload protected videos, and decide what eligible buyers can watch.</p></div><button class="button button-lime" id="publishChanges" type="button">Publish video changes <span aria-hidden="true">→</span></button></header>
-        <div class="workspace-toolbar video-toolbar" aria-label="Video editor actions"><div class="toolbar-group"><button class="button button-dark" id="addVideo" type="button">+ New session</button><label class="button" for="importJson">Import data</label><input id="importJson" type="file" accept="application/json,.json" hidden /></div><label class="video-search"><span class="sr-only">Search sessions</span><input id="videoSearch" type="search" placeholder="Search sessions…" autocomplete="off" /></label><div class="toolbar-group secondary-actions"><button class="button button-quiet" id="resetDraft" type="button">Discard draft</button><button class="button" id="downloadJson" type="button">Export data</button></div></div>
+        <header class="page-heading video-heading"><div><p class="eyebrow">Control Room / Videos</p><h1 id="videoEditorTitle">Video library</h1><p class="lede">Create sessions, upload protected videos, and decide what eligible buyers can watch.</p></div><div class="page-heading-actions"><span class="editor-save-state" id="videoEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button button-lime" id="publishChanges" type="button">Publish video changes <span aria-hidden="true">→</span></button></div></header>
+        <div class="workspace-toolbar video-toolbar" aria-label="Video editor actions"><div class="toolbar-group"><button class="button button-dark" id="addVideo" type="button">+ New session</button><label class="button" for="importJson">Import data</label><input id="importJson" type="file" accept="application/json,.json" hidden /></div><label class="video-search"><span class="sr-only">Search sessions</span><input id="videoSearch" type="search" placeholder="Search sessions…" autocomplete="off" /></label><div class="toolbar-group secondary-actions"><button class="button button-quiet" id="undoVideoChanges" type="button" disabled>Undo</button><button class="button button-quiet" id="redoVideoChanges" type="button" disabled>Redo</button><button class="button button-quiet" id="resetDraft" type="button">Discard draft</button><button class="button" id="downloadJson" type="button">Export data</button></div></div>
         <div class="context-note stream-note" role="note"><span aria-hidden="true">▶</span><p><strong>Protected playback is active.</strong> Uploaded videos are processed by Cloudflare Stream and only play for signed-in buyers with access.</p></div>
         <p class="status" id="editorStatus" role="status" aria-live="polite">Loading video data…</p>
+        <nav class="video-session-navigator" id="videoSessionNavigator" aria-label="Jump to a session"></nav>
         <section class="editor-list" id="editorList" aria-label="Video sessions" aria-busy="true"></section>
       </section>
 
       <section class="workspace-panel knowledge-workspace" id="knowledge-base" data-workspace-panel="knowledge-base" aria-labelledby="knowledgeTitle" hidden>
         <header class="page-heading knowledge-heading">
           <div><p class="eyebrow">Control Room / Education</p><h1 id="knowledgeTitle">Movement guides</h1><p class="lede">Explain the why, build trust, and connect every public guide to the most relevant paid program.</p></div>
-          <button class="button button-lime" id="publishKnowledge" type="button">Publish guides <span aria-hidden="true">&rarr;</span></button>
+          <div class="page-heading-actions"><span class="editor-save-state" id="knowledgeEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button button-lime" id="publishKnowledge" type="button">Publish guides <span aria-hidden="true">&rarr;</span></button></div>
         </header>
         <div class="summary knowledge-summary" aria-label="Knowledge base summary" aria-live="polite">
           <article><span>Patterns</span><strong id="conditionCount">0</strong><small>Questions visitors may recognize</small></article>
@@ -295,14 +296,14 @@
             <button type="button" role="tab" aria-selected="false" data-knowledge-type="recipes"><span>Correction recipes</span><b data-knowledge-tab-count="recipes">0</b></button>
           </div>
           <label class="video-search"><span class="sr-only">Search movement guides</span><input id="knowledgeSearch" type="search" placeholder="Search movement guides..." autocomplete="off" /></label>
-          <div class="toolbar-group"><button class="button button-dark" id="addKnowledgeRecord" type="button">+ New record</button><button class="button button-quiet" id="resetKnowledgeDraft" type="button">Discard draft</button></div>
+          <div class="toolbar-group"><button class="button button-dark" id="addKnowledgeRecord" type="button">+ New record</button><button class="button button-quiet" id="undoKnowledgeChanges" type="button" disabled>Undo</button><button class="button button-quiet" id="redoKnowledgeChanges" type="button" disabled>Redo</button><button class="button button-quiet" id="resetKnowledgeDraft" type="button">Discard draft</button></div>
         </div>
         <section class="admin-muscle-navigator" id="adminMuscleNavigator" hidden aria-labelledby="adminMuscleNavigatorTitle">
           <div class="admin-muscle-navigator-heading"><div><span class="module-chip">Public-style navigator</span><h2 id="adminMuscleNavigatorTitle">Edit muscles by movement</h2></div><a class="button" href="knowledge.html?type=muscles" target="_blank" rel="noopener">Open public muscle browser &nearr;</a></div>
           <p>Scan the image board first. Open only the muscle that needs a new image or a framing adjustment.</p>
           <div class="admin-muscle-regions" id="adminMuscleRegions" role="group" aria-label="Filter muscle editors by body region"></div>
           <div class="admin-muscle-actions" id="adminMuscleActions" role="group" aria-label="Filter muscle editors by movement action"></div>
-        </details>
+        </section>
         <div class="context-note" role="note"><span aria-hidden="true">i</span><p><strong>Keep the complete method paid.</strong> Public guides should explain the problem and the reasoning, then direct readers to a related program. Drafts remain in this browser until published.</p></div>
         <p class="status" id="knowledgeStatus" role="status" aria-live="polite">Loading knowledge base...</p>
         <section class="knowledge-list" id="knowledgeList" aria-label="Knowledge records" aria-busy="true"></section>
@@ -426,11 +427,11 @@
     </article>
   </template>
 
-  <script src="assets/js/admin-interface.js?v=20260817-3" defer></script>
+  <script src="assets/js/admin-interface.js?v=20260817-4" defer></script>
   <script src="assets/js/site-editor.js?v=20260817-5" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
-  <script src="assets/js/admin.js?v=20260802-9" defer></script>
+  <script src="assets/js/admin.js?v=20260817-1" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
-  <script src="assets/js/knowledge-base-admin.js?v=20260817-3" defer></script>
+  <script src="assets/js/knowledge-base-admin.js?v=20260817-4" defer></script>
 </body>
 </html>

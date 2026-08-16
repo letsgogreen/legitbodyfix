@@ -236,6 +236,19 @@ kbd { min-width: 23px; display: inline-grid; place-items: center; padding: 3px 5
 .editor-save-state[data-state="live"] { border-color: #6d987c; background: #eaf6ed; color: #22643d; }
 .editor-save-state[data-state="live"] i { background: var(--success); }
 .editor-save-state[data-state="publishing"] i { background: var(--acid); box-shadow: 0 0 0 3px rgba(203,255,50,.25); }
+
+.video-session-navigator { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 18px 0 24px; }
+.video-session-jump { min-width: 0; min-height: 94px; padding: 0; display: grid; grid-template-columns: 88px minmax(0, 1fr); overflow: hidden; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); text-align: left; cursor: pointer; transition: transform 140ms ease, box-shadow 140ms ease; }
+.video-session-jump:hover, .video-session-jump:focus-visible { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--ink); }
+.video-session-jump-visual { position: relative; overflow: hidden; border-right: 1px solid var(--ink); background: #e7e5dc; }
+.video-session-jump-visual.is-empty::after { content: "ADD\A THUMBNAIL"; white-space: pre; position: absolute; inset: 0; display: grid; place-items: center; color: #66645d; font: 700 9px/1.25 var(--mono); letter-spacing: .08em; text-align: center; }
+.video-session-jump-visual img { width: 100%; height: 100%; object-fit: cover; }
+.video-session-jump-copy { min-width: 0; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.video-session-jump-copy small { font: 700 9px/1.2 var(--mono); letter-spacing: .07em; color: var(--muted); }
+.video-session-jump-copy strong { overflow: hidden; font-size: 14px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.video-session-jump-copy em { margin-top: auto; color: var(--muted); font: normal 700 10px/1.2 var(--mono); text-transform: uppercase; }
+.video-session-jump[data-media-state="ready"] em { color: #176d43; }
+.video-session-jump[data-media-state="processing"] em { color: #956000; }
 .context-note { display: grid; grid-template-columns: 28px 1fr; align-items: center; gap: 12px; margin-bottom: 12px; padding: 14px 16px; border: 1px solid #c7d7b4; border-radius: 4px; background: #f1f8e7; color: #45533a; }
 .context-note > span { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--success); color: white; font-size: 12px; }
 .context-note p { margin: 0; font-size: 11px; }
