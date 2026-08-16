@@ -19,6 +19,11 @@
   var livePreviewFrame = document.getElementById("siteEditorLiveFrame");
   var previewDeviceButtons = previewDialog ? previewDialog.querySelectorAll("[data-preview-device]") : [];
   var previewReturnFocus = null;
+  var selectedSectionId = "hero";
+  var inspectorTitle = document.getElementById("siteInspectorTitle");
+  var inspectorHint = document.getElementById("siteInspectorHint");
+  var canvasStage = document.querySelector(".site-editor-canvas-stage");
+  var canvasDeviceButtons = document.querySelectorAll("[data-canvas-device]");
 
   var CORE_DEFINITIONS = {
     hero: { title: "Hero", description: "The first message, actions, proof points, and optional feature image.", fields: [
@@ -80,6 +85,75 @@
     updateOpenPreview();
     sendContentToFrame(livePreviewFrame);
     setStatus(message || "Complete site draft saved in this browser.");
+  }
+
+  function saveInlineDraft() {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(content));
+    localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
+    updateOpenPreview();
+    setStatus("Draft saved while you edit.");
+  }
+
+  function sectionForPath(path) {
+    if (!path) return "hero";
+    var root = path.split(".")[0];
+    return CORE_DEFINITIONS[root] ? root : root === "footer" ? "footer" : "design";
+  }
+
+  function selectInspectorSection(id, path) {
+    selectedSectionId = id || "design";
+    form.querySelectorAll(".site-editor-card").forEach(function (card) {
+      var cardId = card.dataset.sectionId || (card.id === "site-editor-design" ? "design" : card.id === "site-editor-footer" ? "footer" : "");
+      card.hidden = cardId !== selectedSectionId;
+      card.classList.toggle("is-previewing", cardId === selectedSectionId);
+    });
+    var definition = CORE_DEFINITIONS[selectedSectionId];
+    inspectorTitle.textContent = definition ? definition.title : selectedSectionId === "footer" ? "Footer" : selectedSectionId === "design" ? "Page settings" : "Section settings";
+    inspectorHint.textContent = path ? "Editing “" + path + "”. Advanced controls are below." : "Adjust this section without leaving the canvas.";
+    var active = path && form.querySelector('[data-site-field="' + path + '"]');
+    if (active) {
+      var details = active.closest("details");
+      if (details) details.open = true;
+      form.querySelectorAll(".is-inline-active").forEach(function (element) { element.classList.remove("is-inline-active"); });
+      active.classList.add("is-inline-active");
+    }
+  }
+
+  function enableInlineEditing() {
+    if (!livePreviewFrame || !livePreviewFrame.contentDocument) return;
+    var previewDocument = livePreviewFrame.contentDocument;
+    var style = previewDocument.getElementById("legitbodyfixVisualEditorStyles");
+    if (!style) {
+      style = previewDocument.createElement("style");
+      style.id = "legitbodyfixVisualEditorStyles";
+      style.textContent = '[data-content]{cursor:text;outline:1px dashed transparent;outline-offset:4px;border-radius:2px}[data-content]:hover{outline-color:#087b78;background:rgba(203,255,50,.2)}[data-content]:focus{outline:3px solid #cbff32;background:#fff;color:#111}[data-site-section],[data-page-section-id]{position:relative}[data-site-section]:hover,[data-page-section-id]:hover{box-shadow:inset 0 0 0 2px rgba(8,123,120,.55)}';
+      previewDocument.head.appendChild(style);
+    }
+    previewDocument.querySelectorAll("[data-content]").forEach(function (element) {
+      element.setAttribute("contenteditable", "plaintext-only");
+      element.setAttribute("spellcheck", "true");
+      element.addEventListener("click", function (event) {
+        event.preventDefault(); event.stopPropagation();
+        selectInspectorSection(sectionForPath(element.dataset.content), element.dataset.content);
+      });
+      element.addEventListener("input", function () {
+        var path = element.dataset.content;
+        writePath(content, path, element.textContent.trim());
+        var control = form.querySelector('[data-site-field="' + path + '"]');
+        if (control) control.value = element.textContent.trim();
+        saveInlineDraft();
+      });
+      element.addEventListener("blur", function () { sendContentToFrame(livePreviewFrame); });
+      element.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && element.tagName !== "P") { event.preventDefault(); element.blur(); }
+      });
+    });
+    previewDocument.querySelectorAll("a").forEach(function (link) { link.addEventListener("click", function (event) { event.preventDefault(); }); });
+    var selectors = { hero: ".hero", method: "#method", library: "#library-preview", knowledge: "#knowledge-preview", standard: ".standard", pricing: "#pricing" };
+    Object.keys(selectors).forEach(function (id) {
+      var section = previewDocument.querySelector(selectors[id]);
+      if (section) section.addEventListener("click", function () { selectInspectorSection(id); });
+    });
   }
 
   function sendContentToFrame(frame) {
@@ -372,6 +446,7 @@
     });
     renderFooter();
     sendContentToFrame(livePreviewFrame);
+    selectInspectorSection(selectedSectionId);
   }
 
   function fetchContent() {
@@ -431,8 +506,16 @@
     document.getElementById("previewSiteContent").addEventListener("click", openPreview);
     if (livePreviewFrame) {
       livePreviewFrame.src = "index.html?site-preview=1&inline=1";
-      livePreviewFrame.addEventListener("load", function () { sendContentToFrame(livePreviewFrame); });
+      livePreviewFrame.addEventListener("load", function () { sendContentToFrame(livePreviewFrame); window.setTimeout(enableInlineEditing, 120); });
       document.getElementById("expandSitePreview").addEventListener("click", openPreview);
+      canvasDeviceButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          canvasStage.dataset.canvasDevice = button.dataset.canvasDevice;
+          canvasDeviceButtons.forEach(function (candidate) {
+            var active = candidate === button; candidate.classList.toggle("is-active", active); candidate.setAttribute("aria-pressed", active ? "true" : "false");
+          });
+        });
+      });
     }
     if (previewDialog) {
       document.getElementById("closeSitePreview").addEventListener("click", closePreview);
