@@ -858,33 +858,13 @@
       intro.appendChild(pathNotice);
     }
     if (type === "conditions") {
-      var conditionMap = element("div", "detail-condition-map");
-      var conditionMapCopy = element("div", "detail-condition-map-copy");
-      conditionMapCopy.append(
-        element("span", "detail-kicker", "Primary area"),
-        element("strong", "", item.bodyRegion || item.joints || "Movement system"),
-        element("small", "", "Use this as orientation—not as a diagnosis.")
-      );
-      var conditionFigure = element("div", "detail-condition-figure");
-      var conditionArea = String(item.bodyRegion || item.joints || "").toLowerCase();
-      var conditionTargetRegion = /knee|ankle|foot|leg|calf|tibia|fibula/.test(conditionArea)
-        ? "lower"
-        : /hip|pelvi|lumbar|low back|sacrum/.test(conditionArea)
-          ? "middle"
-          : "upper";
-      conditionFigure.classList.add("is-" + conditionTargetRegion);
-      conditionFigure.setAttribute("aria-hidden", "true");
-      conditionFigure.append(
-        element("i", "condition-figure-head"),
-        element("i", "condition-figure-body"),
-        element("i", "condition-figure-arm is-left"),
-        element("i", "condition-figure-arm is-right"),
-        element("i", "condition-figure-leg is-left"),
-        element("i", "condition-figure-leg is-right"),
-        element("i", "condition-figure-target")
-      );
-      conditionMap.append(conditionMapCopy, conditionFigure);
-      intro.appendChild(conditionMap);
+      var conditionMeta = element("div", "detail-condition-meta");
+      var areaMeta = element("div", "detail-condition-meta-item");
+      areaMeta.append(element("span", "", "Primary area"), element("strong", "", item.bodyRegion || item.joints || "Movement system"));
+      var guideMeta = element("div", "detail-condition-meta-item");
+      guideMeta.append(element("span", "", "Guide focus"), element("strong", "", carePath(item) === "musculoskeletal-condition" ? "Assessment-aware recovery" : "Movement & posture"));
+      conditionMeta.append(areaMeta, guideMeta);
+      intro.insertBefore(conditionMeta, pathNotice || null);
     }
     if (type === "conditions" && typeof item.imageUrl === "string" && /^(?:https:\/\/|\/|assets\/)/i.test(item.imageUrl)) {
       var postureFigure = element("figure", "detail-posture-image");
@@ -922,14 +902,24 @@
       if (typeof value !== "string" || !value.trim()) return;
       var row = element("div", "detail-field");
       row.dataset.field = definition[0];
-      row.append(element("dt", "", definition[1]), element("dd", "", value));
+      var fieldLabel = definition[1];
+      if (type === "conditions" && carePath(item) === "musculoskeletal-condition") {
+        fieldLabel = {
+          joints: "Where it matters",
+          tags: "What people often notice",
+          tightMuscles: "What may feel limited",
+          weakMuscles: "What may need rebuilding",
+          screening: "Before you move"
+        }[definition[0]] || fieldLabel;
+      }
+      row.append(element("dt", "", fieldLabel), element("dd", "", value));
       list.appendChild(row);
     });
     var body = element("div", "detail-layout");
     var facts = element("div", "detail-facts");
     if (type === "conditions") {
       var factsHeading = element("header", "detail-facts-heading");
-      factsHeading.append(element("p", "detail-kicker", "At a glance"), element("h3", "", "What to know before you act"), element("p", "", "Scan the essentials first, then use the movement guidance and safety notes to choose a sensible next step."));
+      factsHeading.append(element("p", "detail-kicker", "Quick overview"), element("h3", "", "Understand the situation first."), element("p", "", "A plain-language summary of what may be involved, what may need rebuilding, and when exercise should wait."));
       facts.appendChild(factsHeading);
     }
     if (type === "muscles") {
