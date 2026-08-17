@@ -840,6 +840,7 @@
     if (!labels[type] || !item) return;
     document.body.classList.add("knowledge-detail-open");
     detail.classList.toggle("is-muscle-detail", type === "muscles");
+    detail.classList.toggle("is-condition-detail", type === "conditions");
     var intro = element("div", "detail-intro");
     intro.append(element("p", "detail-kicker", contentLabel(type, item)), element("h2", "", item.title || "Untitled"), element("p", "detail-summary", summaries[type](item)));
     if (type === "muscles") {
@@ -855,6 +856,35 @@
       var pathNotice = element("div", "detail-care-path is-" + path);
       pathNotice.append(element("strong", "", carePaths[path].label), element("p", "", carePaths[path].description));
       intro.appendChild(pathNotice);
+    }
+    if (type === "conditions") {
+      var conditionMap = element("div", "detail-condition-map");
+      var conditionMapCopy = element("div", "detail-condition-map-copy");
+      conditionMapCopy.append(
+        element("span", "detail-kicker", "Primary area"),
+        element("strong", "", item.bodyRegion || item.joints || "Movement system"),
+        element("small", "", "Use this as orientation—not as a diagnosis.")
+      );
+      var conditionFigure = element("div", "detail-condition-figure");
+      var conditionArea = String(item.bodyRegion || item.joints || "").toLowerCase();
+      var conditionTargetRegion = /knee|ankle|foot|leg|calf|tibia|fibula/.test(conditionArea)
+        ? "lower"
+        : /hip|pelvi|lumbar|low back|sacrum/.test(conditionArea)
+          ? "middle"
+          : "upper";
+      conditionFigure.classList.add("is-" + conditionTargetRegion);
+      conditionFigure.setAttribute("aria-hidden", "true");
+      conditionFigure.append(
+        element("i", "condition-figure-head"),
+        element("i", "condition-figure-body"),
+        element("i", "condition-figure-arm is-left"),
+        element("i", "condition-figure-arm is-right"),
+        element("i", "condition-figure-leg is-left"),
+        element("i", "condition-figure-leg is-right"),
+        element("i", "condition-figure-target")
+      );
+      conditionMap.append(conditionMapCopy, conditionFigure);
+      intro.appendChild(conditionMap);
     }
     if (type === "conditions" && typeof item.imageUrl === "string" && /^(?:https:\/\/|\/|assets\/)/i.test(item.imageUrl)) {
       var postureFigure = element("figure", "detail-posture-image");
@@ -891,11 +921,17 @@
       if (type === "muscles" && definition[0] === "actions" && !value) value = item.function;
       if (typeof value !== "string" || !value.trim()) return;
       var row = element("div", "detail-field");
+      row.dataset.field = definition[0];
       row.append(element("dt", "", definition[1]), element("dd", "", value));
       list.appendChild(row);
     });
     var body = element("div", "detail-layout");
     var facts = element("div", "detail-facts");
+    if (type === "conditions") {
+      var factsHeading = element("header", "detail-facts-heading");
+      factsHeading.append(element("p", "detail-kicker", "At a glance"), element("h3", "", "What to know before you act"), element("p", "", "Scan the essentials first, then use the movement guidance and safety notes to choose a sensible next step."));
+      facts.appendChild(factsHeading);
+    }
     if (type === "muscles") {
       var movementFunctions = element("section", "detail-movement-functions");
       movementFunctions.append(element("p", "detail-kicker", "Movement functions"), element("h3", "", "Functions"));
@@ -1007,6 +1043,7 @@
   function showDirectory(shouldUpdateUrl) {
     document.body.classList.remove("knowledge-detail-open");
     detail.classList.remove("is-muscle-detail");
+    detail.classList.remove("is-condition-detail");
     detail.hidden = true;
     directory.hidden = false;
     document.title = "Movement Guides — LegitBodyFix";
