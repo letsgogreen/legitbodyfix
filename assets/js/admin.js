@@ -32,11 +32,15 @@
   var logoutButton = document.getElementById("logoutButton");
   var adminShell = document.getElementById("main");
   var list = document.getElementById("editorList");
+  var videoNavigator = document.getElementById("videoSessionNavigator");
   var template = document.getElementById("videoEditorTemplate");
   var status = document.getElementById("editorStatus");
   var videoCount = document.getElementById("videoCount");
   var publishedCount = document.getElementById("publishedCount");
   var publishButton = document.getElementById("publishChanges");
+  var videoSaveState = document.getElementById("videoEditorSaveState");
+  var undoVideoButton = document.getElementById("undoVideoChanges");
+  var redoVideoButton = document.getElementById("redoVideoChanges");
   var accessGrantForm = document.getElementById("accessGrantForm");
   var accessGrantEmail = document.getElementById("accessGrantEmail");
   var accessGrantProgram = document.getElementById("accessGrantProgram");
@@ -46,6 +50,11 @@
   var siteContentStatus = document.getElementById("siteContentStatus");
   var publishSiteContentButton = document.getElementById("publishSiteContent");
   var videos = [];
+  var repositoryVideos = [];
+  var videoHistory = [];
+  var videoHistoryIndex = -1;
+  var videoHistoryKey = "";
+  var videoHistoryTime = 0;
   var muscleCatalog = [];
   var siteContent = null;
   var editorStarted = false;
@@ -299,6 +308,59 @@
     else delete status.dataset.state;
   }
 
+  function videoSignature(value) { return JSON.stringify(value || []); }
+
+  function updateVideoHistoryControls() {
+    if (undoVideoButton) undoVideoButton.disabled = videoHistoryIndex <= 0;
+    if (redoVideoButton) redoVideoButton.disabled = videoHistoryIndex < 0 || videoHistoryIndex >= videoHistory.length - 1;
+  }
+
+  function updateVideoSaveState(state) {
+    if (!videoSaveState) return;
+    var effective = state || (videoSignature(videos) === videoSignature(repositoryVideos) ? "live" : "draft");
+    var labels = { loading: "Loading", live: "Live version", draft: "Draft saved", publishing: "Publishing" };
+    videoSaveState.dataset.state = effective;
+    videoSaveState.querySelector("span").textContent = labels[effective] || labels.draft;
+    if (publishButton && effective !== "publishing") publishButton.disabled = effective === "live";
+  }
+
+  function seedVideoHistory() {
+    var liveSnapshot = videoSignature(repositoryVideos);
+    var currentSnapshot = videoSignature(videos);
+    videoHistory = liveSnapshot !== currentSnapshot ? [liveSnapshot, currentSnapshot] : [currentSnapshot];
+    videoHistoryIndex = videoHistory.length - 1;
+    videoHistoryKey = "";
+    updateVideoHistoryControls();
+    updateVideoSaveState();
+  }
+
+  function recordVideoHistory(key) {
+    var snapshot = videoSignature(videos);
+    if (videoHistory[videoHistoryIndex] === snapshot) return;
+    var now = Date.now();
+    if (key && key === videoHistoryKey && now - videoHistoryTime < 900 && videoHistoryIndex >= 0) {
+      videoHistory[videoHistoryIndex] = snapshot;
+    } else {
+      videoHistory = videoHistory.slice(0, videoHistoryIndex + 1);
+      videoHistory.push(snapshot);
+      videoHistoryIndex = videoHistory.length - 1;
+    }
+    videoHistoryKey = key || "";
+    videoHistoryTime = now;
+    updateVideoHistoryControls();
+  }
+
+  function restoreVideoHistory(nextIndex) {
+    if (nextIndex < 0 || nextIndex >= videoHistory.length) return;
+    videoHistoryIndex = nextIndex;
+    videos = JSON.parse(videoHistory[videoHistoryIndex]);
+    render();
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(videos));
+    updateVideoHistoryControls();
+    updateVideoSaveState();
+    setStatus("Draft history restored.", "draft");
+  }
+
   function normalizeVideo(video, index) {
     var rawId = typeof video.id === "string" && video.id ? video.id : "video-" + Date.now() + "-" + index;
     var id = rawId === "shoulder-reset" ? "ankle-sprain-rehabilitation" : rawId;
@@ -344,14 +406,54 @@
   function updateSummary() {
     videoCount.textContent = String(videos.length);
     publishedCount.textContent = String(videos.filter(function (video) { return video.published; }).length);
+    var sidebarVideoCount = document.getElementById("sidebarVideoCount");
+    if (sidebarVideoCount) sidebarVideoCount.textContent = String(videos.length);
   }
 
-  function saveDraft() {
+  function saveDraft(historyKey) {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(videos));
+    recordVideoHistory(historyKey);
+    updateVideoSaveState();
     setStatus("Draft saved in this browser at " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + ".");
   }
 
-  function readEditor(editor, index) {
+  function renderVideoNavigator() {
+    if (!videoNavigator) return;
+    videoNavigator.replaceChildren();
+    videos.forEach(function (video) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "video-session-jump";
+      button.dataset.mediaState = video.streamVideoId && video.streamReady ? "ready" : video.streamVideoId ? "processing" : "missing";
+      var visual = document.createElement("span");
+      visual.className = "video-session-jump-visual";
+      if (video.thumbnailUrl) {
+        var image = document.createElement("img");
+        image.src = video.thumbnailUrl;
+        image.alt = "";
+        image.loading = "lazy";
+        image.addEventListener("error", function () { visual.classList.add("is-empty"); image.remove(); });
+        visual.appendChild(image);
+      } else visual.classList.add("is-empty");
+      var copy = document.createElement("span");
+      copy.className = "video-session-jump-copy";
+      var label = document.createElement("small");
+      label.textContent = "MODULE " + String(video.moduleNumber).padStart(2, "0") + (video.published ? " · LIVE" : " · DRAFT");
+      var title = document.createElement("strong");
+      title.textContent = video.title || "Untitled session";
+      var media = document.createElement("em");
+      media.textContent = button.dataset.mediaState === "ready" ? "Video ready" : button.dataset.mediaState === "processing" ? "Processing" : "Needs video";
+      copy.append(label, title, media);
+      button.append(visual, copy);
+      button.addEventListener("click", function () {
+        var editor = list.querySelector('[data-video-id="' + CSS.escape(video.id) + '"]');
+        if (editor) editor.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      videoNavigator.appendChild(button);
+    });
+  }
+
+  function readEditor(editor, index, historyKey) {
     var video = videos[index];
     editor.querySelectorAll("[name]").forEach(function (field) {
       if (field.name === "published") {
@@ -369,7 +471,8 @@
     updateThumbnailPreview(editor, video);
     updateSalesPagePreview(editor, video);
     updateSummary();
-    saveDraft();
+    renderVideoNavigator();
+    saveDraft(historyKey);
   }
 
   function normalizeRelatedMuscleIds(value) {
@@ -861,8 +964,8 @@
         event.currentTarget.removeAttribute("src");
         editor.querySelector(".sales-preview-image-empty").hidden = false;
       });
-      editor.addEventListener("input", function () { readEditor(editor, index); });
-      editor.addEventListener("change", function () { readEditor(editor, index); });
+      editor.addEventListener("input", function (event) { readEditor(editor, index, video.id + ":" + (event.target.name || "field")); });
+      editor.addEventListener("change", function (event) { readEditor(editor, index, video.id + ":" + (event.target.name || "field")); });
       updateThumbnailPreview(editor, video);
       renderMuscleSelector(editor, video);
       updateSalesPagePreview(editor, video);
@@ -872,6 +975,7 @@
 
     list.setAttribute("aria-busy", "false");
     updateSummary();
+    renderVideoNavigator();
   }
 
   function makeId(title) {
@@ -1144,8 +1248,14 @@
   document.getElementById("resetDraft").addEventListener("click", function () {
     if (!window.confirm("Clear the browser draft and reload the repository data?")) return;
     localStorage.removeItem(DRAFT_KEY);
-    window.location.reload();
+    videos = JSON.parse(JSON.stringify(repositoryVideos));
+    render();
+    seedVideoHistory();
+    setStatus("Draft discarded. Live video data restored.", "success");
   });
+
+  if (undoVideoButton) undoVideoButton.addEventListener("click", function () { restoreVideoHistory(videoHistoryIndex - 1); });
+  if (redoVideoButton) redoVideoButton.addEventListener("click", function () { restoreVideoHistory(videoHistoryIndex + 1); });
 
   document.getElementById("downloadJson").addEventListener("click", function () {
     renumber();
@@ -1202,6 +1312,7 @@
     if (!window.confirm("Publish these changes to the live website? Vercel will redeploy automatically.")) return;
 
     publishButton.disabled = true;
+    updateVideoSaveState("publishing");
     setStatus("Publishing changes…");
 
     requestJson(PUBLISH_URL, {
@@ -1211,6 +1322,8 @@
       body: JSON.stringify({ videos: videos })
     }).then(function (data) {
       localStorage.removeItem(DRAFT_KEY);
+      repositoryVideos = JSON.parse(JSON.stringify(videos));
+      seedVideoHistory();
       if (data.unchanged) {
         setStatus("Everything is already up to date on the live website.", "success");
         return;
@@ -1231,7 +1344,7 @@
         setStatus("Publishing failed. Your browser draft is still safe; please try again.", "error");
       }
     }).finally(function () {
-      publishButton.disabled = false;
+      updateVideoSaveState();
     });
   });
 
@@ -1419,12 +1532,13 @@
         muscleCatalog = knowledge && Array.isArray(knowledge.muscles)
           ? knowledge.muscles.filter(function (muscle) { return muscle && muscle.published !== false && muscle.id; })
           : [];
-        var repositoryVideos = data.map(normalizeVideo);
+        repositoryVideos = data.map(normalizeVideo);
         if (draftVideos && window.LegitAdminVideoDraft) {
           var reconciled = window.LegitAdminVideoDraft.reconcile(repositoryVideos, draftVideos);
           videos = reconciled.videos.map(normalizeVideo);
           localStorage.setItem(DRAFT_KEY, JSON.stringify(videos));
           render();
+          seedVideoHistory();
           setStatus(reconciled.recovered > 0
             ? "Browser draft restored and synced with the saved protected video."
             : "Browser draft restored. Reset it to reload all repository data.");
@@ -1432,12 +1546,15 @@
         }
         videos = repositoryVideos;
         render();
+        seedVideoHistory();
         setStatus("Repository data loaded. Start editing to create a browser draft.");
       })
       .catch(function () {
         if (draftVideos) {
           videos = draftVideos;
+          repositoryVideos = JSON.parse(JSON.stringify(draftVideos));
           render();
+          seedVideoHistory();
           setStatus("Browser draft restored. Saved repository data could not be checked.", "error");
           return;
         }

@@ -24,6 +24,16 @@
   var inspectorHint = document.getElementById("siteInspectorHint");
   var canvasStage = document.querySelector(".site-editor-canvas-stage");
   var canvasDeviceButtons = document.querySelectorAll("[data-canvas-device]");
+  var saveState = document.getElementById("siteEditorSaveState");
+  var undoButton = document.getElementById("undoSiteContent");
+  var redoButton = document.getElementById("redoSiteContent");
+  var insertMenu = document.getElementById("siteInsertMenu");
+  var history = [];
+  var historyIndex = -1;
+  var publishedSignature = "";
+  var lastHistoryKey = "";
+  var lastHistoryTime = 0;
+  var insertionAfterId = "";
 
   var CORE_DEFINITIONS = {
     hero: { title: "Hero", description: "The first message, actions, proof points, and optional feature image.", fields: [
@@ -79,7 +89,48 @@
     else delete status.dataset.state;
   }
 
-  function saveDraft(message) {
+  function signature(value) { return JSON.stringify(value || {}); }
+
+  function updateSaveState(state, label) {
+    if (!saveState) return;
+    saveState.dataset.state = state;
+    saveState.querySelector("span").textContent = label;
+  }
+
+  function updateHistoryControls() {
+    undoButton.disabled = historyIndex <= 0;
+    redoButton.disabled = historyIndex < 0 || historyIndex >= history.length - 1;
+    var dirty = content && signature(content) !== publishedSignature;
+    publishButton.disabled = !content || !dirty;
+    updateSaveState(dirty ? "draft" : "live", dirty ? "Draft saved" : "Live version");
+  }
+
+  function seedHistory() {
+    history = [clone(content)]; historyIndex = 0; lastHistoryKey = ""; lastHistoryTime = 0; updateHistoryControls();
+  }
+
+  function recordHistory(key) {
+    var now = Date.now();
+    if (key && key === lastHistoryKey && now - lastHistoryTime < 900 && historyIndex >= 0) history[historyIndex] = clone(content);
+    else {
+      history = history.slice(0, historyIndex + 1);
+      history.push(clone(content));
+      if (history.length > 80) history.shift();
+      historyIndex = history.length - 1;
+    }
+    lastHistoryKey = key || ""; lastHistoryTime = now; updateHistoryControls();
+  }
+
+  function restoreHistory(nextIndex) {
+    if (nextIndex < 0 || nextIndex >= history.length) return;
+    historyIndex = nextIndex; content = clone(history[historyIndex]); lastHistoryKey = "";
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(content)); localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
+    render(); updateOpenPreview(); sendContentToFrame(livePreviewFrame); window.setTimeout(enableInlineEditing, 50);
+    updateHistoryControls(); setStatus(historyIndex < history.length - 1 ? "Change undone. Your draft remains private." : "Change restored. Your draft remains private.");
+  }
+
+  function saveDraft(message, historyKey) {
+    recordHistory(historyKey);
     localStorage.setItem(DRAFT_KEY, JSON.stringify(content));
     localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
     updateOpenPreview();
@@ -88,7 +139,8 @@
     setStatus(message || "Complete site draft saved in this browser.");
   }
 
-  function saveInlineDraft() {
+  function saveInlineDraft(path) {
+    recordHistory("inline:" + path);
     localStorage.setItem(DRAFT_KEY, JSON.stringify(content));
     localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
     updateOpenPreview();
@@ -98,7 +150,13 @@
   function sectionForPath(path) {
     if (!path) return "hero";
     var root = path.split(".")[0];
-    return CORE_DEFINITIONS[root] ? root : root === "footer" ? "footer" : "design";
+    if (CORE_DEFINITIONS[root]) return root;
+    if (root === "footer") return "footer";
+    if (root === "customSections") {
+      var customIndex = Number(path.split(".")[1]);
+      return content.customSections[customIndex] ? content.customSections[customIndex].id : "design";
+    }
+    return "design";
   }
 
   function selectInspectorSection(id, path) {
@@ -109,7 +167,8 @@
       card.classList.toggle("is-previewing", cardId === selectedSectionId);
     });
     var definition = CORE_DEFINITIONS[selectedSectionId];
-    inspectorTitle.textContent = definition ? definition.title : selectedSectionId === "footer" ? "Footer" : selectedSectionId === "design" ? "Page settings" : "Section settings";
+    var customDefinition = content.customSections.find(function (section) { return section.id === selectedSectionId; });
+    inspectorTitle.textContent = definition ? definition.title : selectedSectionId === "footer" ? "Footer" : selectedSectionId === "design" ? "Page settings" : customDefinition ? CUSTOM_LABELS[customDefinition.type] : "Section settings";
     inspectorHint.textContent = path ? "Editing “" + path + "”. Advanced controls are below." : "Adjust this section without leaving the canvas.";
     var active = path && form.querySelector('[data-site-field="' + path + '"]');
     if (active) {
@@ -120,6 +179,14 @@
     }
   }
 
+  function openInsertMenu(afterId) {
+    insertionAfterId = afterId || selectedSectionId;
+    insertMenu.hidden = false;
+    insertMenu.querySelector("[data-insert-site-section]").focus();
+  }
+
+  function closeInsertMenu() { insertMenu.hidden = true; insertionAfterId = ""; }
+
   function enableInlineEditing() {
     if (!livePreviewFrame || !livePreviewFrame.contentDocument) return;
     var previewDocument = livePreviewFrame.contentDocument;
@@ -127,7 +194,7 @@
     if (!style) {
       style = previewDocument.createElement("style");
       style.id = "legitbodyfixVisualEditorStyles";
-      style.textContent = '[data-content]{cursor:text;outline:1px dashed transparent;outline-offset:4px;border-radius:2px}[data-content]:hover{outline-color:#087b78;background:rgba(203,255,50,.2)}[data-content]:focus{outline:3px solid #cbff32;background:#fff;color:#111}[data-site-section],[data-page-section-id]{position:relative}[data-site-section]:hover,[data-page-section-id]:hover{box-shadow:inset 0 0 0 2px rgba(8,123,120,.55)}.lbf-media-edit-button{position:absolute;z-index:20;right:14px;top:14px;min-height:36px;padding:8px 12px;border:1px solid #111;background:#cbff32;color:#111;font:700 11px Arial,sans-serif;box-shadow:3px 3px 0 #111;cursor:pointer}.lbf-media-edit-button:hover{background:#fff}';
+      style.textContent = '[data-content]{cursor:text;outline:1px dashed transparent;outline-offset:4px;border-radius:2px}[data-content]:hover{outline-color:#087b78;background:rgba(203,255,50,.2)}[data-content]:focus{outline:3px solid #cbff32;background:#fff;color:#111}[data-site-section],[data-page-section-id]{position:relative}[data-site-section]:hover,[data-page-section-id]:hover{box-shadow:inset 0 0 0 2px rgba(8,123,120,.55)}.lbf-media-edit-button{position:absolute;z-index:20;right:14px;top:14px;min-height:36px;padding:8px 12px;border:1px solid #111;background:#cbff32;color:#111;font:700 11px Arial,sans-serif;box-shadow:3px 3px 0 #111;cursor:pointer}.lbf-media-edit-button:hover{background:#fff}.lbf-insert-section{position:absolute;z-index:25;left:50%;bottom:-17px;transform:translateX(-50%);min-height:34px;padding:7px 12px;border:1px solid #111;border-radius:999px;background:#111;color:#fff;font:700 10px Arial,sans-serif;box-shadow:0 0 0 3px #cbff32;cursor:pointer;opacity:0;transition:opacity .15s}.lbf-insert-section:focus,[data-site-section]:hover>.lbf-insert-section{opacity:1}';
       previewDocument.head.appendChild(style);
     }
     previewDocument.querySelectorAll("[data-content]").forEach(function (element) {
@@ -144,7 +211,7 @@
         writePath(content, path, element.textContent.trim());
         var control = form.querySelector('[data-site-field="' + path + '"]');
         if (control) control.value = element.textContent.trim();
-        saveInlineDraft();
+        saveInlineDraft(path);
       });
       element.addEventListener("blur", function () { sendContentToFrame(livePreviewFrame); window.setTimeout(enableInlineEditing, 50); });
       element.addEventListener("keydown", function (event) {
@@ -180,6 +247,13 @@
     mediaButton(previewDocument.querySelector(".hero"), "hero", "hero.imageUrl");
     content.customSections.forEach(function (section, index) {
       if (section.type === "split") mediaButton(previewDocument.querySelector('[data-site-section="' + section.id + '"] .site-block-media'), section.id, "customSections." + index + ".imageUrl");
+    });
+    content.layout.filter(function (entry) { return entry.visible !== false; }).forEach(function (entry) {
+      var target = entry.kind === "core" ? previewDocument.querySelector(selectors[entry.id]) : previewDocument.querySelector('[data-site-section="' + entry.id + '"]');
+      if (!target || target.querySelector(":scope > .lbf-insert-section")) return;
+      var insert = previewDocument.createElement("button"); insert.type = "button"; insert.className = "lbf-insert-section"; insert.textContent = "+ Add section after";
+      insert.addEventListener("click", function (event) { event.preventDefault(); event.stopPropagation(); openInsertMenu(entry.id); });
+      target.appendChild(insert);
     });
   }
 
@@ -290,7 +364,7 @@
     input.dataset.siteField = path;
     if (kind === "link") input.placeholder = "#section or page.html";
     if (kind === "image") input.placeholder = "https://… or assets/image.jpg";
-    input.addEventListener("input", function () { writePath(content, path, input.value); saveDraft(); });
+    input.addEventListener("input", function () { writePath(content, path, input.value); saveDraft(null, "field:" + path); });
     label.append(name, input);
     if (kind === "link" || kind === "image") {
       var hint = document.createElement("small");
@@ -380,7 +454,7 @@
       var span = document.createElement("span"); span.textContent = labelText;
       var input = document.createElement(textarea ? "textarea" : "input"); if (textarea) input.rows = 3; else input.type = "text";
       input.maxLength = textarea ? 500 : 100; input.required = true; input.value = item[property] || "";
-      input.addEventListener("input", function () { item[property] = input.value; saveDraft(); });
+      input.addEventListener("input", function () { item[property] = input.value; saveDraft(null, "item:" + itemIndex + ":" + property); });
       label.append(span, input); return label;
     }
     grid.append(itemField(section.type === "testimonials" ? "Attribution" : section.type === "faq" ? "Question" : "Title", "title", false), itemField(section.type === "testimonials" ? "Quote" : section.type === "faq" ? "Answer" : "Description", "body", true));
@@ -397,7 +471,7 @@
       if (kind === "textarea") input.rows = 4; else input.type = kind === "image" ? "url" : "text";
       input.value = section[property] || ""; input.maxLength = maximum; input.required = required === true;
       input.dataset.siteField = sectionPath + "." + property;
-      input.addEventListener("input", function () { section[property] = input.value; saveDraft(); });
+      input.addEventListener("input", function () { section[property] = input.value; saveDraft(null, sectionPath + "." + property); });
       label.append(name, input); return label;
     }
     grid.append(selectField("Color theme", section.theme, [{ value: "paper", label: "Paper" }, { value: "ink", label: "Ink" }, { value: "lime", label: "Lime" }], function (value) { section.theme = value; }), customField("Eyebrow", "eyebrow", 80, "text", false), customField("Headline", "title", 140, "text", true));
@@ -460,6 +534,7 @@
   }
 
   function render() {
+    if (!CORE_DEFINITIONS[selectedSectionId] && ["design", "footer"].indexOf(selectedSectionId) === -1 && !content.customSections.some(function (section) { return section.id === selectedSectionId; })) selectedSectionId = "hero";
     form.replaceChildren();
     renderSettings();
     var sectionMarker = document.createElement("div");
@@ -499,19 +574,28 @@
   function load() {
     var draft = localStorage.getItem(DRAFT_KEY);
     if (draft) {
-      try { content = normalize(JSON.parse(draft)); render(); setStatus("Complete site draft restored from this browser."); return; }
+      try {
+        content = normalize(JSON.parse(draft)); render(); seedHistory(); updateSaveState("draft", "Draft restored"); setStatus("Complete site draft restored from this browser.");
+        fetchContent().then(function (live) { publishedSignature = signature(normalize(live)); updateHistoryControls(); });
+        return;
+      }
       catch (error) { localStorage.removeItem(DRAFT_KEY); }
     }
-    fetchContent().then(function (live) { content = normalize(live); render(); setStatus("Live website loaded. Edit any section or add a new one."); })
+    fetchContent().then(function (live) { content = normalize(live); publishedSignature = signature(content); render(); seedHistory(); setStatus("Live website loaded. Edit any section or add a new one."); })
       .catch(function () { setStatus("The website editor could not load. Refresh and try again.", "error"); });
   }
 
   function bindActions() {
-    function addSection(type) {
+    function addSection(type, afterId) {
       if (!content) return;
       if (content.customSections.length >= 20) { setStatus("The editor supports up to 20 added sections.", "error"); return; }
       var section = templateSection(type);
-      content.customSections.push(section); content.layout.push({ id: section.id, kind: "custom", visible: true });
+      content.customSections.push(section);
+      var newEntry = { id: section.id, kind: "custom", visible: true };
+      var insertionIndex = afterId ? content.layout.findIndex(function (entry) { return entry.id === afterId; }) : -1;
+      if (insertionIndex >= 0) content.layout.splice(insertionIndex + 1, 0, newEntry);
+      else content.layout.push(newEntry);
+      selectedSectionId = section.id; closeInsertMenu();
       render(); saveDraft("New section added to the complete site draft.");
       var card = form.querySelector('[data-section-id="' + section.id + '"]'); if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -527,9 +611,20 @@
         }
       });
     });
+    document.querySelectorAll("[data-insert-site-section]").forEach(function (button) {
+      button.addEventListener("click", function () { addSection(button.dataset.insertSiteSection, insertionAfterId); });
+    });
+    document.getElementById("closeSiteInsertMenu").addEventListener("click", closeInsertMenu);
+    undoButton.addEventListener("click", function () { restoreHistory(historyIndex - 1); });
+    redoButton.addEventListener("click", function () { restoreHistory(historyIndex + 1); });
+    document.addEventListener("keydown", function (event) {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      if (event.key.toLowerCase() === "z") { event.preventDefault(); restoreHistory(historyIndex + (event.shiftKey ? 1 : -1)); }
+      else if (event.key.toLowerCase() === "y") { event.preventDefault(); restoreHistory(historyIndex + 1); }
+    });
     document.getElementById("resetSiteContent").addEventListener("click", function () {
       localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(PREVIEW_KEY); setStatus("Reloading the live website…");
-      fetchContent().then(function (live) { content = normalize(live); render(); setStatus("Draft cleared. Live website restored.", "success"); })
+      fetchContent().then(function (live) { content = normalize(live); publishedSignature = signature(content); render(); seedHistory(); setStatus("Draft cleared. Live website restored.", "success"); })
         .catch(function () { setStatus("The live website could not be reloaded.", "error"); });
     });
     document.getElementById("previewSiteContent").addEventListener("click", openPreview);
@@ -560,10 +655,11 @@
     }
     publishButton.addEventListener("click", function () {
       if (!content || !form.reportValidity()) return;
-      publishButton.disabled = true; setStatus("Publishing the complete website…");
+      publishButton.disabled = true; updateSaveState("publishing", "Publishing"); setStatus("Publishing the complete website…");
       requestJson({ method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ action: "publish-site-content", content: content }) })
         .then(function (data) {
           localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(PREVIEW_KEY);
+          publishedSignature = signature(content); seedHistory();
           if (data.unchanged) { setStatus("The live website already uses this version.", "success"); return; }
           setStatus("Published as commit " + (data.commitSha ? data.commitSha.slice(0, 7) : "created") + ". Vercel is updating the live website.", "success");
         }).catch(function (error) {
@@ -571,7 +667,7 @@
           else if (error.code === "publishing_disabled_in_preview") setStatus("Publishing is disabled on Preview deployments. Use the production admin page.", "error");
           else if (error.code === "invalid_site_content") setStatus(error.details[0] || "Correct the invalid field and try again.", "error");
           else setStatus("Publishing failed. Your browser draft is still safe.", "error");
-        }).finally(function () { publishButton.disabled = false; });
+        }).finally(updateHistoryControls);
     });
   }
 

@@ -263,7 +263,6 @@
         filterVideos();
       }
     });
-    new MutationObserver(filterVideos).observe(editorList, { childList: true, subtree: true, characterData: true });
   }
 
   if (sidebarVideoCount && dashboardVideoCount) {
@@ -271,7 +270,6 @@
       sidebarVideoCount.textContent = dashboardVideoCount.textContent || "0";
     }
     syncSidebarVideoCount();
-    new MutationObserver(syncSidebarVideoCount).observe(dashboardVideoCount, { childList: true, characterData: true, subtree: true });
   }
 
   var sidebarKnowledgeCount = document.getElementById("sidebarKnowledgeCount");
@@ -281,7 +279,6 @@
       dashboardKnowledgeCount.textContent = sidebarKnowledgeCount.textContent || "0";
     }
     syncKnowledgeCount();
-    new MutationObserver(syncKnowledgeCount).observe(sidebarKnowledgeCount, { childList: true, characterData: true, subtree: true });
   }
 
   showWorkspace(workspaceFromHash(window.location.hash), { updateHash: false, instant: true });

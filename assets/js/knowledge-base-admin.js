@@ -13,6 +13,9 @@
   var publishButton = document.getElementById("publishKnowledge");
   var resetButton = document.getElementById("resetKnowledgeDraft");
   var addButton = document.getElementById("addKnowledgeRecord");
+  var saveState = document.getElementById("knowledgeEditorSaveState");
+  var undoButton = document.getElementById("undoKnowledgeChanges");
+  var redoButton = document.getElementById("redoKnowledgeChanges");
   var tabs = Array.prototype.slice.call(document.querySelectorAll("[data-knowledge-type]"));
   var muscleNavigator = document.getElementById("adminMuscleNavigator");
   var adminMuscleRegions = document.getElementById("adminMuscleRegions");
@@ -25,11 +28,16 @@
   var activeType = "conditions";
   var data = { conditions: [], muscles: [], recipes: [] };
   var repositoryData = null;
+  var history = [];
+  var historyIndex = -1;
+  var historyKey = "";
+  var historyTime = 0;
   var started = false;
   var activeAdminMuscleRegion = "all";
   var activeAdminMuscleAction = "all";
   var selectedMuscleId = "";
   var selectedConditionId = "";
+  var imageBoardFilters = { muscles: "issues", conditions: "all" };
   var adminRegionLabels = {
     all: "All body areas", "head-neck": "Neck", "shoulder-scapula": "Shoulder & Scapula", "elbow-forearm": "Elbow & Forearm",
     "wrist-hand": "Wrist & Hand", "thoracic-spine": "Thoracic Spine", "lumbar-spine": "Lumbar Spine", "pelvis-hip": "Pelvis & Hip", knee: "Knee", "foot-ankle": "Foot & Ankle"
@@ -82,6 +90,60 @@
   }
 
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
+
+  function signature(value) { return JSON.stringify(value || {}); }
+
+  function updateHistoryControls() {
+    if (undoButton) undoButton.disabled = historyIndex <= 0;
+    if (redoButton) redoButton.disabled = historyIndex < 0 || historyIndex >= history.length - 1;
+  }
+
+  function updateSaveState(state) {
+    if (!saveState) return;
+    var effective = state || (repositoryData && signature(data) === signature(repositoryData) ? "live" : "draft");
+    var labels = { loading: "Loading", live: "Live version", draft: "Draft saved", publishing: "Publishing" };
+    saveState.dataset.state = effective;
+    saveState.querySelector("span").textContent = labels[effective] || labels.draft;
+    if (publishButton && effective !== "publishing") publishButton.disabled = effective === "live";
+  }
+
+  function seedHistory() {
+    var liveSnapshot = signature(repositoryData);
+    var currentSnapshot = signature(data);
+    history = liveSnapshot !== currentSnapshot ? [liveSnapshot, currentSnapshot] : [currentSnapshot];
+    historyIndex = history.length - 1;
+    historyKey = "";
+    updateHistoryControls();
+    updateSaveState();
+  }
+
+  function recordHistory(key) {
+    var snapshot = signature(data);
+    if (history[historyIndex] === snapshot) return;
+    var now = Date.now();
+    if (key && key === historyKey && now - historyTime < 900 && historyIndex >= 0) history[historyIndex] = snapshot;
+    else {
+      history = history.slice(0, historyIndex + 1);
+      history.push(snapshot);
+      historyIndex = history.length - 1;
+    }
+    historyKey = key || "";
+    historyTime = now;
+    updateHistoryControls();
+  }
+
+  function restoreHistory(nextIndex) {
+    if (nextIndex < 0 || nextIndex >= history.length) return;
+    historyIndex = nextIndex;
+    data = JSON.parse(history[historyIndex]);
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    selectedMuscleId = data.muscles.some(function (record) { return record.id === selectedMuscleId; }) ? selectedMuscleId : "";
+    selectedConditionId = data.conditions.some(function (record) { return record.id === selectedConditionId; }) ? selectedConditionId : "";
+    render();
+    updateHistoryControls();
+    updateSaveState();
+    setStatus("Draft history restored.", "draft");
+  }
 
   function normalizeMuscles(payload) {
     (payload.muscles || []).forEach(function (record) {
@@ -344,8 +406,10 @@
     adminMuscleActions.replaceChildren.apply(adminMuscleActions, actions);
   }
 
-  function saveDraft() {
+  function saveDraft(coalesceKey) {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    recordHistory(coalesceKey);
+    updateSaveState();
     updateCounts();
     setStatus("Draft saved in this browser. Publish when ready.", "draft");
   }
@@ -357,7 +421,10 @@
       node.textContent = data[type] ? data[type].length : 0;
     });
     var sidebar = document.getElementById("sidebarKnowledgeCount");
-    if (sidebar) sidebar.textContent = data.conditions.length + data.muscles.length + data.recipes.length;
+    var total = data.conditions.length + data.muscles.length + data.recipes.length;
+    if (sidebar) sidebar.textContent = total;
+    var dashboard = document.getElementById("dashboardKnowledgeCount");
+    if (dashboard) dashboard.textContent = total;
   }
 
   function makeField(record, definition) {
@@ -391,7 +458,7 @@
         var heading = label.closest(".knowledge-card").querySelector("h3");
         heading.textContent = input.value || "Untitled record";
       }
-      saveDraft();
+      saveDraft(activeType + ":" + record.id + ":" + name);
     });
     label.appendChild(caption);
     label.appendChild(input);
@@ -657,15 +724,75 @@
     return { key: "ready", label: "Image ready" };
   }
 
+  function imageFilterMatches(state, filter) {
+    var resolved = state.key === "ready" || state.key === "reference";
+    if (filter === "all") return true;
+    if (filter === "ready") return resolved;
+    if (filter === "missing") return state.key === "missing" || state.key === "diagram";
+    return !resolved;
+  }
+
+  function makeImageQueueTools(records, stateForRecord, type, onOpen) {
+    var tools = document.createElement("div");
+    tools.className = "image-queue-tools";
+    var filters = document.createElement("div");
+    filters.className = "image-queue-filters";
+    filters.setAttribute("role", "group");
+    filters.setAttribute("aria-label", "Filter image review status");
+    var totals = { all: records.length, issues: 0, missing: 0, ready: 0 };
+    records.forEach(function (record) {
+      var state = stateForRecord(record);
+      if (state.key === "ready" || state.key === "reference") totals.ready += 1;
+      else totals.issues += 1;
+      if (state.key === "missing" || state.key === "diagram") totals.missing += 1;
+    });
+    [
+      ["all", "All"], ["issues", "Needs review"], ["missing", "Missing"], ["ready", "Ready"]
+    ].forEach(function (entry) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "image-queue-filter";
+      button.dataset.imageQueueFilter = entry[0];
+      button.classList.toggle("is-active", imageBoardFilters[type] === entry[0]);
+      button.setAttribute("aria-pressed", imageBoardFilters[type] === entry[0] ? "true" : "false");
+      button.innerHTML = "<span>" + entry[1] + "</span><b>" + totals[entry[0]] + "</b>";
+      button.addEventListener("click", function () { imageBoardFilters[type] = entry[0]; render(); });
+      filters.appendChild(button);
+    });
+    var issueRecords = records.filter(function (record) { return imageFilterMatches(stateForRecord(record), "issues"); });
+    var next = document.createElement("button");
+    next.type = "button";
+    next.className = "button button-dark image-queue-next";
+    next.textContent = issueRecords.length ? "Review next issue →" : "Review complete ✓";
+    next.disabled = !issueRecords.length;
+    next.addEventListener("click", function () { if (issueRecords[0]) onOpen(issueRecords[0]); });
+    tools.append(filters, next);
+    return tools;
+  }
+
+  function renderImageQueueEmpty(type) {
+    var empty = document.createElement("div");
+    empty.className = "image-queue-empty";
+    var isReady = imageBoardFilters[type] === "issues" || imageBoardFilters[type] === "missing";
+    empty.innerHTML = isReady
+      ? "<strong>Nothing needs attention here.</strong><span>This review queue is clear.</span>"
+      : "<strong>No images match this filter.</strong><span>Choose another review status.</span>";
+    list.appendChild(empty);
+  }
+
   function renderMuscleBoard(visible) {
     var boardHeader = document.createElement("div");
     boardHeader.className = "muscle-board-heading";
     var issueCount = visible.filter(function (record) { return muscleImageState(record).key !== "ready"; }).length;
     boardHeader.innerHTML = "<div><span class=\"module-chip\">Image board</span><h3>Review the atlas visually</h3></div><p><strong>" + issueCount + "</strong> cards may need attention. Select any card to edit.</p>";
     list.appendChild(boardHeader);
+    function openMuscle(record) { selectedMuscleId = record.id; render(); window.scrollTo({ top: list.offsetTop - 90, behavior: "smooth" }); }
+    list.appendChild(makeImageQueueTools(visible, muscleImageState, "muscles", openMuscle));
+    var filtered = visible.filter(function (record) { return imageFilterMatches(muscleImageState(record), imageBoardFilters.muscles); });
+    if (!filtered.length) { renderImageQueueEmpty("muscles"); return; }
     var board = document.createElement("div");
     board.className = "muscle-image-board";
-    visible.forEach(function (record) {
+    filtered.forEach(function (record) {
       var state = muscleImageState(record);
       var button = document.createElement("button");
       button.type = "button"; button.className = "muscle-board-card"; button.dataset.imageState = state.key;
@@ -683,7 +810,7 @@
       var title = document.createElement("strong"); title.textContent = record.title || "Untitled muscle";
       copy.appendChild(group); copy.appendChild(title);
       button.appendChild(visual); button.appendChild(badge); button.appendChild(copy);
-      button.addEventListener("click", function () { selectedMuscleId = record.id; render(); window.scrollTo({ top: list.offsetTop - 90, behavior: "smooth" }); });
+      button.addEventListener("click", function () { openMuscle(record); });
       board.appendChild(button);
     });
     list.appendChild(board);
@@ -702,9 +829,13 @@
     var customCount = postureRecords.filter(function (record) { return String(record.imageUrl || "").trim(); }).length;
     boardHeader.innerHTML = "<div><span class=\"module-chip\">Posture image board</span><h3>See every guide before editing</h3></div><p><strong>" + customCount + " / " + postureRecords.length + "</strong> posture cards use custom images. Select a card to replace or reframe it.</p>";
     list.appendChild(boardHeader);
+    function openCondition(record) { selectedConditionId = record.id; render(); window.scrollTo({ top: list.offsetTop - 90, behavior: "smooth" }); }
+    list.appendChild(makeImageQueueTools(visible, conditionImageState, "conditions", openCondition));
+    var filtered = visible.filter(function (record) { return imageFilterMatches(conditionImageState(record), imageBoardFilters.conditions); });
+    if (!filtered.length) { renderImageQueueEmpty("conditions"); return; }
     var board = document.createElement("div");
     board.className = "muscle-image-board posture-image-board";
-    visible.forEach(function (record) {
+    filtered.forEach(function (record) {
       var state = conditionImageState(record);
       var button = document.createElement("button");
       button.type = "button"; button.className = "muscle-board-card posture-board-card"; button.dataset.imageState = state.key;
@@ -726,7 +857,7 @@
       var title = document.createElement("strong"); title.textContent = record.title || "Untitled guide";
       copy.appendChild(group); copy.appendChild(title);
       button.appendChild(visual); button.appendChild(badge); button.appendChild(copy);
-      button.addEventListener("click", function () { selectedConditionId = record.id; render(); window.scrollTo({ top: list.offsetTop - 90, behavior: "smooth" }); });
+      button.addEventListener("click", function () { openCondition(record); });
       board.appendChild(button);
     });
     list.appendChild(board);
@@ -878,6 +1009,7 @@
         catch (error) { data = clone(repositoryData); localStorage.removeItem(DRAFT_KEY); }
       } else data = clone(repositoryData);
       render();
+      seedHistory();
       if (!saved) setStatus("Knowledge base loaded. Start editing to create a private draft.");
     }).catch(function () { setStatus("The knowledge base could not be loaded. Refresh and try again.", "error"); });
   }
@@ -893,19 +1025,32 @@
   });
   search.addEventListener("input", render);
   addButton.addEventListener("click", addRecord);
-  resetButton.addEventListener("click", function () { localStorage.removeItem(DRAFT_KEY); data = clone(repositoryData); render(); setStatus("Draft discarded. Repository data restored."); });
+  resetButton.addEventListener("click", function () {
+    if (!window.confirm("Discard this browser draft and restore the live guide data?")) return;
+    localStorage.removeItem(DRAFT_KEY);
+    data = clone(repositoryData);
+    selectedMuscleId = "";
+    selectedConditionId = "";
+    render();
+    seedHistory();
+    setStatus("Draft discarded. Live guide data restored.", "success");
+  });
+  if (undoButton) undoButton.addEventListener("click", function () { restoreHistory(historyIndex - 1); });
+  if (redoButton) redoButton.addEventListener("click", function () { restoreHistory(historyIndex + 1); });
   publishButton.addEventListener("click", function () {
     publishButton.disabled = true;
+    updateSaveState("publishing");
     setStatus("Publishing knowledge base...", "working");
     fetch(PUBLISH_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "publish-knowledge-base", content: data }) }).then(function (response) {
       return response.json().catch(function () { return {}; }).then(function (body) { if (!response.ok) { var error = new Error(body.error || "publish_failed"); error.details = body.details; throw error; } return body; });
     }).then(function (result) {
       repositoryData = clone(data); localStorage.removeItem(DRAFT_KEY);
+      seedHistory();
       setStatus(result.unchanged ? "Everything is already published." : "Published successfully. Vercel is updating the live admin.", "success");
     }).catch(function (error) {
       var detail = error.details && error.details[0] ? " " + error.details[0] : "";
       setStatus("Knowledge base could not be published." + detail, "error");
-    }).finally(function () { publishButton.disabled = false; });
+    }).finally(function () { updateSaveState(); });
   });
 
   window.addEventListener("legitbodyfix:admin-authenticated", load);

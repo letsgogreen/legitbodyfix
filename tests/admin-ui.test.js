@@ -153,6 +153,9 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(html, /data-knowledge-type="recipes"/);
   assert.match(html, /id="knowledgeSearch"/);
   assert.match(html, /id="publishKnowledge"/);
+  assert.match(html, /id="knowledgeEditorSaveState"/);
+  assert.match(html, /id="undoKnowledgeChanges"/);
+  assert.match(html, /id="redoKnowledgeChanges"/);
   assert.match(html, /id="adminMuscleNavigator"/);
   assert.match(html, /Edit muscles by movement/);
   assert.match(javascript, /publish-knowledge-base/);
@@ -165,6 +168,10 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(javascript, /cardImagePosition/);
   assert.match(javascript, /renderMuscleBoard/);
   assert.match(javascript, /renderConditionBoard/);
+  assert.match(javascript, /makeImageQueueTools/);
+  assert.match(javascript, /imageFilterMatches/);
+  assert.match(javascript, /Review next issue/);
+  assert.match(javascript, /Nothing needs attention here/);
   assert.match(javascript, /makeConditionDocumentEditor/);
   assert.match(javascript, /Edit the guide like a document/);
   assert.match(javascript, /Public information blocks/);
@@ -183,9 +190,26 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(javascript, /activeAdminMuscleAction/);
   assert.match(javascript, /Related session IDs \(comma separated\)/);
   assert.match(javascript, /legitbodyfix\.knowledgeBaseDraft\.v1/);
+  assert.match(javascript, /function seedHistory/);
+  assert.match(javascript, /function restoreHistory/);
   assert.ok(data.conditions.length >= 2);
   assert.ok(data.muscles.length >= 3);
   assert.ok(data.recipes.length >= 2);
+});
+
+test("video workspace provides visual navigation and recoverable draft editing", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+
+  assert.match(html, /id="videoEditorSaveState"/);
+  assert.match(html, /id="undoVideoChanges"/);
+  assert.match(html, /id="redoVideoChanges"/);
+  assert.match(html, /id="videoSessionNavigator"/);
+  assert.match(javascript, /function seedVideoHistory/);
+  assert.match(javascript, /function restoreVideoHistory/);
+  assert.match(javascript, /function renderVideoNavigator/);
+  assert.match(css, /video-session-jump/);
 });
 
 test("admin includes a searchable read-only sales ledger", function () {
@@ -312,6 +336,13 @@ test("website editor supports direct canvas editing and a contextual inspector",
   assert.match(editor, /contenteditable/);
   assert.match(editor, /selectInspectorSection/);
   assert.match(editor, /Replace image/);
+  assert.match(html, /id="undoSiteContent"/);
+  assert.match(html, /id="redoSiteContent"/);
+  assert.match(html, /id="siteEditorSaveState"/);
+  assert.match(html, /id="siteInsertMenu"/);
+  assert.match(editor, /function recordHistory/);
+  assert.match(editor, /function restoreHistory/);
+  assert.match(editor, /openInsertMenu/);
   assert.match(css, /\.site-editor-canvas-stage\[data-canvas-device="mobile"\]/);
 });
 

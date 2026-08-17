@@ -24,11 +24,11 @@ test("website content validation returns only approved plain-text fields", funct
   assert.equal(content.hero.extraHtml, undefined);
   assert.equal(content.pricing.checkoutUrl, undefined);
   assert.equal(content.version, 2);
-  assert.equal(content.layout.length, 6);
+  assert.equal(content.layout.length, input.layout.length);
   assert.equal(content.knowledge.linkHref, "knowledge.html");
-  assert.deepEqual(content.customSections, []);
+  assert.equal(content.customSections.length, input.customSections.length);
   assert.equal(content.hero.titleLines.length, 4);
-  assert.equal(content.method.steps.length, 3);
+  assert.equal(content.method.steps.length, 4);
 });
 
 test("website content validation rejects unsafe destinations and broken layouts", function () {
@@ -61,8 +61,9 @@ test("website content validation accepts safe custom sections", function () {
   input.layout.push({ id: "custom-story", kind: "custom", visible: true });
 
   var content = publishing.validateSiteContent(input);
-  assert.equal(content.customSections[0].type, "split");
-  assert.equal(content.customSections[0].buttonHref, "#program");
+  var story = content.customSections.find(function (section) { return section.id === "custom-story"; });
+  assert.equal(story.type, "split");
+  assert.equal(story.buttonHref, "#program");
 });
 
 test("website content validation rejects missing, oversized, and malformed fields", function () {
