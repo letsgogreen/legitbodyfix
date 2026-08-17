@@ -669,6 +669,16 @@ body.preview-open { overflow: hidden; }
 .muscle-board-heading h3 { margin: 8px 0 0; font-size: clamp(26px, 3vw, 40px); letter-spacing: -.045em; }
 .muscle-board-heading p { max-width: 280px; margin: 0; color: var(--muted); line-height: 1.5; text-align: right; }
 .muscle-board-heading p strong { color: var(--ink); }
+.image-queue-tools { display: flex; align-items: stretch; justify-content: space-between; gap: 14px; padding: 12px; border: 1px solid var(--line-strong); border-top: 0; background: #e8e5dc; }
+.image-queue-filters { display: flex; flex: 1; flex-wrap: wrap; gap: 7px; }
+.image-queue-filter { min-height: 38px; padding: 8px 10px; display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; font: 600 9px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.image-queue-filter b { min-width: 22px; padding: 4px 5px; background: #dedbd2; color: var(--ink); text-align: center; }
+.image-queue-filter.is-active { background: var(--acid); box-shadow: 2px 2px 0 var(--ink); }
+.image-queue-filter.is-active b { background: var(--ink); color: var(--acid); }
+.image-queue-next { white-space: nowrap; }
+.image-queue-empty { min-height: 210px; padding: 40px; display: grid; place-items: center; align-content: center; gap: 8px; border: 1px solid var(--line-strong); border-top: 0; background: repeating-linear-gradient(45deg, #f1eee6, #f1eee6 12px, #f8f6f0 12px, #f8f6f0 24px); text-align: center; }
+.image-queue-empty strong { font-size: 22px; }
+.image-queue-empty span { color: var(--muted); }
 .muscle-image-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-left: 1px solid var(--line-strong); }
 .muscle-board-card { position: relative; min-width: 0; padding: 0; overflow: hidden; border: 0; border-right: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
 .muscle-board-card:hover, .muscle-board-card:focus-visible { z-index: 1; outline: 3px solid var(--acid); outline-offset: -3px; }
@@ -700,7 +710,7 @@ body.preview-open { overflow: hidden; }
 @media (min-width: 2800px) { .muscle-image-board { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 @media (max-width: 1200px) { .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 900px) { .muscle-image-studio { grid-template-columns: 1fr; } .muscle-image-stage { min-height: 300px; border-right: 0; border-bottom: 1px solid var(--line); } }
-@media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } .muscle-image-heading, .muscle-board-heading { align-items: flex-start; flex-direction: column; } .muscle-image-heading p, .muscle-board-heading p { text-align: left; } .muscle-image-footer, .muscle-image-upload { align-items: stretch; flex-direction: column; } .muscle-image-link { grid-template-columns: 1fr; } .muscle-image-link > span { grid-column: 1; } .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 780px) { .knowledge-tabs { flex-direction: column; } .knowledge-tabs button { border-right: 0; border-bottom: 1px solid var(--line); } .knowledge-card > header { align-items: flex-start; flex-direction: column; } .muscle-image-heading, .muscle-board-heading { align-items: flex-start; flex-direction: column; } .muscle-image-heading p, .muscle-board-heading p { text-align: left; } .muscle-image-footer, .muscle-image-upload, .image-queue-tools { align-items: stretch; flex-direction: column; } .muscle-image-link { grid-template-columns: 1fr; } .muscle-image-link > span { grid-column: 1; } .muscle-image-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .image-queue-next { width: 100%; } }
 @media (max-width: 520px) { .muscle-image-board { grid-template-columns: 1fr; } }
 
 /* 2026 control-room redesign: clearer hierarchy, denser editing, calmer surfaces */

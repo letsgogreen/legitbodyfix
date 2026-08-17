@@ -168,6 +168,10 @@ test("admin includes an editable versioned knowledge base", function () {
   assert.match(javascript, /cardImagePosition/);
   assert.match(javascript, /renderMuscleBoard/);
   assert.match(javascript, /renderConditionBoard/);
+  assert.match(javascript, /makeImageQueueTools/);
+  assert.match(javascript, /imageFilterMatches/);
+  assert.match(javascript, /Review next issue/);
+  assert.match(javascript, /Nothing needs attention here/);
   assert.match(javascript, /makeConditionDocumentEditor/);
   assert.match(javascript, /Edit the guide like a document/);
   assert.match(javascript, /Public information blocks/);
