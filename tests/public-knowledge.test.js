@@ -271,10 +271,15 @@ test("condition detail pages expose their clinical reference and skip animated i
   assert.match(javascript, /detail-condition-map/);
   assert.match(javascript, /conditionTargetRegion/);
   assert.match(javascript, /detail-facts-heading/);
+  assert.match(javascript, /condition-next-steps/);
+  assert.match(javascript, /Related condition guides/);
+  assert.match(javascript, /candidate\.conditionCategory === item\.conditionCategory/);
   assert.match(javascript, /row\.dataset\.field/);
   assert.match(detailCss, /\.is-condition-detail \.detail-fields/);
   assert.match(detailCss, /data-field="screening"/);
   assert.match(detailCss, /detail-condition-figure\.is-lower/);
+  assert.match(detailCss, /\.condition-next-grid/);
+  assert.match(detailCss, /\.condition-guide-link/);
   assert.match(javascript, /shouldUpdateUrl === false \? "auto" : "smooth"/);
 });
 
