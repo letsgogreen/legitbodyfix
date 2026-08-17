@@ -268,8 +268,9 @@ test("condition detail pages expose their clinical reference and skip animated i
   assert.match(javascript, /item\.imageScale/);
   assert.match(detailCss, /detail-posture-frame/);
   assert.match(javascript, /is-condition-detail/);
-  assert.match(javascript, /detail-condition-map/);
-  assert.match(javascript, /conditionTargetRegion/);
+  assert.match(javascript, /detail-condition-meta/);
+  assert.match(javascript, /Assessment-aware recovery/);
+  assert.match(javascript, /What may need rebuilding/);
   assert.match(javascript, /detail-facts-heading/);
   assert.match(javascript, /condition-next-steps/);
   assert.match(javascript, /Related condition guides/);
@@ -277,7 +278,7 @@ test("condition detail pages expose their clinical reference and skip animated i
   assert.match(javascript, /row\.dataset\.field/);
   assert.match(detailCss, /\.is-condition-detail \.detail-fields/);
   assert.match(detailCss, /data-field="screening"/);
-  assert.match(detailCss, /detail-condition-figure\.is-lower/);
+  assert.match(detailCss, /\.detail-condition-meta/);
   assert.match(detailCss, /\.condition-next-grid/);
   assert.match(detailCss, /\.condition-guide-link/);
   assert.match(javascript, /shouldUpdateUrl === false \? "auto" : "smooth"/);
