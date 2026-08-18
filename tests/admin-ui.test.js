@@ -144,14 +144,20 @@ test("admin presents the rebuilt control room workspaces", function () {
 
 test("admin uses explicit production launch checks instead of claiming unverified readiness", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
   var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
   assert.match(html, /id="launchChecksTitle"/);
   assert.match(html, /Test signup/);
   assert.match(html, /Test checkout/);
   assert.match(html, /Test library/);
   assert.match(html, /Test playback/);
+  assert.match(html, /id="launchCheckCount"/);
+  assert.match(html, /data-launch-check="account"/);
+  assert.match(html, /class="button launch-check-toggle"/);
   assert.doesNotMatch(html, /4 of 4 essentials ready/i);
   assert.match(css, /\.launch-check-grid/);
+  assert.match(editor, /function initializeLaunchChecks/);
+  assert.match(editor, /legitbodyfix\.launchChecks\.v1/);
 });
 
 test("admin includes an editable versioned knowledge base", function () {

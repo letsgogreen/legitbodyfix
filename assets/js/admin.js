@@ -7,6 +7,7 @@
   var SITE_DATA_URL = "assets/data/site-content.json";
   var SITE_DRAFT_KEY = "legitbodyfix.siteContentDraft.v1";
   var SITE_PREVIEW_KEY = "legitbodyfix.siteContentPreview.v1";
+  var LAUNCH_CHECKS_KEY = "legitbodyfix.launchChecks.v1";
   var SESSION_URL = "/api/admin/session";
   var LOGIN_URL = "/api/admin/login";
   var LOGOUT_URL = "/api/admin/logout";
@@ -62,6 +63,40 @@
   var supabaseClient = null;
   var supabaseInitialization = null;
   var verifiedSession = null;
+  var launchChecksInitialized = false;
+
+  function initializeLaunchChecks() {
+    if (launchChecksInitialized) return;
+    launchChecksInitialized = true;
+    var cards = Array.from(document.querySelectorAll("[data-launch-check]"));
+    var count = document.getElementById("launchCheckCount");
+    var reset = document.getElementById("resetLaunchChecks");
+    var values = {};
+    try { values = JSON.parse(localStorage.getItem(LAUNCH_CHECKS_KEY) || "{}"); } catch (error) { values = {}; }
+
+    function renderLaunchChecks() {
+      var completed = 0;
+      cards.forEach(function (card) {
+        var verified = values[card.dataset.launchCheck] === true;
+        var button = card.querySelector(".launch-check-toggle");
+        card.dataset.verified = verified ? "true" : "false";
+        button.setAttribute("aria-pressed", verified ? "true" : "false");
+        button.textContent = verified ? "Verified ✓" : "Mark verified";
+        if (verified) completed += 1;
+      });
+      count.textContent = completed + " of " + cards.length + " verified";
+      localStorage.setItem(LAUNCH_CHECKS_KEY, JSON.stringify(values));
+    }
+
+    cards.forEach(function (card) {
+      card.querySelector(".launch-check-toggle").addEventListener("click", function () {
+        values[card.dataset.launchCheck] = values[card.dataset.launchCheck] !== true;
+        renderLaunchChecks();
+      });
+    });
+    reset.addEventListener("click", function () { values = {}; renderLaunchChecks(); });
+    renderLaunchChecks();
+  }
 
   var SITE_FIELDS = [
     { title: "Hero", fields: [
@@ -179,6 +214,7 @@
     authGate.hidden = true;
     adminShell.hidden = false;
     logoutButton.hidden = false;
+    initializeLaunchChecks();
     if (!editorStarted) {
       editorStarted = true;
       load();
