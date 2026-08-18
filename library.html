@@ -70,6 +70,12 @@
           <article><span>Active programs</span><strong id="activeProgramCount">0</strong></article>
           <article><span>Completed orders</span><strong id="purchaseCount">0</strong></article>
         </div>
+        <form class="profile-editor" id="profileForm" hidden>
+          <div><p class="eyebrow">PERSONAL DETAILS</p><h3>How should we address you?</h3><p>Your sign-in email stays controlled by your verified account.</p></div>
+          <label for="profileDisplayName">Display name</label>
+          <div class="form-row"><input id="profileDisplayName" name="displayName" type="text" autocomplete="name" maxlength="80" placeholder="Your name" /><button class="button button-dark" id="saveProfile" type="submit">Save name</button></div>
+          <p class="form-message" id="profileMessage" role="status" aria-live="polite"></p>
+        </form>
         <div class="purchase-heading"><div><p class="eyebrow">PAYMENT HISTORY</p><h3>Your purchases</h3></div><p>Only completed payments linked to this email are shown.</p></div>
         <div class="purchase-list" id="purchaseList"></div>
       </section>

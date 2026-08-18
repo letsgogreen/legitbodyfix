@@ -19,6 +19,16 @@ test("customer profile migration preserves email reconciliation while adding sta
   assert.doesNotMatch(migration, /grant select, update on public\.profiles/);
 });
 
+test("buyer profile UI reads and updates only the authenticated user's display name", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../library.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/library.js"), "utf8");
+  assert.match(html, /id="profileForm"/);
+  assert.match(html, /id="profileDisplayName"/);
+  assert.match(javascript, /client\.from\("profiles"\)\.select\("display_name"\)\.eq\("user_id", session\.user\.id\)/);
+  assert.match(javascript, /update\(\{ display_name: displayName \|\| null \}\)\.eq\("user_id", activeSession\.user\.id\)/);
+  assert.doesNotMatch(javascript, /update\(\{[^}]*email/);
+});
+
 function environment() {
   return {
     SUPABASE_URL: "https://example-project.supabase.co",
