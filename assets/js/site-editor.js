@@ -34,6 +34,15 @@
   var lastHistoryKey = "";
   var lastHistoryTime = 0;
   var insertionAfterId = "";
+  var selectedTemplateType = "hero";
+  var TEMPLATE_HINTS = {
+    hero: "Best for launches, announcements, and featured programs.",
+    split: "Best when an image helps explain your message.",
+    benefits: "Best for summarizing three concrete reasons to buy.",
+    testimonials: "Best when you have approved customer proof.",
+    faq: "Best for resolving common objections before checkout.",
+    cta: "Best for closing the page with one focused action."
+  };
 
   var CORE_DEFINITIONS = {
     hero: { title: "Hero", description: "The first message, actions, proof points, and optional feature image.", fields: [
@@ -599,16 +608,24 @@
       render(); saveDraft("New section added to the complete site draft.");
       var card = form.querySelector('[data-section-id="' + section.id + '"]'); if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    document.getElementById("addSiteSection").addEventListener("click", function () {
-      addSection(document.getElementById("siteSectionType").value);
-    });
-    document.querySelectorAll("[data-add-site-section]").forEach(function (button) {
+    function selectTemplate(type) {
+      if (!CUSTOM_LABELS[type]) return;
+      selectedTemplateType = type;
+      document.querySelectorAll("[data-select-site-section]").forEach(function (button) {
+        var selected = button.dataset.selectSiteSection === type;
+        button.classList.toggle("is-selected", selected);
+        button.setAttribute("aria-pressed", selected ? "true" : "false");
+        var state = button.querySelector("em");
+        if (state) state.textContent = selected ? "Selected" : "Select";
+      });
+      document.getElementById("selectedSiteSectionLabel").textContent = CUSTOM_LABELS[type];
+      document.getElementById("selectedSiteSectionHint").textContent = TEMPLATE_HINTS[type];
+      document.getElementById("addSiteSection").firstChild.textContent = "Add " + CUSTOM_LABELS[type] + " ";
+    }
+    document.getElementById("addSiteSection").addEventListener("click", function () { addSection(selectedTemplateType); });
+    document.querySelectorAll("[data-select-site-section]").forEach(function (button) {
       button.addEventListener("click", function () {
-        var type = button.dataset.addSiteSection;
-        if (CUSTOM_LABELS[type]) {
-          document.getElementById("siteSectionType").value = type;
-          addSection(type);
-        }
+        selectTemplate(button.dataset.selectSiteSection);
       });
     });
     document.querySelectorAll("[data-insert-site-section]").forEach(function (button) {
