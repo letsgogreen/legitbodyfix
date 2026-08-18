@@ -37,13 +37,13 @@
   },
   "method": {
     "label": "The LegitBodyFix method",
-    "titleLines": ["A CLEARER WAY", "TO MOVE FORWARD."],
-    "intro": "A useful plan starts with context. Check the movement, understand the pattern, practice a focused progression, then reassess what changed.",
+    "titleLines": ["FROM STUCK", "TO MORE OPTIONS."],
+    "intro": "A useful plan starts with context and ends with a decision. Assess the movement, choose a relevant focus, practice a clear progression, then check what changed.",
     "steps": [
-      { "title": "Check", "description": "Begin with a simple movement check and a clear baseline." },
-      { "title": "Understand", "description": "See what may influence the pattern without information overload." },
-      { "title": "Practice", "description": "Follow one focused sequence instead of collecting random exercises." },
-      { "title": "Reassess", "description": "Repeat the check and use the result to decide what comes next." }
+      { "title": "Assess", "description": "Start with the movement you notice and establish a useful baseline." },
+      { "title": "Choose", "description": "Narrow the focus to the body areas and movement options that may matter." },
+      { "title": "Practice", "description": "Follow one focused progression instead of collecting random exercises." },
+      { "title": "Recheck", "description": "Repeat the movement and use the response to choose your next step." }
     ]
   },
   "library": {
@@ -92,8 +92,8 @@
       "eyebrow": "Sound familiar?",
       "title": "START WITH WHAT YOU ACTUALLY NOTICE.",
       "body": "Choose the movement problem that feels familiar. You do not need to know the diagnosis or the exact muscle before you begin.",
-      "buttonLabel": "",
-      "buttonHref": "",
+      "buttonLabel": "Find my starting point",
+      "buttonHref": "knowledge.html",
       "imageUrl": "",
       "imageAlt": "",
       "items": [

@@ -100,6 +100,7 @@
   function renderItems(section, container, basePath) {
     var list = document.createElement("div");
     list.className = "site-block-items site-block-items-" + section.type;
+    list.classList.add("site-block-items-count-" + Math.min((section.items || []).length, 6));
     (section.items || []).forEach(function (item, itemIndex) {
       var article = document.createElement("article");
       article.className = "site-block-item";
