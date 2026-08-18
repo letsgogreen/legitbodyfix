@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Sign in to your LegitBodyFix movement library." />
   <title>Your library | LegitBodyFix</title>
+  <script>
+    (function () {
+      if (window.location.hostname === "legitbodyfix.vercel.app") {
+        window.location.replace("https://www.legitbodyfix.com/library.html" + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -51,6 +58,6 @@
   </main>
 
   <footer class="footer wrap"><a class="brand" href="index.html"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#refunds">Refunds</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script type="module" src="assets/js/library.js"></script>
+  <script type="module" src="assets/js/library.js?v=20260819-1"></script>
 </body>
 </html>

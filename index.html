@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Check what feels limited, understand the movement, and follow a focused plan with LegitBodyFix." />
   <title>LegitBodyFix — Stop guessing. Move with a plan.</title>
+  <script>
+    (function () {
+      var authCallback = /(?:^|[?#&])(access_token|refresh_token|token_hash|code|error)=/.test(window.location.search + window.location.hash);
+      if (window.location.hostname === "legitbodyfix.vercel.app" && authCallback) {
+        window.location.replace("https://www.legitbodyfix.com/library.html" + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

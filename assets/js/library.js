@@ -19,6 +19,11 @@ var closePlayerButton = document.getElementById("closePlayerButton");
 var libraryStatus = document.getElementById("libraryStatus");
 var signOutButton = document.getElementById("signOutButton");
 
+function libraryRedirectUrl() {
+  var localHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  return localHost ? window.location.origin + "/library.html" : "https://www.legitbodyfix.com/library.html";
+}
+
 function setVisible(panel) {
   loadingPanel.hidden = panel !== loadingPanel;
   authPanel.hidden = panel !== authPanel;
@@ -212,6 +217,7 @@ async function showSession(session) {
     emailInput.focus();
     return;
   }
+  if (activeSession && activeSession.access_token === session.access_token && !libraryPanel.hidden) return;
   activeSession = session;
   setVisible(libraryPanel);
   buyerEmail.textContent = session.user.email || "";
@@ -233,7 +239,7 @@ form.addEventListener("submit", async function (event) {
   try {
     var result = await client.auth.signInWithOtp({
       email: email,
-      options: { emailRedirectTo: window.location.origin + "/library.html" }
+      options: { emailRedirectTo: libraryRedirectUrl() }
     });
     if (result.error) throw result.error;
     setAuthMessage("Check your email and open the secure sign-in link. You can close this page after opening it.", false);
@@ -263,6 +269,15 @@ try {
   var config = await getConfig();
   client = createClient(config.url, config.publishableKey, {
     auth: { persistSession: true, detectSessionInUrl: true, autoRefreshToken: true }
+  });
+  client.auth.onAuthStateChange(function (event, session) {
+    if (event !== "SIGNED_IN" || !session) return;
+    window.setTimeout(function () {
+      showSession(session).catch(function (error) {
+        setVisible(authPanel);
+        setAuthMessage(error && error.message ? error.message : "We could not open your library. Please try again.", true);
+      });
+    }, 0);
   });
   var sessionResult = await client.auth.getSession();
   if (sessionResult.error) throw sessionResult.error;
