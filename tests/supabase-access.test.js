@@ -70,3 +70,24 @@ test("checks the authenticated buyer and reads only active programs server-side"
   assert.match(requests[1].url, /buyer_email=eq.buyer%40example.com/);
   assert.equal(requests[1].options.headers.apikey, environment().SUPABASE_SECRET_KEY);
 });
+
+test("reads only the authenticated buyer's completed payment history server-side", async function () {
+  var config = access.getServerConfig(environment());
+  var request;
+  var purchases = await access.listPurchases(config, "buyer@example.com", async function (url, options) {
+    request = { url: url, options: options };
+    return { ok: true, status: 200, json: async function () { return [{
+      id: "payment-1", provider_order_id: "ORDER-1", program_id: "neck-shoulder-reset",
+      amount: 45, currency: "USD", status: "completed", paid_at: "2026-08-19T00:00:00Z"
+    }]; } };
+  });
+
+  assert.match(request.url, /payment_orders/);
+  assert.match(request.url, /buyer_email=eq.buyer%40example.com/);
+  assert.match(request.url, /status=eq.completed/);
+  assert.equal(request.options.headers.apikey, environment().SUPABASE_SECRET_KEY);
+  assert.deepEqual(purchases[0], {
+    id: "payment-1", orderId: "ORDER-1", programId: "neck-shoulder-reset",
+    amount: 45, currency: "USD", status: "completed", paidAt: "2026-08-19T00:00:00Z"
+  });
+});
