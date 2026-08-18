@@ -14,6 +14,7 @@
   },
   "layout": [
     { "id": "hero", "kind": "core", "visible": true },
+    { "id": "visitor-problems", "kind": "custom", "visible": true },
     { "id": "method", "kind": "core", "visible": true },
     { "id": "knowledge", "kind": "core", "visible": true },
     { "id": "library", "kind": "core", "visible": true },
@@ -23,26 +24,26 @@
     { "id": "starting-point-cta", "kind": "custom", "visible": true }
   ],
   "hero": {
-    "kicker": "Movement clarity. No random routines.",
-    "titleLines": ["STOP", "GUESSING.", "MOVE WITH", "A PLAN."],
-    "description": "Check what feels limited, understand what may be influencing it, and follow a focused session built around your goal.",
+    "kicker": "Movement options. No random routines.",
+    "titleLines": ["BUILD", "MORE WAYS", "TO MOVE.", "WITH A PLAN."],
+    "description": "Assess what feels limited, understand what may be influencing it, and build the movement options you need for training and daily life.",
     "primaryButton": "Find my starting point",
     "primaryHref": "knowledge.html",
     "secondaryButton": "Browse focused sessions",
     "secondaryHref": "#library-preview",
-    "proofPoints": ["Clear starting points", "Guided progressions", "No subscription"],
+    "proofPoints": ["Built for active adults", "Clear progressions", "No subscription"],
     "imageUrl": "",
     "imageAlt": "Corrective movement body map showing shoulder, hip, and knee focus areas"
   },
   "method": {
     "label": "The LegitBodyFix method",
-    "titleLines": ["A CLEARER WAY", "TO MOVE FORWARD."],
-    "intro": "A useful plan starts with context. Check the movement, understand the pattern, practice a focused progression, then reassess what changed.",
+    "titleLines": ["FROM STUCK", "TO MORE OPTIONS."],
+    "intro": "A useful plan starts with context and ends with a decision. Assess the movement, choose a relevant focus, practice a clear progression, then check what changed.",
     "steps": [
-      { "title": "Check", "description": "Begin with a simple movement check and a clear baseline." },
-      { "title": "Understand", "description": "See what may influence the pattern without information overload." },
-      { "title": "Practice", "description": "Follow one focused sequence instead of collecting random exercises." },
-      { "title": "Reassess", "description": "Repeat the check and use the result to decide what comes next." }
+      { "title": "Assess", "description": "Start with the movement you notice and establish a useful baseline." },
+      { "title": "Choose", "description": "Narrow the focus to the body areas and movement options that may matter." },
+      { "title": "Practice", "description": "Follow one focused progression instead of collecting random exercises." },
+      { "title": "Recheck", "description": "Repeat the movement and use the response to choose your next step." }
     ]
   },
   "library": {
@@ -84,6 +85,24 @@
     "legal": "Educational movement content, not medical diagnosis or treatment."
   },
   "customSections": [
+    {
+      "id": "visitor-problems",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Sound familiar?",
+      "title": "START WITH WHAT YOU ACTUALLY NOTICE.",
+      "body": "Choose the movement problem that feels familiar. You do not need to know the diagnosis or the exact muscle before you begin.",
+      "buttonLabel": "Find my starting point",
+      "buttonHref": "knowledge.html",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "My hips feel blocked in a squat", "body": "Start with hip, ankle, and squat movement checks." },
+        { "title": "My back feels stiff after hinging", "body": "Explore comfortable trunk, hip, and hinge options." },
+        { "title": "Overhead movement feels restricted", "body": "Check shoulder, scapular, and thoracic contributors." },
+        { "title": "I want to return to training confidently", "body": "Use a focused progression instead of collecting random drills." }
+      ]
+    },
     {
       "id": "purchase-questions",
       "type": "faq",

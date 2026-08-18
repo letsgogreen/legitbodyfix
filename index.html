@@ -53,6 +53,7 @@
     .site-header { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(12px); }
     .nav { min-height: 85px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
     .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-family: var(--display); font-size: 22px; letter-spacing: -.05em; }
+    .brand-wordmark { font-family: var(--body); font-size: 20px; font-weight: 800; letter-spacing: -.045em; }
     .brand-mark { width: 43px; height: 43px; display: grid; place-items: center; transform: rotate(-4deg); background: var(--ink); color: var(--lime); font-family: var(--body); font-size: 13px; font-weight: 900; letter-spacing: -.08em; }
     .nav-links { display: flex; align-items: center; gap: 31px; list-style: none; padding: 0; margin: 0; font-weight: 800; font-size: 14px; }
     .nav-links a { text-decoration: none; }
@@ -203,7 +204,7 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <nav class="nav wrap" aria-label="Primary navigation">
-      <a class="brand" href="#main" aria-label="LegitBodyFix home"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a>
+      <a class="brand brand-wordmark" href="#main" aria-label="LegitBodyFix home">LegitBodyFix</a>
       <ul class="nav-links" id="navLinks">
         <li><a href="#method" data-content="navigation.method">How it works</a></li>
         <li><a href="#library-preview" data-content="navigation.library">Programs</a></li>
@@ -218,14 +219,14 @@
   <main id="main">
     <section class="hero wrap" aria-labelledby="hero-title" data-site-section="hero">
       <div>
-        <p class="kicker" data-content="hero.kicker">Movement clarity. No random routines.</p>
-        <h1 id="hero-title"><span data-content="hero.titleLines.0">STOP</span><br /><span data-content="hero.titleLines.1">GUESSING.</span><br /><span class="outline" data-content="hero.titleLines.2">MOVE WITH</span><br /><span class="outline" data-content="hero.titleLines.3">A PLAN.</span></h1>
-        <p class="hero-copy" data-content="hero.description">Check what feels limited, understand what may be influencing it, and follow a focused session built around your goal.</p>
+        <p class="kicker" data-content="hero.kicker">Movement options. No random routines.</p>
+        <h1 id="hero-title"><span data-content="hero.titleLines.0">BUILD</span><br /><span data-content="hero.titleLines.1">MORE WAYS</span><br /><span class="outline" data-content="hero.titleLines.2">TO MOVE.</span><br /><span class="outline" data-content="hero.titleLines.3">WITH A PLAN.</span></h1>
+        <p class="hero-copy" data-content="hero.description">Assess what feels limited, understand what may be influencing it, and build the movement options you need for training and daily life.</p>
         <div class="hero-actions">
           <a class="button button-dark" href="knowledge.html" data-content-href="hero.primaryHref"><span data-content="hero.primaryButton">Find my starting point</span> <span aria-hidden="true">→</span></a>
           <a class="button" href="#library-preview" data-content="hero.secondaryButton" data-content-href="hero.secondaryHref">Browse focused sessions</a>
         </div>
-        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Clear starting points</span><span data-content="hero.proofPoints.1">Guided progressions</span><span data-content="hero.proofPoints.2">No subscription</span></div>
+        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Built for active adults</span><span data-content="hero.proofPoints.1">Clear progressions</span><span data-content="hero.proofPoints.2">No subscription</span></div>
       </div>
       <div class="start-panel" id="heroBodyMap" aria-label="Choose your starting point">
         <div class="start-panel-head"><strong>WHAT BROUGHT YOU HERE?</strong><span>Choose a starting point<br />Not a diagnosis</span></div>
@@ -239,13 +240,13 @@
     <section class="section" id="method" aria-labelledby="method-title" data-site-section="method">
       <div class="wrap">
         <p class="section-label" data-content="method.label">The LegitBodyFix method</p>
-        <h2 class="section-title" id="method-title"><span data-content="method.titleLines.0">A CLEARER WAY</span><br /><span data-content="method.titleLines.1">TO MOVE FORWARD.</span></h2>
-        <p class="section-intro" data-content="method.intro">A useful plan starts with context. Check the movement, understand the pattern, practice a focused progression, then reassess what changed.</p>
+        <h2 class="section-title" id="method-title"><span data-content="method.titleLines.0">FROM STUCK</span><br /><span data-content="method.titleLines.1">TO MORE OPTIONS.</span></h2>
+        <p class="section-intro" data-content="method.intro">A useful plan starts with context and ends with a decision. Assess the movement, choose a relevant focus, practice a clear progression, then check what changed.</p>
         <div class="method-grid">
-          <article class="method-card"><span class="step">01</span><h3 data-content="method.steps.0.title">Check</h3><p data-content="method.steps.0.description">Begin with a simple movement check and a clear baseline.</p></article>
-          <article class="method-card"><span class="step">02</span><h3 data-content="method.steps.1.title">Understand</h3><p data-content="method.steps.1.description">See what may influence the pattern without information overload.</p></article>
-          <article class="method-card"><span class="step">03</span><h3 data-content="method.steps.2.title">Practice</h3><p data-content="method.steps.2.description">Follow one focused sequence instead of collecting random exercises.</p></article>
-          <article class="method-card"><span class="step">04</span><h3 data-content="method.steps.3.title">Reassess</h3><p data-content="method.steps.3.description">Repeat the check and use the result to decide what comes next.</p></article>
+          <article class="method-card"><span class="step">01</span><h3 data-content="method.steps.0.title">Assess</h3><p data-content="method.steps.0.description">Start with the movement you notice and establish a useful baseline.</p></article>
+          <article class="method-card"><span class="step">02</span><h3 data-content="method.steps.1.title">Choose</h3><p data-content="method.steps.1.description">Narrow the focus to the body areas and movement options that may matter.</p></article>
+          <article class="method-card"><span class="step">03</span><h3 data-content="method.steps.2.title">Practice</h3><p data-content="method.steps.2.description">Follow one focused progression instead of collecting random exercises.</p></article>
+          <article class="method-card"><span class="step">04</span><h3 data-content="method.steps.3.title">Recheck</h3><p data-content="method.steps.3.description">Repeat the movement and use the response to choose your next step.</p></article>
         </div>
       </div>
     </section>
