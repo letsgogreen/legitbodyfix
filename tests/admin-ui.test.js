@@ -135,8 +135,8 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(javascript, /showWorkspace/);
   assert.match(javascript, /filterVideos/);
   assert.match(html, /id="densityToggle"/);
-  assert.match(html, /Run the/);
-  assert.match(html, /Recommended next/);
+  assert.doesNotMatch(html, /Run the<br \/>business/);
+  assert.match(html, /aria-label="Control Room overview"/);
   assert.match(html, /id="dashboardKnowledgeCount"/);
   assert.match(javascript, /setCompactDensity/);
   assert.match(javascript, /DENSITY_PREFERENCE_KEY/);
