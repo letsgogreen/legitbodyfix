@@ -142,6 +142,18 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(javascript, /DENSITY_PREFERENCE_KEY/);
 });
 
+test("admin uses explicit production launch checks instead of claiming unverified readiness", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  assert.match(html, /id="launchChecksTitle"/);
+  assert.match(html, /Test signup/);
+  assert.match(html, /Test checkout/);
+  assert.match(html, /Test library/);
+  assert.match(html, /Test playback/);
+  assert.doesNotMatch(html, /4 of 4 essentials ready/i);
+  assert.match(css, /\.launch-check-grid/);
+});
+
 test("admin includes an editable versioned knowledge base", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/knowledge-base-admin.js"), "utf8");
