@@ -3,6 +3,21 @@
 var test = require("node:test");
 var assert = require("node:assert/strict");
 var access = require("../lib/supabase-access");
+var fs = require("node:fs");
+var path = require("node:path");
+
+test("customer profile migration preserves email reconciliation while adding stable user identity", function () {
+  var migration = fs.readFileSync(path.join(__dirname, "../supabase-customer-profiles.sql"), "utf8");
+  assert.match(migration, /create table if not exists public\.profiles/);
+  assert.match(migration, /user_id uuid primary key references auth\.users\(id\)/);
+  assert.match(migration, /alter table public\.payment_orders[\s\S]*add column if not exists user_id/);
+  assert.match(migration, /alter table public\.entitlements[\s\S]*add column if not exists user_id/);
+  assert.match(migration, /lower\(trim\(orders\.buyer_email\)\) = lower\(trim\(users\.email\)\)/);
+  assert.match(migration, /lower\(trim\(access\.buyer_email\)\) = lower\(trim\(users\.email\)\)/);
+  assert.match(migration, /auth\.uid\(\) = user_id/);
+  assert.match(migration, /grant update \(display_name\) on public\.profiles to authenticated/);
+  assert.doesNotMatch(migration, /grant select, update on public\.profiles/);
+});
 
 function environment() {
   return {
