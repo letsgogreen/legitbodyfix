@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260818-2" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260818-3" />
 </head>
 <body class="auth-visible">
   <a class="skip-link" href="#authTitle">Skip to restricted access</a>
@@ -134,7 +134,7 @@
             <summary><span>Build &amp; sell</span><i aria-hidden="true"></i></summary>
             <div class="nav-group-items">
               <a class="workspace-nav-item" href="#site-copy" data-workspace-target="site-copy" title="Website editor"><span class="nav-icon" aria-hidden="true">02</span><span><strong>Website</strong><small>Copy, layout, and design</small></span></a>
-              <button class="nav-child-action" type="button" data-workspace-open="site-copy" data-focus-target="siteSectionPicker"><span>+ Add homepage section</span><b aria-hidden="true">→</b></button>
+              <button class="nav-child-action" type="button" data-workspace-open="site-copy" data-focus-target="siteSectionPicker" data-toggle-site-section-picker><span>+ Add homepage section</span><b aria-hidden="true">→</b></button>
               <a class="workspace-nav-item" href="#video-library" data-workspace-target="video-library" title="Programs and videos"><span class="nav-icon" aria-hidden="true">03</span><span><strong>Programs &amp; videos</strong><small>Sessions and publishing</small></span><b class="nav-badge" id="sidebarVideoCount" aria-label="Video count">0</b></a>
               <button class="nav-child-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span>+ Add a new session</span><b aria-hidden="true">→</b></button>
             </div>
@@ -199,25 +199,20 @@
       <section class="workspace-panel site-content-editor" id="site-copy" data-workspace-panel="site-copy" aria-labelledby="siteContentTitle" hidden>
         <header class="page-heading">
           <div><p class="eyebrow">Control Room / Website</p><h1 id="siteContentTitle">Website editor</h1><p class="lede">Edit the homepage without touching code. Your checkout, login, and video protection remain locked.</p></div>
-          <div class="page-heading-actions"><span class="editor-save-state" id="siteEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button" id="previewSiteContent" type="button">Preview website</button><button class="button button-lime" id="publishSiteContent" type="button">Publish website <span aria-hidden="true">→</span></button></div>
+          <div class="page-heading-actions"><span class="editor-save-state" id="siteEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button" type="button" data-toggle-site-section-picker aria-expanded="false" aria-controls="siteSectionPicker">+ Add section</button><button class="button" id="previewSiteContent" type="button">Preview website</button><button class="button button-lime" id="publishSiteContent" type="button">Publish website <span aria-hidden="true">→</span></button></div>
         </header>
-        <div class="workspace-toolbar site-editor-toolbar">
-          <p><strong>Draft tools</strong><span>Undo or discard changes before publishing.</span></p>
-          <div class="site-history-actions"><button class="button button-quiet" id="undoSiteContent" type="button" disabled>Undo</button><button class="button button-quiet" id="redoSiteContent" type="button" disabled>Redo</button><button class="button button-quiet" id="resetSiteContent" type="button">Discard draft</button></div>
-        </div>
-        <section class="template-picker" id="siteSectionPicker" aria-labelledby="templatePickerTitle" tabindex="-1">
-          <header class="template-picker-heading"><div><p class="eyebrow">Add a section</p><h2 id="templatePickerTitle">What do you want visitors to see next?</h2><p>Choose a layout by purpose. A ready-to-edit section will be added to the end of the homepage.</p></div><span>1. Choose&nbsp;&nbsp; 2. Add&nbsp;&nbsp; 3. Edit</span></header>
+        <section class="template-picker" id="siteSectionPicker" aria-labelledby="templatePickerTitle" tabindex="-1" hidden>
+          <header class="template-picker-heading"><div><p class="eyebrow">Homepage structure</p><h2 id="templatePickerTitle">Add a homepage section</h2><p>Pick what the next block should accomplish. You can edit its content immediately after adding it.</p></div><button class="template-picker-close" id="closeSiteSectionPicker" type="button" aria-label="Close section picker">×</button></header>
+          <div class="template-picker-action"><div><span>Ready to add</span><strong id="selectedSiteSectionLabel">Campaign hero</strong><small id="selectedSiteSectionHint">Best for launches, announcements, and featured programs.</small></div><button class="button button-dark" id="addSiteSection" type="button">Add Campaign hero <span aria-hidden="true">→</span></button></div>
           <div class="template-grid" role="group" aria-label="Choose a homepage section">
-            <button class="is-selected" type="button" data-select-site-section="hero" aria-pressed="true"><span class="template-preview is-hero" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>01 · Announce something</b><strong>Campaign hero</strong><small>Large headline, short pitch, and primary action.</small></span><em>Selected</em></button>
-            <button type="button" data-select-site-section="split" aria-pressed="false"><span class="template-preview is-split" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>02 · Tell a visual story</b><strong>Text + image</strong><small>Explain an idea beside a photograph or illustration.</small></span><em>Select</em></button>
-            <button type="button" data-select-site-section="benefits" aria-pressed="false"><span class="template-preview is-benefits" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>03 · Explain the value</b><strong>Benefits grid</strong><small>Show three clear reasons to choose your program.</small></span><em>Select</em></button>
-            <button type="button" data-select-site-section="testimonials" aria-pressed="false"><span class="template-preview is-testimonials" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>04 · Build trust</b><strong>Testimonials</strong><small>Share specific customer experiences and results.</small></span><em>Select</em></button>
-            <button type="button" data-select-site-section="faq" aria-pressed="false"><span class="template-preview is-faq" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>05 · Remove hesitation</b><strong>FAQ</strong><small>Answer the questions buyers ask before purchasing.</small></span><em>Select</em></button>
-            <button type="button" data-select-site-section="cta" aria-pressed="false"><span class="template-preview is-cta" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>06 · Ask for action</b><strong>Call to action</strong><small>End with one focused next step or purchase prompt.</small></span><em>Select</em></button>
+            <button class="is-selected" type="button" data-select-site-section="hero" aria-pressed="true"><span class="template-preview is-hero" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Announce something</b><strong>Campaign hero</strong><small>Headline, pitch, and primary action.</small></span><em aria-hidden="true">✓</em></button>
+            <button type="button" data-select-site-section="split" aria-pressed="false"><span class="template-preview is-split" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Tell a visual story</b><strong>Text + image</strong><small>Explain an idea beside a visual.</small></span><em aria-hidden="true"></em></button>
+            <button type="button" data-select-site-section="benefits" aria-pressed="false"><span class="template-preview is-benefits" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Explain the value</b><strong>Benefits grid</strong><small>Present three clear selling points.</small></span><em aria-hidden="true"></em></button>
+            <button type="button" data-select-site-section="testimonials" aria-pressed="false"><span class="template-preview is-testimonials" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Build trust</b><strong>Testimonials</strong><small>Share customer results and experiences.</small></span><em aria-hidden="true"></em></button>
+            <button type="button" data-select-site-section="faq" aria-pressed="false"><span class="template-preview is-faq" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Remove hesitation</b><strong>FAQ</strong><small>Answer common buyer questions.</small></span><em aria-hidden="true"></em></button>
+            <button type="button" data-select-site-section="cta" aria-pressed="false"><span class="template-preview is-cta" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Ask for action</b><strong>Call to action</strong><small>End with one focused next step.</small></span><em aria-hidden="true"></em></button>
           </div>
-          <footer class="template-picker-action"><div><span>Selected section</span><strong id="selectedSiteSectionLabel">Campaign hero</strong><small id="selectedSiteSectionHint">Best for launches, announcements, and featured programs.</small></div><button class="button button-dark" id="addSiteSection" type="button">Add Campaign hero <span aria-hidden="true">→</span></button></footer>
         </section>
-        <div class="context-note" role="note"><span aria-hidden="true">✓</span><p><strong>Protected settings stay protected.</strong> You can change visible prices and destinations, but payment amounts, buyer access, and secure video delivery are server-controlled.</p></div>
         <p class="status" id="siteContentStatus" role="status" aria-live="polite">Loading website…</p>
         <div class="site-editor-visual-layout">
           <section class="site-editor-live-preview" aria-label="Visual homepage editor">
@@ -228,6 +223,11 @@
           </section>
           <aside class="site-editor-inspector" aria-label="Selected section settings"><div class="site-editor-inspector-heading"><span class="module-chip">INSPECTOR</span><strong id="siteInspectorTitle">Page settings</strong><p id="siteInspectorHint">Select text or a section in the canvas.</p></div><form id="siteContentForm" class="site-content-groups" aria-label="Homepage section settings"></form></aside>
         </div>
+        <div class="workspace-toolbar site-editor-toolbar">
+          <p><strong>Draft history</strong><span>Only needed when you want to step backward.</span></p>
+          <div class="site-history-actions"><button class="button button-quiet" id="undoSiteContent" type="button" disabled>Undo</button><button class="button button-quiet" id="redoSiteContent" type="button" disabled>Redo</button><button class="button button-quiet" id="resetSiteContent" type="button">Discard draft</button></div>
+        </div>
+        <div class="context-note site-editor-safety-note" role="note"><span aria-hidden="true">✓</span><p><strong>Protected settings stay protected.</strong> Payment amounts, buyer access, and secure video delivery remain server-controlled.</p></div>
         <div class="site-insert-menu" id="siteInsertMenu" hidden role="dialog" aria-modal="false" aria-labelledby="siteInsertTitle"><div><span class="module-chip">INSERT SECTION</span><strong id="siteInsertTitle">What should come next?</strong><button class="site-insert-close" id="closeSiteInsertMenu" type="button" aria-label="Close section menu">×</button></div><div class="site-insert-options"><button type="button" data-insert-site-section="hero"><strong>Campaign hero</strong><small>Headline and action</small></button><button type="button" data-insert-site-section="split"><strong>Text + image</strong><small>Story beside a visual</small></button><button type="button" data-insert-site-section="benefits"><strong>Benefits</strong><small>Clear selling points</small></button><button type="button" data-insert-site-section="testimonials"><strong>Testimonials</strong><small>Customer proof</small></button><button type="button" data-insert-site-section="faq"><strong>FAQ</strong><small>Buyer questions</small></button><button type="button" data-insert-site-section="cta"><strong>Call to action</strong><small>Focused next step</small></button></div></div>
       </section>
 

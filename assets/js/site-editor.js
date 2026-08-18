@@ -28,6 +28,7 @@
   var undoButton = document.getElementById("undoSiteContent");
   var redoButton = document.getElementById("redoSiteContent");
   var insertMenu = document.getElementById("siteInsertMenu");
+  var sectionPicker = document.getElementById("siteSectionPicker");
   var history = [];
   var historyIndex = -1;
   var publishedSignature = "";
@@ -595,6 +596,19 @@
   }
 
   function bindActions() {
+    function setSectionPickerOpen(open, focusPicker) {
+      if (!sectionPicker) return;
+      sectionPicker.hidden = !open;
+      document.querySelectorAll("[data-toggle-site-section-picker]").forEach(function (button) {
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      if (open && focusPicker) {
+        window.requestAnimationFrame(function () {
+          sectionPicker.focus({ preventScroll: true });
+          sectionPicker.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+    }
     function addSection(type, afterId) {
       if (!content) return;
       if (content.customSections.length >= 20) { setStatus("The editor supports up to 20 added sections.", "error"); return; }
@@ -604,7 +618,7 @@
       var insertionIndex = afterId ? content.layout.findIndex(function (entry) { return entry.id === afterId; }) : -1;
       if (insertionIndex >= 0) content.layout.splice(insertionIndex + 1, 0, newEntry);
       else content.layout.push(newEntry);
-      selectedSectionId = section.id; closeInsertMenu();
+      selectedSectionId = section.id; closeInsertMenu(); setSectionPickerOpen(false);
       render(); saveDraft("New section added to the complete site draft.");
       var card = form.querySelector('[data-section-id="' + section.id + '"]'); if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -616,13 +630,17 @@
         button.classList.toggle("is-selected", selected);
         button.setAttribute("aria-pressed", selected ? "true" : "false");
         var state = button.querySelector("em");
-        if (state) state.textContent = selected ? "Selected" : "Select";
+        if (state) state.textContent = selected ? "✓" : "";
       });
       document.getElementById("selectedSiteSectionLabel").textContent = CUSTOM_LABELS[type];
       document.getElementById("selectedSiteSectionHint").textContent = TEMPLATE_HINTS[type];
       document.getElementById("addSiteSection").firstChild.textContent = "Add " + CUSTOM_LABELS[type] + " ";
     }
     document.getElementById("addSiteSection").addEventListener("click", function () { addSection(selectedTemplateType); });
+    document.querySelectorAll("[data-toggle-site-section-picker]").forEach(function (button) {
+      button.addEventListener("click", function () { setSectionPickerOpen(sectionPicker.hidden, true); });
+    });
+    document.getElementById("closeSiteSectionPicker").addEventListener("click", function () { setSectionPickerOpen(false); });
     document.querySelectorAll("[data-select-site-section]").forEach(function (button) {
       button.addEventListener("click", function () {
         selectTemplate(button.dataset.selectSiteSection);

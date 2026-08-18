@@ -271,11 +271,14 @@ test("admin offers one complete site editor with safe layout controls", function
 
   assert.match(html, /id="siteContentForm"/);
   assert.match(html, /id="siteSectionPicker"/);
+  assert.match(html, /data-toggle-site-section-picker/);
+  assert.match(html, /id="closeSiteSectionPicker"/);
   assert.match(html, /id="addSiteSection"/);
   assert.match(html, /id="previewSiteContent"/);
   assert.match(html, /id="publishSiteContent"/);
   assert.match(html, /assets\/js\/site-editor\.js/);
-  assert.match(html, /What do you want visitors to see next/);
+  assert.match(html, /Add a homepage section/);
+  assert.match(html, /Ready to add/);
   assert.match(html, /Selected section/);
   assert.match(html, /href="checkout\.html" target="_blank"/);
   assert.match(html, /data-select-site-section="hero"/);
@@ -288,6 +291,7 @@ test("admin offers one complete site editor with safe layout controls", function
   assert.match(javascript, /site-editor-footer/);
   assert.match(javascript, /data-select-site-section/);
   assert.match(javascript, /selectTemplate/);
+  assert.match(javascript, /setSectionPickerOpen/);
   assert.match(javascript, /action: "publish-site-content"/);
   assert.match(javascript, /customSections/);
   assert.match(javascript, /Move section down/);
