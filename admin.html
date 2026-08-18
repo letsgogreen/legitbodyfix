@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260817-3" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260818-2" />
 </head>
 <body class="auth-visible">
   <a class="skip-link" href="#authTitle">Skip to restricted access</a>
@@ -134,7 +134,7 @@
             <summary><span>Build &amp; sell</span><i aria-hidden="true"></i></summary>
             <div class="nav-group-items">
               <a class="workspace-nav-item" href="#site-copy" data-workspace-target="site-copy" title="Website editor"><span class="nav-icon" aria-hidden="true">02</span><span><strong>Website</strong><small>Copy, layout, and design</small></span></a>
-              <button class="nav-child-action" type="button" data-workspace-open="site-copy" data-focus-target="siteSectionType"><span>+ Add homepage section</span><b aria-hidden="true">→</b></button>
+              <button class="nav-child-action" type="button" data-workspace-open="site-copy" data-focus-target="siteSectionPicker"><span>+ Add homepage section</span><b aria-hidden="true">→</b></button>
               <a class="workspace-nav-item" href="#video-library" data-workspace-target="video-library" title="Programs and videos"><span class="nav-icon" aria-hidden="true">03</span><span><strong>Programs &amp; videos</strong><small>Sessions and publishing</small></span><b class="nav-badge" id="sidebarVideoCount" aria-label="Video count">0</b></a>
               <button class="nav-child-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span>+ Add a new session</span><b aria-hidden="true">→</b></button>
             </div>
@@ -173,11 +173,7 @@
     </aside>
 
     <div class="workspace">
-      <section class="workspace-panel dashboard-panel" id="overview" data-workspace-panel="overview" aria-labelledby="page-title">
-        <header class="page-heading dashboard-heading dashboard-hero">
-          <div class="dashboard-hero-copy"><p class="eyebrow">LegitBodyFix / Control Room</p><h1 id="page-title">Run the<br />business.<br /><em>Not the backend.</em></h1><p class="lede">Your high-impact work is one click away. Draft privately, inspect the customer view, then publish deliberately.</p></div>
-          <aside class="dashboard-focus" aria-label="Recommended next action"><span class="module-chip">Recommended next</span><strong>Review the public experience</strong><p>Check the homepage message and the posture guide thumbnails before driving traffic.</p><div><button class="button button-lime" type="button" data-workspace-open="site-copy">Edit homepage</button><a class="button dashboard-live-link" href="index.html" target="_blank" rel="noopener">Live site ↗</a></div></aside>
-        </header>
+      <section class="workspace-panel dashboard-panel" id="overview" data-workspace-panel="overview" aria-label="Control Room overview">
         <div class="summary operations-summary" aria-label="Business summary" aria-live="polite">
           <article><span>Video library</span><strong id="videoCount">0</strong><small>Total guided sessions</small></article>
           <article><span>Live sessions</span><strong id="publishedCount">0</strong><small>Available to eligible buyers</small></article>
@@ -206,19 +202,20 @@
           <div class="page-heading-actions"><span class="editor-save-state" id="siteEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button" id="previewSiteContent" type="button">Preview website</button><button class="button button-lime" id="publishSiteContent" type="button">Publish website <span aria-hidden="true">→</span></button></div>
         </header>
         <div class="workspace-toolbar site-editor-toolbar">
-          <div class="site-editor-add"><label class="field compact-field"><span>Add a homepage section</span><select id="siteSectionType"><option value="hero">Campaign hero</option><option value="split">Text and image</option><option value="benefits">Benefits grid</option><option value="testimonials">Testimonials</option><option value="faq">FAQ</option><option value="cta">Call to action</option></select></label><button class="button button-dark" id="addSiteSection" type="button">+ Add section</button></div>
+          <p><strong>Draft tools</strong><span>Undo or discard changes before publishing.</span></p>
           <div class="site-history-actions"><button class="button button-quiet" id="undoSiteContent" type="button" disabled>Undo</button><button class="button button-quiet" id="redoSiteContent" type="button" disabled>Redo</button><button class="button button-quiet" id="resetSiteContent" type="button">Discard draft</button></div>
         </div>
-        <details class="template-picker" aria-labelledby="templatePickerTitle">
-          <summary class="template-picker-heading"><div><p class="eyebrow">Section templates</p><h2 id="templatePickerTitle">Add to your homepage</h2></div><p>Browse 6 ready-made sections <span aria-hidden="true">↓</span></p></summary>
-          <div class="template-grid">
-            <button type="button" data-add-site-section="hero"><span>01</span><strong>Campaign hero</strong><small>Large headline and action</small></button>
-            <button type="button" data-add-site-section="split"><span>02</span><strong>Text + image</strong><small>Story beside a visual</small></button>
-            <button type="button" data-add-site-section="benefits"><span>03</span><strong>Benefits grid</strong><small>Three clear selling points</small></button>
-            <button type="button" data-add-site-section="testimonials"><span>04</span><strong>Testimonials</strong><small>Customer proof and results</small></button>
-            <button type="button" data-add-site-section="faq"><span>05</span><strong>FAQ</strong><small>Common buyer questions</small></button>
-            <button type="button" data-add-site-section="cta"><span>06</span><strong>Call to action</strong><small>Focused purchase prompt</small></button>
+        <section class="template-picker" id="siteSectionPicker" aria-labelledby="templatePickerTitle" tabindex="-1">
+          <header class="template-picker-heading"><div><p class="eyebrow">Add a section</p><h2 id="templatePickerTitle">What do you want visitors to see next?</h2><p>Choose a layout by purpose. A ready-to-edit section will be added to the end of the homepage.</p></div><span>1. Choose&nbsp;&nbsp; 2. Add&nbsp;&nbsp; 3. Edit</span></header>
+          <div class="template-grid" role="group" aria-label="Choose a homepage section">
+            <button class="is-selected" type="button" data-select-site-section="hero" aria-pressed="true"><span class="template-preview is-hero" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>01 · Announce something</b><strong>Campaign hero</strong><small>Large headline, short pitch, and primary action.</small></span><em>Selected</em></button>
+            <button type="button" data-select-site-section="split" aria-pressed="false"><span class="template-preview is-split" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>02 · Tell a visual story</b><strong>Text + image</strong><small>Explain an idea beside a photograph or illustration.</small></span><em>Select</em></button>
+            <button type="button" data-select-site-section="benefits" aria-pressed="false"><span class="template-preview is-benefits" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>03 · Explain the value</b><strong>Benefits grid</strong><small>Show three clear reasons to choose your program.</small></span><em>Select</em></button>
+            <button type="button" data-select-site-section="testimonials" aria-pressed="false"><span class="template-preview is-testimonials" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>04 · Build trust</b><strong>Testimonials</strong><small>Share specific customer experiences and results.</small></span><em>Select</em></button>
+            <button type="button" data-select-site-section="faq" aria-pressed="false"><span class="template-preview is-faq" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>05 · Remove hesitation</b><strong>FAQ</strong><small>Answer the questions buyers ask before purchasing.</small></span><em>Select</em></button>
+            <button type="button" data-select-site-section="cta" aria-pressed="false"><span class="template-preview is-cta" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>06 · Ask for action</b><strong>Call to action</strong><small>End with one focused next step or purchase prompt.</small></span><em>Select</em></button>
           </div>
+          <footer class="template-picker-action"><div><span>Selected section</span><strong id="selectedSiteSectionLabel">Campaign hero</strong><small id="selectedSiteSectionHint">Best for launches, announcements, and featured programs.</small></div><button class="button button-dark" id="addSiteSection" type="button">Add Campaign hero <span aria-hidden="true">→</span></button></footer>
         </section>
         <div class="context-note" role="note"><span aria-hidden="true">✓</span><p><strong>Protected settings stay protected.</strong> You can change visible prices and destinations, but payment amounts, buyer access, and secure video delivery are server-controlled.</p></div>
         <p class="status" id="siteContentStatus" role="status" aria-live="polite">Loading website…</p>
@@ -428,7 +425,7 @@
   </template>
 
   <script src="assets/js/admin-interface.js?v=20260817-4" defer></script>
-  <script src="assets/js/site-editor.js?v=20260817-5" defer></script>
+  <script src="assets/js/site-editor.js?v=20260818-1" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
   <script src="assets/js/admin.js?v=20260817-1" defer></script>
   <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
