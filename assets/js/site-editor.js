@@ -23,6 +23,20 @@
   var inspectorTitle = document.getElementById("siteInspectorTitle");
   var inspectorHint = document.getElementById("siteInspectorHint");
   var canvasStage = document.querySelector(".site-editor-canvas-stage");
+  var pageButtons = Array.from(document.querySelectorAll("[data-site-page]"));
+  var pageRoute = document.getElementById("sitePageRoute");
+  var pageRouteTitle = document.getElementById("sitePageRouteTitle");
+  var pageRouteCopy = document.getElementById("sitePageRouteCopy");
+  var pageRouteSafety = document.getElementById("sitePageRouteSafety");
+  var openPageEditor = document.getElementById("openSitePageEditor");
+  var canvasInstruction = document.getElementById("siteCanvasInstruction");
+  var canvasHelp = document.getElementById("siteCanvasHelp");
+  var activeSitePage = "home";
+  var PAGE_ROUTES = {
+    knowledge: { workspace: "knowledge-base", title: "Edit movement guides", copy: "Manage posture guides, muscle pages, recipes, images, and educational copy in the visual Movement guides workspace.", safety: "Publishing here updates the public knowledge library without changing payment or account access." },
+    program: { workspace: "video-library", title: "Edit programs and sales pages", copy: "Choose a session, then edit its public sales copy, thumbnail, pricing presentation, and protected video details.", safety: "Actual charge amounts and protected delivery remain server-controlled." },
+    library: { workspace: "buyer-access", title: "Review the customer account", copy: "Preview the sign-in, library, and profile experience. Use Customer access for support actions and access verification.", safety: "Account and purchase history layouts are preview-only to protect authentication and payment records." }
+  };
   var canvasDeviceButtons = document.querySelectorAll("[data-canvas-device]");
   var saveState = document.getElementById("siteEditorSaveState");
   var undoButton = document.getElementById("undoSiteContent");
@@ -268,8 +282,43 @@
   }
 
   function sendContentToFrame(frame) {
-    if (!frame || !frame.contentWindow || !content) return;
+    if (!frame || !frame.contentWindow || !content || (frame === livePreviewFrame && activeSitePage !== "home")) return;
     frame.contentWindow.postMessage({ type: "legitbodyfix:site-preview", content: clone(content) }, window.location.origin);
+  }
+
+  function selectSitePage(page) {
+    var button = pageButtons.find(function (candidate) { return candidate.dataset.sitePage === page; });
+    if (!button || !livePreviewFrame) return;
+    activeSitePage = page;
+    pageButtons.forEach(function (candidate) {
+      var active = candidate === button;
+      candidate.classList.toggle("is-active", active);
+      candidate.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    var isHome = page === "home";
+    form.hidden = !isHome;
+    pageRoute.hidden = isHome;
+    document.querySelectorAll("[data-toggle-site-section-picker]").forEach(function (control) { control.hidden = !isHome; });
+    publishButton.hidden = !isHome;
+    livePreviewFrame.title = isHome ? "Editable homepage canvas" : button.querySelector("strong").textContent + " preview";
+    livePreviewFrame.src = button.dataset.previewUrl;
+    canvasInstruction.textContent = isHome ? "Click any text to edit it in place" : "Preview this customer page";
+    var helpLead = document.createElement("strong");
+    helpLead.textContent = isHome ? "Editing mode is on. " : "Page preview. ";
+    canvasHelp.replaceChildren(helpLead, document.createTextNode(isHome
+      ? "Links are disabled inside the canvas. Select a section to reveal its layout, image, and destination settings."
+      : "Use the page workspace on the right to make safe, structured changes."));
+    if (!isHome) {
+      var route = PAGE_ROUTES[page];
+      pageRouteTitle.textContent = route.title;
+      pageRouteCopy.textContent = route.copy;
+      pageRouteSafety.textContent = route.safety;
+      openPageEditor.dataset.workspace = route.workspace;
+      inspectorTitle.textContent = button.querySelector("strong").textContent;
+      inspectorHint.textContent = "Preview on the left, edit through its dedicated workspace.";
+    } else {
+      selectInspectorSection(selectedSectionId);
+    }
   }
 
   function sendPreviewContent() {
@@ -295,7 +344,10 @@
   function refreshPreview() {
     if (!previewFrame || !content) return;
     localStorage.setItem(PREVIEW_KEY, JSON.stringify(content));
-    previewFrame.src = "index.html?site-preview=1&refresh=" + Date.now();
+    var activeButton = pageButtons.find(function (button) { return button.dataset.sitePage === activeSitePage; });
+    var source = activeButton ? activeButton.dataset.previewUrl : "index.html?site-preview=1";
+    previewFrame.src = source + (source.indexOf("?") === -1 ? "?" : "&") + "refresh=" + Date.now();
+    document.getElementById("openSitePreview").href = source;
   }
 
   function openPreview() {
@@ -306,7 +358,7 @@
     setPreviewDevice(previewShell.dataset.previewDevice || "desktop");
     refreshPreview();
     document.getElementById("closeSitePreview").focus();
-    setStatus("Private responsive preview opened. Changes update as you edit.", "success");
+    setStatus(activeSitePage === "home" ? "Private responsive preview opened. Changes update as you edit." : "Responsive page preview opened.", "success");
   }
 
   function closePreview() {
@@ -665,7 +717,7 @@
     document.getElementById("previewSiteContent").addEventListener("click", openPreview);
     if (livePreviewFrame) {
       livePreviewFrame.src = "index.html?site-preview=1&inline=1";
-      livePreviewFrame.addEventListener("load", function () { sendContentToFrame(livePreviewFrame); window.setTimeout(enableInlineEditing, 120); });
+      livePreviewFrame.addEventListener("load", function () { if (activeSitePage === "home") { sendContentToFrame(livePreviewFrame); window.setTimeout(enableInlineEditing, 120); } });
       document.getElementById("expandSitePreview").addEventListener("click", openPreview);
       canvasDeviceButtons.forEach(function (button) {
         button.addEventListener("click", function () {
@@ -674,6 +726,11 @@
             var active = candidate === button; candidate.classList.toggle("is-active", active); candidate.setAttribute("aria-pressed", active ? "true" : "false");
           });
         });
+      });
+      pageButtons.forEach(function (button) { button.addEventListener("click", function () { selectSitePage(button.dataset.sitePage); }); });
+      openPageEditor.addEventListener("click", function () {
+        var target = document.querySelector('[data-workspace-target="' + openPageEditor.dataset.workspace + '"]');
+        if (target) target.click();
       });
     }
     if (previewDialog) {
