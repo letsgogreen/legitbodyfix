@@ -36,7 +36,11 @@ h1, h2, h3, p { margin: 0; }
 .eyebrow { color: #3d7770; font: 500 11px/1 var(--mono); letter-spacing: .16em; }
 .auth-panel { max-width: 760px; }
 .intro { max-width: 620px; color: var(--soft-ink); font-size: 18px; line-height: 1.7; }
-.sign-in-form { margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--ink); }
+.auth-mode-tabs { display: inline-flex; margin-top: 38px; border: 1px solid var(--ink); }
+.auth-mode-tab { min-height: 44px; padding: 0 19px; border: 0; border-right: 1px solid var(--ink); background: transparent; color: var(--soft-ink); font-weight: 800; cursor: pointer; }
+.auth-mode-tab:last-child { border-right: 0; }
+.auth-mode-tab.is-active { background: var(--ink); color: var(--paper); }
+.sign-in-form { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--ink); }
 label { display: block; margin-bottom: 9px; font-size: 13px; font-weight: 800; }
 .form-row { display: flex; gap: 10px; }
 input { min-width: 0; flex: 1; min-height: 50px; padding: 0 14px; border: 1px solid var(--line); border-radius: 0; background: #fbfaf6; color: var(--ink); }

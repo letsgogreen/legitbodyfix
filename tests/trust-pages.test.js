@@ -41,6 +41,8 @@ test("buyer magic links return to the canonical library and react to delayed mob
   assert.match(script, /libraryRedirectUrl/);
   assert.match(script, /onAuthStateChange/);
   assert.match(script, /event !== "SIGNED_IN"/);
+  assert.match(page, /data-auth-mode="signup"/);
+  assert.match(script, /shouldCreateUser: authMode === "signup"/);
 });
 
 test("main customer surfaces link to support or policies", function () {

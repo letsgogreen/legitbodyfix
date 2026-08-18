@@ -30,15 +30,19 @@
     <section class="loading-panel" id="loadingPanel" aria-live="polite"><p class="eyebrow">SECURE ACCESS</p><h1>Opening your library…</h1><p>Checking your sign-in securely.</p></section>
 
     <section class="auth-panel" id="authPanel" hidden aria-labelledby="authTitle">
-      <p class="eyebrow">PURCHASED A PROGRAM?</p>
+      <p class="eyebrow" id="authEyebrow">WELCOME BACK</p>
       <h1 id="authTitle">YOUR MOVEMENT<br />LIBRARY.</h1>
-      <p class="intro">Enter the email address used at checkout. We will send a secure sign-in link — no password to remember.</p>
+      <p class="intro" id="authIntro">Enter the email address used at checkout. We will send a secure sign-in link — no password to remember.</p>
+      <div class="auth-mode-tabs" role="tablist" aria-label="Account access">
+        <button class="auth-mode-tab is-active" type="button" data-auth-mode="signin" role="tab" aria-selected="true">Sign in</button>
+        <button class="auth-mode-tab" type="button" data-auth-mode="signup" role="tab" aria-selected="false">Create account</button>
+      </div>
       <form id="magicLinkForm" class="sign-in-form" novalidate>
         <label for="email">Email address</label>
-        <div class="form-row"><input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required /><button class="button button-dark" type="submit">Send sign-in link</button></div>
+        <div class="form-row"><input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required /><button class="button button-dark" id="authSubmitButton" type="submit">Send sign-in link</button></div>
         <p class="form-message" id="authMessage" role="status" aria-live="polite"></p>
       </form>
-      <p class="small-copy">Your purchase history is checked on the server. This page never stores an admin or payment password.</p>
+      <p class="small-copy" id="authFootnote">Use the same email you used at checkout to see your purchases. This page never stores a payment password.</p>
     </section>
 
     <section class="library-panel" id="libraryPanel" hidden aria-labelledby="libraryTitle">

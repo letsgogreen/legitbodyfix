@@ -8,6 +8,11 @@ var libraryPanel = document.getElementById("libraryPanel");
 var form = document.getElementById("magicLinkForm");
 var emailInput = document.getElementById("email");
 var authMessage = document.getElementById("authMessage");
+var authModeTabs = Array.from(document.querySelectorAll("[data-auth-mode]"));
+var authEyebrow = document.getElementById("authEyebrow");
+var authIntro = document.getElementById("authIntro");
+var authFootnote = document.getElementById("authFootnote");
+var authSubmitButton = document.getElementById("authSubmitButton");
 var buyerEmail = document.getElementById("buyerEmail");
 var programGrid = document.getElementById("programGrid");
 var sessionSection = document.getElementById("sessionSection");
@@ -25,6 +30,7 @@ var profileEmail = document.getElementById("profileEmail");
 var activeProgramCount = document.getElementById("activeProgramCount");
 var purchaseCount = document.getElementById("purchaseCount");
 var purchaseList = document.getElementById("purchaseList");
+var authMode = "signin";
 
 function libraryRedirectUrl() {
   var localHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
@@ -57,6 +63,25 @@ function createElement(tagName, className, text) {
 function displayPrice(program) {
   if (!Number.isFinite(program.price)) return "Lifetime access";
   return displayMoney(program.price, program.currency) + " paid";
+}
+
+function selectAuthMode(mode) {
+  authMode = mode === "signup" ? "signup" : "signin";
+  var creating = authMode === "signup";
+  authEyebrow.textContent = creating ? "NEW TO LEGITBODYFIX?" : "WELCOME BACK";
+  authIntro.textContent = creating
+    ? "Create your passwordless account with the email you use for LegitBodyFix. We will send a secure confirmation link."
+    : "Enter the email address used at checkout. We will send a secure sign-in link — no password to remember.";
+  authSubmitButton.textContent = creating ? "Create account" : "Send sign-in link";
+  authFootnote.textContent = creating
+    ? "Already purchased? Use the checkout email so your existing access appears automatically."
+    : "Use the same email you used at checkout to see your purchases. This page never stores a payment password.";
+  authModeTabs.forEach(function (tab) {
+    var selected = tab.dataset.authMode === authMode;
+    tab.classList.toggle("is-active", selected);
+    tab.setAttribute("aria-selected", String(selected));
+  });
+  setAuthMessage("", false);
 }
 
 function displayMoney(amount, currency) {
@@ -297,19 +322,27 @@ form.addEventListener("submit", async function (event) {
   try {
     var result = await client.auth.signInWithOtp({
       email: email,
-      options: { emailRedirectTo: libraryRedirectUrl() }
+      options: { emailRedirectTo: libraryRedirectUrl(), shouldCreateUser: authMode === "signup" }
     });
     if (result.error) throw result.error;
-    setAuthMessage("Check your email and open the secure sign-in link. You can close this page after opening it.", false);
+    setAuthMessage(authMode === "signup"
+      ? "Check your email to confirm your account and open your library."
+      : "Check your email and open the secure sign-in link. You can close this page after opening it.", false);
   } catch (error) {
     console.error("Magic-link request failed:", error && error.message ? error.message : error);
-    setAuthMessage("We could not send the sign-in link. Please try again in a moment.", true);
+    setAuthMessage(authMode === "signin"
+      ? "We could not find or sign in that account. Try Create account if you are new."
+      : "We could not create the account. Please try again in a moment.", true);
   } finally {
     button.disabled = false;
   }
 });
 
 closePlayerButton.addEventListener("click", closePlayback);
+
+authModeTabs.forEach(function (tab) {
+  tab.addEventListener("click", function () { selectAuthMode(tab.dataset.authMode); });
+});
 
 accountTabs.forEach(function (tab) {
   tab.addEventListener("click", function () { selectAccountView(tab.dataset.accountTab); });
