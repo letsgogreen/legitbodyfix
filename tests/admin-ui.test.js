@@ -360,10 +360,13 @@ test("website editor previews every major customer page and routes edits safely"
   assert.match(html, /data-site-page="program"/);
   assert.match(html, /data-site-page="library"/);
   assert.match(html, /id="sitePageRoute"/);
+  assert.match(html, /id="editActiveSitePage"/);
   assert.match(editor, /function selectSitePage/);
+  assert.match(editor, /function openSelectedPageWorkspace/);
   assert.match(editor, /workspace: "knowledge-base"/);
   assert.match(editor, /workspace: "video-library"/);
   assert.match(editor, /workspace: "buyer-access"/);
   assert.match(css, /\.site-page-switcher/);
+  assert.match(css, /\.site-page-edit-shortcut/);
 });
 

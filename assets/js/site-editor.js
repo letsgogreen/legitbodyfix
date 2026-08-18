@@ -29,6 +29,7 @@
   var pageRouteCopy = document.getElementById("sitePageRouteCopy");
   var pageRouteSafety = document.getElementById("sitePageRouteSafety");
   var openPageEditor = document.getElementById("openSitePageEditor");
+  var editActiveSitePage = document.getElementById("editActiveSitePage");
   var canvasInstruction = document.getElementById("siteCanvasInstruction");
   var canvasHelp = document.getElementById("siteCanvasHelp");
   var activeSitePage = "home";
@@ -296,6 +297,7 @@
       candidate.setAttribute("aria-pressed", active ? "true" : "false");
     });
     var isHome = page === "home";
+    editActiveSitePage.hidden = isHome;
     form.hidden = !isHome;
     pageRoute.hidden = isHome;
     document.querySelectorAll("[data-toggle-site-section-picker]").forEach(function (control) { control.hidden = !isHome; });
@@ -314,11 +316,22 @@
       pageRouteCopy.textContent = route.copy;
       pageRouteSafety.textContent = route.safety;
       openPageEditor.dataset.workspace = route.workspace;
+      editActiveSitePage.dataset.workspace = route.workspace;
+      var editLabel = document.createTextNode("Edit " + button.querySelector("strong").textContent + " ");
+      var editArrow = document.createElement("span");
+      editArrow.setAttribute("aria-hidden", "true");
+      editArrow.textContent = "→";
+      editActiveSitePage.replaceChildren(editLabel, editArrow);
       inspectorTitle.textContent = button.querySelector("strong").textContent;
       inspectorHint.textContent = "Preview on the left, edit through its dedicated workspace.";
     } else {
       selectInspectorSection(selectedSectionId);
     }
+  }
+
+  function openSelectedPageWorkspace(button) {
+    var target = button && document.querySelector('[data-workspace-target="' + button.dataset.workspace + '"]');
+    if (target) target.click();
   }
 
   function sendPreviewContent() {
@@ -728,10 +741,8 @@
         });
       });
       pageButtons.forEach(function (button) { button.addEventListener("click", function () { selectSitePage(button.dataset.sitePage); }); });
-      openPageEditor.addEventListener("click", function () {
-        var target = document.querySelector('[data-workspace-target="' + openPageEditor.dataset.workspace + '"]');
-        if (target) target.click();
-      });
+      openPageEditor.addEventListener("click", function () { openSelectedPageWorkspace(openPageEditor); });
+      editActiveSitePage.addEventListener("click", function () { openSelectedPageWorkspace(editActiveSitePage); });
     }
     if (previewDialog) {
       document.getElementById("closeSitePreview").addEventListener("click", closePreview);
