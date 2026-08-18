@@ -27,6 +27,22 @@ test("checkout presents terms and refund policy before payment", function () {
   var checkout = fs.readFileSync(path.join(root, "checkout.html"), "utf8");
   assert.match(checkout, /policies\.html#terms/);
   assert.match(checkout, /policies\.html#refunds/);
+  assert.doesNotMatch(checkout, /id="productPrice">\$170/, "checkout must not flash the bundle price before selecting a product");
+  assert.match(checkout, /id="productPrice">—/);
+});
+
+test("buyer magic links return to the canonical library and react to delayed mobile sign-in", function () {
+  var page = fs.readFileSync(path.join(root, "library.html"), "utf8");
+  var home = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  var script = fs.readFileSync(path.join(root, "assets/js/library.js"), "utf8");
+
+  assert.match(page, /https:\/\/www\.legitbodyfix\.com\/library\.html/);
+  assert.match(home, /authCallback/);
+  assert.match(script, /libraryRedirectUrl/);
+  assert.match(script, /onAuthStateChange/);
+  assert.match(script, /event !== "SIGNED_IN"/);
+  assert.match(page, /data-auth-mode="signup"/);
+  assert.match(script, /shouldCreateUser: authMode === "signup"/);
 });
 
 test("main customer surfaces link to support or policies", function () {

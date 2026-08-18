@@ -42,9 +42,18 @@ module.exports = async function handler(request, response) {
   try {
     var user = await access.getUser(config, token);
     var programs = await access.listEntitlements(config, user.email);
+    var purchases = await access.listPurchases(config, user.email);
+    var titles = programs.reduce(function (catalog, program) {
+      catalog[program.id] = program.title;
+      return catalog;
+    }, {});
+    purchases.forEach(function (purchase) {
+      purchase.title = titles[purchase.programId] || "LegitBodyFix program";
+    });
     return response.status(200).json({
       email: user.email,
       programs: programs,
+      purchases: purchases,
       videos: videoLibrary.listAccessibleVideos(programs)
     });
   } catch (error) {

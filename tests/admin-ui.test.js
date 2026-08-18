@@ -351,3 +351,19 @@ test("website editor supports direct canvas editing and a contextual inspector",
   assert.match(css, /\.site-editor-canvas-stage\[data-canvas-device="mobile"\]/);
 });
 
+test("website editor previews every major customer page and routes edits safely", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  assert.match(html, /data-site-page="home"/);
+  assert.match(html, /data-site-page="knowledge"/);
+  assert.match(html, /data-site-page="program"/);
+  assert.match(html, /data-site-page="library"/);
+  assert.match(html, /id="sitePageRoute"/);
+  assert.match(editor, /function selectSitePage/);
+  assert.match(editor, /workspace: "knowledge-base"/);
+  assert.match(editor, /workspace: "video-library"/);
+  assert.match(editor, /workspace: "buyer-access"/);
+  assert.match(css, /\.site-page-switcher/);
+});
+

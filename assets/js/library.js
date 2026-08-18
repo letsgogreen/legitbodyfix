@@ -8,6 +8,11 @@ var libraryPanel = document.getElementById("libraryPanel");
 var form = document.getElementById("magicLinkForm");
 var emailInput = document.getElementById("email");
 var authMessage = document.getElementById("authMessage");
+var authModeTabs = Array.from(document.querySelectorAll("[data-auth-mode]"));
+var authEyebrow = document.getElementById("authEyebrow");
+var authIntro = document.getElementById("authIntro");
+var authFootnote = document.getElementById("authFootnote");
+var authSubmitButton = document.getElementById("authSubmitButton");
 var buyerEmail = document.getElementById("buyerEmail");
 var programGrid = document.getElementById("programGrid");
 var sessionSection = document.getElementById("sessionSection");
@@ -18,6 +23,19 @@ var playerFrame = document.getElementById("playerFrame");
 var closePlayerButton = document.getElementById("closePlayerButton");
 var libraryStatus = document.getElementById("libraryStatus");
 var signOutButton = document.getElementById("signOutButton");
+var accountTabs = Array.from(document.querySelectorAll("[data-account-tab]"));
+var libraryView = document.getElementById("libraryView");
+var profileView = document.getElementById("profileView");
+var profileEmail = document.getElementById("profileEmail");
+var activeProgramCount = document.getElementById("activeProgramCount");
+var purchaseCount = document.getElementById("purchaseCount");
+var purchaseList = document.getElementById("purchaseList");
+var authMode = "signin";
+
+function libraryRedirectUrl() {
+  var localHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  return localHost ? window.location.origin + "/library.html" : "https://www.legitbodyfix.com/library.html";
+}
 
 function setVisible(panel) {
   loadingPanel.hidden = panel !== loadingPanel;
@@ -44,15 +62,84 @@ function createElement(tagName, className, text) {
 
 function displayPrice(program) {
   if (!Number.isFinite(program.price)) return "Lifetime access";
+  return displayMoney(program.price, program.currency) + " paid";
+}
+
+function selectAuthMode(mode) {
+  authMode = mode === "signup" ? "signup" : "signin";
+  var creating = authMode === "signup";
+  authEyebrow.textContent = creating ? "NEW TO LEGITBODYFIX?" : "WELCOME BACK";
+  authIntro.textContent = creating
+    ? "Create your passwordless account with the email you use for LegitBodyFix. We will send a secure confirmation link."
+    : "Enter the email address used at checkout. We will send a secure sign-in link — no password to remember.";
+  authSubmitButton.textContent = creating ? "Create account" : "Send sign-in link";
+  authFootnote.textContent = creating
+    ? "Already purchased? Use the checkout email so your existing access appears automatically."
+    : "Use the same email you used at checkout to see your purchases. This page never stores a payment password.";
+  authModeTabs.forEach(function (tab) {
+    var selected = tab.dataset.authMode === authMode;
+    tab.classList.toggle("is-active", selected);
+    tab.setAttribute("aria-selected", String(selected));
+  });
+  setAuthMessage("", false);
+}
+
+function displayMoney(amount, currency) {
+  if (!Number.isFinite(amount)) return "Amount unavailable";
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: program.currency || "USD",
+      currency: currency || "USD",
       maximumFractionDigits: 0
-    }).format(program.price) + " paid";
+    }).format(amount);
   } catch (error) {
-    return "Lifetime access";
+    return amount + " " + (currency || "USD");
   }
+}
+
+function displayDate(value) {
+  if (!value) return "Date unavailable";
+  var date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
+  return new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(date);
+}
+
+function selectAccountView(name) {
+  var profileSelected = name === "profile";
+  libraryView.hidden = profileSelected;
+  profileView.hidden = !profileSelected;
+  accountTabs.forEach(function (tab) {
+    var selected = tab.dataset.accountTab === name;
+    tab.classList.toggle("is-active", selected);
+    tab.setAttribute("aria-selected", String(selected));
+  });
+  closePlayback();
+}
+
+function renderProfile(email, programs, purchases) {
+  var safePrograms = Array.isArray(programs) ? programs : [];
+  var safePurchases = Array.isArray(purchases) ? purchases : [];
+  profileEmail.textContent = email || "";
+  activeProgramCount.textContent = String(safePrograms.length);
+  purchaseCount.textContent = String(safePurchases.length);
+  purchaseList.replaceChildren();
+
+  if (safePurchases.length === 0) {
+    purchaseList.appendChild(createElement("p", "empty-state", "No completed payments are linked to this email yet."));
+    return;
+  }
+  safePurchases.forEach(function (purchase) {
+    var row = createElement("article", "purchase-row");
+    var details = createElement("div", "purchase-copy");
+    details.append(
+      createElement("p", "eyebrow", "COMPLETED · " + displayDate(purchase.paidAt).toUpperCase()),
+      createElement("h4", "", purchase.title || "LegitBodyFix program"),
+      createElement("p", "purchase-order", purchase.orderId ? "Order " + purchase.orderId : "Verified purchase")
+    );
+    var amount = createElement("strong", "purchase-amount", displayMoney(purchase.amount, purchase.currency));
+    row.append(details, amount);
+    purchaseList.appendChild(row);
+  });
 }
 
 function closePlayback() {
@@ -203,6 +290,7 @@ async function loadLibrary(session) {
   buyerEmail.textContent = payload.email || session.user.email || "";
   renderPrograms(payload.programs);
   renderSessions(payload.videos);
+  renderProfile(payload.email || session.user.email || "", payload.programs, payload.purchases);
   setLibraryStatus("", false);
 }
 
@@ -212,6 +300,7 @@ async function showSession(session) {
     emailInput.focus();
     return;
   }
+  if (activeSession && activeSession.access_token === session.access_token && !libraryPanel.hidden) return;
   activeSession = session;
   setVisible(libraryPanel);
   buyerEmail.textContent = session.user.email || "";
@@ -233,19 +322,31 @@ form.addEventListener("submit", async function (event) {
   try {
     var result = await client.auth.signInWithOtp({
       email: email,
-      options: { emailRedirectTo: window.location.origin + "/library.html" }
+      options: { emailRedirectTo: libraryRedirectUrl(), shouldCreateUser: authMode === "signup" }
     });
     if (result.error) throw result.error;
-    setAuthMessage("Check your email and open the secure sign-in link. You can close this page after opening it.", false);
+    setAuthMessage(authMode === "signup"
+      ? "Check your email to confirm your account and open your library."
+      : "Check your email and open the secure sign-in link. You can close this page after opening it.", false);
   } catch (error) {
     console.error("Magic-link request failed:", error && error.message ? error.message : error);
-    setAuthMessage("We could not send the sign-in link. Please try again in a moment.", true);
+    setAuthMessage(authMode === "signin"
+      ? "We could not find or sign in that account. Try Create account if you are new."
+      : "We could not create the account. Please try again in a moment.", true);
   } finally {
     button.disabled = false;
   }
 });
 
 closePlayerButton.addEventListener("click", closePlayback);
+
+authModeTabs.forEach(function (tab) {
+  tab.addEventListener("click", function () { selectAuthMode(tab.dataset.authMode); });
+});
+
+accountTabs.forEach(function (tab) {
+  tab.addEventListener("click", function () { selectAccountView(tab.dataset.accountTab); });
+});
 
 signOutButton.addEventListener("click", async function () {
   signOutButton.disabled = true;
@@ -254,6 +355,8 @@ signOutButton.addEventListener("click", async function () {
   await client.auth.signOut({ scope: "local" });
   programGrid.replaceChildren();
   sessionGrid.replaceChildren();
+  purchaseList.replaceChildren();
+  selectAccountView("library");
   setVisible(authPanel);
   setAuthMessage("You have been signed out.", false);
   signOutButton.disabled = false;
@@ -263,6 +366,15 @@ try {
   var config = await getConfig();
   client = createClient(config.url, config.publishableKey, {
     auth: { persistSession: true, detectSessionInUrl: true, autoRefreshToken: true }
+  });
+  client.auth.onAuthStateChange(function (event, session) {
+    if (event !== "SIGNED_IN" || !session) return;
+    window.setTimeout(function () {
+      showSession(session).catch(function (error) {
+        setVisible(authPanel);
+        setAuthMessage(error && error.message ? error.message : "We could not open your library. Please try again.", true);
+      });
+    }, 0);
   });
   var sessionResult = await client.auth.getSession();
   if (sessionResult.error) throw sessionResult.error;

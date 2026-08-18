@@ -59,7 +59,7 @@ test("buyer library response never returns the legacy public R2 video URL", asyn
       if (url.includes("/auth/v1/user")) {
         return { ok: true, status: 200, json: async function () { return { id: "buyer-1", email: "buyer@example.com" }; } };
       }
-      return {
+      if (url.includes("/rest/v1/entitlements")) return {
         ok: true,
         status: 200,
         json: async function () {
@@ -69,6 +69,10 @@ test("buyer library response never returns the legacy public R2 video URL", asyn
           }];
         }
       };
+      return { ok: true, status: 200, json: async function () { return [{
+        id: "payment-1", provider_order_id: "ORDER-1", program_id: "neck-shoulder-reset",
+        amount: 49, currency: "USD", status: "completed", paid_at: "2026-07-29T00:00:00Z"
+      }]; } };
     };
 
     var response = createResponse();
@@ -77,6 +81,8 @@ test("buyer library response never returns the legacy public R2 video URL", asyn
     assert.equal(response.statusCode, 200);
     assert.equal(response.headers["Cache-Control"], "no-store");
     assert.equal(response.body.videos.length, 6);
+    assert.equal(response.body.purchases.length, 1);
+    assert.equal(response.body.purchases[0].title, "Neck & Shoulder Reset");
     // A public thumbnail may be hosted in R2, but a buyer must never receive
     // the legacy direct video field. Playback is issued separately as a
     // short-lived Cloudflare Stream token.
