@@ -14,6 +14,7 @@
   },
   "layout": [
     { "id": "hero", "kind": "core", "visible": true },
+    { "id": "visitor-problems", "kind": "custom", "visible": true },
     { "id": "method", "kind": "core", "visible": true },
     { "id": "knowledge", "kind": "core", "visible": true },
     { "id": "library", "kind": "core", "visible": true },
@@ -23,14 +24,14 @@
     { "id": "starting-point-cta", "kind": "custom", "visible": true }
   ],
   "hero": {
-    "kicker": "Movement clarity. No random routines.",
-    "titleLines": ["STOP", "GUESSING.", "MOVE WITH", "A PLAN."],
-    "description": "Check what feels limited, understand what may be influencing it, and follow a focused session built around your goal.",
+    "kicker": "Movement options. No random routines.",
+    "titleLines": ["BUILD", "MORE WAYS", "TO MOVE.", "WITH A PLAN."],
+    "description": "Assess what feels limited, understand what may be influencing it, and build the movement options you need for training and daily life.",
     "primaryButton": "Find my starting point",
     "primaryHref": "knowledge.html",
     "secondaryButton": "Browse focused sessions",
     "secondaryHref": "#library-preview",
-    "proofPoints": ["Clear starting points", "Guided progressions", "No subscription"],
+    "proofPoints": ["Built for active adults", "Clear progressions", "No subscription"],
     "imageUrl": "",
     "imageAlt": "Corrective movement body map showing shoulder, hip, and knee focus areas"
   },
@@ -84,6 +85,24 @@
     "legal": "Educational movement content, not medical diagnosis or treatment."
   },
   "customSections": [
+    {
+      "id": "visitor-problems",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Sound familiar?",
+      "title": "START WITH WHAT YOU ACTUALLY NOTICE.",
+      "body": "Choose the movement problem that feels familiar. You do not need to know the diagnosis or the exact muscle before you begin.",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "My hips feel blocked in a squat", "body": "Start with hip, ankle, and squat movement checks." },
+        { "title": "My back feels stiff after hinging", "body": "Explore comfortable trunk, hip, and hinge options." },
+        { "title": "Overhead movement feels restricted", "body": "Check shoulder, scapular, and thoracic contributors." },
+        { "title": "I want to return to training confidently", "body": "Use a focused progression instead of collecting random drills." }
+      ]
+    },
     {
       "id": "purchase-questions",
       "type": "faq",

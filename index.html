@@ -53,6 +53,7 @@
     .site-header { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(12px); }
     .nav { min-height: 85px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
     .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-family: var(--display); font-size: 22px; letter-spacing: -.05em; }
+    .brand-wordmark { font-family: var(--body); font-size: 20px; font-weight: 800; letter-spacing: -.045em; }
     .brand-mark { width: 43px; height: 43px; display: grid; place-items: center; transform: rotate(-4deg); background: var(--ink); color: var(--lime); font-family: var(--body); font-size: 13px; font-weight: 900; letter-spacing: -.08em; }
     .nav-links { display: flex; align-items: center; gap: 31px; list-style: none; padding: 0; margin: 0; font-weight: 800; font-size: 14px; }
     .nav-links a { text-decoration: none; }
@@ -203,7 +204,7 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <nav class="nav wrap" aria-label="Primary navigation">
-      <a class="brand" href="#main" aria-label="LegitBodyFix home"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a>
+      <a class="brand brand-wordmark" href="#main" aria-label="LegitBodyFix home">LegitBodyFix</a>
       <ul class="nav-links" id="navLinks">
         <li><a href="#method" data-content="navigation.method">How it works</a></li>
         <li><a href="#library-preview" data-content="navigation.library">Programs</a></li>
@@ -218,14 +219,14 @@
   <main id="main">
     <section class="hero wrap" aria-labelledby="hero-title" data-site-section="hero">
       <div>
-        <p class="kicker" data-content="hero.kicker">Movement clarity. No random routines.</p>
-        <h1 id="hero-title"><span data-content="hero.titleLines.0">STOP</span><br /><span data-content="hero.titleLines.1">GUESSING.</span><br /><span class="outline" data-content="hero.titleLines.2">MOVE WITH</span><br /><span class="outline" data-content="hero.titleLines.3">A PLAN.</span></h1>
-        <p class="hero-copy" data-content="hero.description">Check what feels limited, understand what may be influencing it, and follow a focused session built around your goal.</p>
+        <p class="kicker" data-content="hero.kicker">Movement options. No random routines.</p>
+        <h1 id="hero-title"><span data-content="hero.titleLines.0">BUILD</span><br /><span data-content="hero.titleLines.1">MORE WAYS</span><br /><span class="outline" data-content="hero.titleLines.2">TO MOVE.</span><br /><span class="outline" data-content="hero.titleLines.3">WITH A PLAN.</span></h1>
+        <p class="hero-copy" data-content="hero.description">Assess what feels limited, understand what may be influencing it, and build the movement options you need for training and daily life.</p>
         <div class="hero-actions">
           <a class="button button-dark" href="knowledge.html" data-content-href="hero.primaryHref"><span data-content="hero.primaryButton">Find my starting point</span> <span aria-hidden="true">→</span></a>
           <a class="button" href="#library-preview" data-content="hero.secondaryButton" data-content-href="hero.secondaryHref">Browse focused sessions</a>
         </div>
-        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Clear starting points</span><span data-content="hero.proofPoints.1">Guided progressions</span><span data-content="hero.proofPoints.2">No subscription</span></div>
+        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Built for active adults</span><span data-content="hero.proofPoints.1">Clear progressions</span><span data-content="hero.proofPoints.2">No subscription</span></div>
       </div>
       <div class="start-panel" id="heroBodyMap" aria-label="Choose your starting point">
         <div class="start-panel-head"><strong>WHAT BROUGHT YOU HERE?</strong><span>Choose a starting point<br />Not a diagnosis</span></div>
