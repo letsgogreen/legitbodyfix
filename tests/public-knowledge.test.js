@@ -45,6 +45,9 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /id="muscleDirectoryControls"/);
   assert.match(html, /Start with movement/);
   assert.match(html, /id="knowledgePaths"/);
+  assert.match(html, /class="path-visual"/);
+  assert.match(html, /Special:FilePath\/Ankle\.svg/);
+  assert.match(html, /1105_Anterior_and_Posterior_Views_of_Muscles\.jpg/);
   assert.match(html, /id="muscleAtlas"/);
   assert.match(html, /knowledge-organization\.css/);
   assert.match(html, /id="muscleSort"/);
