@@ -18,8 +18,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /data-knowledge-filter="conditions"/);
   assert.match(html, /data-care-path-target="postural-movement"/);
   assert.match(html, /data-care-path-target="musculoskeletal-condition"/);
-  assert.match(html, /Complete follow-along progressions stay inside the paid programs/);
-  assert.match(html, /How movement guides help/);
+  assert.doesNotMatch(html, /UNDERSTAND<br \/>THE WHY/);
+  assert.doesNotMatch(html, /How movement guides help/);
   assert.doesNotMatch(html, /data-knowledge-filter="recipes"/);
   assert.doesNotMatch(html, /data-knowledge-path="recipes"/);
   assert.match(html, /id="recipeTools"/);
