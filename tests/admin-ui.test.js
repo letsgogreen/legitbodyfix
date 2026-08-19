@@ -142,6 +142,24 @@ test("admin presents the rebuilt control room workspaces", function () {
   assert.match(javascript, /DENSITY_PREFERENCE_KEY/);
 });
 
+test("admin uses explicit production launch checks instead of claiming unverified readiness", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  assert.match(html, /id="launchChecksTitle"/);
+  assert.match(html, /Test signup/);
+  assert.match(html, /Test checkout/);
+  assert.match(html, /Test library/);
+  assert.match(html, /Test playback/);
+  assert.match(html, /id="launchCheckCount"/);
+  assert.match(html, /data-launch-check="account"/);
+  assert.match(html, /class="button launch-check-toggle"/);
+  assert.doesNotMatch(html, /4 of 4 essentials ready/i);
+  assert.match(css, /\.launch-check-grid/);
+  assert.match(editor, /function initializeLaunchChecks/);
+  assert.match(editor, /legitbodyfix\.launchChecks\.v1/);
+});
+
 test("admin includes an editable versioned knowledge base", function () {
   var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
   var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/knowledge-base-admin.js"), "utf8");
@@ -360,10 +378,13 @@ test("website editor previews every major customer page and routes edits safely"
   assert.match(html, /data-site-page="program"/);
   assert.match(html, /data-site-page="library"/);
   assert.match(html, /id="sitePageRoute"/);
+  assert.match(html, /id="editActiveSitePage"/);
   assert.match(editor, /function selectSitePage/);
+  assert.match(editor, /function openSelectedPageWorkspace/);
   assert.match(editor, /workspace: "knowledge-base"/);
   assert.match(editor, /workspace: "video-library"/);
   assert.match(editor, /workspace: "buyer-access"/);
   assert.match(css, /\.site-page-switcher/);
+  assert.match(css, /\.site-page-edit-shortcut/);
 });
 

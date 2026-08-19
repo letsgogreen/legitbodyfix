@@ -31,6 +31,14 @@ test("website content validation returns only approved plain-text fields", funct
   assert.equal(content.method.steps.length, 4);
 });
 
+test("homepage places the purchasable library before supporting education", function () {
+  var content = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/data/site-content.json"), "utf8"));
+  var visibleIds = content.layout.filter(function (entry) { return entry.visible !== false; }).map(function (entry) { return entry.id; });
+  assert.ok(visibleIds.indexOf("library") > visibleIds.indexOf("visitor-problems"));
+  assert.ok(visibleIds.indexOf("library") < visibleIds.indexOf("method"));
+  assert.ok(visibleIds.indexOf("library") < visibleIds.indexOf("knowledge"));
+});
+
 test("website content validation rejects unsafe destinations and broken layouts", function () {
   var input = currentContent();
   input.hero.primaryHref = "javascript:alert(1)";

@@ -15,9 +15,9 @@
   "layout": [
     { "id": "hero", "kind": "core", "visible": true },
     { "id": "visitor-problems", "kind": "custom", "visible": true },
+    { "id": "library", "kind": "core", "visible": true },
     { "id": "method", "kind": "core", "visible": true },
     { "id": "knowledge", "kind": "core", "visible": true },
-    { "id": "library", "kind": "core", "visible": true },
     { "id": "standard", "kind": "core", "visible": true },
     { "id": "purchase-questions", "kind": "custom", "visible": true },
     { "id": "pricing", "kind": "core", "visible": true },

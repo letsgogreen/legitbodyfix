@@ -30,6 +30,10 @@ var profileEmail = document.getElementById("profileEmail");
 var activeProgramCount = document.getElementById("activeProgramCount");
 var purchaseCount = document.getElementById("purchaseCount");
 var purchaseList = document.getElementById("purchaseList");
+var profileForm = document.getElementById("profileForm");
+var profileDisplayName = document.getElementById("profileDisplayName");
+var saveProfileButton = document.getElementById("saveProfile");
+var profileMessage = document.getElementById("profileMessage");
 var authMode = "signin";
 
 function libraryRedirectUrl() {
@@ -140,6 +144,24 @@ function renderProfile(email, programs, purchases) {
     row.append(details, amount);
     purchaseList.appendChild(row);
   });
+}
+
+function setProfileMessage(message, isError) {
+  profileMessage.textContent = message || "";
+  profileMessage.classList.toggle("error", Boolean(isError));
+}
+
+async function loadCustomerProfile(session) {
+  profileForm.hidden = true;
+  setProfileMessage("", false);
+  if (!session || !session.user || !session.user.id) return;
+  var result = await client.from("profiles").select("display_name").eq("user_id", session.user.id).maybeSingle();
+  if (result.error) {
+    console.warn("Customer profile is not available yet:", result.error.code || result.error.message);
+    return;
+  }
+  profileDisplayName.value = result.data && result.data.display_name ? result.data.display_name : "";
+  profileForm.hidden = false;
 }
 
 function closePlayback() {
@@ -291,6 +313,7 @@ async function loadLibrary(session) {
   renderPrograms(payload.programs);
   renderSessions(payload.videos);
   renderProfile(payload.email || session.user.email || "", payload.programs, payload.purchases);
+  await loadCustomerProfile(session);
   setLibraryStatus("", false);
 }
 
@@ -348,6 +371,24 @@ accountTabs.forEach(function (tab) {
   tab.addEventListener("click", function () { selectAccountView(tab.dataset.accountTab); });
 });
 
+profileForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+  if (!activeSession || !activeSession.user) return;
+  var displayName = profileDisplayName.value.trim();
+  saveProfileButton.disabled = true;
+  setProfileMessage("Saving…", false);
+  try {
+    var result = await client.from("profiles").update({ display_name: displayName || null }).eq("user_id", activeSession.user.id);
+    if (result.error) throw result.error;
+    setProfileMessage("Profile saved.", false);
+  } catch (error) {
+    console.error("Profile update failed:", error && error.message ? error.message : error);
+    setProfileMessage("We could not save your profile. Please try again.", true);
+  } finally {
+    saveProfileButton.disabled = false;
+  }
+});
+
 signOutButton.addEventListener("click", async function () {
   signOutButton.disabled = true;
   closePlayback();
@@ -356,6 +397,7 @@ signOutButton.addEventListener("click", async function () {
   programGrid.replaceChildren();
   sessionGrid.replaceChildren();
   purchaseList.replaceChildren();
+  profileForm.hidden = true;
   selectAccountView("library");
   setVisible(authPanel);
   setAuthMessage("You have been signed out.", false);
