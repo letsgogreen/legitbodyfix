@@ -39,6 +39,14 @@ test("homepage places the purchasable library before supporting education", func
   assert.ok(visibleIds.indexOf("library") < visibleIds.indexOf("knowledge"));
 });
 
+test("visitor problem section uses a lighter diagnostic list instead of another card grid", function () {
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/site-editor-public.css"), "utf8");
+  assert.match(css, /\[data-site-section="visitor-problems"\] \.site-block-inner/);
+  assert.match(css, /counter-reset: visitor-problem/);
+  assert.match(css, /border-left: 0/);
+  assert.match(css, /grid-template-columns: 42px minmax\(190px, \.82fr\) minmax\(210px, 1fr\)/);
+});
+
 test("website content validation rejects unsafe destinations and broken layouts", function () {
   var input = currentContent();
   input.hero.primaryHref = "javascript:alert(1)";
