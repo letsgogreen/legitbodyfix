@@ -47,6 +47,20 @@ body[data-site-density="compact"] .site-block { padding-top: 72px; padding-botto
 .site-block-hero .site-block-inner, .site-block-cta .site-block-inner { min-height: 460px; align-content: center; }
 .site-block-hero .site-block-title, .site-block-cta .site-block-title { max-width: 1000px; font-size: clamp(58px, 10vw, 132px); }
 
+/* A lighter diagnostic pattern for the first visitor decision. */
+[data-site-section="visitor-problems"] .site-block-inner { grid-template-columns: minmax(280px, .72fr) minmax(520px, 1.28fr); column-gap: clamp(54px, 7vw, 112px); align-items: start; }
+[data-site-section="visitor-problems"] .site-block-eyebrow,
+[data-site-section="visitor-problems"] .site-block-title,
+[data-site-section="visitor-problems"] .site-block-body,
+[data-site-section="visitor-problems"] .site-block-button { grid-column: 1; }
+[data-site-section="visitor-problems"] .site-block-title { max-width: 560px; font-size: clamp(42px, 5vw, 68px); }
+[data-site-section="visitor-problems"] .site-block-body { font-size: 15px; line-height: 1.65; }
+[data-site-section="visitor-problems"] .site-block-items { grid-column: 2; grid-row: 1 / span 5; display: block; counter-reset: visitor-problem; border-left: 0; }
+[data-site-section="visitor-problems"] .site-block-item { min-height: 0; display: grid; grid-template-columns: 42px minmax(190px, .82fr) minmax(210px, 1fr); gap: 22px; align-items: start; padding: 25px 0; border-right: 0; counter-increment: visitor-problem; }
+[data-site-section="visitor-problems"] .site-block-item::before { content: "0" counter(visitor-problem); color: var(--soft-ink); font: 500 10px/1.2 var(--mono); letter-spacing: .08em; }
+[data-site-section="visitor-problems"] .site-block-item-title { margin: 0; font-size: 19px; }
+[data-site-section="visitor-problems"] .site-block-item p { margin: 0; line-height: 1.55; }
+
 @media (max-width: 860px) {
   .hero-custom-image { min-height: 430px; }
   .site-block { padding: 82px 0; }
@@ -55,6 +69,8 @@ body[data-site-density="compact"] .site-block { padding-top: 72px; padding-botto
   .site-block-items-benefits { grid-template-columns: 1fr 1fr; }
   .site-block-items-benefits.site-block-items-count-4 { grid-template-columns: 1fr 1fr; }
   .site-block-items-testimonials { grid-template-columns: 1fr; }
+  [data-site-section="visitor-problems"] .site-block-inner { grid-template-columns: 1fr; }
+  [data-site-section="visitor-problems"] .site-block-items { grid-column: 1; grid-row: auto; }
 }
 
 @media (max-width: 560px) {
@@ -62,4 +78,8 @@ body[data-site-density="compact"] .site-block { padding-top: 72px; padding-botto
   .site-block-items-benefits { grid-template-columns: 1fr; }
   .site-block-items-faq .site-block-item { grid-template-columns: 1fr; gap: 10px; }
   .site-block-hero .site-block-inner, .site-block-cta .site-block-inner { min-height: 360px; }
+  [data-site-section="visitor-problems"] .site-block-item { grid-template-columns: 34px minmax(0, 1fr); gap: 8px 14px; padding: 22px 0; }
+  [data-site-section="visitor-problems"] .site-block-item::before { grid-row: 1 / span 2; }
+  [data-site-section="visitor-problems"] .site-block-item-title,
+  [data-site-section="visitor-problems"] .site-block-item p { grid-column: 2; }
 }
