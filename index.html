@@ -111,12 +111,15 @@
     .section-title { max-width: 790px; font-family: var(--display); font-size: clamp(39px, 6vw, 80px); font-weight: 400; line-height: .92; letter-spacing: -.07em; }
     .section-intro { max-width: 620px; margin-top: 24px; color: var(--soft-ink); font-size: 17px; line-height: 1.75; }
 
-    .method-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 62px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
-    .method-card { min-height: 265px; padding: 28px 29px 34px; border-right: 1px solid var(--ink); display: flex; flex-direction: column; }
-    .method-card:last-child { border-right: 0; }
-    .step { color: var(--soft-ink); font: 500 12px/1 var(--mono); }
-    .method-card h3 { margin-top: auto; padding-top: 66px; font-size: 27px; line-height: 1; letter-spacing: -.05em; }
-    .method-card p { margin-top: 14px; color: var(--soft-ink); font-size: 14px; line-height: 1.65; }
+    #method { background: var(--ink); color: var(--paper); }
+    #method .section-label, #method .section-intro { color: #aaa89f; }
+    .method-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 62px; counter-reset: method-stage; }
+    .method-card { position: relative; min-height: 305px; padding: 24px 6px 24px 0; border-top: 1px solid #67665f; display: flex; flex-direction: column; counter-increment: method-stage; }
+    .method-card::before { content: ""; position: absolute; top: -2px; left: 0; width: 52px; height: 4px; background: var(--lime); }
+    .method-card:last-child { padding-right: 0; }
+    .step { color: var(--lime); font: 500 12px/1 var(--mono); }
+    .method-card h3 { margin-top: auto; padding-top: 66px; color: var(--paper); font-size: clamp(27px, 3vw, 42px); line-height: 1; letter-spacing: -.055em; }
+    .method-card p { max-width: 250px; margin-top: 16px; color: #aaa89f; font-size: 14px; line-height: 1.65; }
 
     .library-header { display: flex; align-items: end; justify-content: space-between; gap: 24px; }
     .library-header .section-title { max-width: 710px; }
@@ -185,7 +188,7 @@
       .hero, .membership { grid-template-columns: 1fr; } .hero { padding-top: 56px; } .start-panel { min-height: auto; }
       .body-figure { transform: scale(.78); } .map-label { font-size: 9px; } .map-side-label { right: 3%; }
       .library-header { display: block; } .library-link { display: inline-block; margin-top: 24px; }
-      .method-grid { grid-template-columns: repeat(2, 1fr); } .method-card { min-height: 220px; border-bottom: 1px solid var(--ink); } .method-card:nth-child(2) { border-right: 0; } .method-card:nth-last-child(-n+2) { border-bottom: 0; }
+      .method-grid { grid-template-columns: repeat(2, 1fr); } .method-card { min-height: 240px; }
       .course-grid { grid-template-columns: repeat(2, 1fr); }
       .knowledge-preview-grid { grid-template-columns: 1fr; }
     }
@@ -193,7 +196,7 @@
       .wrap { width: min(100% - 32px, var(--max)); } .brand { font-size: 18px; } .brand-mark { width: 37px; height: 37px; }
       .hero h1 { font-size: clamp(52px, 16vw, 76px); } .hero-copy { font-size: 16px; } .start-option { grid-template-columns: 34px minmax(0, 1fr) auto; padding: 20px 18px; }
       .map-axis::before, .map-axis::after { left: -145px; width: 290px; } .map-label.shoulder { left: 4%; } .map-label.hip { right: 2%; }
-      .section { padding: 82px 0; } .section-title { font-size: clamp(38px, 12vw, 58px); } .method-grid { grid-template-columns: 1fr; } .method-card, .method-card:nth-child(2) { border-right: 0; border-bottom: 1px solid var(--ink); } .method-card:last-child { border-bottom: 0; } .course-grid { grid-template-columns: 1fr; } .course-card { min-height: 360px; }
+      .section { padding: 82px 0; } .section-title { font-size: clamp(38px, 12vw, 58px); } .method-grid { grid-template-columns: 1fr; gap: 0; } .method-card { min-height: 210px; padding: 22px 0 28px; } .method-card h3 { padding-top: 42px; } .method-card p { max-width: 420px; } .course-grid { grid-template-columns: 1fr; } .course-card { min-height: 360px; }
       .price-panel { min-height: 276px; padding: 25px; } .footer { align-items: flex-start; flex-direction: column; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
@@ -206,12 +209,13 @@
     <nav class="nav wrap" aria-label="Primary navigation">
       <a class="brand brand-wordmark" href="#main" aria-label="LegitBodyFix home">LegitBodyFix</a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="#method" data-content="navigation.method">How it works</a></li>
+        <li><a href="knowledge.html" data-content="navigation.howItWorks">Movement Check</a></li>
         <li><a href="#library-preview" data-content="navigation.library">Programs</a></li>
-        <li><a href="knowledge.html">Learn</a></li>
+        <li><a href="#method" data-content="navigation.method">Method</a></li>
+        <li><a href="#pricing">Pricing</a></li>
         <li><a href="library.html" data-content="navigation.myLibrary">My library</a></li>
       </ul>
-      <a class="button nav-cta" href="knowledge.html"><span data-content="navigation.browsePrograms">Find my starting point</span> <span aria-hidden="true">→</span></a>
+      <a class="button nav-cta" href="knowledge.html"><span data-content="navigation.browsePrograms">Start the check</span> <span aria-hidden="true">→</span></a>
       <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">☰</button>
     </nav>
   </header>
@@ -219,14 +223,14 @@
   <main id="main">
     <section class="hero wrap" aria-labelledby="hero-title" data-site-section="hero">
       <div>
-        <p class="kicker" data-content="hero.kicker">Movement options. No random routines.</p>
+        <p class="kicker" data-content="hero.kicker">Assess. Restore. Rebuild. Apply.</p>
         <h1 id="hero-title"><span data-content="hero.titleLines.0">BUILD</span><br /><span data-content="hero.titleLines.1">MORE WAYS</span><br /><span class="outline" data-content="hero.titleLines.2">TO MOVE.</span><br /><span class="outline" data-content="hero.titleLines.3">WITH A PLAN.</span></h1>
         <p class="hero-copy" data-content="hero.description">Assess what feels limited, understand what may be influencing it, and build the movement options you need for training and daily life.</p>
         <div class="hero-actions">
-          <a class="button button-dark" href="knowledge.html" data-content-href="hero.primaryHref"><span data-content="hero.primaryButton">Find my starting point</span> <span aria-hidden="true">→</span></a>
+          <a class="button button-dark" href="knowledge.html" data-content-href="hero.primaryHref"><span data-content="hero.primaryButton">Start the movement check</span> <span aria-hidden="true">→</span></a>
           <a class="button" href="#library-preview" data-content="hero.secondaryButton" data-content-href="hero.secondaryHref">Browse focused sessions</a>
         </div>
-        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Built for active adults</span><span data-content="hero.proofPoints.1">Clear progressions</span><span data-content="hero.proofPoints.2">No subscription</span></div>
+        <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Start with an assessment</span><span data-content="hero.proofPoints.1">Progress with a purpose</span><span data-content="hero.proofPoints.2">No subscription</span></div>
       </div>
       <div class="start-panel" id="heroBodyMap" aria-label="Choose your starting point">
         <div class="start-panel-head"><strong>WHAT BROUGHT YOU HERE?</strong><span>Choose a starting point<br />Not a diagnosis</span></div>
@@ -240,13 +244,13 @@
     <section class="section" id="method" aria-labelledby="method-title" data-site-section="method">
       <div class="wrap">
         <p class="section-label" data-content="method.label">The LegitBodyFix method</p>
-        <h2 class="section-title" id="method-title"><span data-content="method.titleLines.0">FROM STUCK</span><br /><span data-content="method.titleLines.1">TO MORE OPTIONS.</span></h2>
-        <p class="section-intro" data-content="method.intro">A useful plan starts with context and ends with a decision. Assess the movement, choose a relevant focus, practice a clear progression, then check what changed.</p>
+        <h2 class="section-title" id="method-title"><span data-content="method.titleLines.0">ONE SYSTEM.</span><br /><span data-content="method.titleLines.1">FOUR CLEAR STAGES.</span></h2>
+        <p class="section-intro" data-content="method.intro">The plan follows a simple sequence: understand the movement first, restore useful options, rebuild capacity, then carry the result into the activity that matters.</p>
         <div class="method-grid">
-          <article class="method-card"><span class="step">01</span><h3 data-content="method.steps.0.title">Assess</h3><p data-content="method.steps.0.description">Start with the movement you notice and establish a useful baseline.</p></article>
-          <article class="method-card"><span class="step">02</span><h3 data-content="method.steps.1.title">Choose</h3><p data-content="method.steps.1.description">Narrow the focus to the body areas and movement options that may matter.</p></article>
-          <article class="method-card"><span class="step">03</span><h3 data-content="method.steps.2.title">Practice</h3><p data-content="method.steps.2.description">Follow one focused progression instead of collecting random exercises.</p></article>
-          <article class="method-card"><span class="step">04</span><h3 data-content="method.steps.3.title">Recheck</h3><p data-content="method.steps.3.description">Repeat the movement and use the response to choose your next step.</p></article>
+          <article class="method-card"><span class="step">01</span><h3 data-content="method.steps.0.title">Assess</h3><p data-content="method.steps.0.description">Observe the movement you notice, identify the relevant body area, and establish a useful baseline.</p></article>
+          <article class="method-card"><span class="step">02</span><h3 data-content="method.steps.1.title">Restore</h3><p data-content="method.steps.1.description">Explore comfortable range, breathing, and control before adding more demand.</p></article>
+          <article class="method-card"><span class="step">03</span><h3 data-content="method.steps.2.title">Rebuild</h3><p data-content="method.steps.2.description">Use a focused progression to develop strength, coordination, and capacity.</p></article>
+          <article class="method-card"><span class="step">04</span><h3 data-content="method.steps.3.title">Apply</h3><p data-content="method.steps.3.description">Recheck the original movement and carry the new options into training or daily life.</p></article>
         </div>
       </div>
     </section>
@@ -290,7 +294,7 @@
     </section>
   </main>
 
-  <footer class="footer wrap"><div><a class="brand" href="#main"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a><p data-content="footer.tagline">Move with more options.</p></div><p>© 2026 LegitBodyFix.<br /><span data-content="footer.legal">Educational movement content, not medical diagnosis or treatment.</span><br /><a href="policies.html#support">Support</a> · <a href="policies.html#refunds">Refunds</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
+  <footer class="footer wrap"><div><a class="brand brand-wordmark" href="#main">LegitBodyFix</a><p data-content="footer.tagline">Move with more options.</p></div><p>© 2026 LegitBodyFix.<br /><span data-content="footer.legal">Educational movement content, not medical diagnosis or treatment.</span><br /><a href="policies.html#support">Support</a> · <a href="policies.html#refunds">Refunds</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
   <div id="toast" role="status" aria-live="polite"></div>
   <script>
     (function () {
