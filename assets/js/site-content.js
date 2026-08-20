@@ -161,7 +161,8 @@
     });
     var customNodes = {};
     (content.customSections || []).forEach(function (section, sectionIndex) {
-      if (section && CUSTOM_TYPES.indexOf(section.type) !== -1) customNodes[section.id] = renderCustomSection(section, sectionIndex);
+      if (!section || CUSTOM_TYPES.indexOf(section.type) === -1) return;
+      customNodes[section.id] = document.querySelector('[data-site-section="' + section.id + '"]') || renderCustomSection(section, sectionIndex);
     });
     var ordered = [];
     (content.layout || []).forEach(function (entry) {

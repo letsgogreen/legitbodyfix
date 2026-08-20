@@ -16,8 +16,10 @@
     { "id": "hero", "kind": "core", "visible": true },
     { "id": "visitor-problems", "kind": "custom", "visible": true },
     { "id": "method", "kind": "core", "visible": true },
+    { "id": "why-legitbodyfix", "kind": "custom", "visible": true },
     { "id": "starting-point-cta", "kind": "custom", "visible": true },
     { "id": "library", "kind": "core", "visible": true },
+    { "id": "program-paths", "kind": "custom", "visible": true },
     { "id": "knowledge", "kind": "core", "visible": true },
     { "id": "standard", "kind": "core", "visible": true },
     { "id": "purchase-questions", "kind": "custom", "visible": true },
@@ -131,6 +133,38 @@
           "title": "How do I access a purchase?",
           "body": "Your purchase is connected to your checkout email. Sign in with that email to open the protected session in My library."
         }
+      ]
+    },
+    {
+      "id": "why-legitbodyfix",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Why LegitBodyFix",
+      "title": "MORE THAN MOBILITY.",
+      "body": "A structured path from assessment to real movement.",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "Assess before exercise", "body": "Find a useful starting point before choosing a progression." },
+        { "title": "Apply to real movement", "body": "Connect the work back to training and daily activity." }
+      ]
+    },
+    {
+      "id": "program-paths",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Choose a path",
+      "title": "ASSESS. RESTORE. REBUILD. APPLY.",
+      "body": "Choose the path closest to the movement you want to improve.",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "Squat and hip", "body": "Build options for squatting and lower-body training." },
+        { "title": "Shoulder and overhead", "body": "Build options for pressing, pulling, and reaching." }
       ]
     },
     {
