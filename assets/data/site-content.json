@@ -15,25 +15,25 @@
   "layout": [
     { "id": "hero", "kind": "core", "visible": true },
     { "id": "visitor-problems", "kind": "custom", "visible": true },
-    { "id": "library", "kind": "core", "visible": true },
     { "id": "method", "kind": "core", "visible": true },
+    { "id": "starting-point-cta", "kind": "custom", "visible": true },
+    { "id": "library", "kind": "core", "visible": true },
     { "id": "knowledge", "kind": "core", "visible": true },
     { "id": "standard", "kind": "core", "visible": true },
     { "id": "purchase-questions", "kind": "custom", "visible": true },
-    { "id": "pricing", "kind": "core", "visible": true },
-    { "id": "starting-point-cta", "kind": "custom", "visible": true }
+    { "id": "pricing", "kind": "core", "visible": true }
   ],
   "hero": {
     "kicker": "Assess. Restore. Rebuild. Apply.",
-    "titleLines": ["BUILD", "MORE WAYS", "TO MOVE.", "WITH A PLAN."],
-    "description": "Assess what feels limited, understand what may be influencing it, and build the movement options you need for training and daily life.",
+    "titleLines": ["BUILD MORE", "WAYS TO", "MOVE.", "WITH A PLAN."],
+    "description": "Assess what's limiting you, restore the movement you need, and rebuild the strength to return to training with confidence.",
     "primaryButton": "Start the movement check",
     "primaryHref": "knowledge.html",
     "secondaryButton": "Browse focused sessions",
     "secondaryHref": "#library-preview",
     "proofPoints": ["Start with an assessment", "Progress with a purpose", "No subscription"],
-    "imageUrl": "",
-    "imageAlt": "Corrective movement body map showing shoulder, hip, and knee focus areas"
+    "imageUrl": "assets/images/hero-training.jpg",
+    "imageAlt": "Active adult training a loaded squat pattern in a bright studio"
   },
   "method": {
     "label": "The LegitBodyFix method",
@@ -137,10 +137,10 @@
       "id": "starting-point-cta",
       "type": "cta",
       "theme": "lime",
-      "eyebrow": "Still deciding?",
-      "title": "FIND THE RIGHT PLACE TO START.",
-      "body": "Explore the free movement guides first. Understand the pattern, see the related anatomy, and choose a focused session only when it makes sense for your goal.",
-      "buttonLabel": "Explore movement guides",
+      "eyebrow": "Free movement check",
+      "title": "FIND WHAT'S LIMITING YOUR MOVEMENT.",
+      "body": "Choose the movement or body area that feels restricted. We will help you narrow the question and find a clearer starting point—without pretending to diagnose you.",
+      "buttonLabel": "Start the movement check",
       "buttonHref": "knowledge.html",
       "imageUrl": "",
       "imageAlt": "",

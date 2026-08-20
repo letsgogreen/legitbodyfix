@@ -709,12 +709,7 @@
 }
 
 /* Muscle reference page */
-body.knowledge-detail-open .knowledge-hero,
-body.knowledge-detail-open .guide-purpose,
 body.knowledge-detail-open .knowledge-directory { display: none; }
-
-body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-hero,
-body.muscle-directory-mode:not(.knowledge-detail-open) .guide-purpose { display: none; }
 
 body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-directory {
   padding-top: 58px;
