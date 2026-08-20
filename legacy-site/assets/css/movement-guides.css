@@ -1,0 +1,314 @@
+.recipe-region-section {
+  grid-column: 1 / -1;
+  margin-top: 34px;
+}
+
+.condition-category-section {
+  grid-column: 1 / -1;
+  margin-top: 36px;
+}
+
+.condition-category-section:first-child { margin-top: 0; }
+
+.condition-category-heading {
+  min-height: 78px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid var(--ink);
+  border-bottom: 0;
+  background: #2f1712;
+  color: var(--paper);
+}
+
+.condition-category-heading span,
+.condition-category-heading b {
+  font: 600 10px/1.2 var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.condition-category-heading span { color: #efb9a8; }
+.condition-category-heading h3 { margin-top: 6px; font-size: 23px; letter-spacing: -.045em; }
+.condition-category-heading b { color: #efb9a8; white-space: nowrap; }
+
+.condition-category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+@media (max-width: 860px) {
+  .condition-category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .condition-category-heading { align-items: flex-end; padding: 14px; }
+  .condition-category-heading h3 { font-size: 20px; }
+  .condition-category-grid { grid-template-columns: 1fr; }
+}
+
+.recipe-tools {
+  margin: 0 0 36px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(220px, .72fr) 1.28fr;
+  gap: 34px;
+  align-items: center;
+  border: 1px solid var(--ink);
+  background: #e7e4dc;
+}
+
+.recipe-tools[hidden] { display: none; }
+
+.recipe-tools-copy {
+  max-width: 390px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.recipe-region-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.recipe-region-filters button {
+  min-height: 40px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.recipe-region-filters button:hover,
+.recipe-region-filters button.is-active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.recipe-region-filters span {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 99px;
+  background: var(--lime);
+  color: var(--ink);
+  font: 700 10px/1 var(--mono);
+}
+
+.recipe-region-section:first-child { margin-top: 0; }
+
+.recipe-region-heading {
+  min-height: 64px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--ink);
+  border-bottom: 0;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.recipe-region-heading h3 {
+  font-size: 22px;
+  letter-spacing: -.04em;
+}
+
+.recipe-region-heading span,
+.recipe-card-meta {
+  font: 500 10px/1.2 var(--mono);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.recipe-region-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+
+.recipe-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: #39766e;
+}
+
+.recipe-card-meta i { color: var(--muted); font-style: normal; }
+.knowledge-card.is-recipe h3 { margin-top: 28px; }
+.knowledge-card.is-recipe:hover .recipe-card-meta,
+.knowledge-card.is-recipe:hover .recipe-card-meta i { color: #263000; }
+
+@media (max-width: 860px) {
+  .recipe-tools { grid-template-columns: 1fr; }
+  .recipe-region-filters { justify-content: flex-start; }
+  .recipe-region-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .recipe-tools { padding: 18px; }
+  .recipe-region-filters button { flex: 1 1 calc(50% - 8px); justify-content: space-between; }
+  .recipe-region-grid { grid-template-columns: 1fr; }
+  .recipe-region-heading { padding: 0 14px; }
+}
+
+.care-path-tools {
+  margin: 0 0 24px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(250px, .72fr) 1.28fr;
+  gap: 34px;
+  align-items: center;
+  border: 1px solid var(--ink);
+  background: #fff;
+}
+
+.care-path-tools[hidden] { display: none; }
+.care-path-intro h3 { margin-top: 10px; font-size: 24px; letter-spacing: -.045em; }
+.care-path-intro > p:last-child { max-width: 470px; margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.care-path-filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+.care-path-filters button {
+  min-height: 108px;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-content: start;
+  gap: 8px 12px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.care-path-filters button > b { font-size: 13px; line-height: 1.25; }
+.care-path-filters button > small { grid-column: 1 / -1; color: var(--muted); font-size: 10px; line-height: 1.45; }
+.care-path-filters button > span { min-width: 22px; height: 22px; display: grid; place-items: center; background: var(--lime); font: 700 10px/1 var(--mono); }
+.care-path-filters button:hover,
+.care-path-filters button.is-active { background: var(--ink); color: var(--paper); }
+.care-path-filters button:hover small,
+.care-path-filters button.is-active small { color: #d7d5cc; }
+.care-path-filters button.is-clinical:not(.is-active) { border-left: 7px solid #a34232; }
+
+.knowledge-card.care-path-musculoskeletal-condition { box-shadow: inset 7px 0 0 #a34232; }
+.knowledge-card.care-path-musculoskeletal-condition .knowledge-card-type { color: #a34232; }
+.knowledge-card.care-path-postural-movement .knowledge-card-type { color: #39766e; }
+.knowledge-card:hover .knowledge-card-type { color: var(--ink); }
+
+.knowledge-card.has-posture-media {
+  min-height: 390px;
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.posture-card-media {
+  position: relative;
+  height: 174px;
+  margin: 0 -28px 24px;
+  display: block;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ink);
+  background: #fff;
+}
+
+.posture-card-diagram {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.posture-card-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: scale(var(--posture-image-scale, 1));
+}
+
+.posture-body,
+.posture-accent,
+.posture-guide {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.posture-body { stroke: var(--ink); stroke-width: 5; }
+.posture-guide { stroke: var(--lime); stroke-width: 2; stroke-dasharray: 5 5; }
+.posture-accent { stroke: #d7482f; stroke-width: 7; }
+.posture-card-media circle.posture-accent { fill: color-mix(in srgb, #d7482f 18%, transparent); }
+
+.posture-card-media-label {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--ink);
+  background: var(--lime);
+  color: var(--ink);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.posture-card-credit {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--ink);
+  background: rgba(255, 255, 255, .92);
+  color: var(--ink);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.posture-card-credit:hover { background: var(--lime); }
+
+.knowledge-card.has-posture-media h3 { margin-top: 22px; }
+
+@media (max-width: 560px) {
+  .posture-card-media { height: 190px; }
+}
+
+.detail-care-path {
+  margin-top: 30px;
+  padding: 18px;
+  border: 1px solid var(--ink);
+  background: #e5eee9;
+}
+
+.detail-care-path.is-musculoskeletal-condition { border-left: 8px solid #a34232; background: #f2e6e2; }
+.detail-care-path strong { display: block; font: 500 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.detail-care-path p { margin-top: 9px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+@media (max-width: 940px) {
+  .care-path-tools { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 650px) {
+  .care-path-tools { padding: 18px; }
+  .care-path-filters { grid-template-columns: 1fr; }
+  .care-path-filters button { min-height: 82px; }
+}
