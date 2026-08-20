@@ -5,45 +5,47 @@
     "density": "spacious"
   },
   "navigation": {
-    "method": "How it works",
+    "method": "Method",
     "library": "Programs",
     "myLibrary": "My library",
     "programs": "Programs",
-    "howItWorks": "How it works",
-    "browsePrograms": "Find my starting point"
+    "howItWorks": "Movement Check",
+    "browsePrograms": "Start the check"
   },
   "layout": [
     { "id": "hero", "kind": "core", "visible": true },
     { "id": "visitor-problems", "kind": "custom", "visible": true },
-    { "id": "library", "kind": "core", "visible": true },
     { "id": "method", "kind": "core", "visible": true },
+    { "id": "why-legitbodyfix", "kind": "custom", "visible": true },
+    { "id": "starting-point-cta", "kind": "custom", "visible": true },
+    { "id": "library", "kind": "core", "visible": true },
+    { "id": "program-paths", "kind": "custom", "visible": true },
     { "id": "knowledge", "kind": "core", "visible": true },
     { "id": "standard", "kind": "core", "visible": true },
     { "id": "purchase-questions", "kind": "custom", "visible": true },
-    { "id": "pricing", "kind": "core", "visible": true },
-    { "id": "starting-point-cta", "kind": "custom", "visible": true }
+    { "id": "pricing", "kind": "core", "visible": true }
   ],
   "hero": {
-    "kicker": "Movement options. No random routines.",
-    "titleLines": ["BUILD", "MORE WAYS", "TO MOVE.", "WITH A PLAN."],
-    "description": "Assess what feels limited, understand what may be influencing it, and build the movement options you need for training and daily life.",
-    "primaryButton": "Find my starting point",
+    "kicker": "Assess. Restore. Rebuild. Apply.",
+    "titleLines": ["BUILD MORE", "WAYS TO", "MOVE.", "WITH A PLAN."],
+    "description": "Assess what's limiting you, restore the movement you need, and rebuild the strength to return to training with confidence.",
+    "primaryButton": "Start the movement check",
     "primaryHref": "knowledge.html",
     "secondaryButton": "Browse focused sessions",
     "secondaryHref": "#library-preview",
-    "proofPoints": ["Built for active adults", "Clear progressions", "No subscription"],
-    "imageUrl": "",
-    "imageAlt": "Corrective movement body map showing shoulder, hip, and knee focus areas"
+    "proofPoints": ["Start with an assessment", "Progress with a purpose", "No subscription"],
+    "imageUrl": "assets/images/hero-training.jpg",
+    "imageAlt": "Active adult training a loaded squat pattern in a bright studio"
   },
   "method": {
     "label": "The LegitBodyFix method",
-    "titleLines": ["FROM STUCK", "TO MORE OPTIONS."],
-    "intro": "A useful plan starts with context and ends with a decision. Assess the movement, choose a relevant focus, practice a clear progression, then check what changed.",
+    "titleLines": ["ONE SYSTEM.", "FOUR CLEAR STAGES."],
+    "intro": "The plan follows a simple sequence: understand the movement first, restore useful options, rebuild capacity, then carry the result into the activity that matters.",
     "steps": [
-      { "title": "Assess", "description": "Start with the movement you notice and establish a useful baseline." },
-      { "title": "Choose", "description": "Narrow the focus to the body areas and movement options that may matter." },
-      { "title": "Practice", "description": "Follow one focused progression instead of collecting random exercises." },
-      { "title": "Recheck", "description": "Repeat the movement and use the response to choose your next step." }
+      { "title": "Assess", "description": "Observe the movement you notice, identify the relevant body area, and establish a useful baseline." },
+      { "title": "Restore", "description": "Explore comfortable range, breathing, and control before adding more demand." },
+      { "title": "Rebuild", "description": "Use a focused progression to develop strength, coordination, and capacity." },
+      { "title": "Apply", "description": "Recheck the original movement and carry the new options into training or daily life." }
     ]
   },
   "library": {
@@ -92,7 +94,7 @@
       "eyebrow": "Sound familiar?",
       "title": "START WITH WHAT YOU ACTUALLY NOTICE.",
       "body": "Choose the movement problem that feels familiar. You do not need to know the diagnosis or the exact muscle before you begin.",
-      "buttonLabel": "Find my starting point",
+      "buttonLabel": "Start the movement check",
       "buttonHref": "knowledge.html",
       "imageUrl": "",
       "imageAlt": "",
@@ -134,13 +136,45 @@
       ]
     },
     {
+      "id": "why-legitbodyfix",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Why LegitBodyFix",
+      "title": "MORE THAN MOBILITY.",
+      "body": "A structured path from assessment to real movement.",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "Assess before exercise", "body": "Find a useful starting point before choosing a progression." },
+        { "title": "Apply to real movement", "body": "Connect the work back to training and daily activity." }
+      ]
+    },
+    {
+      "id": "program-paths",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Choose a path",
+      "title": "ASSESS. RESTORE. REBUILD. APPLY.",
+      "body": "Choose the path closest to the movement you want to improve.",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "Squat and hip", "body": "Build options for squatting and lower-body training." },
+        { "title": "Shoulder and overhead", "body": "Build options for pressing, pulling, and reaching." }
+      ]
+    },
+    {
       "id": "starting-point-cta",
       "type": "cta",
       "theme": "lime",
-      "eyebrow": "Still deciding?",
-      "title": "FIND THE RIGHT PLACE TO START.",
-      "body": "Explore the free movement guides first. Understand the pattern, see the related anatomy, and choose a focused session only when it makes sense for your goal.",
-      "buttonLabel": "Explore movement guides",
+      "eyebrow": "Free movement check",
+      "title": "FIND WHAT'S LIMITING YOUR MOVEMENT.",
+      "body": "Choose the movement or body area that feels restricted. We will help you narrow the question and find a clearer starting point—without pretending to diagnose you.",
+      "buttonLabel": "Start the movement check",
       "buttonHref": "knowledge.html",
       "imageUrl": "",
       "imageAlt": "",

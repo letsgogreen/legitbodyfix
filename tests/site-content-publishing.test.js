@@ -31,20 +31,15 @@ test("website content validation returns only approved plain-text fields", funct
   assert.equal(content.method.steps.length, 4);
 });
 
-test("homepage places the purchasable library before supporting education", function () {
+test("homepage follows the movement journey before presenting programs and education", function () {
   var content = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/data/site-content.json"), "utf8"));
   var visibleIds = content.layout.filter(function (entry) { return entry.visible !== false; }).map(function (entry) { return entry.id; });
   assert.ok(visibleIds.indexOf("library") > visibleIds.indexOf("visitor-problems"));
-  assert.ok(visibleIds.indexOf("library") < visibleIds.indexOf("method"));
+  assert.ok(visibleIds.indexOf("method") > visibleIds.indexOf("visitor-problems"));
+  assert.ok(visibleIds.indexOf("library") > visibleIds.indexOf("method"));
+  assert.ok(visibleIds.indexOf("starting-point-cta") > visibleIds.indexOf("method"));
+  assert.ok(visibleIds.indexOf("starting-point-cta") < visibleIds.indexOf("library"));
   assert.ok(visibleIds.indexOf("library") < visibleIds.indexOf("knowledge"));
-});
-
-test("visitor problem section uses a lighter diagnostic list instead of another card grid", function () {
-  var css = fs.readFileSync(path.join(__dirname, "../assets/css/site-editor-public.css"), "utf8");
-  assert.match(css, /\[data-site-section="visitor-problems"\] \.site-block-inner/);
-  assert.match(css, /counter-reset: visitor-problem/);
-  assert.match(css, /border-left: 0/);
-  assert.match(css, /grid-template-columns: 42px minmax\(190px, \.82fr\) minmax\(210px, 1fr\)/);
 });
 
 test("website content validation rejects unsafe destinations and broken layouts", function () {

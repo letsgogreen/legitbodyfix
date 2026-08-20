@@ -18,8 +18,8 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /data-knowledge-filter="conditions"/);
   assert.match(html, /data-care-path-target="postural-movement"/);
   assert.match(html, /data-care-path-target="musculoskeletal-condition"/);
-  assert.match(html, /Complete follow-along progressions stay inside the paid programs/);
-  assert.match(html, /How movement guides help/);
+  assert.doesNotMatch(html, /UNDERSTAND<br \/>THE WHY/);
+  assert.doesNotMatch(html, /How movement guides help/);
   assert.doesNotMatch(html, /data-knowledge-filter="recipes"/);
   assert.doesNotMatch(html, /data-knowledge-path="recipes"/);
   assert.match(html, /id="recipeTools"/);
@@ -45,6 +45,9 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /id="muscleDirectoryControls"/);
   assert.match(html, /Start with movement/);
   assert.match(html, /id="knowledgePaths"/);
+  assert.match(html, /class="path-visual"/);
+  assert.match(html, /Special:FilePath\/Ankle\.svg/);
+  assert.match(html, /1105_Anterior_and_Posterior_Views_of_Muscles\.jpg/);
   assert.match(html, /id="muscleAtlas"/);
   assert.match(html, /knowledge-organization\.css/);
   assert.match(html, /id="muscleSort"/);
