@@ -9,12 +9,21 @@ body[data-site-density="compact"] .site-block { padding-top: 72px; padding-botto
 
 .hero-custom-image {
   width: 100%;
-  min-height: 540px;
+  min-height: 610px;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   border: 1px solid var(--line);
+  border-radius: var(--radius);
   background: var(--paper-2);
 }
+
+[data-site-section="starting-point-cta"] { background: var(--ink); color: var(--paper); }
+[data-site-section="starting-point-cta"] .site-block-inner { min-height: 520px; justify-items: center; text-align: center; }
+[data-site-section="starting-point-cta"] .site-block-eyebrow { color: var(--lime); }
+[data-site-section="starting-point-cta"] .site-block-title { max-width: 920px; font-size: clamp(48px, 7vw, 96px); }
+[data-site-section="starting-point-cta"] .site-block-body { max-width: 670px; color: #b9b6ad; }
+[data-site-section="starting-point-cta"] .site-block-button { justify-self: center; border-color: var(--lime); background: var(--lime); color: var(--ink); }
 
 .site-block { padding: 112px 0; border-top: 1px solid var(--line); }
 .site-block.theme-paper { background: var(--paper); color: var(--ink); }
