@@ -22,13 +22,14 @@ test("the original Lovable React frontend is present as the application root", f
   assert.equal(packageJson.dependencies.react, "^19.2.0");
 });
 
-test("legacy assets and server APIs remain available for integration", function () {
+test("legacy assets and server APIs remain preserved outside the deployment root", function () {
   var root = path.join(__dirname, "..");
 
   assert.ok(fs.existsSync(path.join(root, "legacy-site/assets/data/videos.json")));
   assert.ok(fs.existsSync(path.join(root, "legacy-site/admin.html")));
   assert.ok(fs.existsSync(path.join(root, "legacy-site/checkout.html")));
   assert.ok(fs.existsSync(path.join(root, "legacy-site/library.html")));
-  assert.ok(fs.existsSync(path.join(root, "api/access/library.js")));
-  assert.ok(fs.existsSync(path.join(root, "api/paypal/orders/create.js")));
+  assert.ok(fs.existsSync(path.join(root, "legacy-site/api/access/library.js")));
+  assert.ok(fs.existsSync(path.join(root, "legacy-site/api/paypal/orders/create.js")));
+  assert.ok(fs.existsSync(path.join(root, "legacy-site/lib/paypal-payments.js")));
 });
