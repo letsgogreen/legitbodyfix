@@ -180,11 +180,43 @@
     #toast { position: fixed; left: 50%; bottom: 24px; z-index: 40; max-width: min(460px, calc(100% - 32px)); transform: translate(-50%, 160%); padding: 14px 18px; background: var(--ink); color: var(--paper); font-size: 14px; transition: transform .25s ease; }
     #toast.show { transform: translate(-50%, 0); }
 
+    /* Lovable is the visual source of truth for the public homepage. */
+    .lovable-hero { border: 0; }
+    .lovable-chip { display: inline-block; padding: 7px 10px; background: var(--lime); color: var(--ink); }
+    .lovable-hero h1 { max-width: 650px; font-size: clamp(54px, 6.4vw, 88px); line-height: .92; }
+    .lovable-hero-media { position: relative; min-height: 610px; overflow: visible; }
+    .lovable-hero-media .hero-custom-image { width: 100%; height: 610px; min-height: 610px; object-fit: cover; border-radius: var(--radius); }
+    .lovable-hero-media > span { position: absolute; left: 24px; bottom: -18px; padding: 14px 17px; background: var(--ink); color: var(--paper); font: 500 10px/1 var(--mono); letter-spacing: .1em; }
+    .lovable-problems { background: #fbfaf6; }
+    .lovable-card-grid { display: grid; gap: 1px; margin-top: 48px; border: 1px solid var(--line); background: var(--line); }
+    .lovable-card-grid-three { grid-template-columns: repeat(3, 1fr); }
+    .lovable-card-grid-five { grid-template-columns: repeat(5, 1fr); }
+    .lovable-card-grid article, .lovable-card-grid a { min-width: 0; min-height: 210px; padding: 26px; display: flex; flex-direction: column; background: #fbfaf6; color: var(--ink); text-decoration: none; }
+    .lovable-card-grid a:hover { background: var(--lime); }
+    .lovable-card-grid b { font: 600 20px/1 var(--mono); }
+    .lovable-card-grid strong, .lovable-card-grid h3 { margin-top: auto; padding-top: 34px; font-size: 18px; line-height: 1.15; letter-spacing: -.035em; }
+    .lovable-card-grid p, .lovable-card-grid span { margin-top: 12px; color: var(--soft-ink); font-size: 13px; line-height: 1.55; }
+    .lovable-check { padding: 115px 0; background: var(--ink); color: var(--paper); text-align: center; }
+    .lovable-check .section-label { color: var(--lime); }
+    .lovable-check h2 { max-width: 860px; margin: 0 auto; font-family: var(--display); font-size: clamp(46px, 6.4vw, 82px); line-height: .93; letter-spacing: -.065em; }
+    .lovable-check > .wrap > p:not(.section-label) { max-width: 660px; margin: 24px auto 0; color: #b8b6ad; font-size: 16px; line-height: 1.7; }
+    .lovable-check .button { margin-top: 34px; }
+    .lovable-chips { margin-top: 44px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .lovable-chips a { padding: 10px 13px; border: 1px solid #57574f; color: #d4d2ca; font: 500 10px/1 var(--mono); text-decoration: none; text-transform: uppercase; }
+    .lovable-chips a:hover { border-color: var(--lime); color: var(--lime); }
+    .lovable-paths { background: color-mix(in srgb, var(--panel) 55%, var(--paper)); }
+    .lovable-final { padding: 120px 0; background: var(--lime); color: var(--ink); text-align: center; }
+    .lovable-final blockquote { max-width: 930px; margin: 0 auto; font-family: var(--display); font-size: clamp(52px, 7vw, 96px); font-weight: 800; line-height: .9; letter-spacing: -.075em; }
+    .lovable-final p { margin-top: 26px; font-size: 18px; }
+    .lovable-final .button { margin-top: 34px; }
+
     @media (max-width: 860px) {
       .nav { min-height: 70px; } .nav-links { display: none; } .nav-cta { display: none; } .menu-button { display: grid; place-items: center; }
       .nav-links.open { position: absolute; top: 70px; left: 0; right: 0; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 16px 24px 24px; background: var(--paper); border-bottom: 1px solid var(--line); }
       .nav-links.open a { display: block; padding: 12px 0; }
       .hero, .membership { grid-template-columns: 1fr; } .hero { padding-top: 56px; } .start-panel { min-height: auto; }
+      .lovable-card-grid-five { grid-template-columns: repeat(2, 1fr); }
+      .lovable-card-grid-three { grid-template-columns: repeat(2, 1fr); }
       .body-figure { transform: scale(.78); } .map-label { font-size: 9px; } .map-side-label { right: 3%; }
       .library-header { display: block; } .library-link { display: inline-block; margin-top: 24px; }
       .method-grid { grid-template-columns: repeat(2, 1fr); } .method-card { min-height: 240px; }
@@ -197,6 +229,9 @@
       .map-axis::before, .map-axis::after { left: -145px; width: 290px; } .map-label.shoulder { left: 4%; } .map-label.hip { right: 2%; }
       .section { padding: 82px 0; } .section-title { font-size: clamp(38px, 12vw, 58px); } .method-grid { grid-template-columns: 1fr; gap: 0; } .method-card { min-height: 210px; padding: 22px 0 28px; } .method-card h3 { padding-top: 42px; } .method-card p { max-width: 420px; } .course-grid { grid-template-columns: 1fr; } .course-card { min-height: 360px; }
       .price-panel { min-height: 276px; padding: 25px; } .footer { align-items: flex-start; flex-direction: column; }
+      .lovable-hero-media, .lovable-hero-media .hero-custom-image { min-height: 430px; height: 430px; }
+      .lovable-card-grid-five, .lovable-card-grid-three { grid-template-columns: 1fr; }
+      .lovable-card-grid article, .lovable-card-grid a { min-height: 180px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
   </style>
@@ -220,10 +255,10 @@
   </header>
 
   <main id="main">
-    <section class="hero wrap" aria-labelledby="hero-title" data-site-section="hero">
+    <section class="hero wrap lovable-hero" aria-labelledby="hero-title" data-site-section="hero">
       <div>
-        <p class="kicker" data-content="hero.kicker">Assess. Restore. Rebuild. Apply.</p>
-        <h1 id="hero-title"><span data-content="hero.titleLines.0">BUILD</span><br /><span data-content="hero.titleLines.1">MORE WAYS</span><br /><span class="outline" data-content="hero.titleLines.2">TO MOVE.</span><br /><span class="outline" data-content="hero.titleLines.3">WITH A PLAN.</span></h1>
+        <p class="kicker lovable-chip" data-content="hero.kicker">Movement system</p>
+        <h1 id="hero-title"><span data-content="hero.titleLines.0">BUILD MORE</span><br /><span data-content="hero.titleLines.1">WAYS TO MOVE.</span></h1>
         <p class="hero-copy" data-content="hero.description">Assess what feels limited, understand what may be influencing it, and build the movement options you need for training and daily life.</p>
         <div class="hero-actions">
           <a class="button button-dark" href="knowledge.html" data-content-href="hero.primaryHref"><span data-content="hero.primaryButton">Start the movement check</span> <span aria-hidden="true">→</span></a>
@@ -231,13 +266,25 @@
         </div>
         <div class="proof-list" aria-label="Program highlights"><span data-content="hero.proofPoints.0">Start with an assessment</span><span data-content="hero.proofPoints.1">Progress with a purpose</span><span data-content="hero.proofPoints.2">No subscription</span></div>
       </div>
-      <div class="start-panel" id="heroBodyMap" aria-label="Choose your starting point">
-        <div class="start-panel-head"><strong>WHAT BROUGHT YOU HERE?</strong><span>Choose a starting point<br />Not a diagnosis</span></div>
-        <a class="start-option" href="knowledge.html?type=conditions"><span class="start-option-number">01</span><span class="start-option-copy"><strong>Something feels limited</strong><span>Start with the movement or body area that is getting in your way.</span></span><span class="start-option-arrow">→</span></a>
-        <a class="start-option" href="knowledge.html?type=muscles"><span class="start-option-number">02</span><span class="start-option-copy"><strong>I want to understand why</strong><span>Explore clear anatomy and see how muscles contribute to movement.</span></span><span class="start-option-arrow">→</span></a>
-        <a class="start-option" href="#library-preview"><span class="start-option-number">03</span><span class="start-option-copy"><strong>I am ready to practice</strong><span>Choose a short, guided session with a clear goal and progression.</span></span><span class="start-option-arrow">→</span></a>
+      <div class="lovable-hero-media">
+        <div id="heroBodyMap" hidden></div>
+        <img class="hero-custom-image" id="heroCustomImage" src="assets/images/hero-training.jpg" alt="Active adult training a loaded squat pattern in a bright studio" />
+        <span>ASSESS → RESTORE → REBUILD → APPLY</span>
       </div>
-      <img class="hero-custom-image" id="heroCustomImage" alt="" hidden />
+    </section>
+
+    <section class="section lovable-problems" data-site-section="visitor-problems">
+      <div class="wrap">
+        <p class="section-label" data-content="customSections.0.eyebrow">Sound familiar?</p>
+        <h2 class="section-title" data-content="customSections.0.title">START WITH WHAT YOU ACTUALLY NOTICE.</h2>
+        <div class="lovable-card-grid lovable-card-grid-five">
+          <a href="knowledge.html?type=conditions"><b>↕</b><strong>My hips feel locked up every time I squat.</strong></a>
+          <a href="knowledge.html?type=conditions"><b>⌁</b><strong>My lower back stays stiff after deadlifts.</strong></a>
+          <a href="knowledge.html?type=conditions"><b>↑</b><strong>My shoulder bothers me overhead.</strong></a>
+          <a href="knowledge.html?type=conditions"><b>→</b><strong>I'm nervous about getting back into running.</strong></a>
+          <a href="knowledge.html?type=conditions"><b>□</b><strong>Sitting all day makes everything feel stuck.</strong></a>
+        </div>
+      </div>
     </section>
 
     <section class="section" id="method" aria-labelledby="method-title" data-site-section="method">
@@ -254,6 +301,31 @@
       </div>
     </section>
 
+    <section class="section lovable-usps" data-site-section="why-legitbodyfix">
+      <div class="wrap">
+        <h2 class="section-title">MORE THAN MOBILITY. A SYSTEM FOR RETURNING MOVEMENT TO REAL ACTIVITY.</h2>
+        <p class="section-intro">Free videos give you exercises. LegitBodyFix gives you the order, progression, and context to use them.</p>
+        <div class="lovable-card-grid lovable-card-grid-three">
+          <article><b>◎</b><h3>Assess before exercise</h3><p>Find a useful starting point instead of following the same routine as everyone else.</p></article>
+          <article><b>↻</b><h3>Restore, then rebuild</h3><p>Move from range and control into strength, coordination, and capacity.</p></article>
+          <article><b>◇</b><h3>Apply to real movement</h3><p>Connect the work back to squats, hinges, overhead work, running, and daily life.</p></article>
+          <article><b>▤</b><h3>Education without overwhelm</h3><p>Get the anatomy and reasoning you need without turning movement into a lecture.</p></article>
+          <article><b>↗</b><h3>Clear progression</h3><p>Understand what to try, what to monitor, and when to choose a different option.</p></article>
+          <article><b>✓</b><h3>Focused access</h3><p>Choose the session that fits your goal and pay once—no recurring subscription.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="lovable-check" data-site-section="starting-point-cta">
+      <div class="wrap">
+        <p class="section-label" data-content="customSections.4.eyebrow">Free movement check</p>
+        <h2 data-content="customSections.4.title">FIND WHAT'S LIMITING YOUR MOVEMENT.</h2>
+        <p data-content="customSections.4.body">Choose the movement or body area that feels restricted. We will help you narrow the question and find a clearer starting point—without pretending to diagnose you.</p>
+        <a class="button button-lime" href="knowledge.html" data-content-href="customSections.4.buttonHref"><span data-content="customSections.4.buttonLabel">Start the movement check</span> →</a>
+        <div class="lovable-chips"><a href="knowledge.html?type=conditions">Squat &amp; hip</a><a href="knowledge.html?type=conditions">Hinge &amp; low back</a><a href="knowledge.html?type=conditions">Shoulder &amp; overhead</a><a href="knowledge.html?type=conditions">Run &amp; return</a><a href="knowledge.html?type=conditions">Desk &amp; daily life</a></div>
+      </div>
+    </section>
+
     <section class="section" id="library-preview" aria-labelledby="library-title" data-site-section="library">
       <div class="wrap">
         <div class="library-header">
@@ -262,6 +334,20 @@
         </div>
         <div class="course-filter-bar" id="courseFilters" aria-label="Filter sessions by goal"></div>
         <div class="course-grid" id="courseGrid" aria-live="polite" aria-busy="true"><p class="course-status">Loading the movement library…</p><noscript>Please enable JavaScript to view the movement library.</noscript></div>
+      </div>
+    </section>
+
+    <section class="section lovable-paths" data-site-section="program-paths">
+      <div class="wrap">
+        <h2 class="section-title">ASSESS. RESTORE. REBUILD. APPLY.</h2>
+        <p class="section-intro">Choose the path closest to the movement you want to improve, then use the available sessions to build a focused progression.</p>
+        <div class="lovable-card-grid lovable-card-grid-five">
+          <a href="#library-preview"><b>↕</b><strong>Squat &amp; Hip</strong><span>For lifters who feel pinched or stuck at depth.</span></a>
+          <a href="#library-preview"><b>⌁</b><strong>Hinge &amp; Low Back</strong><span>For stiff mornings and cautious deadlifts.</span></a>
+          <a href="#library-preview"><b>↑</b><strong>Shoulder &amp; Overhead</strong><span>For pressing, pulling, and reaching overhead.</span></a>
+          <a href="#library-preview"><b>→</b><strong>Run &amp; Return</strong><span>For getting back to mileage on your terms.</span></a>
+          <a href="#library-preview"><b>□</b><strong>Desk &amp; Daily Life</strong><span>For long sitting days before training starts.</span></a>
+        </div>
       </div>
     </section>
 
@@ -279,7 +365,7 @@
       </div>
     </section>
 
-    <section class="standard" aria-label="The LegitBodyFix standard" data-site-section="standard"><div class="wrap"><blockquote data-content="standard.quote">The goal is not to chase perfect posture. It is to build a body that has options.</blockquote><p data-content="standard.attribution">— THE LEGITBODYFIX STANDARD</p></div></section>
+    <section class="lovable-final" data-site-section="standard"><div class="wrap"><blockquote data-content="standard.quote">STOP GUESSING. MOVE WITH A PLAN.</blockquote><p data-content="standard.attribution">Don't stop training. Change how you rebuild.</p><a class="button button-dark" href="knowledge.html">Take the free movement check →</a></div></section>
 
     <section class="section" id="pricing" aria-labelledby="pricing-title" data-site-section="pricing">
       <div class="wrap membership">
