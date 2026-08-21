@@ -21,7 +21,7 @@ function ProgramPage() {
   const program = Route.useLoaderData();
   return <div className="min-h-screen bg-background text-foreground">
     <SiteNav />
-    <main>
+    <main className={program.available ? "pb-20 sm:pb-0" : ""}>
       <section className="border-b border-border"><div className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
         <Link to="/" hash="programs" className="inline-flex items-center gap-2 text-sm font-bold hover:underline"><ArrowLeft className="h-4 w-4" /> All programs</Link>
       </div></section>
@@ -39,6 +39,14 @@ function ProgramPage() {
       <section className="border-b border-border"><div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20"><p className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Inside the progression</p><h2 className="mt-3 text-4xl font-black uppercase sm:text-5xl">A clear order of work.</h2><div className="mt-9 grid gap-px overflow-hidden rounded-sm border border-border bg-border md:grid-cols-3">{program.stages.map((stage, index) => <div key={stage.title} className="min-h-56 bg-card p-7"><span className="font-mono text-[10px] text-muted-foreground">0{index + 1}</span><h3 className="mt-10 text-2xl font-extrabold uppercase">{stage.title}</h3><p className="mt-3 text-sm leading-relaxed text-muted-foreground">{stage.copy}</p></div>)}</div></div></section>
 
       <section><div className="mx-auto max-w-7xl px-5 py-12 lg:px-8"><div className="flex gap-4 rounded-sm border-l-4 border-accent bg-secondary p-6"><ShieldAlert className="h-5 w-5 shrink-0" /><div><p className="font-bold">Use this program responsibly</p><p className="mt-2 max-w-4xl text-sm leading-relaxed text-muted-foreground">{program.caution} This program provides education and guided exercise; it does not diagnose or treat a medical condition.</p></div></div></div></section>
+
+      <section className="border-t border-border bg-secondary/40"><div className="mx-auto grid max-w-7xl gap-8 px-5 py-16 lg:grid-cols-[0.65fr_1.35fr] lg:px-8 lg:py-20"><div><p className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Before you begin</p><h2 className="mt-3 text-3xl font-black uppercase sm:text-4xl">Purchase questions.</h2></div><div className="divide-y divide-border border-y border-border">
+        <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Is this a subscription?<span className="text-xl group-open:rotate-45">+</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">No. Available sessions use a one-time payment and appear in your personal library.</p></details>
+        <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Can I repeat the session?<span className="text-xl group-open:rotate-45">+</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">Yes. You can return through My Library using the email connected to your completed purchase.</p></details>
+        <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Does this replace medical care?<span className="text-xl group-open:rotate-45">+</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">No. The program is educational and is not a diagnosis. Use the safety guidance above and seek appropriate assessment when symptoms warrant it.</p></details>
+        <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">How do I access my purchase?<span className="text-xl group-open:rotate-45">+</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">Use the same email used at checkout to request a secure sign-in link from My Library. No separate password is required.</p></details>
+      </div></div></section>
     </main><SiteFooter />
+    {program.available && <div className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-between gap-4 border-t border-border bg-background/95 px-4 py-3 shadow-[0_-12px_30px_rgba(0,0,0,0.08)] backdrop-blur sm:hidden"><div><p className="text-sm font-extrabold">{program.shortTitle}</p><p className="font-mono text-xs text-muted-foreground">${program.price} · ONE TIME</p></div><a href={`/checkout.html?product=${program.id}`} className="inline-flex items-center gap-2 rounded-sm bg-accent px-5 py-3 text-sm font-bold text-accent-foreground">Get access <ArrowRight className="h-4 w-4" /></a></div>}
   </div>;
 }
