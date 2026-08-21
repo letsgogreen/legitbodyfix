@@ -258,12 +258,18 @@
           <label class="field compact-field sales-filter"><span>Status</span><select id="salesStatusFilter"><option value="all">All payments</option><option value="completed">Completed</option><option value="refunded">Refunded</option><option value="refund_pending">Refund pending</option></select></label>
         </div>
         <p class="status" id="salesStatus" role="status" aria-live="polite">Sales load after you sign in.</p>
-        <div class="sales-table-shell">
-          <table class="sales-table">
-            <thead><tr><th>Buyer</th><th>Product</th><th>Paid</th><th>Date</th><th>Status</th></tr></thead>
-            <tbody id="salesTableBody"></tbody>
-          </table>
-          <div class="sales-empty" id="salesEmpty" hidden><strong>No matching purchases.</strong><span>Try another search or payment status.</span></div>
+        <div class="customer-workbench">
+          <div class="sales-table-shell">
+            <table class="sales-table">
+              <thead><tr><th>Buyer</th><th>Product</th><th>Paid</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody id="salesTableBody"></tbody>
+            </table>
+            <div class="sales-empty" id="salesEmpty" hidden><strong>No matching purchases.</strong><span>Try another search or payment status.</span></div>
+          </div>
+          <aside class="customer-detail" id="customerDetail" aria-live="polite">
+            <div class="customer-detail-empty" id="customerDetailEmpty"><span class="module-chip">CUSTOMER RECORD</span><strong>Select a customer</strong><p>Choose an order to inspect the buyer, purchase, and access-support options.</p></div>
+            <div class="customer-detail-content" id="customerDetailContent" hidden><span class="module-chip">CUSTOMER RECORD</span><h2 id="customerDetailEmail"></h2><dl><div><dt>Program</dt><dd id="customerDetailProduct"></dd></div><div><dt>Payment</dt><dd id="customerDetailPayment"></dd></div><div><dt>Purchased</dt><dd id="customerDetailDate"></dd></div><div><dt>Order</dt><dd id="customerDetailOrder"></dd></div></dl><button class="button button-dark" id="customerManageAccess" type="button">Manage customer access <span aria-hidden="true">→</span></button><small>Use manual access only after confirming the payment or support request.</small></div>
+          </aside>
         </div>
         <p class="sales-footnote">This is a read-only record of payments and buyer access. Payment changes are handled outside this dashboard.</p>
       </section>
@@ -435,11 +441,11 @@
     </article>
   </template>
 
-  <script src="assets/js/admin-interface.js?v=20260817-4" defer></script>
+  <script src="assets/js/admin-interface.js?v=20260822-1" defer></script>
   <script src="assets/js/site-editor.js?v=20260818-1" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
   <script src="assets/js/admin.js?v=20260817-1" defer></script>
-  <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
+  <script src="assets/js/sales-admin.js?v=20260822-1" defer></script>
   <script src="assets/js/knowledge-base-admin.js?v=20260817-5" defer></script>
 </body>
 </html>

@@ -18,12 +18,12 @@
   var commandEmpty = document.getElementById("commandEmpty");
   var commandItems = Array.prototype.slice.call(document.querySelectorAll("[data-command-item]"));
   var labels = {
-    overview: "Overview",
+    overview: "Today",
     "site-copy": "Website",
-    sales: "Sales",
-    "buyer-access": "Customer access",
-    "video-library": "Programs & videos",
-    "knowledge-base": "Movement guides"
+    sales: "Customers",
+    "buyer-access": "Settings",
+    "video-library": "Programs",
+    "knowledge-base": "Knowledge"
   };
   var scrollPositions = {};
   var activeWorkspace = "overview";

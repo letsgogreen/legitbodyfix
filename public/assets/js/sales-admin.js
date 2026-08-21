@@ -14,6 +14,15 @@
   var sidebarCount = document.getElementById("sidebarSalesCount");
   var collected = document.getElementById("salesCollected");
   var customers = document.getElementById("salesCustomers");
+  var detailEmpty = document.getElementById("customerDetailEmpty");
+  var detailContent = document.getElementById("customerDetailContent");
+  var detailEmail = document.getElementById("customerDetailEmail");
+  var detailProduct = document.getElementById("customerDetailProduct");
+  var detailPayment = document.getElementById("customerDetailPayment");
+  var detailDate = document.getElementById("customerDetailDate");
+  var detailOrder = document.getElementById("customerDetailOrder");
+  var manageAccess = document.getElementById("customerManageAccess");
+  var selectedSale = null;
   if (!tableBody) return;
 
   function setStatus(message, state) {
@@ -78,12 +87,34 @@
     customers.textContent = String(buyerEmails.size);
   }
 
+  function saleKey(sale) {
+    return [sale.providerCaptureId, sale.orderReference, sale.buyerEmail, sale.programId, sale.paidAt].filter(Boolean).join(":");
+  }
+
+  function renderCustomerDetail(sale) {
+    selectedSale = sale || null;
+    if (!detailContent || !detailEmpty) return;
+    detailEmpty.hidden = Boolean(sale);
+    detailContent.hidden = !sale;
+    if (!sale) return;
+    detailEmail.textContent = sale.buyerEmail || "Unknown buyer";
+    detailProduct.textContent = sale.productTitle || sale.programId || "Unknown program";
+    detailPayment.textContent = money(sale.amount, sale.currency) + " · " + statusLabel(sale.status);
+    detailDate.textContent = dateLabel(sale.paidAt);
+    detailOrder.textContent = sale.orderReference || "No reference available";
+  }
+
   function render() {
     tableBody.replaceChildren();
     var visible = filteredSales();
     empty.hidden = visible.length !== 0;
     visible.forEach(function (sale) {
       var row = document.createElement("tr");
+      row.tabIndex = 0;
+      row.setAttribute("role", "button");
+      row.setAttribute("aria-label", "Open customer record for " + sale.buyerEmail);
+      row.dataset.saleKey = saleKey(sale);
+      row.classList.toggle("is-selected", selectedSale && saleKey(selectedSale) === saleKey(sale));
       var buyerCell = document.createElement("td");
       var buyer = document.createElement("strong");
       buyer.textContent = sale.buyerEmail;
@@ -102,8 +133,18 @@
       badge.textContent = statusLabel(sale.status);
       statusCell.appendChild(badge);
       row.append(buyerCell, productCell, amountCell, dateCell, statusCell);
+      row.addEventListener("click", function () {
+        renderCustomerDetail(sale);
+        render();
+      });
+      row.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        row.click();
+      });
       tableBody.appendChild(row);
     });
+    if (selectedSale && !visible.some(function (sale) { return saleKey(sale) === saleKey(selectedSale); })) renderCustomerDetail(null);
     renderSummary();
   }
 
@@ -125,6 +166,16 @@
   search.addEventListener("input", render);
   filter.addEventListener("change", render);
   refresh.addEventListener("click", function () { loadSales(true); });
+  if (manageAccess) manageAccess.addEventListener("click", function () {
+    if (!selectedSale) return;
+    var target = document.querySelector('[data-workspace-target="buyer-access"]');
+    if (target) target.click();
+    var email = document.getElementById("accessGrantEmail");
+    if (email) {
+      email.value = selectedSale.buyerEmail || "";
+      window.requestAnimationFrame(function () { email.focus(); });
+    }
+  });
   window.addEventListener("legitbodyfix:admin-authenticated", function () { loadSales(false); });
   if (document.getElementById("main") && document.getElementById("main").hidden === false) loadSales(false);
 }());
