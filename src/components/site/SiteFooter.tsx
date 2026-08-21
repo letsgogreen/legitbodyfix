@@ -41,6 +41,12 @@ export function SiteFooter() {
             >
               Take the Free Movement Check
             </Link>
+            <ul className="mt-6 space-y-3 text-sm text-ink-foreground/70">
+              <li><a href="/policies.html#support" className="hover:text-ink-foreground">Support</a></li>
+              <li><a href="/policies.html#refunds" className="hover:text-ink-foreground">Refund policy</a></li>
+              <li><a href="/policies.html#privacy" className="hover:text-ink-foreground">Privacy</a></li>
+              <li><a href="/policies.html#terms" className="hover:text-ink-foreground">Terms</a></li>
+            </ul>
           </div>
         </div>
 

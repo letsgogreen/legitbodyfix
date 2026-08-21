@@ -31,6 +31,12 @@ export function SiteNav() {
             </Link>
           ))}
           <a
+            href="/knowledge.html?type=muscles"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Muscles
+          </a>
+          <a
             href="/library.html"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
@@ -68,6 +74,13 @@ export function SiteNav() {
                 {l.label}
               </Link>
             ))}
+            <a
+              href="/knowledge.html?type=muscles"
+              onClick={() => setOpen(false)}
+              className="border-b border-border py-4 text-base font-medium"
+            >
+              Muscles
+            </a>
             <a
               href="/library.html"
               onClick={() => setOpen(false)}
