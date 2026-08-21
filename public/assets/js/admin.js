@@ -41,6 +41,7 @@
   var missingThumbnailCount = document.getElementById("missingThumbnailCount");
   var streamNotReadyCount = document.getElementById("streamNotReadyCount");
   var unpublishedProgramCount = document.getElementById("unpublishedProgramCount");
+  var clearProgramAttention = document.getElementById("clearProgramAttention");
   var publishButton = document.getElementById("publishChanges");
   var videoSaveState = document.getElementById("videoEditorSaveState");
   var undoVideoButton = document.getElementById("undoVideoChanges");
@@ -54,6 +55,7 @@
   var siteContentStatus = document.getElementById("siteContentStatus");
   var publishSiteContentButton = document.getElementById("publishSiteContent");
   var videos = [];
+  var activeProgramAttention = "all";
   var repositoryVideos = [];
   var videoHistory = [];
   var videoHistoryIndex = -1;
@@ -462,7 +464,7 @@
   function renderVideoNavigator() {
     if (!videoNavigator) return;
     videoNavigator.replaceChildren();
-    videos.forEach(function (video) {
+    videos.filter(programAttentionMatches).forEach(function (video) {
       var button = document.createElement("button");
       button.type = "button";
       button.className = "video-session-jump";
@@ -493,6 +495,13 @@
       });
       videoNavigator.appendChild(button);
     });
+  }
+
+  function programAttentionMatches(video) {
+    if (activeProgramAttention === "thumbnail") return !safeThumbnailUrl(video.thumbnailUrl);
+    if (activeProgramAttention === "stream") return !video.streamVideoId || video.streamReady !== true;
+    if (activeProgramAttention === "draft") return video.published === false;
+    return true;
   }
 
   function readEditor(editor, index, historyKey) {
@@ -1012,6 +1021,7 @@
       renderMuscleSelector(editor, video);
       updateSalesPagePreview(editor, video);
       updateStreamStatus(editor, video);
+      editor.hidden = !programAttentionMatches(video);
       list.appendChild(editor);
     });
 
@@ -1019,6 +1029,24 @@
     updateSummary();
     renderVideoNavigator();
   }
+
+  document.querySelectorAll("[data-program-attention]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      activeProgramAttention = button.dataset.programAttention || "all";
+      var searchInput = document.getElementById("videoSearch");
+      if (searchInput) searchInput.value = "";
+      if (clearProgramAttention) clearProgramAttention.hidden = false;
+      render();
+      var labels = { thumbnail: "programs without a usable thumbnail", stream: "programs whose protected video is not ready", draft: "unpublished programs" };
+      setStatus("Showing " + (labels[activeProgramAttention] || "all programs") + ".", "success");
+    });
+  });
+  if (clearProgramAttention) clearProgramAttention.addEventListener("click", function () {
+    activeProgramAttention = "all";
+    clearProgramAttention.hidden = true;
+    render();
+    setStatus("Showing all programs.", "success");
+  });
 
   function makeId(title) {
     var slug = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

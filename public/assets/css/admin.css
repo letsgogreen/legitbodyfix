@@ -1043,6 +1043,7 @@ body { background: var(--canvas); }
 .program-index > div { display: grid; gap: 5px; padding: 18px; border-bottom: 1px solid var(--line); }
 .program-index > div strong { font-size: 17px; letter-spacing: -.03em; }
 .program-index > div small { color: var(--muted); font-size: 10px; line-height: 1.45; }
+.program-index .program-filter-reset { justify-self: start; margin-top: 6px; padding: 0; color: var(--teal); font-size: 9px; text-decoration: underline; text-underline-offset: 3px; }
 .program-index .video-session-navigator { display: grid; grid-template-columns: 1fr; gap: 0; margin: 0; }
 .program-index .video-session-jump { min-height: 82px; grid-template-columns: 76px minmax(0, 1fr); border: 0; border-bottom: 1px solid var(--line); }
 .program-index .video-session-jump:last-child { border-bottom: 0; }
