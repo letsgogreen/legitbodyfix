@@ -22,6 +22,8 @@
   var selectedSectionId = "hero";
   var inspectorTitle = document.getElementById("siteInspectorTitle");
   var inspectorHint = document.getElementById("siteInspectorHint");
+  var sectionOutline = document.getElementById("siteSectionOutline");
+  var sectionOutlineList = document.getElementById("siteSectionOutlineList");
   var canvasStage = document.querySelector(".site-editor-canvas-stage");
   var pageButtons = Array.from(document.querySelectorAll("[data-site-page]"));
   var pageRoute = document.getElementById("sitePageRoute");
@@ -184,6 +186,16 @@
     return "design";
   }
 
+  function scrollPreviewToSection(id) {
+    if (!livePreviewFrame) return;
+    var targets = { hero: ".hero", method: "#method", library: "#library-preview", knowledge: "#knowledge-preview", standard: ".standard", pricing: "#pricing" };
+    try {
+      var previewDocument = livePreviewFrame.contentDocument;
+      var target = previewDocument && previewDocument.querySelector(targets[id] || '[data-site-section="' + id + '"]');
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (error) {}
+  }
+
   function selectInspectorSection(id, path) {
     selectedSectionId = id || "design";
     form.querySelectorAll(".site-editor-card").forEach(function (card) {
@@ -195,6 +207,11 @@
     var customDefinition = content.customSections.find(function (section) { return section.id === selectedSectionId; });
     inspectorTitle.textContent = definition ? definition.title : selectedSectionId === "footer" ? "Footer" : selectedSectionId === "design" ? "Page settings" : customDefinition ? CUSTOM_LABELS[customDefinition.type] : "Section settings";
     inspectorHint.textContent = path ? "Editing “" + path + "”. Advanced controls are below." : "Adjust this section without leaving the canvas.";
+    if (sectionOutlineList) sectionOutlineList.querySelectorAll("button").forEach(function (button) {
+      var selected = button.dataset.sectionId === selectedSectionId;
+      button.classList.toggle("is-active", selected);
+      button.setAttribute("aria-pressed", selected ? "true" : "false");
+    });
     var active = path && form.querySelector('[data-site-field="' + path + '"]');
     if (active) {
       var details = active.closest("details");
@@ -202,6 +219,27 @@
       form.querySelectorAll(".is-inline-active").forEach(function (element) { element.classList.remove("is-inline-active"); });
       active.classList.add("is-inline-active");
     }
+  }
+
+  function renderSectionOutline() {
+    if (!sectionOutlineList) return;
+    sectionOutlineList.replaceChildren();
+    var entries = [{ id: "design", title: "Design & navigation", meta: "Global" }].concat(content.layout.map(function (entry, index) {
+      var custom = entry.kind === "custom" && content.customSections.find(function (section) { return section.id === entry.id; });
+      var definition = CORE_DEFINITIONS[entry.id];
+      return { id: entry.id, title: definition ? definition.title : custom ? (custom.title || CUSTOM_LABELS[custom.type]) : "Untitled section", meta: String(index + 1).padStart(2, "0"), visible: entry.visible !== false };
+    }), [{ id: "footer", title: "Footer", meta: "End" }]);
+    entries.forEach(function (entry) {
+      var button = document.createElement("button");
+      button.type = "button"; button.dataset.sectionId = entry.id;
+      var number = document.createElement("span"); number.textContent = entry.meta;
+      var title = document.createElement("strong"); title.textContent = entry.title;
+      var state = document.createElement("small"); state.textContent = entry.visible === false ? "Hidden" : entry.id === "design" || entry.id === "footer" ? "Site-wide" : "Visible";
+      if (entry.visible === false) button.classList.add("is-hidden-section");
+      button.append(number, title, state);
+      button.addEventListener("click", function () { selectInspectorSection(entry.id); if (entry.id !== "design" && entry.id !== "footer") scrollPreviewToSection(entry.id); });
+      sectionOutlineList.appendChild(button);
+    });
   }
 
   function openInsertMenu(afterId) {
@@ -299,6 +337,7 @@
     var isHome = page === "home";
     editActiveSitePage.hidden = isHome;
     form.hidden = !isHome;
+    if (sectionOutline) sectionOutline.hidden = !isHome;
     pageRoute.hidden = isHome;
     document.querySelectorAll("[data-toggle-site-section-picker]").forEach(function (control) { control.hidden = !isHome; });
     publishButton.hidden = !isHome;
@@ -477,19 +516,19 @@
     var view = document.createElement("button"); view.type = "button"; view.className = "button button-quiet site-section-view"; view.textContent = "View";
     view.addEventListener("click", function () {
       if (!livePreviewFrame) return;
-      var targets = { hero: ".hero", method: "#method", library: "#library-preview", knowledge: "#knowledge-preview", standard: ".standard", pricing: "#pricing" };
-      try {
-        var previewDocument = livePreviewFrame.contentDocument;
-        var target = previewDocument && previewDocument.querySelector(targets[entry.id] || '[data-page-section-id="' + entry.id + '"]');
-        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-      } catch (error) {}
+      scrollPreviewToSection(entry.id);
       document.querySelectorAll(".site-editor-card.is-previewing").forEach(function (card) { card.classList.remove("is-previewing"); });
       var card = header.closest(".site-editor-card"); if (card) card.classList.add("is-previewing");
     });
     var visible = document.createElement("label"); visible.className = "toggle-field";
     var checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = entry.visible !== false;
     var visibleText = document.createElement("span"); visibleText.textContent = "Visible";
-    checkbox.addEventListener("change", function () { entry.visible = checkbox.checked; saveDraft(checkbox.checked ? "Section will be visible after publishing." : "Section hidden from the public page."); });
+    checkbox.addEventListener("change", function () {
+      entry.visible = checkbox.checked;
+      renderSectionOutline();
+      selectInspectorSection(selectedSectionId);
+      saveDraft(checkbox.checked ? "Section will be visible after publishing." : "Section hidden from the public page.");
+    });
     visible.append(checkbox, visibleText);
     var up = document.createElement("button"); up.type = "button"; up.className = "icon-button"; up.textContent = "↑"; up.setAttribute("aria-label", "Move section up"); up.disabled = index === 0;
     var down = document.createElement("button"); down.type = "button"; down.className = "icon-button"; down.textContent = "↓"; down.setAttribute("aria-label", "Move section down"); down.disabled = index === content.layout.length - 1;
@@ -611,6 +650,7 @@
   function render() {
     if (!CORE_DEFINITIONS[selectedSectionId] && ["design", "footer"].indexOf(selectedSectionId) === -1 && !content.customSections.some(function (section) { return section.id === selectedSectionId; })) selectedSectionId = "hero";
     form.replaceChildren();
+    renderSectionOutline();
     renderSettings();
     var sectionMarker = document.createElement("div");
     sectionMarker.className = "site-editor-divider";
