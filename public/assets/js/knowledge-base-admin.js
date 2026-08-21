@@ -425,6 +425,16 @@
     if (sidebar) sidebar.textContent = total;
     var dashboard = document.getElementById("dashboardKnowledgeCount");
     if (dashboard) dashboard.textContent = total;
+    var imageStates = data.muscles.map(muscleImageState).concat(data.conditions.map(conditionImageState));
+    var reviewCount = imageStates.filter(function (state) { return state.key !== "ready"; }).length;
+    var missingCount = imageStates.filter(function (state) { return state.key === "missing" || state.key === "diagram"; }).length;
+    var unpublishedCount = data.conditions.concat(data.muscles, data.recipes).filter(function (record) { return record.published !== true; }).length;
+    var reviewNode = document.getElementById("knowledgeImageReviewCount");
+    var missingNode = document.getElementById("knowledgeImageMissingCount");
+    var unpublishedNode = document.getElementById("unpublishedKnowledgeCount");
+    if (reviewNode) reviewNode.textContent = String(reviewCount);
+    if (missingNode) missingNode.textContent = String(missingCount);
+    if (unpublishedNode) unpublishedNode.textContent = String(unpublishedCount);
   }
 
   function makeField(record, definition) {
@@ -1020,6 +1030,22 @@
       selectedMuscleId = "";
       selectedConditionId = "";
       tabs.forEach(function (item) { var selected = item === tab; item.classList.toggle("is-active", selected); item.setAttribute("aria-selected", selected ? "true" : "false"); });
+      render();
+    });
+  });
+  document.querySelectorAll("[data-knowledge-attention]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var attention = button.dataset.knowledgeAttention;
+      if (attention !== "issues" && attention !== "missing") return;
+      activeType = "muscles";
+      imageBoardFilters.muscles = attention;
+      selectedMuscleId = "";
+      search.value = "";
+      tabs.forEach(function (tab) {
+        var selected = tab.dataset.knowledgeType === "muscles";
+        tab.classList.toggle("is-active", selected);
+        tab.setAttribute("aria-selected", selected ? "true" : "false");
+      });
       render();
     });
   });
