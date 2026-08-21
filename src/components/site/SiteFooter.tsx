@@ -25,10 +25,11 @@ export function SiteFooter() {
           <div>
             <p className="font-mono text-xs tracking-widest text-accent">EXPLORE</p>
             <ul className="mt-4 space-y-3 text-sm text-ink-foreground/70">
-              <li><a href="#movement-check" className="hover:text-ink-foreground">Movement Check</a></li>
-              <li><a href="#programs" className="hover:text-ink-foreground">Programs</a></li>
-              <li><a href="#method" className="hover:text-ink-foreground">Method</a></li>
-              <li><a href="#pricing" className="hover:text-ink-foreground">Pricing</a></li>
+              <li><Link to="/" hash="movement-check" className="hover:text-ink-foreground">Start Here</Link></li>
+              <li><Link to="/" hash="programs" className="hover:text-ink-foreground">Programs</Link></li>
+              <li><Link to="/" hash="method" className="hover:text-ink-foreground">Method</Link></li>
+              <li><Link to="/" hash="library" className="hover:text-ink-foreground">Explore</Link></li>
+              <li><a href="/library.html" className="hover:text-ink-foreground">My Library</a></li>
             </ul>
           </div>
 

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MovementCheckRouteImport } from './routes/movement-check'
+import { Route as ProgramsProgramIdRouteImport } from './routes/programs.$programId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const MovementCheckRoute = MovementCheckRouteImport.update({
   path: '/movement-check',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgramsProgramIdRoute = ProgramsProgramIdRouteImport.update({
+  id: '/programs/$programId',
+  path: '/programs/$programId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
+  '/programs/$programId': typeof ProgramsProgramIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
+  '/programs/$programId': typeof ProgramsProgramIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
+  '/programs/$programId': typeof ProgramsProgramIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/movement-check'
+  fullPaths: '/' | '/movement-check' | '/programs/$programId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/movement-check'
-  id: '__root__' | '/' | '/movement-check'
+  to: '/' | '/movement-check' | '/programs/$programId'
+  id: '__root__' | '/' | '/movement-check' | '/programs/$programId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MovementCheckRoute: typeof MovementCheckRoute
+  ProgramsProgramIdRoute: typeof ProgramsProgramIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MovementCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programs/$programId': {
+      id: '/programs/$programId'
+      path: '/programs/$programId'
+      fullPath: '/programs/$programId'
+      preLoaderRoute: typeof ProgramsProgramIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MovementCheckRoute: MovementCheckRoute,
+  ProgramsProgramIdRoute: ProgramsProgramIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
