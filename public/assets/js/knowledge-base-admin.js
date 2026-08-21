@@ -38,6 +38,8 @@
   var selectedMuscleId = "";
   var selectedConditionId = "";
   var selectedRecipeId = "";
+  var activeKnowledgeQueue = "";
+  var returnToKnowledgeQueue = "";
   var imageBoardFilters = { muscles: "issues", conditions: "all" };
   var adminRegionLabels = {
     all: "All body areas", "head-neck": "Neck", "shoulder-scapula": "Shoulder & Scapula", "elbow-forearm": "Elbow & Forearm",
@@ -875,10 +877,65 @@
     list.appendChild(board);
   }
 
+  function selectKnowledgeType(type) {
+    activeType = type;
+    tabs.forEach(function (tab) {
+      var selected = tab.dataset.knowledgeType === type;
+      tab.classList.toggle("is-active", selected);
+      tab.setAttribute("aria-selected", selected ? "true" : "false");
+    });
+  }
+
+  function renderPublishingQueue(query) {
+    var records = [];
+    ["conditions", "muscles", "recipes"].forEach(function (type) {
+      data[type].forEach(function (record) {
+        if (record.published === true) return;
+        if (query && JSON.stringify(record).toLowerCase().indexOf(query) === -1) return;
+        records.push({ type: type, record: record });
+      });
+    });
+    var header = document.createElement("div");
+    header.className = "muscle-board-heading publishing-queue-heading";
+    header.innerHTML = "<div><span class=\"module-chip\">Publishing queue</span><h3>Unpublished knowledge</h3></div><p><strong>" + records.length + "</strong> records are still private. Open one to review its content and publishing state.</p>";
+    list.appendChild(header);
+    var queue = document.createElement("div");
+    queue.className = "publishing-record-index";
+    records.forEach(function (entry) {
+      var record = entry.record;
+      var button = document.createElement("button");
+      button.type = "button"; button.className = "publishing-record-button";
+      var type = document.createElement("span"); type.textContent = entry.type === "conditions" ? "Movement pattern" : entry.type === "muscles" ? "Muscle" : "Recipe";
+      var title = document.createElement("strong"); title.textContent = record.title || "Untitled record";
+      var detail = document.createElement("small"); detail.textContent = record.bodyRegion || record.group || record.postureCategory || record.goal || "Details need review";
+      var state = document.createElement("i"); state.textContent = "Draft";
+      button.append(type, title, detail, state);
+      button.addEventListener("click", function () {
+        selectKnowledgeType(entry.type);
+        selectedConditionId = entry.type === "conditions" ? record.id : "";
+        selectedMuscleId = entry.type === "muscles" ? record.id : "";
+        selectedRecipeId = entry.type === "recipes" ? record.id : "";
+        returnToKnowledgeQueue = "unpublished";
+        activeKnowledgeQueue = "";
+        render();
+      });
+      queue.appendChild(button);
+    });
+    list.appendChild(queue);
+    if (!records.length) {
+      var empty = document.createElement("div"); empty.className = "knowledge-empty";
+      empty.innerHTML = "<strong>Publishing queue clear.</strong><span>Every matching knowledge record is published.</span>";
+      list.appendChild(empty);
+    }
+    list.setAttribute("aria-busy", "false");
+    updateCounts();
+  }
+
   function render() {
     list.textContent = "";
     var query = search.value.trim().toLowerCase();
     renderAdminMuscleNavigator();
+    if (activeKnowledgeQueue === "unpublished") { if (muscleNavigator) muscleNavigator.hidden = true; renderPublishingQueue(query); return; }
     var visible = data[activeType].filter(function (record) {
       if (activeType === "muscles" && !adminMuscleInRegion(record, activeAdminMuscleRegion)) return false;
       if (activeType === "muscles" && !adminActionMatches(record, activeAdminMuscleAction)) return false;
@@ -894,7 +951,7 @@
       visible = data.conditions.filter(function (record) { return record.id === selectedConditionId; });
       var conditionBack = document.createElement("button");
       conditionBack.type = "button"; conditionBack.className = "button muscle-board-back"; conditionBack.textContent = "← Back to posture image board";
-      conditionBack.addEventListener("click", function () { selectedConditionId = ""; render(); });
+      conditionBack.addEventListener("click", function () { selectedConditionId = ""; activeKnowledgeQueue = returnToKnowledgeQueue; returnToKnowledgeQueue = ""; render(); });
       list.appendChild(conditionBack);
     }
     if (activeType === "muscles" && !selectedMuscleId) {
@@ -907,7 +964,7 @@
       visible = data.muscles.filter(function (record) { return record.id === selectedMuscleId; });
       var back = document.createElement("button");
       back.type = "button"; back.className = "button muscle-board-back"; back.textContent = "← Back to image board";
-      back.addEventListener("click", function () { selectedMuscleId = ""; render(); });
+      back.addEventListener("click", function () { selectedMuscleId = ""; activeKnowledgeQueue = returnToKnowledgeQueue; returnToKnowledgeQueue = ""; render(); });
       list.appendChild(back);
     }
     if (activeType === "recipes" && !selectedRecipeId) {
@@ -948,7 +1005,7 @@
       visible = data.recipes.filter(function (record) { return record.id === selectedRecipeId; });
       var recipeBack = document.createElement("button");
       recipeBack.type = "button"; recipeBack.className = "button muscle-board-back"; recipeBack.textContent = "← Back to recipe index";
-      recipeBack.addEventListener("click", function () { selectedRecipeId = ""; render(); });
+      recipeBack.addEventListener("click", function () { selectedRecipeId = ""; activeKnowledgeQueue = returnToKnowledgeQueue; returnToKnowledgeQueue = ""; render(); });
       list.appendChild(recipeBack);
     }
     if (activeType === "muscles" && activeAdminMuscleAction !== "all") {
@@ -1079,6 +1136,8 @@
       selectedMuscleId = "";
       selectedConditionId = "";
       selectedRecipeId = "";
+      activeKnowledgeQueue = "";
+      returnToKnowledgeQueue = "";
       tabs.forEach(function (item) { var selected = item === tab; item.classList.toggle("is-active", selected); item.setAttribute("aria-selected", selected ? "true" : "false"); });
       render();
     });
@@ -1086,8 +1145,18 @@
   document.querySelectorAll("[data-knowledge-attention]").forEach(function (button) {
     button.addEventListener("click", function () {
       var attention = button.dataset.knowledgeAttention;
+      if (attention === "unpublished") {
+        activeKnowledgeQueue = "unpublished";
+        returnToKnowledgeQueue = "";
+        selectedConditionId = ""; selectedMuscleId = ""; selectedRecipeId = "";
+        search.value = "";
+        tabs.forEach(function (tab) { tab.classList.remove("is-active"); tab.setAttribute("aria-selected", "false"); });
+        render();
+        return;
+      }
       if (attention !== "issues" && attention !== "missing") return;
       activeType = "muscles";
+      activeKnowledgeQueue = "";
       imageBoardFilters.muscles = attention;
       selectedMuscleId = "";
       search.value = "";
@@ -1108,6 +1177,8 @@
     selectedMuscleId = "";
     selectedConditionId = "";
     selectedRecipeId = "";
+    activeKnowledgeQueue = "";
+    returnToKnowledgeQueue = "";
     render();
     seedHistory();
     setStatus("Draft discarded. Live guide data restored.", "success");
