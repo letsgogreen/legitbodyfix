@@ -13,19 +13,18 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260818-3" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260822-1" />
 </head>
 <body class="auth-visible">
   <a class="skip-link" href="#authTitle">Skip to restricted access</a>
 
   <header class="topbar">
     <a class="brand" href="index.html" aria-label="LegitBodyFix home">
-      <span class="brand-mark">LBF</span>
-      <span class="brand-copy"><strong>LegitBodyFix</strong><small>Control Room</small></span>
+      <span class="brand-copy"><strong>LegitBodyFix</strong><small>Admin</small></span>
     </a>
     <div class="topbar-meta">
-      <span class="current-workspace" id="currentWorkspaceName">Dashboard</span>
+      <span class="current-workspace" id="currentWorkspaceName">Today</span>
       <button class="command-trigger" id="commandButton" type="button" aria-haspopup="dialog" aria-controls="commandPalette"><span>Find a tool</span><kbd>Ctrl K</kbd></button>
       <button class="density-toggle" id="densityToggle" type="button" aria-pressed="false" title="Switch workspace density"><span aria-hidden="true">≡</span><b>Compact</b></button>
       <span class="live-state"><i aria-hidden="true"></i> Secure admin</span>
@@ -126,33 +125,30 @@
 
         <nav class="workspace-nav" aria-label="Primary admin tools">
           <div class="nav-section">
-            <p class="rail-label">Home</p>
-            <a class="workspace-nav-item is-active" href="#overview" data-workspace-target="overview" aria-current="page" title="Overview"><span class="nav-icon" aria-hidden="true">01</span><span><strong>Overview</strong><small>Status and shortcuts</small></span></a>
+            <p class="rail-label">Workspace</p>
+            <a class="workspace-nav-item is-active" href="#overview" data-workspace-target="overview" aria-current="page" title="Today"><span class="nav-icon" aria-hidden="true">01</span><span><strong>Today</strong><small>Priorities and status</small></span></a>
           </div>
 
           <details class="nav-group" open>
-            <summary><span>Build &amp; sell</span><i aria-hidden="true"></i></summary>
+            <summary><span>Create</span><i aria-hidden="true"></i></summary>
             <div class="nav-group-items">
-              <a class="workspace-nav-item" href="#site-copy" data-workspace-target="site-copy" title="Website editor"><span class="nav-icon" aria-hidden="true">02</span><span><strong>Website</strong><small>Copy, layout, and design</small></span></a>
-              <button class="nav-child-action" type="button" data-workspace-open="site-copy" data-focus-target="siteSectionPicker" data-toggle-site-section-picker><span>+ Add homepage section</span><b aria-hidden="true">→</b></button>
-              <a class="workspace-nav-item" href="#video-library" data-workspace-target="video-library" title="Programs and videos"><span class="nav-icon" aria-hidden="true">03</span><span><strong>Programs &amp; videos</strong><small>Sessions and publishing</small></span><b class="nav-badge" id="sidebarVideoCount" aria-label="Video count">0</b></a>
-              <button class="nav-child-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span>+ Add a new session</span><b aria-hidden="true">→</b></button>
+              <a class="workspace-nav-item" href="#video-library" data-workspace-target="video-library" title="Programs"><span class="nav-icon" aria-hidden="true">02</span><span><strong>Programs</strong><small>Offer, videos, and pricing</small></span><b class="nav-badge" id="sidebarVideoCount" aria-label="Video count">0</b></a>
+              <a class="workspace-nav-item" href="#site-copy" data-workspace-target="site-copy" title="Website editor"><span class="nav-icon" aria-hidden="true">03</span><span><strong>Website</strong><small>Pages and publishing</small></span></a>
             </div>
           </details>
 
           <details class="nav-group" open>
-            <summary><span>Education</span><i aria-hidden="true"></i></summary>
+            <summary><span>Content</span><i aria-hidden="true"></i></summary>
             <div class="nav-group-items">
-              <a class="workspace-nav-item" href="#knowledge-base" data-workspace-target="knowledge-base" title="Movement guides"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Movement guides</strong><small>Patterns, muscle atlas, and recipes</small></span><b class="nav-badge" id="sidebarKnowledgeCount" aria-label="Movement guide count">0</b></a>
+              <a class="workspace-nav-item" href="#knowledge-base" data-workspace-target="knowledge-base" title="Knowledge"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Knowledge</strong><small>Guides, muscles, and images</small></span><b class="nav-badge" id="sidebarKnowledgeCount" aria-label="Movement guide count">0</b></a>
             </div>
           </details>
 
           <details class="nav-group" open>
-            <summary><span>Customers</span><i aria-hidden="true"></i></summary>
+            <summary><span>Business</span><i aria-hidden="true"></i></summary>
             <div class="nav-group-items">
-              <a class="workspace-nav-item" href="#sales" data-workspace-target="sales" title="Sales"><span class="nav-icon" aria-hidden="true">05</span><span><strong>Sales</strong><small>Orders and payments</small></span><b class="nav-badge" id="sidebarSalesCount" aria-label="Purchase count">0</b></a>
-              <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access" title="Customer access"><span class="nav-icon" aria-hidden="true">06</span><span><strong>Customer access</strong><small>Access and support</small></span></a>
-              <button class="nav-child-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span>+ Grant verified access</span><b aria-hidden="true">→</b></button>
+              <a class="workspace-nav-item" href="#sales" data-workspace-target="sales" title="Customers"><span class="nav-icon" aria-hidden="true">05</span><span><strong>Customers</strong><small>Orders, access, and support</small></span><b class="nav-badge" id="sidebarSalesCount" aria-label="Purchase count">0</b></a>
+              <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access" title="Settings"><span class="nav-icon" aria-hidden="true">06</span><span><strong>Settings</strong><small>Access and integrations</small></span></a>
             </div>
           </details>
 
@@ -174,6 +170,7 @@
 
     <div class="workspace">
       <section class="workspace-panel dashboard-panel" id="overview" data-workspace-panel="overview" aria-label="Control Room overview">
+        <header class="page-heading today-heading"><div><p class="eyebrow">Admin / Today</p><h1>What needs attention?</h1><p class="lede">Manage the storefront, programs, content, and customers from one focused workspace.</p></div><a class="button button-dark" href="index.html" target="_blank" rel="noopener">View live website <span aria-hidden="true">↗</span></a></header>
         <div class="summary operations-summary" aria-label="Business summary" aria-live="polite">
           <article><span>Video library</span><strong id="videoCount">0</strong><small>Total guided sessions</small></article>
           <article><span>Live sessions</span><strong id="publishedCount">0</strong><small>Available to eligible buyers</small></article>
@@ -207,8 +204,8 @@
 
       <section class="workspace-panel site-content-editor" id="site-copy" data-workspace-panel="site-copy" aria-labelledby="siteContentTitle" hidden>
         <header class="page-heading">
-          <div><p class="eyebrow">Control Room / Website</p><h1 id="siteContentTitle">Website editor</h1><p class="lede">Choose a page, inspect the customer view, and edit it through the correct visual workspace.</p></div>
-          <div class="page-heading-actions"><span class="editor-save-state" id="siteEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button" type="button" data-toggle-site-section-picker aria-expanded="false" aria-controls="siteSectionPicker">+ Add section</button><button class="button" id="previewSiteContent" type="button">Preview website</button><button class="button button-lime" id="publishSiteContent" type="button">Publish website <span aria-hidden="true">→</span></button></div>
+          <div><p class="eyebrow">Admin / Website</p><h1 id="siteContentTitle">Website</h1><p class="lede">Choose a page, select the part you want to change, and edit while looking at the real customer view.</p></div>
+          <div class="page-heading-actions"><span class="editor-save-state" id="siteEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button" id="previewSiteContent" type="button">Full preview</button><button class="button button-lime" id="publishSiteContent" type="button">Publish website <span aria-hidden="true">→</span></button></div>
         </header>
         <section class="template-picker" id="siteSectionPicker" aria-labelledby="templatePickerTitle" tabindex="-1" hidden>
           <header class="template-picker-heading"><div><p class="eyebrow">Homepage structure</p><h2 id="templatePickerTitle">Add a homepage section</h2><p>Pick what the next block should accomplish. You can edit its content immediately after adding it.</p></div><button class="template-picker-close" id="closeSiteSectionPicker" type="button" aria-label="Close section picker">×</button></header>
@@ -248,8 +245,8 @@
 
       <section class="workspace-panel sales-workspace" id="sales" data-workspace-panel="sales" aria-labelledby="salesTitle" hidden>
         <header class="page-heading">
-          <div><p class="eyebrow">Control Room / Sales</p><h1 id="salesTitle">Sales</h1><p class="lede">See who purchased each program, how much they paid, and the current payment status.</p></div>
-          <button class="button" id="refreshSales" type="button">Refresh sales</button>
+          <div><p class="eyebrow">Admin / Customers</p><h1 id="salesTitle">Customers</h1><p class="lede">Review orders and buyer access, then resolve support issues without leaving the customer record.</p></div>
+          <div class="page-heading-actions"><button class="button" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail">Manage access</button><button class="button" id="refreshSales" type="button">Refresh</button></div>
         </header>
         <div class="summary sales-summary" aria-label="Sales summary" aria-live="polite">
           <article><span>Collected</span><strong id="salesCollected">$0</strong><small>Completed payments</small></article>
@@ -273,7 +270,7 @@
 
       <section class="workspace-panel access-grant" id="buyer-access" data-workspace-panel="buyer-access" aria-labelledby="accessGrantTitle" hidden>
         <header class="page-heading">
-          <div><p class="eyebrow">Control Room / Customers</p><h1 id="accessGrantTitle">Customer access</h1><p class="lede">Resolve access issues quickly. Only grant access after confirming the customer or an approved test account.</p></div>
+          <div><p class="eyebrow">Admin / Settings</p><h1 id="accessGrantTitle">Settings</h1><p class="lede">Handle exceptional access requests and review the protected parts of the customer experience.</p></div>
           <a class="button" href="library.html" target="_blank" rel="noopener">Open buyer library <span aria-hidden="true">↗</span></a>
         </header>
         <div class="customer-layout">
@@ -283,17 +280,16 @@
       </section>
 
       <section class="workspace-panel video-workspace" id="video-library" data-workspace-panel="video-library" aria-labelledby="videoEditorTitle" hidden>
-        <header class="page-heading video-heading"><div><p class="eyebrow">Control Room / Videos</p><h1 id="videoEditorTitle">Video library</h1><p class="lede">Create sessions, upload protected videos, and decide what eligible buyers can watch.</p></div><div class="page-heading-actions"><span class="editor-save-state" id="videoEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button button-lime" id="publishChanges" type="button">Publish video changes <span aria-hidden="true">→</span></button></div></header>
-        <div class="workspace-toolbar video-toolbar" aria-label="Video editor actions"><div class="toolbar-group"><button class="button button-dark" id="addVideo" type="button">+ New session</button><label class="button" for="importJson">Import data</label><input id="importJson" type="file" accept="application/json,.json" hidden /></div><label class="video-search"><span class="sr-only">Search sessions</span><input id="videoSearch" type="search" placeholder="Search sessions…" autocomplete="off" /></label><div class="toolbar-group secondary-actions"><button class="button button-quiet" id="undoVideoChanges" type="button" disabled>Undo</button><button class="button button-quiet" id="redoVideoChanges" type="button" disabled>Redo</button><button class="button button-quiet" id="resetDraft" type="button">Discard draft</button><button class="button" id="downloadJson" type="button">Export data</button></div></div>
+        <header class="page-heading video-heading"><div><p class="eyebrow">Admin / Programs</p><h1 id="videoEditorTitle">Programs</h1><p class="lede">Manage each offer, sales message, thumbnail, protected video, and publishing status in one place.</p></div><div class="page-heading-actions"><span class="editor-save-state" id="videoEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button button-lime" id="publishChanges" type="button">Publish changes <span aria-hidden="true">→</span></button></div></header>
+        <div class="workspace-toolbar video-toolbar" aria-label="Program editor actions"><div class="toolbar-group"><button class="button button-dark" id="addVideo" type="button">+ New program</button><label class="button admin-data-tool" for="importJson">Import data</label><input id="importJson" type="file" accept="application/json,.json" hidden /></div><label class="video-search"><span class="sr-only">Search programs</span><input id="videoSearch" type="search" placeholder="Search programs…" autocomplete="off" /></label><div class="toolbar-group secondary-actions"><button class="button button-quiet" id="undoVideoChanges" type="button" disabled>Undo</button><button class="button button-quiet" id="redoVideoChanges" type="button" disabled>Redo</button><button class="button button-quiet" id="resetDraft" type="button">Discard draft</button><button class="button admin-data-tool" id="downloadJson" type="button">Export data</button></div></div>
         <div class="context-note stream-note" role="note"><span aria-hidden="true">▶</span><p><strong>Protected playback is active.</strong> Uploaded videos are processed by Cloudflare Stream and only play for signed-in buyers with access.</p></div>
         <p class="status" id="editorStatus" role="status" aria-live="polite">Loading video data…</p>
-        <nav class="video-session-navigator" id="videoSessionNavigator" aria-label="Jump to a session"></nav>
-        <section class="editor-list" id="editorList" aria-label="Video sessions" aria-busy="true"></section>
+        <div class="program-workbench"><aside class="program-index"><div><span class="module-chip">PROGRAM INDEX</span><strong>Select a program</strong><small>Review the offer before opening its editor.</small></div><nav class="video-session-navigator" id="videoSessionNavigator" aria-label="Choose a program"></nav></aside><section class="editor-list" id="editorList" aria-label="Program editors" aria-busy="true"></section></div>
       </section>
 
       <section class="workspace-panel knowledge-workspace" id="knowledge-base" data-workspace-panel="knowledge-base" aria-labelledby="knowledgeTitle" hidden>
         <header class="page-heading knowledge-heading">
-          <div><p class="eyebrow">Control Room / Education</p><h1 id="knowledgeTitle">Movement guides</h1><p class="lede">Explain the why, build trust, and connect every public guide to the most relevant paid program.</p></div>
+          <div><p class="eyebrow">Admin / Knowledge</p><h1 id="knowledgeTitle">Knowledge</h1><p class="lede">Scan the public presentation first, then fix only the guide, muscle image, or connection that needs attention.</p></div>
           <div class="page-heading-actions"><span class="editor-save-state" id="knowledgeEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button button-lime" id="publishKnowledge" type="button">Publish guides <span aria-hidden="true">&rarr;</span></button></div>
         </header>
         <div class="summary knowledge-summary" aria-label="Knowledge base summary" aria-live="polite">
