@@ -56,6 +56,8 @@
   var publishSiteContentButton = document.getElementById("publishSiteContent");
   var videos = [];
   var activeProgramAttention = "all";
+  var selectedProgramId = "";
+  var activeProgramQuery = "";
   var repositoryVideos = [];
   var videoHistory = [];
   var videoHistoryIndex = -1;
@@ -468,6 +470,8 @@
       var button = document.createElement("button");
       button.type = "button";
       button.className = "video-session-jump";
+      button.classList.toggle("is-active", video.id === selectedProgramId);
+      button.setAttribute("aria-pressed", video.id === selectedProgramId ? "true" : "false");
       button.dataset.mediaState = video.streamVideoId && video.streamReady ? "ready" : video.streamVideoId ? "processing" : "missing";
       var visual = document.createElement("span");
       visual.className = "video-session-jump-visual";
@@ -490,6 +494,8 @@
       copy.append(label, title, media);
       button.append(visual, copy);
       button.addEventListener("click", function () {
+        selectedProgramId = video.id;
+        render();
         var editor = list.querySelector('[data-video-id="' + CSS.escape(video.id) + '"]');
         if (editor) editor.scrollIntoView({ behavior: "smooth", block: "start" });
       });
@@ -498,10 +504,12 @@
   }
 
   function programAttentionMatches(video) {
-    if (activeProgramAttention === "thumbnail") return !safeThumbnailUrl(video.thumbnailUrl);
-    if (activeProgramAttention === "stream") return !video.streamVideoId || video.streamReady !== true;
-    if (activeProgramAttention === "draft") return video.published === false;
-    return true;
+    var matchesAttention = activeProgramAttention === "thumbnail" ? !safeThumbnailUrl(video.thumbnailUrl)
+      : activeProgramAttention === "stream" ? !video.streamVideoId || video.streamReady !== true
+      : activeProgramAttention === "draft" ? video.published === false
+      : true;
+    var haystack = [video.title, video.description, video.homepageCategory, video.id].join(" ").toLowerCase();
+    return matchesAttention && (!activeProgramQuery || haystack.indexOf(activeProgramQuery) !== -1);
   }
 
   function readEditor(editor, index, historyKey) {
@@ -945,6 +953,10 @@
   function render() {
     renumber();
     list.replaceChildren();
+    var availablePrograms = videos.filter(programAttentionMatches);
+    if (!availablePrograms.some(function (video) { return video.id === selectedProgramId; })) {
+      selectedProgramId = availablePrograms.length ? availablePrograms[0].id : "";
+    }
 
     videos.forEach(function (video, index) {
       var editor = template.content.firstElementChild.cloneNode(true);
@@ -1021,9 +1033,20 @@
       renderMuscleSelector(editor, video);
       updateSalesPagePreview(editor, video);
       updateStreamStatus(editor, video);
-      editor.hidden = !programAttentionMatches(video);
+      editor.hidden = !programAttentionMatches(video) || video.id !== selectedProgramId;
       list.appendChild(editor);
     });
+
+    if (!availablePrograms.length) {
+      var empty = document.createElement("div");
+      empty.className = "program-empty";
+      var emptyTitle = document.createElement("strong");
+      var emptyCopy = document.createElement("span");
+      emptyTitle.textContent = "No programs match this view.";
+      emptyCopy.textContent = "Clear the readiness filter or search to see every program.";
+      empty.append(emptyTitle, emptyCopy);
+      list.appendChild(empty);
+    }
 
     list.setAttribute("aria-busy", "false");
     updateSummary();
@@ -1033,7 +1056,9 @@
   document.querySelectorAll("[data-program-attention]").forEach(function (button) {
     button.addEventListener("click", function () {
       activeProgramAttention = button.dataset.programAttention || "all";
+      selectedProgramId = "";
       var searchInput = document.getElementById("videoSearch");
+      activeProgramQuery = "";
       if (searchInput) searchInput.value = "";
       if (clearProgramAttention) clearProgramAttention.hidden = false;
       render();
@@ -1043,10 +1068,25 @@
   });
   if (clearProgramAttention) clearProgramAttention.addEventListener("click", function () {
     activeProgramAttention = "all";
+    selectedProgramId = "";
     clearProgramAttention.hidden = true;
     render();
     setStatus("Showing all programs.", "success");
   });
+  var programSearch = document.getElementById("videoSearch");
+  if (programSearch) {
+    programSearch.addEventListener("input", function () {
+      activeProgramQuery = programSearch.value.trim().toLowerCase();
+      selectedProgramId = "";
+      render();
+    });
+    programSearch.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape") return;
+      activeProgramQuery = "";
+      selectedProgramId = "";
+      window.requestAnimationFrame(render);
+    });
+  }
 
   function makeId(title) {
     var slug = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -1309,7 +1349,14 @@
   }
 
   document.getElementById("addVideo").addEventListener("click", function () {
-    videos.push(normalizeVideo({ id: makeId("video"), title: "New video", published: false }, videos.length));
+    var video = normalizeVideo({ id: makeId("video"), title: "New program", published: false }, videos.length);
+    videos.push(video);
+    activeProgramAttention = "all";
+    activeProgramQuery = "";
+    selectedProgramId = video.id;
+    var programSearch = document.getElementById("videoSearch");
+    if (programSearch) programSearch.value = "";
+    if (clearProgramAttention) clearProgramAttention.hidden = true;
     render();
     saveDraft();
     list.lastElementChild.scrollIntoView({ behavior: "smooth", block: "start" });
