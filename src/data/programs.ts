@@ -28,7 +28,7 @@ export const programs: Program[] = [
     imageAlt: "Neck movement session thumbnail",
     duration: 12,
     equipment: "Bodyweight",
-    price: 45,
+    price: 59,
     available: true,
     benefits: ["Restore comfortable, controlled neck movement", "Reduce unnecessary shoulder and neck compensation", "Build a repeatable practice for work and daily movement"],
     stages: [
@@ -49,7 +49,7 @@ export const programs: Program[] = [
     imageAlt: "Ankle rehabilitation movement session thumbnail",
     duration: 14,
     equipment: "Resistance band",
-    price: 14,
+    price: 69,
     available: true,
     benefits: ["Regain comfortable ankle mobility", "Rebuild balance and foundational strength", "Develop confidence before returning to demanding movement"],
     stages: [
@@ -69,6 +69,7 @@ export const programs: Program[] = [
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Subscapularis_muscle_frontal2.png",
     imageAlt: "Anterior shoulder anatomy with the subscapularis highlighted",
     equipment: "Band or light resistance",
+    price: 69,
     available: false,
     benefits: ["Understand shoulder position during arm movement", "Coordinate the humeral head and scapula", "Progress control back toward loaded upper-body tasks"],
     stages: [
@@ -88,6 +89,7 @@ export const programs: Program[] = [
     image: "https://commons.wikimedia.org/wiki/Special:FilePath/Abductor_hallucis.png",
     imageAlt: "Plantar foot anatomy highlighting the abductor hallucis muscle",
     equipment: "Bodyweight and optional band",
+    price: 19,
     available: false,
     benefits: ["Explore comfortable big-toe movement", "Build foot pressure and intrinsic-muscle control", "Connect foot function to balance and gait"],
     stages: [

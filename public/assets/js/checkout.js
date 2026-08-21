@@ -42,13 +42,13 @@ function formatPrice(product) {
 
 function applyProduct(product) {
   var isBundle = product.id === BUNDLE_ID;
-  var sessionTitle = product.title.replace(/\s*—\s*Single Session$/, "");
+  var sessionTitle = product.title.replace(/\s*—\s*(Single Session|Focused Program)$/, "");
   labelElement.textContent = isBundle ? "NECK & SHOULDER RESET" : sessionTitle.toUpperCase();
-  nameElement.textContent = isBundle ? "Full Body Restoration Package" : "Single Session — Lifetime Access";
+  nameElement.textContent = isBundle ? "Neck + Ankle Starter Bundle" : "Focused Program — Ongoing Access";
   priceElement.innerHTML = formatPrice(product) + "<span> " + product.currency + " / one-time</span>";
   if (introElement) {
     introElement.textContent = isBundle
-      ? "Get lifetime access to the Full Body Restoration Package. There is no subscription and no recurring charge."
+      ? "Get ongoing access to both the neck and ankle programs. There is no subscription and no recurring charge."
       : "Get lifetime access to \u201c" + sessionTitle + "\u201d. There is no subscription and no recurring charge.";
   }
 }
