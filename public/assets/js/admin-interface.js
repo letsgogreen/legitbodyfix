@@ -89,6 +89,8 @@
   var priorityCopy = document.getElementById("ownerPriorityCopy");
   var priorityMeta = document.getElementById("ownerPriorityMeta");
   var priorityAction = document.getElementById("ownerPriorityAction");
+  var launchStatusWord = document.getElementById("launchStatusWord");
+  var launchStatusNote = document.getElementById("launchStatusNote");
 
   function numericCount(id) {
     var node = document.getElementById(id);
@@ -107,21 +109,24 @@
     priorityAction.replaceChildren(document.createTextNode(priority.action + " "), arrow);
     priorityAction.dataset.priorityTarget = priority.target;
     priorityAction.dataset.priorityKind = priority.kind || "workspace";
+    priorityAction.dataset.priorityFilter = priority.filter || "";
   }
 
   function updateOwnerPriority() {
     var launchDone = verifiedLaunchChecks();
+    if (launchStatusWord) launchStatusWord.textContent = launchDone === 4 ? "Verified" : "Testing";
+    if (launchStatusNote) launchStatusNote.textContent = launchDone === 4 ? "Four live customer checks completed" : launchDone + " of 4 live checks completed";
     if (launchDone < 4) return setOwnerPriority({ title: "Verify the customer journey", copy: "Complete account, checkout, access, and playback checks before sending paid traffic.", meta: launchDone + " of 4 live checks verified", action: "Review launch checks", target: "launchChecksTitle", kind: "anchor" });
     var stream = numericCount("streamNotReadyCount");
-    if (stream) return setOwnerPriority({ title: "Finish protected video delivery", copy: "A paid program still has video that is missing or not ready for customer playback.", meta: stream + " program" + (stream === 1 ? "" : "s") + " affected", action: "Open programs", target: "video-library" });
+    if (stream) return setOwnerPriority({ title: "Finish protected video delivery", copy: "A paid program still has video that is missing or not ready for customer playback.", meta: stream + " program" + (stream === 1 ? "" : "s") + " affected", action: "Open programs", target: "video-library", filter: "program:stream" });
     var thumbnails = numericCount("missingThumbnailCount");
-    if (thumbnails) return setOwnerPriority({ title: "Complete program presentation", copy: "Add the missing program thumbnails so buyers can identify each offer at a glance.", meta: thumbnails + " thumbnail" + (thumbnails === 1 ? "" : "s") + " missing", action: "Open programs", target: "video-library" });
+    if (thumbnails) return setOwnerPriority({ title: "Complete program presentation", copy: "Add the missing program thumbnails so buyers can identify each offer at a glance.", meta: thumbnails + " thumbnail" + (thumbnails === 1 ? "" : "s") + " missing", action: "Open programs", target: "video-library", filter: "program:thumbnail" });
     var drafts = numericCount("unpublishedProgramCount");
-    if (drafts) return setOwnerPriority({ title: "Decide which programs go live", copy: "Review unpublished programs and publish only the offers that are ready to sell and deliver.", meta: drafts + " unpublished program" + (drafts === 1 ? "" : "s"), action: "Review programs", target: "video-library" });
+    if (drafts) return setOwnerPriority({ title: "Decide which programs go live", copy: "Review unpublished programs and publish only the offers that are ready to sell and deliver.", meta: drafts + " unpublished program" + (drafts === 1 ? "" : "s"), action: "Review programs", target: "video-library", filter: "program:draft" });
     var missingImages = numericCount("knowledgeImageMissingCount");
-    if (missingImages) return setOwnerPriority({ title: "Fill the visible image gaps", copy: "Replace missing knowledge images before polishing lower-priority atlas records.", meta: missingImages + " image" + (missingImages === 1 ? "" : "s") + " missing", action: "Open image queue", target: "knowledge-base" });
+    if (missingImages) return setOwnerPriority({ title: "Fill the visible image gaps", copy: "Replace missing knowledge images before polishing lower-priority atlas records.", meta: missingImages + " image" + (missingImages === 1 ? "" : "s") + " missing", action: "Open image queue", target: "knowledge-base", filter: "knowledge:missing" });
     var reviewImages = numericCount("knowledgeImageReviewCount");
-    if (reviewImages) return setOwnerPriority({ title: "Review questionable anatomy images", copy: "Check the remaining shared, ambiguous, or low-specificity images in the visual audit queue.", meta: reviewImages + " image" + (reviewImages === 1 ? "" : "s") + " to review", action: "Open image queue", target: "knowledge-base" });
+    if (reviewImages) return setOwnerPriority({ title: "Review questionable anatomy images", copy: "Check the remaining shared, ambiguous, or low-specificity images in the visual audit queue.", meta: reviewImages + " image" + (reviewImages === 1 ? "" : "s") + " to review", action: "Open image queue", target: "knowledge-base", filter: "knowledge:issues" });
     setOwnerPriority({ title: "Review real buyer activity", copy: "The launch path and publishing queues are clear. Use customer behavior to decide what to improve next.", meta: "Operational queue clear", action: "Review customers", target: "sales" });
   }
 
@@ -130,6 +135,12 @@
       if (priorityAction.dataset.priorityKind === "anchor") {
         var anchor = document.getElementById(priorityAction.dataset.priorityTarget);
         if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (priorityAction.dataset.priorityFilter) {
+        var parts = priorityAction.dataset.priorityFilter.split(":");
+        var selector = parts[0] === "program" ? '[data-program-attention="' + parts[1] + '"]' : '[data-knowledge-attention="' + parts[1] + '"]';
+        var filteredAction = document.querySelector(selector);
+        if (filteredAction) filteredAction.click();
+        else showWorkspace(priorityAction.dataset.priorityTarget);
       } else showWorkspace(priorityAction.dataset.priorityTarget);
     });
     var priorityObserver = new MutationObserver(updateOwnerPriority);
