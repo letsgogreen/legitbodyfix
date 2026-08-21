@@ -38,6 +38,9 @@
   var status = document.getElementById("editorStatus");
   var videoCount = document.getElementById("videoCount");
   var publishedCount = document.getElementById("publishedCount");
+  var missingThumbnailCount = document.getElementById("missingThumbnailCount");
+  var streamNotReadyCount = document.getElementById("streamNotReadyCount");
+  var unpublishedProgramCount = document.getElementById("unpublishedProgramCount");
   var publishButton = document.getElementById("publishChanges");
   var videoSaveState = document.getElementById("videoEditorSaveState");
   var undoVideoButton = document.getElementById("undoVideoChanges");
@@ -442,6 +445,9 @@
   function updateSummary() {
     videoCount.textContent = String(videos.length);
     publishedCount.textContent = String(videos.filter(function (video) { return video.published; }).length);
+    if (missingThumbnailCount) missingThumbnailCount.textContent = String(videos.filter(function (video) { return !safeThumbnailUrl(video.thumbnailUrl); }).length);
+    if (streamNotReadyCount) streamNotReadyCount.textContent = String(videos.filter(function (video) { return !video.streamVideoId || video.streamReady !== true; }).length);
+    if (unpublishedProgramCount) unpublishedProgramCount.textContent = String(videos.filter(function (video) { return video.published === false; }).length);
     var sidebarVideoCount = document.getElementById("sidebarVideoCount");
     if (sidebarVideoCount) sidebarVideoCount.textContent = String(videos.length);
   }

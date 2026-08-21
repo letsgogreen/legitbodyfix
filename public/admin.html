@@ -177,6 +177,7 @@
           <article><span>Knowledge records</span><strong id="dashboardKnowledgeCount">0</strong><small>Patterns, muscles, and recipes</small></article>
           <article class="summary-accent"><span>System status</span><strong class="summary-word">Connected</strong><small>Complete the live checks below</small></article>
         </div>
+        <section class="attention-strip" aria-labelledby="attentionTitle"><div><p class="eyebrow">Needs attention</p><h2 id="attentionTitle">Program readiness</h2></div><button type="button" data-workspace-open="video-library" data-program-attention="thumbnail"><span>Missing thumbnails</span><strong id="missingThumbnailCount">0</strong></button><button type="button" data-workspace-open="video-library" data-program-attention="stream"><span>Videos not ready</span><strong id="streamNotReadyCount">0</strong></button><button type="button" data-workspace-open="video-library" data-program-attention="draft"><span>Not published</span><strong id="unpublishedProgramCount">0</strong></button></section>
         <section class="dashboard-block" aria-labelledby="quickActionsTitle">
           <div class="block-heading"><div><p class="eyebrow">Quick actions</p><h2 id="quickActionsTitle">What would you like to do?</h2></div></div>
           <div class="quick-action-grid operations-grid">
@@ -279,6 +280,7 @@
           <div><p class="eyebrow">Admin / Settings</p><h1 id="accessGrantTitle">Settings</h1><p class="lede">Handle exceptional access requests and review the protected parts of the customer experience.</p></div>
           <a class="button" href="library.html" target="_blank" rel="noopener">Open buyer library <span aria-hidden="true">↗</span></a>
         </header>
+        <section class="settings-status" aria-label="Connected services"><article><span>PAYMENTS</span><strong>PayPal checkout</strong><p>Server-owned prices and verified payment capture.</p><a href="checkout.html" target="_blank" rel="noopener">Open checkout ↗</a></article><article><span>ACCOUNTS</span><strong>Supabase authentication</strong><p>Email sign-in and protected customer access.</p><a href="library.html?mode=signup" target="_blank" rel="noopener">Test account ↗</a></article><article><span>VIDEO</span><strong>Protected streaming</strong><p>Cloudflare Stream delivery for eligible buyers.</p><a href="video.html?id=neck-alignment" target="_blank" rel="noopener">Test playback ↗</a></article></section>
         <div class="customer-layout">
           <section class="form-card" aria-labelledby="grantTitle"><div class="form-card-heading"><span class="step-badge">Manual support</span><h2 id="grantTitle">Grant program access</h2><p>This activates the selected program for the email below. It does not create a payment record.</p></div><form id="accessGrantForm" class="access-grant-form"><label class="field field-wide"><span>Customer email</span><input id="accessGrantEmail" type="email" autocomplete="email" maxlength="254" required placeholder="customer@example.com" /></label><label class="field field-wide"><span>Program</span><select id="accessGrantProgram" required><option value="neck-shoulder-reset">Neck + Ankle Starter Bundle</option></select></label><button class="button button-dark field-wide" id="grantAccessButton" type="submit">Grant access <span aria-hidden="true">→</span></button></form><p class="access-grant-status" id="accessGrantStatus" role="status" aria-live="polite"></p></section>
           <aside class="help-card"><p class="eyebrow">Before granting access</p><ol><li>Confirm the exact checkout email.</li><li>Verify the payment or support request.</li><li>Select the correct program.</li></ol><p>Customers sign in through a secure email link. No customer password is visible here.</p></aside>
@@ -444,7 +446,7 @@
   <script src="assets/js/admin-interface.js?v=20260822-1" defer></script>
   <script src="assets/js/site-editor.js?v=20260818-1" defer></script>
   <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
-  <script src="assets/js/admin.js?v=20260817-1" defer></script>
+  <script src="assets/js/admin.js?v=20260822-2" defer></script>
   <script src="assets/js/sales-admin.js?v=20260822-1" defer></script>
   <script src="assets/js/knowledge-base-admin.js?v=20260817-5" defer></script>
 </body>
