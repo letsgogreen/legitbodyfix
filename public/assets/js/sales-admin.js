@@ -173,6 +173,7 @@
     var email = document.getElementById("accessGrantEmail");
     if (email) {
       email.value = selectedSale.buyerEmail || "";
+      email.dispatchEvent(new Event("input", { bubbles: true }));
       window.requestAnimationFrame(function () { email.focus(); });
     }
   });

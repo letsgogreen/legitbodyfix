@@ -50,6 +50,9 @@
   var accessGrantEmail = document.getElementById("accessGrantEmail");
   var accessGrantProgram = document.getElementById("accessGrantProgram");
   var accessGrantButton = document.getElementById("grantAccessButton");
+  var accessGrantConfirmed = document.getElementById("accessGrantConfirmed");
+  var accessGrantReviewEmail = document.getElementById("accessGrantReviewEmail");
+  var accessGrantReviewProgram = document.getElementById("accessGrantReviewProgram");
   var accessGrantStatus = document.getElementById("accessGrantStatus");
   var siteContentForm = document.getElementById("siteContentForm");
   var siteContentStatus = document.getElementById("siteContentStatus");
@@ -1386,8 +1389,22 @@
     setStatus("JSON downloaded. Review it before replacing the live data file.");
   });
 
+  function updateAccessGrantReview() {
+    var email = accessGrantEmail.value.trim();
+    var selectedOption = accessGrantProgram.options[accessGrantProgram.selectedIndex];
+    accessGrantReviewEmail.textContent = email || "Enter a customer email";
+    accessGrantReviewProgram.textContent = selectedOption ? selectedOption.textContent : "Choose a program";
+    accessGrantButton.disabled = !accessGrantConfirmed.checked || !email || !accessGrantEmail.validity.valid || !accessGrantProgram.value;
+  }
+
+  accessGrantEmail.addEventListener("input", updateAccessGrantReview);
+  accessGrantProgram.addEventListener("change", updateAccessGrantReview);
+  accessGrantConfirmed.addEventListener("change", updateAccessGrantReview);
+  updateAccessGrantReview();
+
   accessGrantForm.addEventListener("submit", function (event) {
     event.preventDefault();
+    if (!accessGrantConfirmed.checked) { setAccessGrantStatus("Confirm the customer and program before granting access.", "error"); return; }
     accessGrantButton.disabled = true;
     setAccessGrantStatus("Granting library access...");
 
@@ -1402,6 +1419,8 @@
       })
     }).then(function (data) {
       accessGrantEmail.value = "";
+      accessGrantConfirmed.checked = false;
+      updateAccessGrantReview();
       setAccessGrantStatus("Access granted to " + data.email + ". They can now sign in to the library.", "success");
     }).catch(function (error) {
       if (error.status === 401) {
@@ -1416,7 +1435,7 @@
         setAccessGrantStatus("Access could not be granted. Please try again.", "error");
       }
     }).finally(function () {
-      accessGrantButton.disabled = false;
+      updateAccessGrantReview();
     });
   });
 
