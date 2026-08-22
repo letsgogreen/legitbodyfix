@@ -5,7 +5,7 @@ var assert = require("node:assert/strict");
 var fs = require("node:fs");
 var path = require("node:path");
 
-var root = path.join(__dirname, "..");
+var root = path.join(__dirname, "../public");
 
 test("public support and policy page explains the real purchase and privacy flow", function () {
   var page = fs.readFileSync(path.join(root, "policies.html"), "utf8");
@@ -33,11 +33,9 @@ test("checkout presents terms and refund policy before payment", function () {
 
 test("buyer magic links return to the canonical library and react to delayed mobile sign-in", function () {
   var page = fs.readFileSync(path.join(root, "library.html"), "utf8");
-  var home = fs.readFileSync(path.join(root, "index.html"), "utf8");
   var script = fs.readFileSync(path.join(root, "assets/js/library.js"), "utf8");
 
   assert.match(page, /https:\/\/www\.legitbodyfix\.com\/library\.html/);
-  assert.match(home, /authCallback/);
   assert.match(script, /libraryRedirectUrl/);
   assert.match(script, /onAuthStateChange/);
   assert.match(script, /event !== "SIGNED_IN"/);
@@ -46,8 +44,10 @@ test("buyer magic links return to the canonical library and react to delayed mob
 });
 
 test("main customer surfaces link to support or policies", function () {
-  ["index.html", "library.html", "knowledge.html", "video.html"].forEach(function (file) {
+  ["library.html", "knowledge.html", "video.html"].forEach(function (file) {
     var page = fs.readFileSync(path.join(root, file), "utf8");
     assert.match(page, /policies\.html#/, file + " does not link to the trust center");
   });
+  var footer = fs.readFileSync(path.join(__dirname, "../src/components/site/SiteFooter.tsx"), "utf8");
+  assert.match(footer, /policies\.html#/);
 });

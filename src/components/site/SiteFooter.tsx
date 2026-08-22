@@ -25,10 +25,11 @@ export function SiteFooter() {
           <div>
             <p className="font-mono text-xs tracking-widest text-accent">EXPLORE</p>
             <ul className="mt-4 space-y-3 text-sm text-ink-foreground/70">
-              <li><a href="#movement-check" className="hover:text-ink-foreground">Movement Check</a></li>
-              <li><a href="#programs" className="hover:text-ink-foreground">Programs</a></li>
-              <li><a href="#method" className="hover:text-ink-foreground">Method</a></li>
-              <li><a href="#pricing" className="hover:text-ink-foreground">Pricing</a></li>
+              <li><Link to="/" hash="movement-check" className="hover:text-ink-foreground">Start Here</Link></li>
+              <li><Link to="/" hash="programs" className="hover:text-ink-foreground">Programs</Link></li>
+              <li><Link to="/" hash="method" className="hover:text-ink-foreground">Method</Link></li>
+              <li><Link to="/" hash="library" className="hover:text-ink-foreground">Explore</Link></li>
+              <li><a href="/library.html" className="hover:text-ink-foreground">My Library</a></li>
             </ul>
           </div>
 
@@ -40,6 +41,12 @@ export function SiteFooter() {
             >
               Take the Free Movement Check
             </Link>
+            <ul className="mt-6 space-y-3 text-sm text-ink-foreground/70">
+              <li><a href="/policies.html#support" className="hover:text-ink-foreground">Support</a></li>
+              <li><a href="/policies.html#refunds" className="hover:text-ink-foreground">Refund policy</a></li>
+              <li><a href="/policies.html#privacy" className="hover:text-ink-foreground">Privacy</a></li>
+              <li><a href="/policies.html#terms" className="hover:text-ink-foreground">Terms</a></li>
+            </ul>
           </div>
         </div>
 

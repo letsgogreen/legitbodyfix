@@ -24,13 +24,17 @@ test("returns only browser-safe checkout configuration, including the catalog", 
   var bundle = config.catalog.find(function (product) { return product.id === "neck-shoulder-reset"; });
   assert.deepEqual(bundle, {
     id: "neck-shoulder-reset",
-    title: "Full Body Restoration Package",
-    amount: "170.00",
+    title: "Neck + Ankle Starter Bundle",
+    amount: "109.00",
     currency: "USD"
   });
   var singleVideo = config.catalog.find(function (product) { return product.id === "neck-alignment"; });
-  assert.equal(singleVideo.amount, "45.00");
+  assert.equal(singleVideo.amount, "59.00");
   assert.equal(singleVideo.currency, "USD");
+  var ankleVideo = config.catalog.find(function (product) { return product.id === "ankle-sprain-rehabilitation"; });
+  assert.equal(ankleVideo.amount, "69.00");
+  assert.equal(config.catalog.some(function (product) { return product.id === "pelvic-balance"; }), false);
+  assert.equal(config.catalog.some(function (product) { return product.id === "foot-mechanics"; }), false);
 });
 
 test("creates a fixed-price order with a server-owned program identifier", async function () {
@@ -47,7 +51,7 @@ test("creates a fixed-price order with a server-owned program identifier", async
   assert.equal(order.id, "5O190127TN364715T");
   var body = JSON.parse(calls[1].options.body);
   assert.equal(body.purchase_units[0].custom_id, "neck-shoulder-reset");
-  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "170.00" });
+  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "109.00" });
 });
 
 test("creates a fixed-price order for a single purchasable video", async function () {
@@ -64,7 +68,7 @@ test("creates a fixed-price order for a single purchasable video", async functio
   assert.equal(order.id, "5O190127TN364715U");
   var body = JSON.parse(calls[1].options.body);
   assert.equal(body.purchase_units[0].custom_id, "neck-alignment");
-  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "45.00" });
+  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "59.00" });
 });
 
 test("rejects order creation for a product that is not in the catalog", async function () {
@@ -82,7 +86,7 @@ test("accepts only a completed matching order for entitlement creation", functio
     payer: { email_address: "Buyer@Example.com" },
     purchase_units: [{
       custom_id: "neck-shoulder-reset",
-      amount: { currency_code: "USD", value: "170.00" },
+      amount: { currency_code: "USD", value: "109.00" },
       payments: { captures: [{ id: "3GG79435FJ124315M", status: "COMPLETED", create_time: "2026-07-28T00:00:00Z" }] }
     }]
   });
@@ -102,13 +106,13 @@ test("validates a completed order for an individually purchased video at its own
     payer: { email_address: "Buyer@Example.com" },
     purchase_units: [{
       custom_id: "neck-alignment",
-      amount: { currency_code: "USD", value: "45.00" },
+      amount: { currency_code: "USD", value: "59.00" },
       payments: { captures: [{ id: "3GG79435FJ124315N", status: "COMPLETED", create_time: "2026-07-30T00:00:00Z" }] }
     }]
   });
 
   assert.equal(payment.programId, "neck-alignment");
-  assert.equal(payment.amount, 45);
+  assert.equal(payment.amount, 59);
 
   // Paying the single-video price should not be accepted as payment for the
   // full bundle (custom_id mismatch against the claimed amount).
@@ -152,7 +156,7 @@ test("captures first, then validates the complete order representation", async f
           payer: { email_address: "Buyer@Example.com" },
           purchase_units: [{
             custom_id: "neck-shoulder-reset",
-            amount: { currency_code: "USD", value: "170.00" },
+            amount: { currency_code: "USD", value: "109.00" },
             payments: { captures: [{ id: "3GG79435FJ124315M", status: "COMPLETED", create_time: "2026-07-28T00:00:00Z" }] }
           }]
         };
@@ -179,5 +183,5 @@ test("canonicalizes the ankle session's former product id before creating an ord
   await paypal.createOrder(paypal.getConfig(environment()), "shoulder-reset", fetcher);
   var body = JSON.parse(calls[1].options.body);
   assert.equal(body.purchase_units[0].custom_id, "ankle-sprain-rehabilitation");
-  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "14.00" });
+  assert.deepEqual(body.purchase_units[0].amount, { currency_code: "USD", value: "69.00" });
 });

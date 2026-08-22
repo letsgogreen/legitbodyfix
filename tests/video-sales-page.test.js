@@ -5,7 +5,7 @@ var assert = require("node:assert/strict");
 var fs = require("node:fs");
 var path = require("node:path");
 
-var root = path.join(__dirname, "..");
+var root = path.join(__dirname, "../public");
 
 test("every video has editable persuasive landing-page content", function () {
   var videos = JSON.parse(fs.readFileSync(path.join(root, "assets/data/videos.json"), "utf8"));

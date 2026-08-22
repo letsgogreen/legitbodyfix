@@ -3,10 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 
 const links = [
-  { label: "Movement Check", href: "#movement-check" },
+  { label: "Start Here", href: "#movement-check" },
   { label: "Programs", href: "#programs" },
   { label: "Method", href: "#method" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Explore", href: "#library" },
 ];
 
 export function SiteNav() {
@@ -21,14 +21,27 @@ export function SiteNav() {
 
         <nav className="hidden items-center gap-8 lg:flex">
           {links.map((l) => (
-            <a
+            <Link
               key={l.label}
-              href={l.href}
+              to="/"
+              hash={l.href.slice(1)}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {l.label}
-            </a>
+            </Link>
           ))}
+          <a
+            href="/knowledge.html?type=muscles"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Muscles
+          </a>
+          <a
+            href="/library.html"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            My Library
+          </a>
           <Link
             to="/movement-check"
             className="rounded-sm bg-accent px-4 py-2.5 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5"
@@ -51,15 +64,30 @@ export function SiteNav() {
         <div className="border-t border-border bg-background px-5 pb-6 pt-2 lg:hidden">
           <nav className="flex flex-col">
             {links.map((l) => (
-              <a
+              <Link
                 key={l.label}
-                href={l.href}
+                to="/"
+                hash={l.href.slice(1)}
                 onClick={() => setOpen(false)}
                 className="border-b border-border py-4 text-base font-medium"
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
+            <a
+              href="/knowledge.html?type=muscles"
+              onClick={() => setOpen(false)}
+              className="border-b border-border py-4 text-base font-medium"
+            >
+              Muscles
+            </a>
+            <a
+              href="/library.html"
+              onClick={() => setOpen(false)}
+              className="border-b border-border py-4 text-base font-medium"
+            >
+              My Library
+            </a>
             <Link
               to="/movement-check"
               onClick={() => setOpen(false)}

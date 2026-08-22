@@ -11,12 +11,12 @@ test("the original Lovable React frontend is present as the application root", f
   var styles = fs.readFileSync(path.join(root, "src/styles.css"), "utf8");
   var packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 
-  assert.match(route, /Build more ways to move\./i);
-  assert.match(route, /Sound familiar\?/);
-  assert.match(route, /A system, not a guess\./);
-  assert.match(route, /4-Week Movement Reset/);
-  assert.match(route, /Complete Movement System/);
-  assert.match(route, /Stop guessing\. Move with a plan\./i);
+  assert.match(route, /Find the limit\./i);
+  assert.match(route, /Build the way forward\./i);
+  assert.match(route, /Find my starting point/);
+  assert.match(route, /Browse focused programs/);
+  assert.match(route, /Knee capacity/);
+  assert.match(route, /Spinal movement & scoliosis support/);
   assert.match(styles, /LegitBodyFix brand tokens/);
   assert.equal(packageJson.dependencies["@tanstack/react-start"], "1.168.32");
   assert.equal(packageJson.dependencies.react, "^19.2.0");
