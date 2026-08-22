@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
+  UserRoundSearch,
 } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -65,6 +66,15 @@ const method = [
   { number: "02", name: "Understand", copy: "Separate what you notice from what still needs testing." },
   { number: "03", name: "Rebuild", copy: "Follow mobility, control, strength, and load in a useful order." },
   { number: "04", name: "Apply", copy: "Bring the result back to training, sport, and daily movement." },
+];
+
+const regions = [
+  { slug: "head-neck", icon: UserRoundSearch, name: "Head & neck", detail: "Neck movement, head position, and upper-back contribution" },
+  { slug: "shoulder-arm", icon: Dumbbell, name: "Shoulder & arm", detail: "Scapula, shoulder, elbow, wrist, and overhead movement" },
+  { slug: "spine-rib-cage", icon: Rotate3d, name: "Spine & rib cage", detail: "Breathing, rotation, flexion, extension, and trunk control" },
+  { slug: "hip-pelvis", icon: Move3d, name: "Hip & pelvis", detail: "Hip motion, pelvic control, squatting, and hinging" },
+  { slug: "knee", icon: Activity, name: "Knee", detail: "Knee tolerance, single-leg control, and return to loading" },
+  { slug: "ankle-foot", icon: Footprints, name: "Ankle & foot", detail: "Ankle mobility, balance, gait, and foot mechanics" },
 ];
 
 const futureAreas = [
@@ -164,6 +174,41 @@ function Index() {
                   <span className="mt-auto inline-flex items-center gap-2 pt-7 text-sm font-bold">Choose this route <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
                 </Link>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="regions" className="border-b border-border">
+          <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+            <div className="grid overflow-hidden rounded-sm border border-foreground lg:grid-cols-[0.82fr_1.18fr]">
+              <div className="flex flex-col bg-ink p-7 text-ink-foreground sm:p-10 lg:p-12">
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-accent">Direct access by region</p>
+                <h2 className="mt-4 text-4xl font-black uppercase leading-[0.92] sm:text-5xl">Already know where you want to start?</h2>
+                <p className="mt-5 max-w-md text-sm leading-relaxed text-ink-foreground/65">
+                  Skip the whole-body screen. Choose the area that feels limited, then narrow it down by movement or muscle.
+                </p>
+                <Link to="/movement-check" className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-accent lg:mt-auto lg:pt-10">
+                  Not sure? Take the guided check <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+
+              <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
+                {regions.map(({ slug, icon: Icon, name, detail }) => (
+                  <Link
+                    key={slug}
+                    to="/movement-check"
+                    search={{ path: "area", area: slug }}
+                    className="group flex min-h-52 flex-col bg-card p-6 transition-colors hover:bg-accent sm:p-7"
+                  >
+                    <div className="flex items-center justify-between">
+                      <Icon className="h-5 w-5" />
+                      <ArrowRight className="h-4 w-4 opacity-35 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
+                    </div>
+                    <h3 className="mt-9 text-xl font-extrabold">{name}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{detail}</p>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>
