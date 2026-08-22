@@ -4,33 +4,32 @@ var test = require("node:test");
 var assert = require("node:assert/strict");
 var fs = require("node:fs");
 var path = require("node:path");
-var pathToFileURL = require("node:url").pathToFileURL;
 
 test("hidden admin panels stay out of the layout", function () {
-  var css = fs.readFileSync(path.join(__dirname, "../public/assets/css/admin.css"), "utf8");
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
 
   assert.match(css, /\[hidden\]\s*\{\s*display:\s*none\s*!important;\s*\}/);
   assert.match(html, /assets\/css\/admin\.css\?v=\d+/);
 });
 
 test("opening the admin page as a local file redirects to production", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
 
   assert.match(html, /window\.location\.protocol\s*===\s*["']file:["']/);
   assert.match(html, /window\.location\.replace\(["']https:\/\/legitbodyfix\.vercel\.app\/admin\.html["']\)/);
 });
 
 test("local design preview is restricted to localhost", function () {
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin.js"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
 
   assert.match(javascript, /\["127\.0\.0\.1", "localhost"\]/);
   assert.match(javascript, /get\("design-preview"\) === "1"/);
 });
 
 test("admin offers protected Stream uploads and does not present R2 as the buyer-video path", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
 
   assert.match(html, /Upload to Stream/);
   assert.match(html, /Check processing/);
@@ -41,9 +40,9 @@ test("admin offers protected Stream uploads and does not present R2 as the buyer
 });
 
 test("admin sign-in verifies the approved inbox before checking the password", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var css = fs.readFileSync(path.join(__dirname, "../public/assets/css/admin.css"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
 
   assert.match(html, /id="adminEmail"[^>]+type="email"/);
   assert.match(html, /id="emailVerificationForm"/);
@@ -66,8 +65,8 @@ test("admin sign-in verifies the approved inbox before checking the password", f
 });
 
 test("admin previews thumbnails and protected videos without exposing raw playback URLs", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
 
   assert.match(html, /Thumbnail preview/);
   assert.match(html, /class="thumbnail-preview-image"/);
@@ -87,10 +86,9 @@ test("admin previews thumbnails and protected videos without exposing raw playba
   assert.doesNotMatch(javascript, /\.mpd/);
 });
 
-test("admin reconciles stale browser drafts with repository-saved Stream media", async function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  await import(pathToFileURL(path.join(__dirname, "../public/assets/js/admin-video-draft.js")).href + "?test=" + Date.now());
-  var draftTools = globalThis.LegitAdminVideoDraft;
+test("admin reconciles stale browser drafts with repository-saved Stream media", function () {
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var draftTools = require("../assets/js/admin-video-draft.js");
   var repositoryVideos = [{ id: "neck", streamVideoId: "saved-stream-id", streamReady: true, title: "Saved title", relatedMuscleGroupIds: ["trapezius"], relatedMuscleIds: ["upper-trapezius"] }];
   var draftVideos = [{ id: "neck", streamVideoId: "", streamReady: false, title: "Draft title" }];
 
@@ -107,8 +105,8 @@ test("admin reconciles stale browser drafts with repository-saved Stream media",
 });
 
 test("admin offers an authenticated customer-access grant control", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
 
   assert.match(html, /id="accessGrantForm"/);
   assert.match(html, /Customer access/);
@@ -117,8 +115,8 @@ test("admin offers an authenticated customer-access grant control", function () 
 });
 
 test("admin presents the rebuilt control room workspaces", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin-interface.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin-interface.js"), "utf8");
 
   assert.match(html, /class="control-room"/);
   assert.match(html, /id="site-copy"/);
@@ -145,9 +143,9 @@ test("admin presents the rebuilt control room workspaces", function () {
 });
 
 test("admin uses explicit production launch checks instead of claiming unverified readiness", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var editor = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin.js"), "utf8");
-  var css = fs.readFileSync(path.join(__dirname, "../public/assets/css/admin.css"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
   assert.match(html, /id="launchChecksTitle"/);
   assert.match(html, /Test signup/);
   assert.match(html, /Test checkout/);
@@ -163,9 +161,9 @@ test("admin uses explicit production launch checks instead of claiming unverifie
 });
 
 test("admin includes an editable versioned knowledge base", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/knowledge-base-admin.js"), "utf8");
-  var data = JSON.parse(fs.readFileSync(path.join(__dirname, "../public/assets/data/knowledge-base.json"), "utf8"));
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/knowledge-base-admin.js"), "utf8");
+  var data = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/data/knowledge-base.json"), "utf8"));
 
   assert.match(html, /Knowledge base/);
   assert.match(html, /data-knowledge-type="conditions"/);
@@ -218,9 +216,9 @@ test("admin includes an editable versioned knowledge base", function () {
 });
 
 test("video workspace provides visual navigation and recoverable draft editing", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin.js"), "utf8");
-  var css = fs.readFileSync(path.join(__dirname, "../public/assets/css/admin.css"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
 
   assert.match(html, /id="videoEditorSaveState"/);
   assert.match(html, /id="undoVideoChanges"/);
@@ -233,10 +231,10 @@ test("video workspace provides visual navigation and recoverable draft editing",
 });
 
 test("admin includes a searchable read-only sales ledger", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/sales-admin.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/sales-admin.js"), "utf8");
 
-  assert.match(html, /id="salesTitle">Customers</);
+  assert.match(html, /id="salesTitle">Sales</);
   assert.match(html, /id="salesTableBody"/);
   assert.match(html, /id="salesSearch"/);
   assert.match(html, /read-only record of payments and buyer access/);
@@ -249,13 +247,13 @@ test("admin includes a searchable read-only sales ledger", function () {
 });
 
 test("admin navigation groups every visible item around a working destination", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin-interface.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin-interface.js"), "utf8");
 
   assert.match(html, /Business setup/);
   assert.match(html, /Core systems connected/);
-  assert.match(html, /<summary><span>Create<\/span>/);
-  assert.match(html, /<strong>Programs<\/strong><small>Offer, videos, and pricing<\/small>/);
+  assert.match(html, /Build &amp; sell/);
+  assert.match(html, /Programs &amp; videos/);
   assert.match(html, /Customer views/);
   assert.match(html, /href="index\.html" target="_blank"/);
   assert.match(html, /href="checkout\.html" target="_blank"/);
@@ -267,14 +265,15 @@ test("admin navigation groups every visible item around a working destination", 
 });
 
 test("admin navigation supports fast switching and a collapsible workspace rail", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var css = fs.readFileSync(path.join(__dirname, "../public/assets/css/admin.css"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/admin-interface.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/admin-interface.js"), "utf8");
 
   assert.match(html, /id="commandPalette"/);
   assert.match(html, /id="commandSearch"/);
   assert.match(html, /data-command-workspace="site-copy"/);
   assert.match(html, /id="railCollapseButton"/);
+  assert.match(html, /data-focus-target="siteSectionPicker"/);
   assert.match(html, /data-focus-target="addVideo"/);
   assert.match(html, /data-focus-target="accessGrantEmail"/);
   assert.match(css, /data-rail-collapsed="true"/);
@@ -285,8 +284,8 @@ test("admin navigation supports fast switching and a collapsible workspace rail"
 });
 
 test("admin offers one complete site editor with safe layout controls", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/site-editor.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
 
   assert.match(html, /id="siteContentForm"/);
   assert.match(html, /id="siteSectionPicker"/);
@@ -319,9 +318,9 @@ test("admin offers one complete site editor with safe layout controls", function
 });
 
 test("website editor includes responsive private preview controls", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var editor = fs.readFileSync(path.join(__dirname, "../public/assets/js/site-editor.js"), "utf8");
-  var publicSite = fs.readFileSync(path.join(__dirname, "../public/assets/js/site-content.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
+  var publicSite = fs.readFileSync(path.join(__dirname, "../assets/js/site-content.js"), "utf8");
 
   assert.match(html, /id="sitePreviewDialog"/);
   assert.match(html, /data-preview-device="desktop"/);
@@ -336,9 +335,9 @@ test("website editor includes responsive private preview controls", function () 
 });
 
 test("website editor keeps a visual live preview beside editable sections", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var editor = fs.readFileSync(path.join(__dirname, "../public/assets/js/site-editor.js"), "utf8");
-  var css = fs.readFileSync(path.join(__dirname, "../public/assets/css/admin.css"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
   assert.match(html, /id="siteEditorLiveFrame"/);
   assert.match(html, /id="expandSitePreview"/);
   assert.match(editor, /sendContentToFrame\(livePreviewFrame\)/);
@@ -350,9 +349,9 @@ test("website editor keeps a visual live preview beside editable sections", func
 });
 
 test("website editor supports direct canvas editing and a contextual inspector", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var editor = fs.readFileSync(path.join(__dirname, "../public/assets/js/site-editor.js"), "utf8");
-  var css = fs.readFileSync(path.join(__dirname, "../public/assets/css/admin.css"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
   assert.match(html, /VISUAL CANVAS/);
   assert.match(html, /site-editor-inspector/);
   assert.match(html, /data-canvas-device="mobile"/);
@@ -371,9 +370,9 @@ test("website editor supports direct canvas editing and a contextual inspector",
 });
 
 test("website editor previews every major customer page and routes edits safely", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/admin.html"), "utf8");
-  var editor = fs.readFileSync(path.join(__dirname, "../public/assets/js/site-editor.js"), "utf8");
-  var css = fs.readFileSync(path.join(__dirname, "../public/assets/css/admin.css"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../admin.html"), "utf8");
+  var editor = fs.readFileSync(path.join(__dirname, "../assets/js/site-editor.js"), "utf8");
+  var css = fs.readFileSync(path.join(__dirname, "../assets/css/admin.css"), "utf8");
   assert.match(html, /data-site-page="home"/);
   assert.match(html, /data-site-page="knowledge"/);
   assert.match(html, /data-site-page="program"/);
@@ -388,3 +387,4 @@ test("website editor previews every major customer page and routes edits safely"
   assert.match(css, /\.site-page-switcher/);
   assert.match(css, /\.site-page-edit-shortcut/);
 });
+

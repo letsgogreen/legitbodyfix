@@ -8,7 +8,7 @@ var publishing = require("../lib/site-content-publishing");
 var paypal = require("../lib/paypal-payments");
 
 function currentContent() {
-  return JSON.parse(fs.readFileSync(path.join(__dirname, "../public/assets/data/site-content.json"), "utf8"));
+  return JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/data/site-content.json"), "utf8"));
 }
 
 function response(status, data) {
@@ -32,7 +32,7 @@ test("website content validation returns only approved plain-text fields", funct
 });
 
 test("homepage follows the movement journey before presenting programs and education", function () {
-  var content = JSON.parse(fs.readFileSync(path.join(__dirname, "../public/assets/data/site-content.json"), "utf8"));
+  var content = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/data/site-content.json"), "utf8"));
   var visibleIds = content.layout.filter(function (entry) { return entry.visible !== false; }).map(function (entry) { return entry.id; });
   assert.ok(visibleIds.indexOf("library") > visibleIds.indexOf("visitor-problems"));
   assert.ok(visibleIds.indexOf("method") > visibleIds.indexOf("visitor-problems"));
@@ -117,5 +117,5 @@ test("displayed website price cannot change the server-owned PayPal price", func
   var input = currentContent();
   input.pricing.displayPrice = "$1";
   assert.equal(publishing.validateSiteContent(input).pricing.displayPrice, "$1");
-  assert.equal(paypal.getProduct("neck-shoulder-reset").amount, "109.00");
+  assert.equal(paypal.getProduct("neck-shoulder-reset").amount, "170.00");
 });

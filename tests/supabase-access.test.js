@@ -20,8 +20,8 @@ test("customer profile migration preserves email reconciliation while adding sta
 });
 
 test("buyer profile UI reads and updates only the authenticated user's display name", function () {
-  var html = fs.readFileSync(path.join(__dirname, "../public/library.html"), "utf8");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/library.js"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../library.html"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/library.js"), "utf8");
   assert.match(html, /id="profileForm"/);
   assert.match(html, /id="profileDisplayName"/);
   assert.match(javascript, /client\.from\("profiles"\)\.select\("display_name"\)\.eq\("user_id", session\.user\.id\)/);

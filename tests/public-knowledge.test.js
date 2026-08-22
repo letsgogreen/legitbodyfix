@@ -5,7 +5,7 @@ var assert = require("node:assert/strict");
 var fs = require("node:fs");
 var path = require("node:path");
 
-var root = path.join(__dirname, "../public");
+var root = path.join(__dirname, "..");
 
 test("public knowledge hub exposes searchable published education safely", function () {
   var html = fs.readFileSync(path.join(root, "knowledge.html"), "utf8");
@@ -43,7 +43,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(html, /id="muscleGroupFilters" role="tablist"/);
   assert.match(html, /id="muscleActionSections"/);
   assert.match(html, /id="muscleDirectoryControls"/);
-  assert.match(html, /What action are you looking for\?/);
+  assert.match(html, /Start with movement/);
   assert.match(html, /id="knowledgePaths"/);
   assert.match(html, /class="path-visual"/);
   assert.match(html, /Special:FilePath\/Ankle\.svg/);
@@ -192,7 +192,7 @@ test("public knowledge hub exposes searchable published education safely", funct
   assert.match(css, /\.knowledge-card-media-label/);
   assert.match(javascript, /localeCompare/);
   assert.match(javascript, /detail-anatomy-image/);
-  assert.match(javascript, /Regional anatomy reference/);
+  assert.doesNotMatch(javascript, /Regional anatomy reference/);
   assert.match(javascript, /Special:FilePath\/1117_Muscles_of_the_Back\.png/);
   assert.match(javascript, /Special:FilePath\/1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430\.png/);
   assert.match(javascript, /\^https:/);
@@ -207,10 +207,10 @@ test("public knowledge hub exposes searchable published education safely", funct
 });
 
 test("muscles are a first-class site navigation destination", function () {
-  var home = fs.readFileSync(path.join(__dirname, "../src/components/site/SiteNav.tsx"), "utf8");
+  var home = fs.readFileSync(path.join(root, "index.html"), "utf8");
   var knowledge = fs.readFileSync(path.join(root, "knowledge.html"), "utf8");
   var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
-  assert.match(home, /href="\/knowledge\.html\?type=muscles"/);
+  assert.match(home, /href="knowledge\.html\?type=muscles">Muscles</);
   assert.match(knowledge, /href="knowledge\.html\?type=muscles">Muscles</);
   assert.match(javascript, /if \(labels\[type\] && !id\)/);
 });
@@ -317,13 +317,13 @@ test("muscle cards avoid direct cadaver and surgical photography", function () {
   });
 });
 
-test("muscle cards reject ambiguous plates while detail pages label focused and regional references", function () {
+test("individual muscle pages reject ambiguous regional plates and group cards require group images", function () {
   var javascript = fs.readFileSync(path.join(root, "assets/js/knowledge.js"), "utf8");
   ["Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles"].forEach(function (group) {
     assert.match(javascript, new RegExp('"' + group + '"\\s*:\\s*\\{\\s*imageUrl:'), group + " needs a dedicated group image");
   });
-  assert.match(javascript, /!hasFocusedMuscleImage\(item\)/);
-  assert.match(javascript, /figure\.classList\.add\(focusedImage \? "is-focused" : "is-regional"\)/);
+  assert.match(javascript, /&& hasFocusedMuscleImage\(item\)/);
+  assert.match(javascript, /&& hasFocusedMuscleImage\(record\.item\)/);
   assert.doesNotMatch(javascript, /createBodyMap/);
 });
 
