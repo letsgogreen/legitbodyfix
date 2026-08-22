@@ -1,6 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Youtube, Twitter } from "lucide-react";
-
 export function SiteFooter() {
   return (
     <footer className="bg-ink text-ink-foreground">
@@ -9,26 +7,35 @@ export function SiteFooter() {
           <div className="min-w-0">
             <p className="text-xl font-extrabold">LegitBodyFix</p>
             <p className="mt-2 text-sm text-ink-foreground/60">Build more movement options.</p>
-            <div className="mt-6 flex gap-3">
-              {[Instagram, Youtube, Twitter].map((Icon, i) => (
-                <span
-                  key={i}
-                  aria-hidden
-                  className="grid h-11 w-11 place-items-center rounded-sm border border-ink-foreground/20"
-                >
-                  <Icon className="h-4 w-4" />
-                </span>
-              ))}
-            </div>
           </div>
 
           <div>
             <p className="font-mono text-xs tracking-widest text-accent">EXPLORE</p>
             <ul className="mt-4 space-y-3 text-sm text-ink-foreground/70">
-              <li><a href="#movement-check" className="hover:text-ink-foreground">Movement Check</a></li>
-              <li><a href="#programs" className="hover:text-ink-foreground">Programs</a></li>
-              <li><a href="#method" className="hover:text-ink-foreground">Method</a></li>
-              <li><a href="#pricing" className="hover:text-ink-foreground">Pricing</a></li>
+              <li>
+                <a
+                  href="/#regions"
+                  className="rounded-sm hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  Body regions
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/#programs"
+                  className="rounded-sm hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  Programs
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/#method"
+                  className="rounded-sm hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  How it works
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -36,9 +43,9 @@ export function SiteFooter() {
             <p className="font-mono text-xs tracking-widest text-accent">START</p>
             <Link
               to="/movement-check"
-              className="mt-4 inline-block rounded-sm bg-accent px-4 py-3 text-sm font-bold text-accent-foreground"
+              className="mt-4 inline-flex min-h-11 items-center rounded-sm bg-accent px-4 py-3 text-sm font-bold text-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-ink-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
             >
-              Take the Free Movement Check
+              Find my starting point
             </Link>
           </div>
         </div>
