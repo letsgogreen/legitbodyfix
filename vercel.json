@@ -6,6 +6,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/paypal/config",
+      "destination": "/api/access/config?service=paypal"
+    },
+    {
       "source": "/api/admin/sales",
       "destination": "/api/admin/videos?action=sales"
     }
