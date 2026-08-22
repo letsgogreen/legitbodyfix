@@ -31,6 +31,10 @@ test("returns only browser-safe checkout configuration, including the catalog", 
   var singleVideo = config.catalog.find(function (product) { return product.id === "neck-alignment"; });
   assert.equal(singleVideo.amount, "59.00");
   assert.equal(singleVideo.currency, "USD");
+  var ankleVideo = config.catalog.find(function (product) { return product.id === "ankle-sprain-rehabilitation"; });
+  assert.equal(ankleVideo.amount, "69.00");
+  assert.equal(config.catalog.some(function (product) { return product.id === "pelvic-balance"; }), false);
+  assert.equal(config.catalog.some(function (product) { return product.id === "foot-mechanics"; }), false);
 });
 
 test("creates a fixed-price order with a server-owned program identifier", async function () {
