@@ -76,7 +76,7 @@ test("page layout publishing updates only the versioned page sections file", asy
 test("public renderer uses DOM text nodes and URL allowlists", function () {
   var fs = require("node:fs");
   var path = require("node:path");
-  var javascript = fs.readFileSync(path.join(__dirname, "../public/assets/js/page-sections.js"), "utf8");
+  var javascript = fs.readFileSync(path.join(__dirname, "../assets/js/page-sections.js"), "utf8");
   assert.match(javascript, /element\.textContent = value/);
   assert.match(javascript, /safeLink/);
   assert.match(javascript, /safeImage/);

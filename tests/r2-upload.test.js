@@ -319,7 +319,7 @@ test("admin video preview refuses playback until Stream processing is ready", as
 });
 
 test("public video cards open persuasive landing pages and never raw video URLs", function () {
-  var script = fs.readFileSync(path.join(__dirname, "../public/assets/js/videos.js"), "utf8");
+  var script = fs.readFileSync(path.join(__dirname, "../assets/js/videos.js"), "utf8");
 
   // Thumbnails still validate as HTTPS URLs, but the card itself must send a
   // visitor to a dedicated sales page rather than exposing the raw video.
