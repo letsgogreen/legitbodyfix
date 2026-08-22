@@ -5,6 +5,10 @@ import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 
 export const Route = createFileRoute("/movement-check")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    path: search.path === "pain" || search.path === "screen" || search.path === "area" ? search.path : undefined,
+    area: typeof search.area === "string" ? search.area : undefined,
+  }),
   head: () => ({ meta: [
     { title: "Free Movement Check | LegitBodyFix" },
     { name: "description", content: "Choose a safe starting point: check pain, screen whole-body movement, or explore a specific area." },
@@ -49,19 +53,21 @@ const squatObservations = [
   { id: "pain", label: "The movement caused pain", next: "Stop the performance screen", reason: "Pain changes the pathway. Do not use squat appearance to choose a corrective exercise; use the pain and safety route instead." },
 ];
 
-const areas: Array<{ icon: Icon; name: string; detail: string }> = [
-  { icon: UserRoundSearch, name: "Head & neck", detail: "Neck movement, head position, and upper-back contribution" },
-  { icon: Dumbbell, name: "Shoulder & arm", detail: "Scapula, shoulder, elbow, wrist, and overhead movement" },
-  { icon: Rotate3d, name: "Spine & rib cage", detail: "Breathing, rotation, flexion, extension, and trunk control" },
-  { icon: Move3d, name: "Hip & pelvis", detail: "Hip motion, pelvic control, squatting, and hinging" },
-  { icon: Activity, name: "Knee", detail: "Knee tolerance, single-leg control, and return to loading" },
-  { icon: Footprints, name: "Ankle & foot", detail: "Ankle mobility, balance, gait, and foot mechanics" },
+const areas: Array<{ slug: string; icon: Icon; name: string; detail: string }> = [
+  { slug: "head-neck", icon: UserRoundSearch, name: "Head & neck", detail: "Neck movement, head position, and upper-back contribution" },
+  { slug: "shoulder-arm", icon: Dumbbell, name: "Shoulder & arm", detail: "Scapula, shoulder, elbow, wrist, and overhead movement" },
+  { slug: "spine-rib-cage", icon: Rotate3d, name: "Spine & rib cage", detail: "Breathing, rotation, flexion, extension, and trunk control" },
+  { slug: "hip-pelvis", icon: Move3d, name: "Hip & pelvis", detail: "Hip motion, pelvic control, squatting, and hinging" },
+  { slug: "knee", icon: Activity, name: "Knee", detail: "Knee tolerance, single-leg control, and return to loading" },
+  { slug: "ankle-foot", icon: Footprints, name: "Ankle & foot", detail: "Ankle mobility, balance, gait, and foot mechanics" },
 ];
 
 function MovementCheck() {
-  const [path, setPath] = useState<PathId | null>(null);
+  const search = Route.useSearch();
+  const initialArea = areas.find((item) => item.slug === search.area)?.name ?? null;
+  const [path, setPath] = useState<PathId | null>(search.path ?? (initialArea ? "area" : null));
   const [selectedPattern, setSelectedPattern] = useState("Overhead squat");
-  const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [selectedArea, setSelectedArea] = useState<string | null>(initialArea);
   const [hasRedFlag, setHasRedFlag] = useState<boolean | null>(null);
   const reset = () => { setPath(null); setSelectedArea(null); setHasRedFlag(null); };
 

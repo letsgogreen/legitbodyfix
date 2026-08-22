@@ -15,6 +15,11 @@ test("the original Lovable React frontend is present as the application root", f
   assert.match(route, /Build the way forward\./i);
   assert.match(route, /Find my starting point/);
   assert.match(route, /Browse focused programs/);
+  assert.match(route, /Direct access by region/);
+  assert.match(route, /Already know where you want to start\?/);
+  assert.match(route, /search=\{\{ path: "area", area: slug \}\}/);
+  assert.match(route, /Head & neck/);
+  assert.match(route, /Ankle & foot/);
   assert.match(route, /Knee capacity/);
   assert.match(route, /Spinal movement & scoliosis support/);
   assert.match(styles, /LegitBodyFix brand tokens/);
