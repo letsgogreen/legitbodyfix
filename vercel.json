@@ -1,4 +1,9 @@
 {
+  "build": {
+    "env": {
+      "NITRO_COMPATIBILITY_DATE": "2025-07-14"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/admin/sales",
