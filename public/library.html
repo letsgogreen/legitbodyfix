@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in to your LegitBodyFix movement library." />
+  <title>Your library | LegitBodyFix</title>
+  <script>
+    (function () {
+      if (window.location.hostname === "legitbodyfix.vercel.app") {
+        window.location.replace("https://www.legitbodyfix.com/library.html" + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/library.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav wrap" aria-label="Primary navigation">
+      <a class="brand" href="index.html" aria-label="LegitBodyFix home"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a>
+      <div class="nav-actions"><a class="text-link" href="index.html#pricing">Browse programs</a><a class="button" href="index.html">Home</a></div>
+    </nav>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="loading-panel" id="loadingPanel" aria-live="polite"><p class="eyebrow">SECURE ACCESS</p><h1>Opening your library…</h1><p>Checking your sign-in securely.</p></section>
+
+    <section class="auth-panel" id="authPanel" hidden aria-labelledby="authTitle">
+      <p class="eyebrow" id="authEyebrow">WELCOME BACK</p>
+      <h1 id="authTitle">YOUR MOVEMENT<br />LIBRARY.</h1>
+      <p class="intro" id="authIntro">Enter the email address used at checkout. We will send a secure sign-in link — no password to remember.</p>
+      <div class="auth-mode-tabs" role="tablist" aria-label="Account access">
+        <button class="auth-mode-tab is-active" type="button" data-auth-mode="signin" role="tab" aria-selected="true">Sign in</button>
+        <button class="auth-mode-tab" type="button" data-auth-mode="signup" role="tab" aria-selected="false">Create account</button>
+      </div>
+      <form id="magicLinkForm" class="sign-in-form" novalidate>
+        <label for="email">Email address</label>
+        <div class="form-row"><input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required /><button class="button button-dark" id="authSubmitButton" type="submit">Send sign-in link</button></div>
+        <p class="form-message" id="authMessage" role="status" aria-live="polite"></p>
+      </form>
+      <p class="small-copy" id="authFootnote">Use the same email you used at checkout to see your purchases. This page never stores a payment password.</p>
+    </section>
+
+    <section class="library-panel" id="libraryPanel" hidden aria-labelledby="libraryTitle">
+      <div class="library-heading"><div><p class="eyebrow">YOUR ACCOUNT</p><h1 id="libraryTitle">MOVE WITH<br />INTENT.</h1><p class="intro">Signed in as <strong id="buyerEmail"></strong>.</p></div><button class="text-button" id="signOutButton" type="button">Sign out</button></div>
+      <nav class="account-tabs" aria-label="Account sections">
+        <button class="account-tab is-active" type="button" data-account-tab="library" aria-selected="true">My library</button>
+        <button class="account-tab" type="button" data-account-tab="profile" aria-selected="false">Profile</button>
+      </nav>
+      <div class="library-status" id="libraryStatus" role="status" aria-live="polite"></div>
+      <div id="libraryView" class="account-view">
+        <div class="program-grid" id="programGrid"></div>
+        <section class="session-section" id="sessionSection" hidden aria-labelledby="sessionHeading">
+        <div class="section-heading"><div><p class="eyebrow">YOUR SESSIONS</p><h2 id="sessionHeading">KEEP MOVING.</h2></div><p>Protected playback is available only while you are signed in.</p></div>
+        <div class="session-grid" id="sessionGrid"></div>
+        </section>
+        <section class="playback-panel" id="playbackPanel" hidden aria-labelledby="playbackTitle">
+        <div class="playback-heading"><div><p class="eyebrow">NOW PLAYING</p><h2 id="playbackTitle"></h2></div><button class="text-button" id="closePlayerButton" type="button">Close player</button></div>
+        <div class="player-frame"><iframe id="playerFrame" title="Protected movement session" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+        </section>
+      </div>
+      <section id="profileView" class="account-view profile-view" hidden aria-labelledby="profileTitle">
+        <div class="section-heading"><div><p class="eyebrow">PROFILE</p><h2 id="profileTitle">ACCOUNT DETAILS.</h2></div><p>Your verified purchases and active access in one place.</p></div>
+        <div class="profile-summary">
+          <article><span>Signed-in email</span><strong id="profileEmail"></strong></article>
+          <article><span>Active programs</span><strong id="activeProgramCount">0</strong></article>
+          <article><span>Completed orders</span><strong id="purchaseCount">0</strong></article>
+        </div>
+        <form class="profile-editor" id="profileForm" hidden>
+          <div><p class="eyebrow">PERSONAL DETAILS</p><h3>How should we address you?</h3><p>Your sign-in email stays controlled by your verified account.</p></div>
+          <label for="profileDisplayName">Display name</label>
+          <div class="form-row"><input id="profileDisplayName" name="displayName" type="text" autocomplete="name" maxlength="80" placeholder="Your name" /><button class="button button-dark" id="saveProfile" type="submit">Save name</button></div>
+          <p class="form-message" id="profileMessage" role="status" aria-live="polite"></p>
+        </form>
+        <div class="purchase-heading"><div><p class="eyebrow">PAYMENT HISTORY</p><h3>Your purchases</h3></div><p>Only completed payments linked to this email are shown.</p></div>
+        <div class="purchase-list" id="purchaseList"></div>
+      </section>
+      <div class="library-help"><p>Need help with a purchase? Contact us with the email used at checkout.</p><a class="button" href="index.html#pricing">Browse programs</a></div>
+    </section>
+  </main>
+
+  <footer class="footer wrap"><a class="brand" href="index.html"><span class="brand-mark">LBF</span><span>LEGITBODYFIX</span></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#refunds">Refunds</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
+  <script type="module" src="assets/js/library.js?v=20260819-1"></script>
+</body>
+</html>

@@ -93,3 +93,18 @@ test("every body-region entry opens a useful resource hub", function () {
   assert.match(route, /This is a starting map, not a diagnosis/);
   assert.match(route, /resource\.available \? "Available" : "In development"/);
 });
+
+test("the preserved ver1 control room and its live dependencies are deployed", function () {
+  var root = path.join(__dirname, "..");
+  var adminRoute = fs.readFileSync(path.join(root, "src/routes/ver1.admin.tsx"), "utf8");
+  var sitePublisher = fs.readFileSync(path.join(root, "lib/site-content-publishing.js"), "utf8");
+  var videoPublisher = fs.readFileSync(path.join(root, "lib/video-publishing.js"), "utf8");
+
+  assert.match(adminRoute, /ver1-admin-snapshot\/admin\.html/);
+  assert.ok(fs.existsSync(path.join(root, "public/ver1-admin-snapshot/admin.html")));
+  assert.ok(fs.existsSync(path.join(root, "public/knowledge.html")));
+  assert.ok(fs.existsSync(path.join(root, "public/assets/data/knowledge-base.json")));
+  assert.ok(fs.existsSync(path.join(root, "api/admin/session.js")));
+  assert.match(sitePublisher, /public\/ver1-snapshot\/assets\/data\/site-content\.json/);
+  assert.match(videoPublisher, /public\/assets\/data\/videos\.json/);
+});

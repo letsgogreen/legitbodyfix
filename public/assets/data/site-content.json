@@ -1,0 +1,184 @@
+{
+  "version": 2,
+  "settings": {
+    "theme": "lime",
+    "density": "spacious"
+  },
+  "navigation": {
+    "method": "Method",
+    "library": "Programs",
+    "myLibrary": "My library",
+    "programs": "Programs",
+    "howItWorks": "Movement Check",
+    "browsePrograms": "Start the check"
+  },
+  "layout": [
+    { "id": "hero", "kind": "core", "visible": true },
+    { "id": "visitor-problems", "kind": "custom", "visible": true },
+    { "id": "method", "kind": "core", "visible": true },
+    { "id": "why-legitbodyfix", "kind": "custom", "visible": true },
+    { "id": "starting-point-cta", "kind": "custom", "visible": true },
+    { "id": "library", "kind": "core", "visible": true },
+    { "id": "program-paths", "kind": "custom", "visible": true },
+    { "id": "knowledge", "kind": "core", "visible": true },
+    { "id": "standard", "kind": "core", "visible": true },
+    { "id": "purchase-questions", "kind": "custom", "visible": true },
+    { "id": "pricing", "kind": "core", "visible": true }
+  ],
+  "hero": {
+    "kicker": "Assess. Restore. Rebuild. Apply.",
+    "titleLines": ["BUILD MORE", "WAYS TO", "MOVE.", "WITH A PLAN."],
+    "description": "Assess what's limiting you, restore the movement you need, and rebuild the strength to return to training with confidence.",
+    "primaryButton": "Start the movement check",
+    "primaryHref": "knowledge.html",
+    "secondaryButton": "Browse focused sessions",
+    "secondaryHref": "#library-preview",
+    "proofPoints": ["Start with an assessment", "Progress with a purpose", "No subscription"],
+    "imageUrl": "assets/images/hero-training.jpg",
+    "imageAlt": "Active adult training a loaded squat pattern in a bright studio"
+  },
+  "method": {
+    "label": "The LegitBodyFix method",
+    "titleLines": ["ONE SYSTEM.", "FOUR CLEAR STAGES."],
+    "intro": "The plan follows a simple sequence: understand the movement first, restore useful options, rebuild capacity, then carry the result into the activity that matters.",
+    "steps": [
+      { "title": "Assess", "description": "Observe the movement you notice, identify the relevant body area, and establish a useful baseline." },
+      { "title": "Restore", "description": "Explore comfortable range, breathing, and control before adding more demand." },
+      { "title": "Rebuild", "description": "Use a focused progression to develop strength, coordination, and capacity." },
+      { "title": "Apply", "description": "Recheck the original movement and carry the new options into training or daily life." }
+    ]
+  },
+  "library": {
+    "label": "Inside the library",
+    "titleLines": ["SHORT SESSIONS.", "SERIOUS INTENT."],
+    "intro": "Train by body area, follow a reset from start to finish, and return whenever your movement needs attention.",
+    "linkLabel": "Choose a program",
+    "linkHref": "#pricing"
+  },
+  "knowledge": {
+    "label": "Free movement guides",
+    "titleLines": ["UNDERSTAND WHY.", "CHOOSE WHAT'S NEXT."],
+    "intro": "Learn what may influence a movement pattern, then find the guided program that fits your goal.",
+    "linkLabel": "Browse movement guides",
+    "linkHref": "knowledge.html"
+  },
+  "standard": {
+    "quote": "The goal is not to chase perfect posture. It is to build a body that has options.",
+    "attribution": "— THE LEGITBODYFIX STANDARD"
+  },
+  "pricing": {
+    "label": "Focused sessions. One-time access.",
+    "titleLines": ["START SMALL.", "BUILD FROM THERE."],
+    "benefits": [
+      "Choose by movement goal or body area",
+      "See the purpose before you purchase",
+      "Replay your session at your own pace",
+      "No subscription or recurring charge"
+    ],
+    "programName": "Individual guided sessions",
+    "displayPrice": "FROM $8",
+    "priceSuffix": "one-time",
+    "description": "Start with the session that matches your goal. Review the focus, duration, and equipment before purchasing.",
+    "buttonLabel": "Browse sessions",
+    "buttonHref": "#library-preview"
+  },
+  "footer": {
+    "tagline": "Move with more options.",
+    "legal": "Educational movement content, not medical diagnosis or treatment."
+  },
+  "customSections": [
+    {
+      "id": "visitor-problems",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Sound familiar?",
+      "title": "START WITH WHAT YOU ACTUALLY NOTICE.",
+      "body": "Choose the movement problem that feels familiar. You do not need to know the diagnosis or the exact muscle before you begin.",
+      "buttonLabel": "Start the movement check",
+      "buttonHref": "knowledge.html",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "My hips feel blocked in a squat", "body": "Start with hip, ankle, and squat movement checks." },
+        { "title": "My back feels stiff after hinging", "body": "Explore comfortable trunk, hip, and hinge options." },
+        { "title": "Overhead movement feels restricted", "body": "Check shoulder, scapular, and thoracic contributors." },
+        { "title": "I want to return to training confidently", "body": "Use a focused progression instead of collecting random drills." }
+      ]
+    },
+    {
+      "id": "purchase-questions",
+      "type": "faq",
+      "theme": "paper",
+      "eyebrow": "Before you begin",
+      "title": "CLEAR ANSWERS. NO FINE PRINT.",
+      "body": "",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        {
+          "title": "Is this medical treatment?",
+          "body": "No. LegitBodyFix provides educational movement content, not diagnosis or medical treatment. If you have a recent injury, worsening symptoms, numbness, weakness, or significant pain, seek qualified clinical care."
+        },
+        {
+          "title": "How do I choose a session?",
+          "body": "Start with the movement or body area that feels most relevant. Each session page explains its goal, level, duration, equipment, and who it is designed for before you purchase."
+        },
+        {
+          "title": "Is there a subscription?",
+          "body": "No. Individual sessions use one-time pricing. There is no recurring membership charge."
+        },
+        {
+          "title": "How do I access a purchase?",
+          "body": "Your purchase is connected to your checkout email. Sign in with that email to open the protected session in My library."
+        }
+      ]
+    },
+    {
+      "id": "why-legitbodyfix",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Why LegitBodyFix",
+      "title": "MORE THAN MOBILITY.",
+      "body": "A structured path from assessment to real movement.",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "Assess before exercise", "body": "Find a useful starting point before choosing a progression." },
+        { "title": "Apply to real movement", "body": "Connect the work back to training and daily activity." }
+      ]
+    },
+    {
+      "id": "program-paths",
+      "type": "benefits",
+      "theme": "paper",
+      "eyebrow": "Choose a path",
+      "title": "ASSESS. RESTORE. REBUILD. APPLY.",
+      "body": "Choose the path closest to the movement you want to improve.",
+      "buttonLabel": "",
+      "buttonHref": "",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": [
+        { "title": "Squat and hip", "body": "Build options for squatting and lower-body training." },
+        { "title": "Shoulder and overhead", "body": "Build options for pressing, pulling, and reaching." }
+      ]
+    },
+    {
+      "id": "starting-point-cta",
+      "type": "cta",
+      "theme": "lime",
+      "eyebrow": "Free movement check",
+      "title": "FIND WHAT'S LIMITING YOUR MOVEMENT.",
+      "body": "Choose the movement or body area that feels restricted. We will help you narrow the question and find a clearer starting point—without pretending to diagnose you.",
+      "buttonLabel": "Start the movement check",
+      "buttonHref": "knowledge.html",
+      "imageUrl": "",
+      "imageAlt": "",
+      "items": []
+    }
+  ]
+}

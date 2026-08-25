@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/ver1")({
   head: () => ({
@@ -12,22 +12,9 @@ export const Route = createFileRoute("/ver1")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: PreLovableHomepage,
+  component: Ver1Layout,
 });
 
-function PreLovableHomepage() {
-  return (
-    <iframe
-      src="/ver1-snapshot/index.html"
-      title="LegitBodyFix pre-Lovable homepage"
-      style={{
-        position: "fixed",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        border: 0,
-        background: "#f2f0e9",
-      }}
-    />
-  );
+function Ver1Layout() {
+  return <Outlet />;
 }
