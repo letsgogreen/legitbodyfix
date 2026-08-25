@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: Index,
+  component: PhaseOneHomepage,
 });
 
 const differentiators = [
@@ -46,7 +46,7 @@ const differentiators = [
   },
 ];
 
-function Index() {
+export function PhaseOneHomepage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />

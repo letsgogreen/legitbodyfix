@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MovementCheckRouteImport } from './routes/movement-check'
+import { Route as Ver1RouteImport } from './routes/ver1'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const MovementCheckRoute = MovementCheckRouteImport.update({
   path: '/movement-check',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Ver1Route = Ver1RouteImport.update({
+  id: '/ver1',
+  path: '/ver1',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
+  '/ver1': typeof Ver1Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
+  '/ver1': typeof Ver1Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
+  '/ver1': typeof Ver1Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/movement-check'
+  fullPaths: '/' | '/movement-check' | '/ver1'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/movement-check'
-  id: '__root__' | '/' | '/movement-check'
+  to: '/' | '/movement-check' | '/ver1'
+  id: '__root__' | '/' | '/movement-check' | '/ver1'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MovementCheckRoute: typeof MovementCheckRoute
+  Ver1Route: typeof Ver1Route
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MovementCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ver1': {
+      id: '/ver1'
+      path: '/ver1'
+      fullPath: '/ver1'
+      preLoaderRoute: typeof Ver1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MovementCheckRoute: MovementCheckRoute,
+  Ver1Route: Ver1Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
