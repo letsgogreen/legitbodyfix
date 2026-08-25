@@ -105,3 +105,21 @@ test("the preserved ver1 control room and its live dependencies are deployed", f
   assert.ok(fs.existsSync(path.join(root, "legacy-site/api/admin/session.js")));
   assert.ok(fs.existsSync(path.join(root, "legacy-site/lib/site-content-publishing.js")));
 });
+
+test("the Lovable control room is available as the primary admin workspace", function () {
+  var root = path.join(__dirname, "..");
+  var shell = fs.readFileSync(path.join(root, "src/routes/admin.tsx"), "utf8");
+  var auth = fs.readFileSync(path.join(root, "src/components/admin/AdminAuthGate.tsx"), "utf8");
+  var start = fs.readFileSync(path.join(root, "src/start.ts"), "utf8");
+
+  ["Programs", "Lessons & videos", "Muscle library", "Recipes", "Customers", "Orders & access"].forEach(
+    function (label) {
+      assert.match(shell, new RegExp(label.replace("&", "&")));
+    },
+  );
+  assert.match(auth, /app_metadata\?\.\["is_admin"\] === true/);
+  assert.match(start, /functionMiddleware: \[attachSupabaseAuth\]/);
+  assert.ok(fs.existsSync(path.join(root, "src/routes/admin.muscles.import.tsx")));
+  assert.ok(fs.existsSync(path.join(root, "src/routes/admin.recipes.import.tsx")));
+  assert.ok(fs.existsSync(path.join(root, "supabase/migrations/202608230001_muscle_library.sql")));
+});
