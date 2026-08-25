@@ -4,6 +4,8 @@ import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 
 type AuthState = "loading" | "signed-out" | "forbidden" | "ready";
 
+const ADMIN_AUTH_CALLBACK_URL = "https://move-system-landing.lovable.app/auth/callback";
+
 export function AdminAuthGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>("loading");
   const [user, setUser] = useState<User>();
@@ -67,7 +69,10 @@ function AdminSignIn() {
     setMessage("");
     const { error } = await client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/admin` },
+      // The Lovable-managed Supabase project only allow-lists its published domain.
+      // Its callback immediately forwards the untouched auth response to the fixed
+      // LegitBodyFix admin URL; it never accepts a caller-controlled destination.
+      options: { emailRedirectTo: ADMIN_AUTH_CALLBACK_URL },
     });
     setSubmitting(false);
     setMessage(error ? error.message : "Check your email for the secure sign-in link.");
