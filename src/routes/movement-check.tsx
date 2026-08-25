@@ -1,8 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { bodyRegions, findBodyRegion } from "@/data/body-regions";
+
+type MovementCheckSearch = {
+  region?: string;
+};
 
 export const Route = createFileRoute("/movement-check")({
+  validateSearch: (search): MovementCheckSearch => {
+    if (typeof search["region"] === "string") return { region: search["region"] };
+    return {};
+  },
   head: () => ({
     meta: [
       { title: "Free 5-Minute Movement Check | LegitBodyFix" },
@@ -21,15 +30,10 @@ export const Route = createFileRoute("/movement-check")({
   component: MovementCheck,
 });
 
-const paths = [
-  "Squat & Hip",
-  "Hinge & Low Back",
-  "Shoulder & Overhead",
-  "Run & Return",
-  "Desk & Daily Life",
-];
-
 function MovementCheck() {
+  const { region: regionSlug } = Route.useSearch();
+  const region = findBodyRegion(regionSlug);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
@@ -41,24 +45,32 @@ function MovementCheck() {
           Find what's limiting your movement.
         </h1>
         <p className="mt-5 max-w-xl text-base text-muted-foreground">
-          The five-minute check is coming soon. Pick the area you want to work on and we'll point
-          you to the right starting path.
+          {region
+            ? `You started from: ${region.title} — the full check is coming soon.`
+            : "The full guided check is coming soon. Choose a body region to preview a starting path."}
         </p>
 
         <div className="mt-8 flex flex-wrap gap-2">
-          {paths.map((p) => (
-            <span
-              key={p}
-              className="rounded-sm border border-border bg-card px-3 py-2 font-mono text-xs tracking-wide"
+          {bodyRegions.map((item) => (
+            <Link
+              key={item.slug}
+              to="/movement-check"
+              search={{ region: item.slug }}
+              aria-current={region?.slug === item.slug ? "page" : undefined}
+              className={`inline-flex min-h-11 items-center rounded-sm border px-3 py-2 font-mono text-xs tracking-wide outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                region?.slug === item.slug
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-card hover:border-foreground/50"
+              }`}
             >
-              {p}
-            </span>
+              {item.title}
+            </Link>
           ))}
         </div>
 
         <Link
           to="/"
-          className="mt-12 inline-block rounded-sm border border-foreground px-5 py-3 text-sm font-bold"
+          className="mt-12 inline-flex min-h-11 items-center rounded-sm border border-foreground px-5 py-3 text-sm font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           Back home
         </Link>
