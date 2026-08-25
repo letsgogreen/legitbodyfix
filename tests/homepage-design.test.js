@@ -69,3 +69,27 @@ test("legacy assets and server APIs remain preserved outside the deployment root
   assert.ok(fs.existsSync(path.join(root, "legacy-site/api/paypal/orders/create.js")));
   assert.ok(fs.existsSync(path.join(root, "legacy-site/lib/paypal-payments.js")));
 });
+
+test("every body-region entry opens a useful resource hub", function () {
+  var root = path.join(__dirname, "..");
+  var regions = fs.readFileSync(path.join(root, "src/data/body-regions.ts"), "utf8");
+  var route = fs.readFileSync(path.join(root, "src/routes/movement-check.tsx"), "utf8");
+
+  [
+    "neck-desk-reset",
+    "overhead-reach-preparation",
+    "ribcage-breathing-reset",
+    "pelvic-balance-baseline",
+    "knee-control-return-to-squat",
+    "ankle-rehabilitation-progression",
+  ].forEach(function (recipeId) {
+    assert.match(regions, new RegExp(recipeId));
+  });
+
+  ["Related programs", "Correction recipes", "Key muscle groups"].forEach(function (heading) {
+    assert.match(route, new RegExp(heading));
+  });
+
+  assert.match(route, /This is a starting map, not a diagnosis/);
+  assert.match(route, /resource\.available \? "Available" : "In development"/);
+});
