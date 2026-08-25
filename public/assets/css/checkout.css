@@ -1,0 +1,29 @@
+:root { --paper:#f2f0e9; --ink:#11110f; --soft-ink:#66665f; --line:#cbc9c0; --lime:#d5ff36; --display:"Archivo Black", Impact, sans-serif; --body:Inter,Arial,sans-serif; --mono:"DM Mono",monospace; }
+* { box-sizing:border-box; }
+body { margin:0; min-height:100vh; background:var(--paper); color:var(--ink); font-family:var(--body); -webkit-font-smoothing:antialiased; }
+a { color:inherit; }
+.topbar { border-bottom:1px solid var(--line); }
+.topbar-inner, .checkout { width:min(980px,calc(100% - 48px)); margin:0 auto; }
+.topbar-inner { min-height:76px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.brand { font:400 22px/1 var(--display); letter-spacing:-.05em; text-decoration:none; }
+.back { color:var(--soft-ink); font-size:14px; font-weight:700; text-underline-offset:4px; }
+.checkout { padding:88px 0; display:grid; grid-template-columns:1fr minmax(340px,440px); gap:72px; align-items:start; }
+.eyebrow { margin:0 0 16px; color:#39766e; font:500 11px/1 var(--mono); letter-spacing:.14em; }
+h1 { margin:0; max-width:620px; font:400 clamp(52px,8vw,92px)/.87 var(--display); letter-spacing:-.075em; }
+.intro { max-width:530px; margin:28px 0 0; color:var(--soft-ink); font-size:17px; line-height:1.65; }
+.details { margin:42px 0 0; padding:0; list-style:none; border-top:1px solid var(--ink); }
+.details li { padding:14px 0; border-bottom:1px solid var(--ink); font-size:14px; font-weight:700; }
+.details li::before { content:"✓"; margin-right:10px; }
+.card { padding:30px; border:1px solid var(--ink); background:#fffefa; }
+.card p { margin:0; }
+.label { font:500 11px/1 var(--mono); letter-spacing:.12em; color:var(--soft-ink); }
+.product { margin-top:15px !important; font-size:24px; line-height:1.05; font-weight:800; letter-spacing:-.04em; }
+.price { margin-top:28px !important; font:400 66px/.85 var(--display); letter-spacing:-.08em; }
+.price span { font:700 16px/1 var(--body); letter-spacing:-.03em; }
+.divider { height:1px; margin:31px 0 21px; background:var(--line); }
+#paypalButtonContainer { min-height:54px; }
+#checkoutStatus { min-height:44px; margin-top:15px; color:var(--soft-ink); font-size:13px; line-height:1.45; }
+#checkoutStatus.error { color:#bf3429; }
+.note { margin-top:20px !important; color:var(--soft-ink); font-size:12px; line-height:1.6; }
+.note a { color:var(--ink); font-weight:700; text-underline-offset:3px; }
+@media (max-width:760px) { .topbar-inner,.checkout { width:min(100% - 32px,980px); } .checkout { grid-template-columns:1fr; gap:44px; padding:56px 0; } .card { padding:24px; } }

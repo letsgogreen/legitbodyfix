@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MovementCheckRouteImport } from './routes/movement-check'
 import { Route as Ver1RouteImport } from './routes/ver1'
+import { Route as Ver1IndexRouteImport } from './routes/ver1.index'
+import { Route as Ver1AdminRouteImport } from './routes/ver1.admin'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +30,50 @@ const Ver1Route = Ver1RouteImport.update({
   path: '/ver1',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Ver1IndexRoute = Ver1IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => Ver1Route,
+} as any)
+const Ver1AdminRoute = Ver1AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => Ver1Route,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
-  '/ver1': typeof Ver1Route
+  '/ver1': typeof Ver1RouteWithChildren
+  '/ver1/admin': typeof Ver1AdminRoute
+  '/ver1/': typeof Ver1IndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
-  '/ver1': typeof Ver1Route
+  '/ver1/admin': typeof Ver1AdminRoute
+  '/ver1': typeof Ver1IndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
-  '/ver1': typeof Ver1Route
+  '/ver1': typeof Ver1RouteWithChildren
+  '/ver1/admin': typeof Ver1AdminRoute
+  '/ver1/': typeof Ver1IndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/movement-check' | '/ver1'
+  fullPaths: '/' | '/movement-check' | '/ver1' | '/ver1/admin' | '/ver1/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/movement-check' | '/ver1'
-  id: '__root__' | '/' | '/movement-check' | '/ver1'
+  to: '/' | '/movement-check' | '/ver1/admin' | '/ver1'
+  id: '__root__' | '/' | '/movement-check' | '/ver1' | '/ver1/admin' | '/ver1/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MovementCheckRoute: typeof MovementCheckRoute
-  Ver1Route: typeof Ver1Route
+  Ver1Route: typeof Ver1RouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +99,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Ver1RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ver1/': {
+      id: '/ver1/'
+      path: '/'
+      fullPath: '/ver1/'
+      preLoaderRoute: typeof Ver1IndexRouteImport
+      parentRoute: typeof Ver1Route
+    }
+    '/ver1/admin': {
+      id: '/ver1/admin'
+      path: '/admin'
+      fullPath: '/ver1/admin'
+      preLoaderRoute: typeof Ver1AdminRouteImport
+      parentRoute: typeof Ver1Route
+    }
   }
 }
+
+interface Ver1RouteChildren {
+  Ver1AdminRoute: typeof Ver1AdminRoute
+  Ver1IndexRoute: typeof Ver1IndexRoute
+}
+
+const Ver1RouteChildren: Ver1RouteChildren = {
+  Ver1AdminRoute: Ver1AdminRoute,
+  Ver1IndexRoute: Ver1IndexRoute,
+}
+
+const Ver1RouteWithChildren = Ver1Route._addFileChildren(Ver1RouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MovementCheckRoute: MovementCheckRoute,
-  Ver1Route: Ver1Route,
+  Ver1Route: Ver1RouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

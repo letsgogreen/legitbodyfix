@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#11110f" />
+  <title>Restricted Access — LegitBodyFix</title>
+  <script>
+    if (window.location.protocol === "file:") {
+      window.location.replace("https://legitbodyfix.vercel.app/admin.html");
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260818-3" />
+</head>
+<body class="auth-visible">
+  <a class="skip-link" href="#authTitle">Skip to restricted access</a>
+
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="LegitBodyFix home">
+      <span class="brand-mark">LBF</span>
+      <span class="brand-copy"><strong>LegitBodyFix</strong><small>Control Room</small></span>
+    </a>
+    <div class="topbar-meta">
+      <span class="current-workspace" id="currentWorkspaceName">Dashboard</span>
+      <button class="command-trigger" id="commandButton" type="button" aria-haspopup="dialog" aria-controls="commandPalette"><span>Find a tool</span><kbd>Ctrl K</kbd></button>
+      <button class="density-toggle" id="densityToggle" type="button" aria-pressed="false" title="Switch workspace density"><span aria-hidden="true">≡</span><b>Compact</b></button>
+      <span class="live-state"><i aria-hidden="true"></i> Secure admin</span>
+      <button class="text-button" id="logoutButton" type="button" hidden>Sign out</button>
+      <a class="site-link" href="index.html" target="_blank" rel="noopener">View website <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <div id="authGate" class="auth-shell" aria-labelledby="authTitle">
+    <section class="auth-card">
+      <div class="auth-security-mark"><span class="auth-lock-icon" aria-hidden="true"></span><strong>Restricted access</strong></div>
+      <h1 id="authTitle">Administrator sign-in</h1>
+      <p class="lede">Verify your identity to continue.</p>
+      <form class="auth-form" id="emailVerificationForm" autocomplete="off">
+        <label class="field">
+          <span>Email</span>
+          <input id="adminEmail" name="admin-access-email" type="email" autocomplete="off" inputmode="email" required />
+        </label>
+        <button class="button button-dark" id="emailVerificationButton" type="submit">Continue securely <span aria-hidden="true">&rarr;</span></button>
+      </form>
+      <div class="verified-admin" id="verifiedAdmin" hidden>
+        <span class="verified-admin-mark" aria-hidden="true">&#10003;</span>
+        <span><small>Email verified</small><strong id="verifiedAdminEmail"></strong></span>
+        <button class="text-button" id="changeAdminEmail" type="button">Use another</button>
+      </div>
+      <form class="auth-form auth-password-form" id="loginForm" hidden>
+        <label class="field">
+          <span>Password</span>
+          <input id="adminPassword" name="password" type="password" autocomplete="current-password" required />
+        </label>
+        <button class="button button-dark" id="loginButton" type="submit">Continue <span aria-hidden="true">&rarr;</span></button>
+      </form>
+      <p class="auth-status" id="authStatus" role="status" aria-live="polite">Checking your session…</p>
+      <p class="auth-privacy"><span aria-hidden="true"></span> Verification required &middot; Access restricted</p>
+    </section>
+  </div>
+
+  <div class="command-backdrop" id="commandPalette" role="dialog" aria-modal="true" aria-labelledby="commandTitle" hidden>
+    <section class="command-panel">
+      <header class="command-header"><div><p class="eyebrow">Quick switcher</p><h2 id="commandTitle">Where do you want to go?</h2></div><button class="command-close" id="commandClose" type="button" aria-label="Close quick switcher">Esc</button></header>
+      <label class="command-search"><span class="sr-only">Search admin tools</span><input id="commandSearch" type="search" placeholder="Search tools and customer pages…" autocomplete="off" /></label>
+      <div class="command-results" id="commandResults">
+        <button type="button" data-command-item data-command-workspace="overview"><span class="command-number">01</span><span><strong>Overview</strong><small>Status and shortcuts</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="site-copy"><span class="command-number">02</span><span><strong>Website editor</strong><small>Copy, layout, and homepage sections</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="video-library"><span class="command-number">03</span><span><strong>Programs &amp; videos</strong><small>Sessions, uploads, and publishing</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="knowledge-base"><span class="command-number">04</span><span><strong>Movement guides</strong><small>Patterns, anatomy, and correction recipes</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="sales"><span class="command-number">05</span><span><strong>Sales</strong><small>Purchases, customers, and revenue</small></span><b>Open</b></button>
+        <button type="button" data-command-item data-command-workspace="buyer-access"><span class="command-number">06</span><span><strong>Customer access</strong><small>Grant access for verified support cases</small></span><b>Open</b></button>
+        <a href="index.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Live website</strong><small>Open the public storefront</small></span><b>New tab</b></a>
+        <a href="checkout.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Checkout</strong><small>Open the customer payment page</small></span><b>New tab</b></a>
+        <a href="library.html" target="_blank" rel="noopener" data-command-item><span class="command-number">↗</span><span><strong>Buyer library</strong><small>Open the customer sign-in page</small></span><b>New tab</b></a>
+      </div>
+      <p class="command-empty" id="commandEmpty" hidden>No matching tool found.</p>
+      <footer class="command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> Move</span><span><kbd>Enter</kbd> Open</span><span><kbd>Esc</kbd> Close</span></footer>
+    </section>
+  </div>
+
+  <div class="site-preview-backdrop" id="sitePreviewDialog" role="dialog" aria-modal="true" aria-labelledby="sitePreviewTitle" hidden>
+    <section class="site-preview-shell" data-preview-device="desktop">
+      <header class="site-preview-header">
+        <div class="site-preview-heading">
+          <p class="eyebrow">Private draft preview</p>
+          <h2 id="sitePreviewTitle">See it before you publish.</h2>
+        </div>
+        <div class="site-preview-actions">
+          <button class="button" id="refreshSitePreview" type="button">Refresh</button>
+          <a class="button" id="openSitePreview" href="index.html?site-preview=1" target="_blank" rel="noopener">Open full page <span aria-hidden="true">↗</span></a>
+          <button class="button button-dark" id="closeSitePreview" type="button">Close</button>
+        </div>
+      </header>
+      <div class="site-preview-toolbar" aria-label="Preview screen size">
+        <div class="preview-device-switcher" role="group" aria-label="Choose preview screen size">
+          <button class="is-active" type="button" data-preview-device="desktop" aria-pressed="true"><span aria-hidden="true">▰</span> Desktop <small>1440</small></button>
+          <button type="button" data-preview-device="tablet" aria-pressed="false"><span aria-hidden="true">▯</span> Tablet <small>768</small></button>
+          <button type="button" data-preview-device="mobile" aria-pressed="false"><span aria-hidden="true">▯</span> Mobile <small>390</small></button>
+        </div>
+        <p><i aria-hidden="true"></i> Draft only — visitors cannot see these changes yet.</p>
+      </div>
+      <div class="site-preview-stage">
+        <div class="site-preview-viewport">
+          <div class="site-preview-browserbar" aria-hidden="true"><span></span><span></span><span></span><b>legitbodyfix.com</b></div>
+          <iframe id="sitePreviewFrame" title="Homepage draft preview" loading="eager"></iframe>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <main id="main" class="control-room" data-active-workspace="overview" hidden>
+    <aside class="side-rail" aria-label="Control Room navigation">
+      <div class="rail-main">
+        <div class="rail-heading"><span>Navigation</span><button id="railCollapseButton" type="button" aria-label="Collapse navigation" aria-expanded="true"><i aria-hidden="true">‹</i><span class="rail-collapse-label">Collapse</span></button></div>
+        <section class="setup-card" aria-labelledby="setupTitle">
+          <div class="setup-card-heading"><span>Business setup</span><strong>Connected</strong></div>
+          <h2 id="setupTitle">Core systems connected</h2>
+          <div class="setup-progress" role="progressbar" aria-label="Core services configured" aria-valuemin="0" aria-valuemax="4" aria-valuenow="4"><span></span></div>
+          <p>Live flow checks remain</p>
+        </section>
+
+        <nav class="workspace-nav" aria-label="Primary admin tools">
+          <div class="nav-section">
+            <p class="rail-label">Home</p>
+            <a class="workspace-nav-item is-active" href="#overview" data-workspace-target="overview" aria-current="page" title="Overview"><span class="nav-icon" aria-hidden="true">01</span><span><strong>Overview</strong><small>Status and shortcuts</small></span></a>
+          </div>
+
+          <details class="nav-group" open>
+            <summary><span>Build &amp; sell</span><i aria-hidden="true"></i></summary>
+            <div class="nav-group-items">
+              <a class="workspace-nav-item" href="#site-copy" data-workspace-target="site-copy" title="Website editor"><span class="nav-icon" aria-hidden="true">02</span><span><strong>Website</strong><small>Copy, layout, and design</small></span></a>
+              <button class="nav-child-action" type="button" data-workspace-open="site-copy" data-focus-target="siteSectionPicker" data-toggle-site-section-picker><span>+ Add homepage section</span><b aria-hidden="true">→</b></button>
+              <a class="workspace-nav-item" href="#video-library" data-workspace-target="video-library" title="Programs and videos"><span class="nav-icon" aria-hidden="true">03</span><span><strong>Programs &amp; videos</strong><small>Sessions and publishing</small></span><b class="nav-badge" id="sidebarVideoCount" aria-label="Video count">0</b></a>
+              <button class="nav-child-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span>+ Add a new session</span><b aria-hidden="true">→</b></button>
+            </div>
+          </details>
+
+          <details class="nav-group" open>
+            <summary><span>Education</span><i aria-hidden="true"></i></summary>
+            <div class="nav-group-items">
+              <a class="workspace-nav-item" href="#knowledge-base" data-workspace-target="knowledge-base" title="Movement guides"><span class="nav-icon" aria-hidden="true">04</span><span><strong>Movement guides</strong><small>Patterns, muscle atlas, and recipes</small></span><b class="nav-badge" id="sidebarKnowledgeCount" aria-label="Movement guide count">0</b></a>
+            </div>
+          </details>
+
+          <details class="nav-group" open>
+            <summary><span>Customers</span><i aria-hidden="true"></i></summary>
+            <div class="nav-group-items">
+              <a class="workspace-nav-item" href="#sales" data-workspace-target="sales" title="Sales"><span class="nav-icon" aria-hidden="true">05</span><span><strong>Sales</strong><small>Orders and payments</small></span><b class="nav-badge" id="sidebarSalesCount" aria-label="Purchase count">0</b></a>
+              <a class="workspace-nav-item" href="#buyer-access" data-workspace-target="buyer-access" title="Customer access"><span class="nav-icon" aria-hidden="true">06</span><span><strong>Customer access</strong><small>Access and support</small></span></a>
+              <button class="nav-child-action" type="button" data-workspace-open="buyer-access" data-focus-target="accessGrantEmail"><span>+ Grant verified access</span><b aria-hidden="true">→</b></button>
+            </div>
+          </details>
+
+          <details class="nav-group customer-views-group">
+            <summary><span>Customer views</span><i aria-hidden="true"></i></summary>
+            <div class="nav-group-items external-nav-items">
+              <a class="external-nav-item" href="index.html" target="_blank" rel="noopener"><span>Live website</span><b aria-hidden="true">↗</b></a>
+              <a class="external-nav-item" href="checkout.html" target="_blank" rel="noopener"><span>Checkout</span><b aria-hidden="true">↗</b></a>
+              <a class="external-nav-item" href="library.html" target="_blank" rel="noopener"><span>Buyer library</span><b aria-hidden="true">↗</b></a>
+            </div>
+          </details>
+        </nav>
+      </div>
+      <div class="rail-footer">
+        <div class="rail-status"><i aria-hidden="true"></i><span><strong>Protected delivery active</strong><small>Payments, access, and streaming</small></span></div>
+        <div class="rail-safety"><span>Safe publishing</span><small>Draft locally. Preview first. Publish when ready.</small></div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <section class="workspace-panel dashboard-panel" id="overview" data-workspace-panel="overview" aria-label="Control Room overview">
+        <div class="summary operations-summary" aria-label="Business summary" aria-live="polite">
+          <article><span>Video library</span><strong id="videoCount">0</strong><small>Total guided sessions</small></article>
+          <article><span>Live sessions</span><strong id="publishedCount">0</strong><small>Available to eligible buyers</small></article>
+          <article><span>Knowledge records</span><strong id="dashboardKnowledgeCount">0</strong><small>Patterns, muscles, and recipes</small></article>
+          <article class="summary-accent"><span>System status</span><strong class="summary-word">Connected</strong><small>Complete the live checks below</small></article>
+        </div>
+        <section class="dashboard-block" aria-labelledby="quickActionsTitle">
+          <div class="block-heading"><div><p class="eyebrow">Quick actions</p><h2 id="quickActionsTitle">What would you like to do?</h2></div></div>
+          <div class="quick-action-grid operations-grid">
+            <button class="quick-action action-primary" type="button" data-workspace-open="site-copy"><span class="quick-number">01 / SELL</span><span><strong>Shape the storefront</strong><small>Refine the promise, offer, sections, and purchase path—with a live responsive preview.</small></span><b aria-hidden="true">Open editor →</b></button>
+            <button class="quick-action" type="button" data-workspace-open="knowledge-base"><span class="quick-number">02 / TEACH</span><span><strong>Curate movement guides</strong><small>Review posture thumbnails, muscle imagery, functions, and public education.</small></span><b aria-hidden="true">Open atlas →</b></button>
+            <button class="quick-action" type="button" data-workspace-open="video-library" data-focus-target="addVideo"><span class="quick-number">03 / DELIVER</span><span><strong>Build a program</strong><small>Upload protected sessions and prepare the paid customer experience.</small></span><b aria-hidden="true">Manage videos →</b></button>
+            <button class="quick-action" type="button" data-workspace-open="sales"><span class="quick-number">04 / LEARN</span><span><strong>Read buyer signals</strong><small>Review purchases and customer access before deciding what to build next.</small></span><b aria-hidden="true">Review sales →</b></button>
+          </div>
+        </section>
+        <section class="dashboard-block launch-checks" aria-labelledby="launchChecksTitle">
+          <div class="block-heading launch-check-heading"><div><p class="eyebrow">Launch gate</p><h2 id="launchChecksTitle">Verify the complete customer journey.</h2><p>These checks use the real production pages. Complete them before sending paid traffic.</p></div><div class="launch-check-summary"><strong id="launchCheckCount">0 of 4 verified</strong><button class="button button-quiet" id="resetLaunchChecks" type="button">Reset checks</button></div></div>
+          <div class="launch-check-grid">
+            <article data-launch-check="account"><span>01 / ACCOUNT</span><strong>Create and reopen an account</strong><p>Confirm the email link returns to legitbodyfix.com on a phone and opens the customer account.</p><div><a class="button" href="library.html?mode=signup" target="_blank" rel="noopener">Test signup ↗</a><button class="button launch-check-toggle" type="button" aria-pressed="false">Mark verified</button></div></article>
+            <article data-launch-check="payment"><span>02 / PAYMENT</span><strong>Confirm the checkout amount</strong><p>Verify the intended price appears immediately and the successful return uses the canonical domain.</p><div><a class="button" href="checkout.html" target="_blank" rel="noopener">Test checkout ↗</a><button class="button launch-check-toggle" type="button" aria-pressed="false">Mark verified</button></div></article>
+            <article data-launch-check="access"><span>03 / ACCESS</span><strong>Open a purchased library</strong><p>Sign in with a verified buyer or approved test email and confirm the purchased program appears.</p><div><a class="button" href="library.html" target="_blank" rel="noopener">Test library ↗</a><button class="button launch-check-toggle" type="button" aria-pressed="false">Mark verified</button></div></article>
+            <article data-launch-check="playback"><span>04 / PLAYBACK</span><strong>Play protected video</strong><p>Open an entitled program and confirm its short-lived Stream playback works on desktop and mobile.</p><div><a class="button" href="video.html?id=neck-alignment" target="_blank" rel="noopener">Test playback ↗</a><button class="button launch-check-toggle" type="button" aria-pressed="false">Mark verified</button></div></article>
+          </div>
+        </section>
+        <section class="dashboard-block system-block" aria-labelledby="systemTitle">
+          <div class="block-heading"><div><p class="eyebrow">Publishing flow</p><h2 id="systemTitle">Safe by default.</h2></div></div>
+          <div class="workflow-strip"><div><span>1</span><strong>Edit</strong><small>Changes become a private browser draft.</small></div><div><span>2</span><strong>Preview</strong><small>Check the customer experience first.</small></div><div><span>3</span><strong>Publish</strong><small>A versioned update refreshes the live site.</small></div></div>
+          <nav class="live-page-links" aria-label="Live customer pages"><span>Customer views</span><a href="index.html" target="_blank" rel="noopener">Website ↗</a><a href="checkout.html" target="_blank" rel="noopener">Checkout ↗</a><a href="library.html" target="_blank" rel="noopener">Buyer library ↗</a></nav>
+        </section>
+      </section>
+
+      <section class="workspace-panel site-content-editor" id="site-copy" data-workspace-panel="site-copy" aria-labelledby="siteContentTitle" hidden>
+        <header class="page-heading">
+          <div><p class="eyebrow">Control Room / Website</p><h1 id="siteContentTitle">Website editor</h1><p class="lede">Choose a page, inspect the customer view, and edit it through the correct visual workspace.</p></div>
+          <div class="page-heading-actions"><span class="editor-save-state" id="siteEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button" type="button" data-toggle-site-section-picker aria-expanded="false" aria-controls="siteSectionPicker">+ Add section</button><button class="button" id="previewSiteContent" type="button">Preview website</button><button class="button button-lime" id="publishSiteContent" type="button">Publish website <span aria-hidden="true">→</span></button></div>
+        </header>
+        <section class="template-picker" id="siteSectionPicker" aria-labelledby="templatePickerTitle" tabindex="-1" hidden>
+          <header class="template-picker-heading"><div><p class="eyebrow">Homepage structure</p><h2 id="templatePickerTitle">Add a homepage section</h2><p>Pick what the next block should accomplish. You can edit its content immediately after adding it.</p></div><button class="template-picker-close" id="closeSiteSectionPicker" type="button" aria-label="Close section picker">×</button></header>
+          <div class="template-picker-action"><div><span>Ready to add</span><strong id="selectedSiteSectionLabel">Campaign hero</strong><small id="selectedSiteSectionHint">Best for launches, announcements, and featured programs.</small></div><button class="button button-dark" id="addSiteSection" type="button">Add Campaign hero <span aria-hidden="true">→</span></button></div>
+          <div class="template-grid" role="group" aria-label="Choose a homepage section">
+            <button class="is-selected" type="button" data-select-site-section="hero" aria-pressed="true"><span class="template-preview is-hero" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Announce something</b><strong>Campaign hero</strong><small>Headline, pitch, and primary action.</small></span><em aria-hidden="true">✓</em></button>
+            <button type="button" data-select-site-section="split" aria-pressed="false"><span class="template-preview is-split" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Tell a visual story</b><strong>Text + image</strong><small>Explain an idea beside a visual.</small></span><em aria-hidden="true"></em></button>
+            <button type="button" data-select-site-section="benefits" aria-pressed="false"><span class="template-preview is-benefits" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Explain the value</b><strong>Benefits grid</strong><small>Present three clear selling points.</small></span><em aria-hidden="true"></em></button>
+            <button type="button" data-select-site-section="testimonials" aria-pressed="false"><span class="template-preview is-testimonials" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Build trust</b><strong>Testimonials</strong><small>Share customer results and experiences.</small></span><em aria-hidden="true"></em></button>
+            <button type="button" data-select-site-section="faq" aria-pressed="false"><span class="template-preview is-faq" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Remove hesitation</b><strong>FAQ</strong><small>Answer common buyer questions.</small></span><em aria-hidden="true"></em></button>
+            <button type="button" data-select-site-section="cta" aria-pressed="false"><span class="template-preview is-cta" aria-hidden="true"><i></i><i></i><i></i></span><span class="template-copy"><b>Ask for action</b><strong>Call to action</strong><small>End with one focused next step.</small></span><em aria-hidden="true"></em></button>
+          </div>
+        </section>
+        <nav class="site-page-switcher" aria-label="Choose a website page to preview">
+          <button class="is-active" type="button" data-site-page="home" data-preview-url="/ver1-snapshot/index.html?site-preview=1&amp;inline=1" aria-pressed="true"><span>01</span><strong>Homepage</strong><small>Inline editing</small></button>
+          <button type="button" data-site-page="knowledge" data-preview-url="/knowledge.html" aria-pressed="false"><span>02</span><strong>Movement guides</strong><small>Patterns and anatomy</small></button>
+          <button type="button" data-site-page="program" data-preview-url="/video.html?id=neck-alignment" aria-pressed="false"><span>03</span><strong>Program page</strong><small>Sales and video details</small></button>
+          <button type="button" data-site-page="library" data-preview-url="/library.html" aria-pressed="false"><span>04</span><strong>Customer account</strong><small>Protected preview</small></button>
+        </nav>
+        <p class="status" id="siteContentStatus" role="status" aria-live="polite">Loading website…</p>
+        <div class="site-editor-visual-layout">
+          <section class="site-editor-live-preview" aria-label="Visual homepage editor">
+            <header><div><span class="module-chip">VISUAL CANVAS</span><strong id="siteCanvasInstruction">Click any text to edit it in place</strong></div><div class="site-canvas-actions"><button class="button button-lime site-page-edit-shortcut" id="editActiveSitePage" type="button" hidden>Edit this page <span aria-hidden="true">→</span></button><div class="site-canvas-devices" aria-label="Canvas width"><button class="is-active" type="button" data-canvas-device="desktop" aria-pressed="true">Desktop</button><button type="button" data-canvas-device="tablet" aria-pressed="false">Tablet</button><button type="button" data-canvas-device="mobile" aria-pressed="false">Mobile</button></div><button class="button button-quiet" id="expandSitePreview" type="button">Expand</button></div></header>
+            <div class="site-editor-live-browser"><span></span><span></span><span></span><b>legitbodyfix.com</b></div>
+            <div class="site-editor-canvas-stage" data-canvas-device="desktop"><iframe id="siteEditorLiveFrame" title="Editable homepage canvas" loading="eager"></iframe></div>
+            <p id="siteCanvasHelp"><strong>Editing mode is on.</strong> Links are disabled inside the canvas. Select a section to reveal its layout, image, and destination settings.</p>
+          </section>
+          <aside class="site-editor-inspector" aria-label="Selected section settings"><div class="site-editor-inspector-heading"><span class="module-chip">INSPECTOR</span><strong id="siteInspectorTitle">Page settings</strong><p id="siteInspectorHint">Select text or a section in the canvas.</p></div><section class="site-page-route" id="sitePageRoute" hidden><span class="module-chip">PAGE WORKSPACE</span><h3 id="sitePageRouteTitle">Edit this page</h3><p id="sitePageRouteCopy"></p><button class="button button-dark" id="openSitePageEditor" type="button">Open page editor <span aria-hidden="true">→</span></button><small id="sitePageRouteSafety"></small></section><form id="siteContentForm" class="site-content-groups" aria-label="Homepage section settings"></form></aside>
+        </div>
+        <div class="workspace-toolbar site-editor-toolbar">
+          <p><strong>Draft history</strong><span>Only needed when you want to step backward.</span></p>
+          <div class="site-history-actions"><button class="button button-quiet" id="undoSiteContent" type="button" disabled>Undo</button><button class="button button-quiet" id="redoSiteContent" type="button" disabled>Redo</button><button class="button button-quiet" id="resetSiteContent" type="button">Discard draft</button></div>
+        </div>
+        <div class="context-note site-editor-safety-note" role="note"><span aria-hidden="true">✓</span><p><strong>Protected settings stay protected.</strong> Payment amounts, buyer access, and secure video delivery remain server-controlled.</p></div>
+        <div class="site-insert-menu" id="siteInsertMenu" hidden role="dialog" aria-modal="false" aria-labelledby="siteInsertTitle"><div><span class="module-chip">INSERT SECTION</span><strong id="siteInsertTitle">What should come next?</strong><button class="site-insert-close" id="closeSiteInsertMenu" type="button" aria-label="Close section menu">×</button></div><div class="site-insert-options"><button type="button" data-insert-site-section="hero"><strong>Campaign hero</strong><small>Headline and action</small></button><button type="button" data-insert-site-section="split"><strong>Text + image</strong><small>Story beside a visual</small></button><button type="button" data-insert-site-section="benefits"><strong>Benefits</strong><small>Clear selling points</small></button><button type="button" data-insert-site-section="testimonials"><strong>Testimonials</strong><small>Customer proof</small></button><button type="button" data-insert-site-section="faq"><strong>FAQ</strong><small>Buyer questions</small></button><button type="button" data-insert-site-section="cta"><strong>Call to action</strong><small>Focused next step</small></button></div></div>
+      </section>
+
+      <section class="workspace-panel sales-workspace" id="sales" data-workspace-panel="sales" aria-labelledby="salesTitle" hidden>
+        <header class="page-heading">
+          <div><p class="eyebrow">Control Room / Sales</p><h1 id="salesTitle">Sales</h1><p class="lede">See who purchased each program, how much they paid, and the current payment status.</p></div>
+          <button class="button" id="refreshSales" type="button">Refresh sales</button>
+        </header>
+        <div class="summary sales-summary" aria-label="Sales summary" aria-live="polite">
+          <article><span>Collected</span><strong id="salesCollected">$0</strong><small>Completed payments</small></article>
+          <article><span>Purchases</span><strong id="salesCount">0</strong><small>Recorded orders</small></article>
+          <article class="summary-accent"><span>Customers</span><strong id="salesCustomers">0</strong><small>Unique buyer emails</small></article>
+        </div>
+        <div class="workspace-toolbar sales-toolbar">
+          <label class="video-search sales-search"><span class="sr-only">Search sales</span><input id="salesSearch" type="search" placeholder="Search buyer or product…" autocomplete="off" /></label>
+          <label class="field compact-field sales-filter"><span>Status</span><select id="salesStatusFilter"><option value="all">All payments</option><option value="completed">Completed</option><option value="refunded">Refunded</option><option value="refund_pending">Refund pending</option></select></label>
+        </div>
+        <p class="status" id="salesStatus" role="status" aria-live="polite">Sales load after you sign in.</p>
+        <div class="sales-table-shell">
+          <table class="sales-table">
+            <thead><tr><th>Buyer</th><th>Product</th><th>Paid</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody id="salesTableBody"></tbody>
+          </table>
+          <div class="sales-empty" id="salesEmpty" hidden><strong>No matching purchases.</strong><span>Try another search or payment status.</span></div>
+        </div>
+        <p class="sales-footnote">This is a read-only record of payments and buyer access. Payment changes are handled outside this dashboard.</p>
+      </section>
+
+      <section class="workspace-panel access-grant" id="buyer-access" data-workspace-panel="buyer-access" aria-labelledby="accessGrantTitle" hidden>
+        <header class="page-heading">
+          <div><p class="eyebrow">Control Room / Customers</p><h1 id="accessGrantTitle">Customer access</h1><p class="lede">Resolve access issues quickly. Only grant access after confirming the customer or an approved test account.</p></div>
+          <a class="button" href="library.html" target="_blank" rel="noopener">Open buyer library <span aria-hidden="true">↗</span></a>
+        </header>
+        <div class="customer-layout">
+          <section class="form-card" aria-labelledby="grantTitle"><div class="form-card-heading"><span class="step-badge">Manual support</span><h2 id="grantTitle">Grant program access</h2><p>This activates the selected program for the email below. It does not create a payment record.</p></div><form id="accessGrantForm" class="access-grant-form"><label class="field field-wide"><span>Customer email</span><input id="accessGrantEmail" type="email" autocomplete="email" maxlength="254" required placeholder="customer@example.com" /></label><label class="field field-wide"><span>Program</span><select id="accessGrantProgram" required><option value="neck-shoulder-reset">Full Body Restoration Package</option></select></label><button class="button button-dark field-wide" id="grantAccessButton" type="submit">Grant access <span aria-hidden="true">→</span></button></form><p class="access-grant-status" id="accessGrantStatus" role="status" aria-live="polite"></p></section>
+          <aside class="help-card"><p class="eyebrow">Before granting access</p><ol><li>Confirm the exact checkout email.</li><li>Verify the payment or support request.</li><li>Select the correct program.</li></ol><p>Customers sign in through a secure email link. No customer password is visible here.</p></aside>
+        </div>
+      </section>
+
+      <section class="workspace-panel video-workspace" id="video-library" data-workspace-panel="video-library" aria-labelledby="videoEditorTitle" hidden>
+        <header class="page-heading video-heading"><div><p class="eyebrow">Control Room / Videos</p><h1 id="videoEditorTitle">Video library</h1><p class="lede">Create sessions, upload protected videos, and decide what eligible buyers can watch.</p></div><div class="page-heading-actions"><span class="editor-save-state" id="videoEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button button-lime" id="publishChanges" type="button">Publish video changes <span aria-hidden="true">→</span></button></div></header>
+        <div class="workspace-toolbar video-toolbar" aria-label="Video editor actions"><div class="toolbar-group"><button class="button button-dark" id="addVideo" type="button">+ New session</button><label class="button" for="importJson">Import data</label><input id="importJson" type="file" accept="application/json,.json" hidden /></div><label class="video-search"><span class="sr-only">Search sessions</span><input id="videoSearch" type="search" placeholder="Search sessions…" autocomplete="off" /></label><div class="toolbar-group secondary-actions"><button class="button button-quiet" id="undoVideoChanges" type="button" disabled>Undo</button><button class="button button-quiet" id="redoVideoChanges" type="button" disabled>Redo</button><button class="button button-quiet" id="resetDraft" type="button">Discard draft</button><button class="button" id="downloadJson" type="button">Export data</button></div></div>
+        <div class="context-note stream-note" role="note"><span aria-hidden="true">▶</span><p><strong>Protected playback is active.</strong> Uploaded videos are processed by Cloudflare Stream and only play for signed-in buyers with access.</p></div>
+        <p class="status" id="editorStatus" role="status" aria-live="polite">Loading video data…</p>
+        <nav class="video-session-navigator" id="videoSessionNavigator" aria-label="Jump to a session"></nav>
+        <section class="editor-list" id="editorList" aria-label="Video sessions" aria-busy="true"></section>
+      </section>
+
+      <section class="workspace-panel knowledge-workspace" id="knowledge-base" data-workspace-panel="knowledge-base" aria-labelledby="knowledgeTitle" hidden>
+        <header class="page-heading knowledge-heading">
+          <div><p class="eyebrow">Control Room / Education</p><h1 id="knowledgeTitle">Movement guides</h1><p class="lede">Explain the why, build trust, and connect every public guide to the most relevant paid program.</p></div>
+          <div class="page-heading-actions"><span class="editor-save-state" id="knowledgeEditorSaveState" data-state="loading"><i></i><span>Loading</span></span><button class="button button-lime" id="publishKnowledge" type="button">Publish guides <span aria-hidden="true">&rarr;</span></button></div>
+        </header>
+        <div class="summary knowledge-summary" aria-label="Knowledge base summary" aria-live="polite">
+          <article><span>Patterns</span><strong id="conditionCount">0</strong><small>Questions visitors may recognize</small></article>
+          <article><span>Muscles</span><strong id="muscleCount">0</strong><small>Origin, insertion, actions, and images</small></article>
+          <article class="summary-accent"><span>Previews</span><strong id="recipeCount">0</strong><small>Program goals without full protocols</small></article>
+        </div>
+        <div class="workspace-toolbar knowledge-toolbar">
+          <div class="knowledge-tabs" role="tablist" aria-label="Knowledge record type">
+            <button class="is-active" type="button" role="tab" aria-selected="true" data-knowledge-type="conditions"><span>Movement patterns</span><b data-knowledge-tab-count="conditions">0</b></button>
+            <button type="button" role="tab" aria-selected="false" data-knowledge-type="muscles"><span>Muscle dictionary</span><b data-knowledge-tab-count="muscles">0</b></button>
+            <button type="button" role="tab" aria-selected="false" data-knowledge-type="recipes"><span>Correction recipes</span><b data-knowledge-tab-count="recipes">0</b></button>
+          </div>
+          <label class="video-search"><span class="sr-only">Search movement guides</span><input id="knowledgeSearch" type="search" placeholder="Search movement guides..." autocomplete="off" /></label>
+          <div class="toolbar-group"><button class="button button-dark" id="addKnowledgeRecord" type="button">+ New record</button><button class="button button-quiet" id="undoKnowledgeChanges" type="button" disabled>Undo</button><button class="button button-quiet" id="redoKnowledgeChanges" type="button" disabled>Redo</button><button class="button button-quiet" id="resetKnowledgeDraft" type="button">Discard draft</button></div>
+        </div>
+        <section class="admin-muscle-navigator" id="adminMuscleNavigator" hidden aria-labelledby="adminMuscleNavigatorTitle">
+          <div class="admin-muscle-navigator-heading"><div><span class="module-chip">Public-style navigator</span><h2 id="adminMuscleNavigatorTitle">Edit muscles by movement</h2></div><a class="button" href="knowledge.html?type=muscles" target="_blank" rel="noopener">Open public muscle browser &nearr;</a></div>
+          <p>Scan the image board first. Open only the muscle that needs a new image or a framing adjustment.</p>
+          <div class="admin-muscle-regions" id="adminMuscleRegions" role="group" aria-label="Filter muscle editors by body region"></div>
+          <div class="admin-muscle-actions" id="adminMuscleActions" role="group" aria-label="Filter muscle editors by movement action"></div>
+        </section>
+        <div class="context-note" role="note"><span aria-hidden="true">i</span><p><strong>Keep the complete method paid.</strong> Public guides should explain the problem and the reasoning, then direct readers to a related program. Drafts remain in this browser until published.</p></div>
+        <p class="status" id="knowledgeStatus" role="status" aria-live="polite">Loading knowledge base...</p>
+        <section class="knowledge-list" id="knowledgeList" aria-label="Knowledge records" aria-busy="true"></section>
+      </section>
+      <footer class="admin-footer"><span>LegitBodyFix Control Room</span><span>Draft → Preview → Publish</span></footer>
+    </div>
+  </main>
+
+  <template id="videoEditorTemplate">
+    <article class="video-editor">
+      <div class="editor-heading">
+        <div>
+          <span class="module-chip"></span>
+          <h3 class="editor-title"></h3>
+        </div>
+        <div class="row-actions" aria-label="Module actions">
+          <button class="icon-button move-up" type="button" aria-label="Move module up">↑</button>
+          <button class="icon-button move-down" type="button" aria-label="Move module down">↓</button>
+          <button class="icon-button danger remove-video" type="button" aria-label="Remove module">Remove</button>
+        </div>
+      </div>
+
+      <nav class="video-editor-tabs" aria-label="Session editor sections">
+        <button class="video-editor-tab is-active" type="button" data-editor-tab="details" aria-selected="true">Details</button>
+        <button class="video-editor-tab" type="button" data-editor-tab="sales" aria-selected="false">Sales page</button>
+        <button class="video-editor-tab" type="button" data-editor-tab="media" aria-selected="false">Media</button>
+      </nav>
+
+      <section class="video-editor-panel" data-editor-panel="details">
+        <div class="panel-intro"><div><span class="module-chip">Session details</span><h4>Organize this session</h4></div><p>These details appear across the public program and buyer library.</p></div>
+        <div class="form-grid">
+          <label class="field field-wide"><span>Title</span><input name="title" type="text" required maxlength="80" /></label>
+          <label class="field"><span>Level</span><select name="level"><option value="FOUNDATIONAL">Foundational</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></label>
+          <label class="field"><span>Duration (minutes)</span><input name="durationMinutes" type="number" required min="1" max="600" /></label>
+          <label class="field"><span>Equipment</span><input name="equipment" type="text" required maxlength="80" /></label>
+          <label class="field field-wide"><span>Description</span><textarea name="description" rows="3" maxlength="240"></textarea></label>
+          <label class="toggle-field"><input name="published" type="checkbox" /><span>Published on website</span></label>
+        </div>
+      </section>
+
+      <section class="video-editor-panel" data-editor-panel="sales" hidden>
+        <div class="panel-intro sales-panel-intro"><div><span class="module-chip">Sales page</span><h4>Turn interest into a purchase</h4></div><a class="button preview-sales-page" href="video.html" target="_blank" rel="noopener">Open full preview ↗</a></div>
+        <div class="sales-page-editor-layout">
+          <div class="form-grid sales-page-fields">
+            <label class="field"><span>Individual price (USD)</span><input name="price" type="number" min="0" max="999" step="0.01" placeholder="e.g. 12.00" /><span class="field-hint">Leave blank to sell only inside the full package.</span></label>
+            <label class="field"><span>Eyebrow</span><input name="landingEyebrow" type="text" maxlength="60" placeholder="Targeted movement session" /></label>
+            <label class="field field-wide"><span>Sales headline</span><input name="landingHeadline" type="text" maxlength="120" placeholder="Lead with the outcome" /></label>
+            <label class="field field-wide"><span>Sales summary</span><textarea name="landingSummary" rows="4" maxlength="360" placeholder="Explain the problem, the session, and the practical result."></textarea></label>
+            <div class="field field-wide editor-section-label"><span>Key benefits</span><span class="field-hint">Use three short, specific results a buyer can understand quickly.</span></div>
+            <label class="field field-wide"><span>Benefit 1</span><input name="landingBenefit1" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Benefit 2</span><input name="landingBenefit2" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Benefit 3</span><input name="landingBenefit3" type="text" maxlength="140" /></label>
+            <label class="field field-wide"><span>Who this is for</span><textarea name="landingAudience" rows="3" maxlength="300"></textarea></label>
+            <label class="field field-wide"><span>Purchase reassurance</span><textarea name="landingReassurance" rows="3" maxlength="240"></textarea></label>
+            <section class="sales-muscle-selector field-wide" aria-label="The muscles that matter">
+              <div class="sales-muscle-selector-heading">
+                <div><span>The muscles that matter</span><small>Select broad muscle groups, precise muscles, or both. Individual muscles already covered by a selected group will not be repeated on the sales page.</small></div>
+                <div class="sales-muscle-counts"><strong class="sales-muscle-group-count">0 / 4 groups</strong><strong class="sales-muscle-count">0 / 8 muscles</strong></div>
+              </div>
+              <label class="sales-muscle-search-label"><span class="sr-only">Search muscles</span><input class="sales-muscle-search" type="search" placeholder="Search by muscle, region, or family" autocomplete="off" /></label>
+              <div class="sales-muscle-section-heading"><span>Muscle groups</span><small>Use these for the broader anatomy story.</small></div>
+              <div class="sales-muscle-group-options" role="group" aria-label="Muscle groups featured on this sales page"></div>
+              <div class="sales-muscle-section-heading"><span>Individual muscles</span><small>Add named muscles when the distinction matters.</small></div>
+              <div class="sales-muscle-options" role="group" aria-label="Muscles featured on this sales page"></div>
+            </section>
+          </div>
+          <aside class="sales-page-preview-card" aria-label="Sales page content preview">
+            <div class="sales-preview-toolbar"><span>Live content preview</span><small>Updates as you type</small></div>
+            <div class="sales-preview-visual"><img class="sales-preview-image" alt="" hidden /><span class="sales-preview-image-empty">Thumbnail preview</span></div>
+            <div class="sales-preview-copy">
+              <span class="sales-preview-eyebrow"></span>
+              <h4 class="sales-preview-headline"></h4>
+              <p class="sales-preview-summary"></p>
+              <ul class="sales-preview-benefits"></ul>
+              <div class="sales-preview-muscles" hidden><span>The muscles that matter</span><div class="sales-preview-muscle-list"></div></div>
+              <div class="sales-preview-offer"><strong class="sales-preview-price"></strong><span>One-time access</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="video-editor-panel" data-editor-panel="media" hidden>
+        <div class="panel-intro"><div><span class="module-chip">Media</span><h4>Video and thumbnail</h4></div><p>Upload protected playback and choose the image customers see before opening the session.</p></div>
+        <div class="admin-media-preview" aria-label="Session media preview">
+        <section class="media-preview-card">
+          <div class="media-preview-heading"><span>Thumbnail preview</span><small>Customer card image</small></div>
+          <div class="thumbnail-preview-frame">
+            <img class="thumbnail-preview-image" alt="" hidden />
+            <p class="thumbnail-preview-empty">Add a thumbnail URL or upload an image to preview it here.</p>
+          </div>
+        </section>
+        <section class="media-preview-card stream-media-card" data-stream-state="empty">
+          <div class="media-preview-heading"><span>Protected video</span><small class="stream-media-badge" data-state="empty">Not uploaded</small></div>
+          <div class="stream-preview-frame">
+            <iframe class="stream-preview-player" title="Protected video preview" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin" allowfullscreen hidden></iframe>
+            <p class="stream-preview-empty">Upload a protected video to preview it here.</p>
+          </div>
+          <div class="media-preview-actions">
+            <button class="button button-dark preview-stream-video" type="button" disabled>No video uploaded</button>
+            <button class="button close-stream-preview" type="button" hidden>Close preview</button>
+            <span class="field-hint stream-preview-status">The player opens only when requested.</span>
+          </div>
+        </section>
+      </div>
+
+      <div class="form-grid">
+        <label class="field field-wide">
+          <span>Protected Stream video</span>
+          <span class="upload-row"><input class="stream-video-file" type="file" accept="video/mp4,video/webm,video/quicktime" aria-label="Choose a protected video file" /><button class="button button-dark upload-stream-video" type="button">Upload to Stream</button><button class="button check-stream-status" type="button">Check processing</button></span>
+          <span class="field-hint stream-status">No protected Stream video has been uploaded yet.</span>
+          <span class="field-hint">Videos stay private. Large files use resumable uploading.</span>
+        </label>
+        <label class="field field-wide"><span>Thumbnail URL</span><input name="thumbnailUrl" type="url" placeholder="https://…" /></label>
+        <label class="field field-wide">
+          <span>Upload thumbnail image</span>
+          <span class="upload-row"><input class="thumbnail-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose a thumbnail image" /><button class="button upload-thumbnail" type="button">Upload thumbnail</button></span>
+          <span class="field-hint">Use a landscape JPG, PNG, or WebP image up to 10 MB.</span>
+        </label>
+      </div>
+      </section>
+    </article>
+  </template>
+
+  <script src="assets/js/admin-interface.js?v=20260817-4" defer></script>
+  <script src="assets/js/site-editor.js?v=20260818-1" defer></script>
+  <script src="assets/js/admin-video-draft.js?v=20260802-2" defer></script>
+  <script src="assets/js/admin.js?v=20260817-1" defer></script>
+  <script src="assets/js/sales-admin.js?v=20260801-1" defer></script>
+  <script src="assets/js/knowledge-base-admin.js?v=20260817-5" defer></script>
+  <script>
+    // Mount the preserved control room below /ver1/admin while keeping its
+    // customer-facing destinations on the current domain.
+    document.querySelectorAll('a[href]').forEach(function (link) {
+      var href = link.getAttribute('href');
+      if (!href || href.charAt(0) === '#' || href.charAt(0) === '/') return;
+      if (href.indexOf('index.html') === 0) {
+        link.setAttribute('href', '/ver1' + href.slice('index.html'.length));
+      } else if (href.indexOf('.html') !== -1) {
+        link.setAttribute('href', '/' + href);
+      }
+    });
+  </script>
+</body>
+</html>
