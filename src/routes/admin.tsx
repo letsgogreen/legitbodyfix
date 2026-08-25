@@ -1,4 +1,4 @@
-import { Outlet, Link, createFileRoute, redirect } from "@tanstack/react-router";
+import { Outlet, Link, createFileRoute } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Dumbbell,
@@ -14,9 +14,6 @@ import {
 import { AdminAuthGate } from "@/components/admin/AdminAuthGate";
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: () => {
-    throw redirect({ href: "https://move-system-landing.lovable.app/admin" });
-  },
   head: () => ({
     meta: [
       { title: "Admin control room — LegitBodyFix" },
