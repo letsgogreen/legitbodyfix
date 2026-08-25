@@ -1,0 +1,27 @@
+INSERT INTO public.programs (slug, name, outcome, who_its_for, format, duration_label, level, regions, goals, stripe_product_id, stripe_price_lookup_key, entitlement_key, featured, featured_rank, published)
+VALUES
+  ('neck-shoulder-reset', 'Neck & Shoulder Reset',
+   'Reclaim comfortable overhead reach after long desk days.',
+   'Desk-based adults whose neck and shoulders feel guarded under load.',
+   'Guided progression', '4 weeks', 'Foundation',
+   ARRAY['head-neck','shoulder-arm'], ARRAY['Overhead reach','Postural endurance'],
+   'prod_V7vFxTPRN4xuFD', 'neck_shoulder_reset_onetime', 'program:neck-shoulder-reset', true, 1, true),
+  ('ankle-recovery', 'Ankle Recovery Program',
+   'Rebuild dorsiflexion, balance and load tolerance after an ankle setback.',
+   'Anyone returning to walking, running or squatting after an ankle injury.',
+   'Guided progression', '6 weeks', 'Return to load',
+   ARRAY['ankle-foot','knee'], ARRAY['Balance/weight shift','Gait','Squat'],
+   'prod_V7vFo1FJLBvqpD', 'ankle_recovery_onetime', 'program:ankle-recovery', true, 2, true),
+  ('shoulder-movement', 'Shoulder Movement Program',
+   'A full progression from range, to control, to loaded pressing.',
+   'Lifters whose pressing stalls because the shoulder loses position.',
+   'Guided progression', '6 weeks', 'Intermediate',
+   ARRAY['shoulder-arm','spine-ribs'], ARRAY['Overhead reach','Scapular control','Push'],
+   'prod_V7vFZyuhTVJz6e', 'shoulder_movement_onetime', 'program:shoulder-movement', true, 3, true),
+  ('bunion-hallux-valgus-guide', 'Bunion / Hallux Valgus Guide',
+   'Practical foot loading strategies for a big toe that limits your gait.',
+   'People whose big toe restricts push-off, balance or shoe comfort.',
+   'Digital guide', 'Self-paced', 'All levels',
+   ARRAY['ankle-foot'], ARRAY['Foot tripod/arch','Gait'],
+   'prod_V7vFVEwO7cjFYG', 'bunion_guide_onetime', 'program:bunion-guide', true, 4, true)
+ON CONFLICT (slug) DO NOTHING;
