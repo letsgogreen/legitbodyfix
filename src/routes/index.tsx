@@ -46,7 +46,7 @@ const differentiators = [
   },
 ];
 
-export function PhaseOneHomepage() {
+function PhaseOneHomepage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
