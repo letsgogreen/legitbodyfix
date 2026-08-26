@@ -28,14 +28,6 @@ export function SiteFooter() {
                   Programs
                 </a>
               </li>
-              <li>
-                <a
-                  href="/#method"
-                  className="rounded-sm hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  How it works
-                </a>
-              </li>
             </ul>
           </div>
 

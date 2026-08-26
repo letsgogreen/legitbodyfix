@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Route as RouteIcon, ScanSearch, Waypoints } from "lucide-react";
 import { BodyRegionGrid } from "@/components/site/BodyRegionGrid";
 import { FeaturedPrograms } from "@/components/site/FeaturedPrograms";
-import { HowItWorks } from "@/components/site/HowItWorks";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
 import heroImage from "@/assets/hero-training.jpg";
@@ -141,20 +140,6 @@ function PhaseOneHomepage() {
             </div>
             <div className="mt-10">
               <FeaturedPrograms />
-            </div>
-          </div>
-        </section>
-
-        <section id="method" className="scroll-mt-24 border-b border-border">
-          <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
-            <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-              HOW IT WORKS
-            </p>
-            <h2 className="mt-4 text-3xl font-extrabold uppercase sm:text-5xl">
-              Three steps. One clear direction.
-            </h2>
-            <div className="mt-10">
-              <HowItWorks />
             </div>
           </div>
         </section>
