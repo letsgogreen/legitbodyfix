@@ -4,7 +4,13 @@ import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 
 type AuthState = "loading" | "signed-out" | "forbidden" | "ready";
 
-export function AdminAuthGate({ children }: { children: ReactNode }) {
+export function AdminAuthGate({
+  children,
+  redirectPath = "/admin",
+}: {
+  children: ReactNode;
+  redirectPath?: string;
+}) {
   const [state, setState] = useState<AuthState>("loading");
   const [user, setUser] = useState<User>();
 
@@ -39,7 +45,7 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
       />
     );
   }
-  if (state === "signed-out") return <AdminSignIn />;
+  if (state === "signed-out") return <AdminSignIn redirectPath={redirectPath} />;
   if (state === "forbidden") {
     return (
       <AuthMessage
@@ -53,7 +59,7 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-function AdminSignIn() {
+function AdminSignIn({ redirectPath }: { redirectPath: string }) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -67,7 +73,7 @@ function AdminSignIn() {
     setMessage("");
     const { error } = await client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/admin` },
+      options: { emailRedirectTo: `${window.location.origin}${redirectPath}` },
     });
     setSubmitting(false);
     setMessage(error ? error.message : "Check your email for the secure sign-in link.");
