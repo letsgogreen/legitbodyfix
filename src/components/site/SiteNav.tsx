@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 const links = [
   { label: "Body regions", href: "/#regions" },
   { label: "Programs", href: "/#programs" },
+  { label: "How it works", href: "/#method" },
 ];
 
 export function SiteNav() {
