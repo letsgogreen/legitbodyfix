@@ -2,10 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Route as RouteIcon, ScanSearch, Waypoints } from "lucide-react";
 import { BodyRegionGrid } from "@/components/site/BodyRegionGrid";
 import { FeaturedPrograms } from "@/components/site/FeaturedPrograms";
+import { HeroBodyMap } from "@/components/site/HeroBodyMap";
 import { HowItWorks } from "@/components/site/HowItWorks";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
-import heroImage from "@/assets/hero-training.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,18 +52,31 @@ function PhaseOneHomepage() {
       <SiteNav />
 
       <main>
-        <section className="border-b border-border">
-          <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
+        <section className="overflow-hidden border-b border-border">
+          <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl items-center gap-12 px-5 py-14 lg:grid-cols-[minmax(0,0.92fr)_minmax(28rem,1.08fr)] lg:gap-8 lg:px-8 lg:py-20">
             <div className="min-w-0">
-              <span className="inline-block bg-accent px-2.5 py-1 font-mono text-[11px] font-bold tracking-[0.16em] text-accent-foreground">
-                MOVEMENT GUIDANCE FOR ACTIVE ADULTS
-              </span>
-              <h1 className="mt-6 text-5xl font-extrabold uppercase leading-[0.92] sm:text-6xl lg:text-7xl">
-                Move better with a plan.
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]">
+                Corrective movement. No fluff.
+              </p>
+              <h1 className="mt-8 text-[3.8rem] font-extrabold uppercase leading-[0.86] tracking-[-0.055em] sm:text-[6.5rem] lg:text-[7.1rem]">
+                <span className="block">Move</span>
+                <span className="block">better.</span>
+                <span
+                  className="block text-transparent"
+                  style={{ WebkitTextStroke: "2px currentColor" }}
+                >
+                  Hurt
+                </span>
+                <span
+                  className="block text-transparent"
+                  style={{ WebkitTextStroke: "2px currentColor" }}
+                >
+                  less.
+                </span>
               </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-                Choose what feels limited, check your starting point, and follow a focused program
-                built for your movement goal.
+              <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground">
+                Follow clear corrective exercise sessions that help you understand your body,
+                rebuild weak links, and move with confidence again.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -83,20 +96,8 @@ function PhaseOneHomepage() {
                 Clear guidance · Focused progressions · One-time purchase
               </p>
             </div>
-
-            <div className="relative">
-              <div className="aspect-[4/5] overflow-hidden rounded-sm bg-secondary">
-                <img
-                  src={heroImage}
-                  alt="Active adult training a loaded squat pattern in a bright studio"
-                  width={1024}
-                  height={1280}
-                  className="size-full object-cover"
-                />
-              </div>
-              <div className="absolute -bottom-4 left-4 bg-ink px-4 py-3 font-mono text-[11px] tracking-widest text-ink-foreground sm:left-6">
-                CHOOSE → CHECK → FOLLOW
-              </div>
+            <div className="mx-auto w-full max-w-lg min-w-0 lg:max-w-none">
+              <HeroBodyMap />
             </div>
           </div>
         </section>
