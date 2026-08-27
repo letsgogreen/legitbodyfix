@@ -33,7 +33,8 @@ async function cloudflare<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 function isAdmin(claims: unknown) {
-  return (claims as { app_metadata?: { is_admin?: boolean } }).app_metadata?.is_admin === true;
+  const adminClaims = claims as { email?: string; app_metadata?: { is_admin?: boolean } };
+  return adminClaims.app_metadata?.is_admin === true && adminClaims.email?.trim().toLowerCase() === "thriveinside@protonmail.com";
 }
 
 export type StreamLibraryVideo = {
