@@ -180,7 +180,220 @@
   body {
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     letter-spacing: -0.03em;
+  }
+}
+
+/* Restored from the approved pre-Lovable homepage (commit 2687042). */
+.original-hero-title .original-outline {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--color-foreground);
+}
+
+.original-body-map {
+  min-height: 550px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.original-body-map::before,
+.original-body-map::after {
+  content: "";
+  position: absolute;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+}
+
+.original-body-map::before {
+  width: min(92%, 520px);
+  aspect-ratio: 1;
+}
+
+.original-body-map::after {
+  width: min(72%, 405px);
+  aspect-ratio: 1;
+}
+
+.original-map-axis {
+  position: absolute;
+  width: 1px;
+  height: 86%;
+  background: var(--color-border);
+}
+
+.original-map-axis::before,
+.original-map-axis::after {
+  content: "";
+  position: absolute;
+  left: -235px;
+  width: 470px;
+  height: 1px;
+  background: var(--color-border);
+  opacity: 0.7;
+}
+
+.original-map-axis::before {
+  top: 25%;
+}
+.original-map-axis::after {
+  bottom: 23%;
+}
+
+.original-body-figure {
+  position: relative;
+  z-index: 2;
+  width: 200px;
+  height: 456px;
+  filter: drop-shadow(11px 13px 0 rgb(17 17 15 / 10%));
+}
+
+.original-body-figure > span {
+  position: absolute;
+}
+.original-head {
+  left: 72px;
+  top: 0;
+  width: 58px;
+  height: 65px;
+  background: currentColor;
+  border-radius: 49% 51% 43% 46%;
+}
+.original-torso {
+  left: 50px;
+  top: 64px;
+  width: 102px;
+  height: 190px;
+  background: currentColor;
+  clip-path: polygon(19% 0, 81% 0, 100% 100%, 0 100%);
+}
+.original-arm {
+  top: 74px;
+  width: 36px;
+  height: 205px;
+  background: currentColor;
+  transform-origin: top center;
+}
+.original-arm.original-left {
+  left: 23px;
+  transform: rotate(11deg);
+}
+.original-arm.original-right {
+  right: 23px;
+  transform: rotate(-11deg);
+}
+.original-leg {
+  bottom: 0;
+  width: 47px;
+  height: 214px;
+  background: currentColor;
+  transform-origin: top center;
+}
+.original-leg.original-left {
+  left: 52px;
+  transform: rotate(4deg);
+}
+.original-leg.original-right {
+  right: 52px;
+  transform: rotate(-4deg);
+}
+.original-joint {
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border: 5px solid #d5ff36;
+  border-radius: 50%;
+  background: currentColor;
+}
+.original-joint.original-shoulder {
+  left: 43px;
+  top: 81px;
+}
+.original-joint.original-hip {
+  left: 122px;
+  top: 234px;
+}
+.original-joint.original-knee {
+  left: 75px;
+  top: 348px;
+}
+.original-map-label {
+  position: absolute;
+  z-index: 4;
+  font:
+    600 11px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.original-map-shoulder {
+  left: 0;
+  top: 33%;
+}
+.original-map-hip {
+  right: 0;
+  top: 60%;
+}
+.original-map-knee {
+  left: 5%;
+  bottom: 13%;
+}
+.original-map-side-label {
+  position: absolute;
+  right: 1%;
+  top: 50%;
+  writing-mode: vertical-rl;
+  color: var(--color-muted-foreground);
+  font:
+    500 10px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.14em;
+}
+
+@media (max-width: 860px) {
+  .original-body-map {
+    min-height: 420px;
+    order: -1;
+  }
+  .original-body-figure {
+    transform: scale(0.78);
+  }
+  .original-map-label {
+    font-size: 9px;
+  }
+  .original-map-side-label {
+    right: 3%;
+  }
+}
+
+@media (max-width: 560px) {
+  .original-hero-title {
+    font-size: clamp(55px, 18vw, 84px);
+  }
+  .original-body-map {
+    min-height: 330px;
+    margin-inline: -8px;
+  }
+  .original-body-figure {
+    transform: scale(0.58);
+  }
+  .original-map-axis::before,
+  .original-map-axis::after {
+    left: -145px;
+    width: 290px;
+  }
+  .original-map-shoulder {
+    left: 4%;
+  }
+  .original-map-hip {
+    right: 2%;
   }
 }
