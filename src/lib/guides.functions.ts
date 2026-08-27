@@ -2,7 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 export type GuideMuscleLink = { id: string; name: string; group: string | null; role: string | null };
-export type GuideRecipeLink = { slug: string; title: string; goal: string | null };
+export type GuideRecipeLink = {
+  slug: string;
+  title: string;
+  goal: string | null;
+  summary: string | null;
+  image_url: string | null;
+  image_alt: string | null;
+};
 export type GuideProgramLink = { slug: string; name: string; outcome: string | null; published: boolean };
 
 /**
@@ -27,7 +34,7 @@ export const getPublishedGuide = createServerFn({ method: "GET" })
     const [recipeRows, muscleRows, programRows] = await Promise.all([
       supabaseAdmin
         .from("guide_recipes")
-        .select("recipes(slug,title,goal,published)")
+        .select("recipes(slug,title,goal,summary,image_url,image_alt,published)")
         .eq("guide_id", guide.id),
       supabaseAdmin
         .from("guide_muscles")
@@ -40,9 +47,9 @@ export const getPublishedGuide = createServerFn({ method: "GET" })
     ]);
 
     const recipes: GuideRecipeLink[] = (recipeRows.data ?? [])
-      .map((row) => row.recipes as unknown as { slug: string; title: string; goal: string | null; published: boolean } | null)
-      .filter((r): r is { slug: string; title: string; goal: string | null; published: boolean } => !!r && r.published)
-      .map(({ slug, title, goal }) => ({ slug, title, goal }));
+      .map((row) => row.recipes as unknown as (GuideRecipeLink & { published: boolean }) | null)
+      .filter((r): r is GuideRecipeLink & { published: boolean } => !!r && r.published)
+      .map(({ published: _published, ...recipe }) => recipe);
 
     const muscles: GuideMuscleLink[] = (muscleRows.data ?? [])
       .map((row) => {

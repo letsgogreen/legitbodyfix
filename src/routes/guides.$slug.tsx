@@ -122,21 +122,31 @@ function GuideDetail() {
             <div className="min-w-0">
               <h2 className="text-2xl font-extrabold uppercase">Exercise recipes</h2>
               {guide.recipes.length ? (
-                <ul className="mt-4 border-t border-border">
+                <ul className="mt-4 grid gap-4 sm:grid-cols-2">
                   {guide.recipes.map((recipe) => (
-                    <li key={recipe.slug} className="border-b border-border">
+                    <li key={recipe.slug} className="overflow-hidden rounded-sm border border-border bg-card">
                       <Link
                         to="/recipes/$slug"
                         params={{ slug: recipe.slug }}
-                        className="flex min-h-14 items-center justify-between gap-4 py-4 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="group block h-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
-                        <span>
-                          <span className="block text-sm font-bold">{recipe.title}</span>
+                        {recipe.image_url ? (
+                          <span className="block aspect-[16/9] overflow-hidden border-b border-border bg-secondary">
+                            <img
+                              src={recipe.image_url}
+                              alt={recipe.image_alt ?? recipe.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                            />
+                          </span>
+                        ) : null}
+                        <span className="flex min-h-28 flex-col p-4">
+                          <span className="block text-base font-bold">{recipe.title}</span>
                           {recipe.goal ? (
-                            <span className="block text-xs text-muted-foreground">{recipe.goal}</span>
+                            <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{recipe.goal}</span>
                           ) : null}
+                          <span className="mt-auto pt-4 font-mono text-[10px] uppercase tracking-[0.16em]">View recipe →</span>
                         </span>
-                        <span className="font-mono text-[10px] uppercase tracking-[0.16em]">View</span>
                       </Link>
                     </li>
                   ))}
