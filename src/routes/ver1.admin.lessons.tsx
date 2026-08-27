@@ -260,13 +260,14 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
     if (!title.trim()) { setError("Lesson title is required."); return; }
     setSaving(true);
     setError(null);
+    const parsedDuration = Number(duration);
     const payload = {
       program_id: programId,
       module_id: moduleId || null,
       title: title.trim(),
       slug: (slug || title).trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, ""),
       summary: summary.trim() || null,
-      duration_seconds: duration ? Number(duration) : null,
+      duration_seconds: duration && Number.isFinite(parsedDuration) && parsedDuration > 0 ? Math.round(parsedDuration) : null,
       video_path: videoPath || null,
       thumbnail_url: thumbnailUrl.trim() || null,
       position: Number(position) || nextPosition,
