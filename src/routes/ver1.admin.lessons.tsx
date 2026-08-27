@@ -169,6 +169,7 @@ function formatDuration(seconds: number | null) {
 }
 
 function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSaved }: { lesson: Lesson | null; programId: string; modules: Module[]; nextPosition: number; onClose: () => void; onSaved: () => Promise<void> }) {
+  const [savedLesson, setSavedLesson] = useState<Lesson | null>(lesson);
   const [title, setTitle] = useState(lesson?.title ?? "");
   const [slug, setSlug] = useState(lesson?.slug ?? "");
   const [summary, setSummary] = useState(lesson?.summary ?? "");
@@ -191,18 +192,45 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
   const [thumbnailTime, setThumbnailTime] = useState("0");
   const [thumbnailRevision, setThumbnailRevision] = useState(0);
 
+  const lessonPayload = (publish = published) => ({
+    program_id: programId,
+    module_id: moduleId || null,
+    title: title.trim(),
+    slug: (slug || title).trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, ""),
+    summary: summary.trim() || null,
+    duration_seconds: duration ? Number(duration) : null,
+    video_path: videoPath || null,
+    thumbnail_url: thumbnailUrl.trim() || null,
+    position: Number(position) || nextPosition,
+    published: publish,
+    preview_free: previewFree,
+  });
+
+  const ensureSavedLesson = async () => {
+    if (savedLesson) return savedLesson;
+    if (!title.trim()) { setError("Enter a lesson title before adding a video."); return null; }
+    setSaving(true);
+    setError(null);
+    const result = await supabase.from("lessons").insert(lessonPayload(false)).select("*").single();
+    setSaving(false);
+    if (result.error || !result.data) { setError(result.error?.message ?? "Could not create the lesson draft."); return null; }
+    setSavedLesson(result.data);
+    return result.data;
+  };
+
   const uploadVideo = async (file: File) => {
-    if (!lesson) { setError("Save the lesson before uploading its video."); return; }
+    const currentLesson = await ensureSavedLesson();
+    if (!currentLesson) return;
     setUploading(true);
     setUploadProgress(0);
     setError(null);
     try {
-      const upload = await createStreamTusUpload({ data: { lessonId: lesson.id, fileName: file.name, fileSize: file.size, maxDurationSeconds: 7200 } });
+      const upload = await createStreamTusUpload({ data: { lessonId: currentLesson.id, fileName: file.name, fileSize: file.size, maxDurationSeconds: 7200 } });
       setStreamUid(upload.uid);
       setStreamStatus("uploading");
       await uploadTusFile(upload.uploadURL, file, setUploadProgress);
       setStreamStatus("processing");
-      const refreshed = await refreshStreamVideo({ data: { lessonId: lesson.id } });
+      const refreshed = await refreshStreamVideo({ data: { lessonId: currentLesson.id } });
       setStreamStatus(refreshed.status);
       if (refreshed.thumbnailUrl) setThumbnailUrl(refreshed.thumbnailUrl);
     } catch (cause) {
@@ -212,19 +240,19 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
   };
 
   const previewVideo = async () => {
-    if (!lesson || !streamUid) return;
+    if (!savedLesson || !streamUid) return;
     try {
-      const playback = await getStreamPlayback({ data: { lessonId: lesson.id } });
+      const playback = await getStreamPlayback({ data: { lessonId: savedLesson.id } });
       setPreviewUrl(playback.iframeUrl);
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
   };
 
   const useVideoFrame = async () => {
-    if (!lesson || !streamUid) { setError("Save the lesson and attach a Stream video first."); return; }
+    if (!savedLesson || !streamUid) { setError("Save the lesson and attach a Stream video first."); return; }
     setSaving(true);
     setError(null);
     try {
-      const result = await setStreamThumbnailFrame({ data: { lessonId: lesson.id, timeSeconds: Math.max(0, Number(thumbnailTime) || 0) } });
+      const result = await setStreamThumbnailFrame({ data: { lessonId: savedLesson.id, timeSeconds: Math.max(0, Number(thumbnailTime) || 0) } });
       if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl);
       setThumbnailRevision((current) => current + 1);
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
@@ -232,7 +260,8 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
   };
 
   const openStreamLibrary = async () => {
-    if (!lesson) { setError("Save the lesson before attaching a video."); return; }
+    const currentLesson = await ensureSavedLesson();
+    if (!currentLesson) return;
     setUploading(true);
     setError(null);
     try {
@@ -243,11 +272,11 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
   };
 
   const attachExisting = async (video: StreamLibraryVideo) => {
-    if (!lesson) return;
+    if (!savedLesson) return;
     setUploading(true);
     setError(null);
     try {
-      const result = await attachStreamVideo({ data: { lessonId: lesson.id, streamUid: video.uid } });
+      const result = await attachStreamVideo({ data: { lessonId: savedLesson.id, streamUid: video.uid } });
       setStreamUid(video.uid);
       setStreamStatus(result.status);
       if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl);
@@ -260,20 +289,8 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
     if (!title.trim()) { setError("Lesson title is required."); return; }
     setSaving(true);
     setError(null);
-    const payload = {
-      program_id: programId,
-      module_id: moduleId || null,
-      title: title.trim(),
-      slug: (slug || title).trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, ""),
-      summary: summary.trim() || null,
-      duration_seconds: duration ? Number(duration) : null,
-      video_path: videoPath || null,
-      thumbnail_url: thumbnailUrl.trim() || null,
-      position: Number(position) || nextPosition,
-      published,
-      preview_free: previewFree,
-    };
-    const result = lesson ? await supabase.from("lessons").update(payload).eq("id", lesson.id) : await supabase.from("lessons").insert(payload);
+    const payload = lessonPayload();
+    const result = savedLesson ? await supabase.from("lessons").update(payload).eq("id", savedLesson.id) : await supabase.from("lessons").insert(payload);
     if (result.error) { setError(result.error.message); setSaving(false); return; }
     await onSaved();
   };
@@ -290,14 +307,14 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
           <label className="block"><Label>Lesson summary</Label><textarea rows={3} value={summary} onChange={(event) => setSummary(event.target.value)} className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm" /></label>
           <div className="border border-border bg-card p-4">
             <Label>Cloudflare Stream video</Label>
-            <div className="mt-2 flex flex-wrap items-center gap-2"><label className={`inline-flex items-center rounded-sm bg-ink px-3 py-2 text-xs font-bold text-ink-foreground ${!lesson || uploading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}><Upload className="mr-1.5 h-4 w-4" />{uploading ? `Uploading ${uploadProgress}%` : "Upload to Stream"}<input type="file" accept="video/mp4,video/webm,video/quicktime" disabled={!lesson || uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadVideo(file); }} className="sr-only" /></label><Btn disabled={!lesson || uploading} onClick={() => void openStreamLibrary()}>Choose existing video</Btn>{streamUid && <Btn onClick={() => void previewVideo()} disabled={streamStatus !== "ready"}>Secure preview</Btn>}{lesson && streamUid && streamStatus !== "ready" && <Btn onClick={async () => { try { const result = await refreshStreamVideo({ data: { lessonId: lesson.id } }); setStreamStatus(result.status); if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl); } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); } }}>Refresh status</Btn>}</div>
+            <div className="mt-2 flex flex-wrap items-center gap-2"><label className={`inline-flex items-center rounded-sm bg-ink px-3 py-2 text-xs font-bold text-ink-foreground ${!title.trim() || saving || uploading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}><Upload className="mr-1.5 h-4 w-4" />{uploading ? `Uploading ${uploadProgress}%` : saving && !savedLesson ? "Creating draft…" : "Upload to Stream"}<input type="file" accept="video/mp4,video/webm,video/quicktime" disabled={!title.trim() || saving || uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadVideo(file); event.currentTarget.value = ""; }} className="sr-only" /></label><Btn disabled={!title.trim() || saving || uploading} onClick={() => void openStreamLibrary()}>Choose existing video</Btn>{streamUid && <Btn onClick={() => void previewVideo()} disabled={streamStatus !== "ready"}>Secure preview</Btn>}{savedLesson && streamUid && streamStatus !== "ready" && <Btn onClick={async () => { try { const result = await refreshStreamVideo({ data: { lessonId: savedLesson.id } }); setStreamStatus(result.status); if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl); } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); } }}>Refresh status</Btn>}</div>
             {uploading && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full bg-accent transition-[width]" style={{ width: `${uploadProgress}%` }} /></div>}
-            <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{streamUid ? `${streamStatus} · ${streamUid}` : lesson ? "No Stream video uploaded" : "Save this lesson to enable upload"}</p>
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{streamUid ? `${streamStatus} · ${streamUid}` : savedLesson ? "No Stream video uploaded" : title.trim() ? "Uploading will save this lesson as a draft automatically" : "Enter a lesson title to enable upload"}</p>
             {videoPath && <p className="mt-2 break-all font-mono text-[10px] text-muted-foreground">Legacy Storage file retained: {videoPath}</p>}
             {showStreamLibrary && <div className="mt-4 max-h-72 overflow-y-auto border border-border bg-background"><div className="sticky top-0 flex items-center justify-between border-b border-border bg-background px-3 py-2"><span className="font-mono text-[10px] uppercase tracking-[0.12em]">Cloudflare library · {streamLibrary.length}</span><button type="button" onClick={() => setShowStreamLibrary(false)} aria-label="Close Stream library"><X className="h-4 w-4" /></button></div>{streamLibrary.map((video) => <button key={video.uid} type="button" disabled={!video.ready || !video.signed || uploading} onClick={() => void attachExisting(video)} className="flex w-full items-center gap-3 border-b border-border/70 p-3 text-left last:border-b-0 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-45">{video.thumbnail ? <img src={video.thumbnail} alt="" className="h-14 w-24 rounded-sm object-cover" /> : <div className="grid h-14 w-24 place-items-center bg-secondary"><FileVideo className="h-4 w-4" /></div>}<span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{video.name}</span><span className="mt-1 block font-mono text-[10px] text-muted-foreground">{formatDuration(video.durationSeconds)} · {video.ready ? "ready" : "processing"} · {video.signed ? "private" : "public"}</span></span></button>)}</div>}
             {previewUrl && <div className="mt-4 overflow-hidden border border-border bg-black"><div className="flex items-center justify-between bg-background px-3 py-2"><span className="text-xs font-bold">Secure lesson preview</span><button type="button" onClick={() => setPreviewUrl("")} aria-label="Close preview"><X className="h-4 w-4" /></button></div><div className="aspect-video"><iframe src={previewUrl} title={`${title || "Lesson"} preview`} allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0" /></div></div>}
           </div>
-          <div className="border border-border bg-card p-4"><Label>Video thumbnail</Label>{thumbnailUrl && <img src={`${thumbnailUrl}${thumbnailUrl.includes("?") ? "&" : "?"}preview=${thumbnailRevision}`} alt="Selected lesson thumbnail" className="mb-3 aspect-video w-full rounded-sm border border-border bg-white object-contain" />}<Field label="Thumbnail URL" value={thumbnailUrl} onChange={setThumbnailUrl} /><div className="mt-3 flex items-end gap-2"><div className="min-w-0 flex-1"><Field label="Frame time (seconds)" value={thumbnailTime} onChange={setThumbnailTime} type="number" /></div><Btn disabled={!lesson || !streamUid || saving} onClick={() => void useVideoFrame()}>Use this frame</Btn></div><p className="mt-2 text-[11px] text-muted-foreground">Enter a timestamp to set Cloudflare Stream's persistent default thumbnail for this video.</p></div>
+          <div className="border border-border bg-card p-4"><Label>Video thumbnail</Label>{thumbnailUrl && <img src={`${thumbnailUrl}${thumbnailUrl.includes("?") ? "&" : "?"}preview=${thumbnailRevision}`} alt="Selected lesson thumbnail" className="mb-3 aspect-video w-full rounded-sm border border-border bg-white object-contain" />}<Field label="Thumbnail URL" value={thumbnailUrl} onChange={setThumbnailUrl} /><div className="mt-3 flex items-end gap-2"><div className="min-w-0 flex-1"><Field label="Frame time (seconds)" value={thumbnailTime} onChange={setThumbnailTime} type="number" /></div><Btn disabled={!savedLesson || !streamUid || saving} onClick={() => void useVideoFrame()}>Use this frame</Btn></div><p className="mt-2 text-[11px] text-muted-foreground">Enter a timestamp to set Cloudflare Stream's persistent default thumbnail for this video.</p></div>
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3"><Toggle label="Publish lesson" checked={published} onChange={setPublished} /><Toggle label="Free preview" checked={previewFree} onChange={setPreviewFree} /></div>
           {error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
         </div>
