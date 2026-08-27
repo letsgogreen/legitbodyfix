@@ -340,18 +340,18 @@ function RecipeReview() {
         <div className="space-y-4">
           <Panel className="overflow-hidden">
             {record.image_url ? (
-              <img
+              <div className="grid min-h-72 place-items-center bg-secondary/30 p-4"><img
                 src={record.image_url}
                 alt={record.image_alt ?? record.title}
-                className="w-full object-cover"
-              />
+                className="max-h-[32rem] w-full object-contain"
+              /></div>
             ) : (
-              <div className="grid h-40 place-items-center text-xs text-muted-foreground">
+              <div className="grid h-72 place-items-center text-xs text-muted-foreground">
                 No cover image
               </div>
             )}
             <div className="border-t border-border p-3 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              {record.progression_level ?? "no level"} ·{" "}
+              {record.image_url ? (record.image_url.includes("supabase") ? "permanent storage" : "external URL — verify/re-host") : "missing image"} · {record.progression_level ?? "no level"} ·{" "}
               {record.session_minutes ? `${record.session_minutes} min` : "no duration"}
             </div>
           </Panel>

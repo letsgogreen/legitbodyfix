@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileUp, Search } from "lucide-react";
-import { PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { FileUp, Plus, Search } from "lucide-react";
+import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -51,6 +51,7 @@ export function koreanFieldsOf(row: {
 }
 
 function AdminRecipes() {
+  const navigate = useNavigate();
   const [rows, setRows] = useState<Row[]>([]);
   const [query, setQuery] = useState("");
   const [state, setState] = useState("Loading recipes…");
@@ -82,18 +83,29 @@ function AdminRecipes() {
 
   const publishedCount = rows.filter((row) => row.published).length;
 
+  async function createRecipe() {
+    const suffix = Date.now().toString(36);
+    const { data, error } = await supabase
+      .from("recipes")
+      .insert({ title: "Untitled recipe", slug: `untitled-recipe-${suffix}`, review_status: "draft" })
+      .select("id")
+      .single();
+    if (error || !data) { setState(`Could not create recipe: ${error?.message ?? "unknown error"}`); return; }
+    await navigate({ to: "/ver1/admin/recipes/$recipeId", params: { recipeId: data.id } });
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
         title="Recipe library"
         meta={`${publishedCount} published · ${rows.length - publishedCount} in review`}
         actions={
-          <Link
+          <><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New recipe</Btn><Link
             to="/ver1/admin/recipes/import"
             className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-background px-3 py-2 text-xs font-bold"
           >
             <FileUp className="h-3.5 w-3.5" aria-hidden="true" /> Notion import
-          </Link>
+          </Link></>
         }
       />
 
