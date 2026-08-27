@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, Check, Loader2, RefreshCw } from "lucide-react";
+import { AlertTriangle, Check, ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import {
   getIntegrationReadiness,
@@ -246,6 +246,34 @@ function IntegrationPanel({ integrations }: { integrations: IntegrationReadiness
     { label: "Stream webhook", ready: integrations.streamWebhook },
   ];
   const missing = items.filter((item) => !item.ready).length;
+  const setupItems = [
+    ...(!integrations.stripeCheckout
+      ? [
+          {
+            key: "STRIPE_API_KEY",
+            source: "Stripe Dashboard → Developers → API keys → Secret key",
+          },
+        ]
+      : []),
+    ...(!integrations.stripeWebhook
+      ? [
+          {
+            key: "STRIPE_WEBHOOK_SECRET",
+            source: "Stripe webhook signing secret",
+            endpoint: "https://www.legitbodyfix.com/api/stripe-webhook",
+          },
+        ]
+      : []),
+    ...(!integrations.streamWebhook
+      ? [
+          {
+            key: "CLOUDFLARE_STREAM_WEBHOOK_SECRET",
+            source: "Cloudflare Stream webhook signing secret",
+            endpoint: "https://www.legitbodyfix.com/api/cloudflare-stream-webhook",
+          },
+        ]
+      : []),
+  ];
   return (
     <Panel
       className={`mt-5 p-4 ${missing ? "border-destructive/40 bg-destructive/5" : "bg-accent/10"}`}
@@ -279,6 +307,40 @@ function IntegrationPanel({ integrations }: { integrations: IntegrationReadiness
           ))}
         </div>
       </div>
+      {setupItems.length > 0 && (
+        <div className="mt-4 border-t border-border/70 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-extrabold">Finish setup in Vercel</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Add these as Production environment variables, then redeploy. Never paste their
+                values into source code.
+              </p>
+            </div>
+            <a
+              href="https://vercel.com/legitbodyfix/legitbodyfix/settings/environment-variables"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-9 items-center gap-1.5 border border-border bg-background px-3 text-xs font-bold"
+            >
+              Open Vercel settings <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+          <div className="mt-3 grid gap-2 lg:grid-cols-3">
+            {setupItems.map((item) => (
+              <div key={item.key} className="border border-border bg-background p-3">
+                <p className="break-all font-mono text-[11px] font-bold">{item.key}</p>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.source}</p>
+                {item.endpoint && (
+                  <p className="mt-2 break-all border-t border-border/70 pt-2 font-mono text-[10px] leading-4 text-muted-foreground">
+                    Endpoint: {item.endpoint}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </Panel>
   );
 }
