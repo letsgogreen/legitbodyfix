@@ -100,6 +100,7 @@ function MuscleEditor() {
   const [record, setRecord] = useState<EditableMuscle>({ ...fallback, version: 1 });
   const [status, setStatus] = useState("Loading database record…");
   const [saving, setSaving] = useState(false);
+  const [relationshipCounts, setRelationshipCounts] = useState({ guides: 0, recipes: 0 });
 
   useEffect(() => {
     const client = getSupabaseClient();
@@ -108,19 +109,28 @@ function MuscleEditor() {
       return;
     }
 
-    void client
-      .from("muscles")
-      .select("*")
-      .eq("id", fallback.id)
-      .single()
-      .then(({ data, error }) => {
-        if (error || !data) {
-          setStatus("Database record unavailable. Run the verified muscle import first.");
-          return;
-        }
-        setRecord(fromDatabase(data));
-        setStatus(`Version ${data.version} loaded from Supabase.`);
+    void Promise.all([
+      client.from("muscles").select("*").eq("id", fallback.id).single(),
+      client
+        .from("guide_muscles")
+        .select("guide_id", { count: "exact", head: true })
+        .eq("muscle_id", fallback.id),
+      client
+        .from("recipe_muscles")
+        .select("recipe_id", { count: "exact", head: true })
+        .eq("muscle_id", fallback.id),
+    ]).then(([{ data, error }, guideResult, recipeResult]) => {
+      if (error || !data) {
+        setStatus("Database record unavailable. Run the verified muscle import first.");
+        return;
+      }
+      setRecord(fromDatabase(data));
+      setRelationshipCounts({
+        guides: guideResult.count ?? 0,
+        recipes: recipeResult.count ?? 0,
       });
+      setStatus(`Version ${data.version} loaded from Supabase.`);
+    });
   }, [fallback.id]);
 
   function setField<K extends keyof EditableMuscle>(field: K, value: EditableMuscle[K]) {
@@ -206,6 +216,33 @@ function MuscleEditor() {
           ) : (
             <p className="text-sm font-bold">All required fields are ready for final review.</p>
           )}
+        </div>
+      </Panel>
+
+      <Panel className="mt-4 grid gap-4 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            Content relationships
+          </p>
+          <p className="mt-2 text-sm leading-6">
+            Connected to <strong>{relationshipCounts.guides} guides</strong> and{" "}
+            <strong>{relationshipCounts.recipes} recipes</strong>. Published connections appear
+            automatically on this muscle's public page; programs inherit through those links.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            to="/ver1/admin/guides"
+            className="inline-flex min-h-10 items-center rounded-sm border border-border px-3 text-xs font-bold"
+          >
+            Manage guides
+          </Link>
+          <Link
+            to="/ver1/admin/recipes"
+            className="inline-flex min-h-10 items-center rounded-sm border border-border px-3 text-xs font-bold"
+          >
+            Manage recipes
+          </Link>
         </div>
       </Panel>
 
