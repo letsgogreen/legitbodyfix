@@ -16,6 +16,8 @@ export type Muscle = {
   sourceUrl: string;
   relatedVideoIds: string;
   published: boolean;
+  reviewStatus?: string;
+  imageStatus?: string;
   bodyMap?: string | undefined;
   functionalRoles?: string[] | undefined;
   cardImagePosition?: string | undefined;
@@ -37,7 +39,7 @@ export function findFixtureMuscle(id: string | undefined) {
 
 /** Columns selected from the `muscles` table for both public and admin reads. */
 export const MUSCLE_COLUMNS =
-  "id,name,anatomical_group,muscle_family,origin,insertion,functions,description,image_url,image_alt,image_credit,image_source_url,source_name,source_url,body_map,related_video_ids,published,crop_x,crop_y,crop_zoom";
+  "id,name,anatomical_group,muscle_family,origin,insertion,functions,description,image_url,image_alt,image_credit,image_source_url,source_name,source_url,body_map,related_video_ids,published,review_status,image_status,crop_x,crop_y,crop_zoom";
 
 export type MuscleRow = {
   id: string;
@@ -57,6 +59,8 @@ export type MuscleRow = {
   body_map: string | null;
   related_video_ids: string | null;
   published: boolean;
+  review_status?: string | null;
+  image_status?: string | null;
   crop_x?: number | null;
   crop_y?: number | null;
   crop_zoom?: number | null;
@@ -81,6 +85,8 @@ export function muscleFromRow(row: MuscleRow): Muscle {
     sourceUrl: row.source_url ?? "",
     relatedVideoIds: row.related_video_ids ?? "",
     published: row.published,
+    reviewStatus: row.review_status ?? "draft",
+    imageStatus: row.image_status ?? (row.image_url ? "pending" : "missing"),
     bodyMap: row.body_map ?? undefined,
     functionalRoles: row.functions ?? undefined,
     cardImagePosition:
@@ -89,6 +95,42 @@ export function muscleFromRow(row: MuscleRow): Muscle {
         : undefined,
     cardImageScale: row.crop_zoom ?? undefined,
   };
+}
+
+export type MuscleReadiness = {
+  key: "live" | "ready" | "image" | "anatomy";
+  label: string;
+  issues: string[];
+};
+
+export function getMuscleReadiness(muscle: Muscle): MuscleReadiness {
+  if (muscle.published) return { key: "live", label: "Live", issues: [] };
+
+  const anatomyIssues = [
+    !muscle.title.trim() && "name",
+    (!muscle.group.trim() || muscle.group === "Unassigned") && "anatomical group",
+    !muscle.origin.trim() && "origin",
+    !muscle.insertion.trim() && "insertion",
+    !muscle.actions.trim() && "function",
+    !muscle.sourceName.trim() && "anatomy source",
+    !muscle.sourceUrl.trim() && "source URL",
+  ].filter((value): value is string => Boolean(value));
+
+  const imageIssues = [
+    !muscle.imageUrl.trim() && "image",
+    !muscle.imageAlt.trim() && "alt text",
+    !muscle.imageCredit.trim() && "image credit",
+    (muscle.imageStatus ?? (muscle.imageUrl ? "pending" : "missing")) !== "approved" &&
+      "image approval",
+  ].filter((value): value is string => Boolean(value));
+
+  if (imageIssues.length > 0) {
+    return { key: "image", label: "Image review", issues: imageIssues };
+  }
+  if (anatomyIssues.length > 0) {
+    return { key: "anatomy", label: "Anatomy review", issues: anatomyIssues };
+  }
+  return { key: "ready", label: "Ready to publish", issues: [] };
 }
 
 export function groupsOf(list: readonly Muscle[]) {
@@ -137,9 +179,9 @@ export function warnOnFixtureMismatch(
   const missingInFixture = [...live].filter((id) => !fixtureIds.has(id));
 
   if (missingInDb.length || missingInFixture.length) {
-    console.warn(
-      `[muscles] ${context}: Supabase and the bundled fixture disagree.`,
-      { onlyInFixture: missingInDb.slice(0, 10), onlyInDatabase: missingInFixture.slice(0, 10) },
-    );
+    console.warn(`[muscles] ${context}: Supabase and the bundled fixture disagree.`, {
+      onlyInFixture: missingInDb.slice(0, 10),
+      onlyInDatabase: missingInFixture.slice(0, 10),
+    });
   }
 }
