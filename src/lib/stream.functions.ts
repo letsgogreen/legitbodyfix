@@ -168,7 +168,11 @@ export const setStreamThumbnailFrame = createServerFn({ method: "POST" })
       body: JSON.stringify({ thumbnailTimestampPct }),
     });
     const thumbnailUrl = video.thumbnail ?? null;
-    const { error: updateError } = await context.supabase.from("lessons").update({ thumbnail_url: thumbnailUrl, stream_thumbnail_url: thumbnailUrl }).eq("id", data.lessonId);
+    const { error: updateError } = await context.supabase.from("lessons").update({
+      thumbnail_url: thumbnailUrl,
+      stream_thumbnail_url: thumbnailUrl,
+      duration_seconds: Math.max(1, Math.round(duration)),
+    }).eq("id", data.lessonId);
     if (updateError) throw new Error(updateError.message);
     return { thumbnailUrl, timeSeconds: Math.round(thumbnailTimestampPct * duration) };
   });
