@@ -4,6 +4,9 @@ import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 
 type AuthState = "loading" | "signed-out" | "forbidden" | "ready";
 
+const VER1_AUTH_BRIDGE_URL =
+  "https://move-system-landing.lovable.app/auth/callback?target=ver1";
+
 export function AdminAuthGate({
   children,
   redirectPath = "/admin",
@@ -71,9 +74,13 @@ function AdminSignIn({ redirectPath }: { redirectPath: string }) {
 
     setSubmitting(true);
     setMessage("");
+    const emailRedirectTo = redirectPath.startsWith("/ver1/admin")
+      ? VER1_AUTH_BRIDGE_URL
+      : `${window.location.origin}${redirectPath}`;
+
     const { error } = await client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}${redirectPath}` },
+      options: { emailRedirectTo },
     });
     setSubmitting(false);
     setMessage(error ? error.message : "Check your email for the secure sign-in link.");
