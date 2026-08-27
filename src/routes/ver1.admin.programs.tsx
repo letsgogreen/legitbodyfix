@@ -1,14 +1,55 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { X } from "lucide-react";
+import { Loader2, Plus, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
-import { programs, type Program } from "@/lib/admin-mock";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type ProgramRow = Database["public"]["Tables"]["programs"]["Row"];
+type ProgramDraft = {
+  id?: string;
+  name: string;
+  slug: string;
+  outcome: string;
+  who_its_for: string;
+  format: string;
+  duration_label: string;
+  level: string;
+  regions: string;
+  goals: string;
+  stripe_price_lookup_key: string;
+  entitlement_key: string;
+  image_url: string;
+  image_alt: string;
+  featured: boolean;
+  featured_rank: string;
+  published: boolean;
+};
+
+const emptyDraft: ProgramDraft = {
+  name: "",
+  slug: "",
+  outcome: "",
+  who_its_for: "",
+  format: "On-demand video program",
+  duration_label: "",
+  level: "Foundational",
+  regions: "",
+  goals: "",
+  stripe_price_lookup_key: "",
+  entitlement_key: "",
+  image_url: "",
+  image_alt: "",
+  featured: false,
+  featured_rank: "",
+  published: false,
+};
 
 export const Route = createFileRoute("/ver1/admin/programs")({
   head: () => ({
     meta: [
       { title: "Programs — LegitBodyFix Admin" },
-      { name: "description", content: "Mock list of LegitBodyFix programs with status and price." },
+      { name: "description", content: "Manage live LegitBodyFix programs." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -16,158 +57,173 @@ export const Route = createFileRoute("/ver1/admin/programs")({
 });
 
 function ProgramsView() {
-  const [editing, setEditing] = useState<Program | null>(null);
+  const [programs, setPrograms] = useState<ProgramRow[]>([]);
+  const [editing, setEditing] = useState<ProgramDraft | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadPrograms = async () => {
+    setLoading(true);
+    setError(null);
+    const { data, error: readError } = await supabase
+      .from("programs")
+      .select("*")
+      .order("featured_rank", { ascending: true, nullsFirst: false })
+      .order("updated_at", { ascending: false });
+    if (readError) setError(readError.message);
+    else setPrograms(data ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void loadPrograms();
+  }, []);
+
+  const liveCount = useMemo(() => programs.filter((program) => program.published).length, [programs]);
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
       <PageHead
         title="Programs"
-        meta={`${programs.length} programs · mock data`}
-        actions={<Btn variant="ink">New program</Btn>}
+        meta={`${programs.length} programs · ${liveCount} published · live Supabase data`}
+        actions={
+          <Btn variant="ink" onClick={() => setEditing({ ...emptyDraft })}>
+            <Plus className="mr-1.5 h-4 w-4" /> New program
+          </Btn>
+        }
       />
 
+      {error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">Could not load programs: {error}</div>}
+
       <Panel className="mt-5 overflow-x-auto">
-        <table className="w-full min-w-[720px] text-sm">
-          <thead>
-            <tr>
-              <Th>Program</Th>
-              <Th>Region</Th>
-              <Th className="text-right">Price</Th>
-              <Th className="text-right">Lessons</Th>
-              <Th>Status</Th>
-              <Th>Updated</Th>
-              <Th />
-            </tr>
-          </thead>
-          <tbody>
-            {programs.map((p) => (
-              <tr key={p.id} className="hover:bg-secondary/50">
-                <Td className="font-medium">{p.title}</Td>
-                <Td className="text-muted-foreground">{p.region}</Td>
-                <Td className="text-right font-mono text-xs">${p.price}</Td>
-                <Td className="text-right font-mono text-xs">{p.lessons}</Td>
-                <Td>
-                  <Tag tone={p.status === "Live" ? "accent" : "muted"}>{p.status}</Tag>
-                </Td>
-                <Td className="font-mono text-xs text-muted-foreground">{p.updated}</Td>
-                <Td className="text-right">
-                  <Btn onClick={() => setEditing(p)}>Edit</Btn>
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {loading ? (
+          <div className="flex min-h-44 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading programs…</div>
+        ) : (
+          <table className="w-full min-w-[780px] text-sm">
+            <thead><tr><Th>Program</Th><Th>Regions</Th><Th>Stripe lookup key</Th><Th>Status</Th><Th>Updated</Th><Th /></tr></thead>
+            <tbody>
+              {programs.map((program) => (
+                <tr key={program.id} className="hover:bg-secondary/50">
+                  <Td><p className="font-medium">{program.name}</p><p className="mt-0.5 font-mono text-[10px] text-muted-foreground">/{program.slug}</p></Td>
+                  <Td className="text-muted-foreground">{program.regions.join(", ") || "—"}</Td>
+                  <Td className="font-mono text-xs text-muted-foreground">{program.stripe_price_lookup_key || "Not connected"}</Td>
+                  <Td><Tag tone={program.published ? "accent" : "muted"}>{program.published ? "Published" : "Draft"}</Tag></Td>
+                  <Td className="font-mono text-xs text-muted-foreground">{new Date(program.updated_at).toLocaleDateString()}</Td>
+                  <Td className="text-right"><Btn onClick={() => setEditing(rowToDraft(program))}>Edit</Btn></Td>
+                </tr>
+              ))}
+              {!programs.length && <tr><Td colSpan={6} className="py-12 text-center text-muted-foreground">No programs yet. Create the first program to begin.</Td></tr>}
+            </tbody>
+          </table>
+        )}
       </Panel>
 
-      {editing && <ProgramDrawer program={editing} onClose={() => setEditing(null)} />}
+      {editing && <ProgramDrawer initial={editing} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await loadPrograms(); }} />}
     </div>
   );
 }
 
-function ProgramDrawer({ program, onClose }: { program: Program; onClose: () => void }) {
-  const [dirty, setDirty] = useState(false);
-  const [saved, setSaved] = useState(false);
+function rowToDraft(program: ProgramRow): ProgramDraft {
+  return {
+    id: program.id,
+    name: program.name,
+    slug: program.slug,
+    outcome: program.outcome ?? "",
+    who_its_for: program.who_its_for ?? "",
+    format: program.format ?? "",
+    duration_label: program.duration_label ?? "",
+    level: program.level ?? "",
+    regions: program.regions.join(", "),
+    goals: program.goals.join(", "),
+    stripe_price_lookup_key: program.stripe_price_lookup_key ?? "",
+    entitlement_key: program.entitlement_key ?? "",
+    image_url: program.image_url ?? "",
+    image_alt: program.image_alt ?? "",
+    featured: program.featured,
+    featured_rank: program.featured_rank?.toString() ?? "",
+    published: program.published,
+  };
+}
 
-  const touch = () => {
-    setDirty(true);
-    setSaved(false);
+function csv(value: string) {
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function ProgramDrawer({ initial, onClose, onSaved }: { initial: ProgramDraft; onClose: () => void; onSaved: () => Promise<void> }) {
+  const [draft, setDraft] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const update = <K extends keyof ProgramDraft>(key: K, value: ProgramDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
+
+  const save = async () => {
+    if (!draft.name.trim() || !draft.slug.trim()) { setError("Name and slug are required."); return; }
+    setSaving(true);
+    setError(null);
+    const payload = {
+      name: draft.name.trim(),
+      slug: draft.slug.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-"),
+      outcome: draft.outcome.trim() || null,
+      who_its_for: draft.who_its_for.trim() || null,
+      format: draft.format.trim() || null,
+      duration_label: draft.duration_label.trim() || null,
+      level: draft.level.trim() || null,
+      regions: csv(draft.regions),
+      goals: csv(draft.goals),
+      stripe_price_lookup_key: draft.stripe_price_lookup_key.trim() || null,
+      entitlement_key: draft.entitlement_key.trim() || null,
+      image_url: draft.image_url.trim() || null,
+      image_alt: draft.image_alt.trim() || null,
+      featured: draft.featured,
+      featured_rank: draft.featured_rank ? Number(draft.featured_rank) : null,
+      published: draft.published,
+    };
+    const result = draft.id ? await supabase.from("programs").update(payload).eq("id", draft.id) : await supabase.from("programs").insert(payload);
+    if (result.error) { setError(result.error.message); setSaving(false); return; }
+    await onSaved();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" role="dialog" aria-modal="true">
-      <div className="flex h-full w-full max-w-lg flex-col border-l border-border bg-background">
+      <div className="flex h-full w-full max-w-xl flex-col border-l border-border bg-background">
         <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-              Editing program
-            </p>
-            <h2 className="mt-1 text-lg font-extrabold tracking-tight">{program.title}</h2>
-          </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="rounded-sm border border-border p-1.5">
-            <X className="h-4 w-4" />
-          </button>
+          <div><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{draft.id ? "Editing program" : "New program"}</p><h2 className="mt-1 text-lg font-extrabold tracking-tight">{draft.name || "Untitled program"}</h2></div>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-sm border border-border p-1.5"><X className="h-4 w-4" /></button>
         </div>
-
         <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
-          <Field label="Title" defaultValue={program.title} onChange={touch} />
-          <Field label="Body region" defaultValue={program.region} onChange={touch} />
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="List price (mock, USD)" defaultValue={String(program.price)} onChange={touch} />
-            <div>
-              <Label>Status</Label>
-              <select
-                defaultValue={program.status}
-                onChange={touch}
-                className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-              >
-                <option>Coming soon</option>
-                <option>Live</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <Label>Short description</Label>
-            <textarea
-              rows={4}
-              onChange={touch}
-              defaultValue="A staged progression for one region: check where you are, restore the missing range, then load it back into real movement."
-              className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-            />
-          </div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            Price shown here is catalog copy only — it does not touch any payment system.
-          </p>
+          <Field label="Program name" value={draft.name} onChange={(value) => update("name", value)} />
+          <Field label="URL slug" value={draft.slug} onChange={(value) => update("slug", value)} />
+          <TextArea label="Outcome / promise" value={draft.outcome} onChange={(value) => update("outcome", value)} />
+          <TextArea label="Who it is for" value={draft.who_its_for} onChange={(value) => update("who_its_for", value)} />
+          <div className="grid grid-cols-2 gap-3"><Field label="Format" value={draft.format} onChange={(value) => update("format", value)} /><Field label="Duration" value={draft.duration_label} onChange={(value) => update("duration_label", value)} /></div>
+          <div className="grid grid-cols-2 gap-3"><Field label="Level" value={draft.level} onChange={(value) => update("level", value)} /><Field label="Featured rank" value={draft.featured_rank} onChange={(value) => update("featured_rank", value)} type="number" /></div>
+          <Field label="Regions (comma-separated)" value={draft.regions} onChange={(value) => update("regions", value)} />
+          <Field label="Goals (comma-separated)" value={draft.goals} onChange={(value) => update("goals", value)} />
+          <Field label="Stripe price lookup key" value={draft.stripe_price_lookup_key} onChange={(value) => update("stripe_price_lookup_key", value)} />
+          <Field label="Entitlement key" value={draft.entitlement_key} onChange={(value) => update("entitlement_key", value)} />
+          <Field label="Cover image URL" value={draft.image_url} onChange={(value) => update("image_url", value)} />
+          <Field label="Image alt text" value={draft.image_alt} onChange={(value) => update("image_alt", value)} />
+          <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3"><Toggle label="Feature on homepage" checked={draft.featured} onChange={(value) => update("featured", value)} /><Toggle label="Publish program" checked={draft.published} onChange={(value) => update("published", value)} /></div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Prices remain controlled by Stripe. This page stores only the lookup key used to retrieve the live price.</p>
+          {error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
         </div>
-
-        <div className="flex items-center justify-between gap-3 border-t border-border px-5 py-4">
-          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            {dirty ? "Unsaved changes" : saved ? "Saved" : "No changes"}
-          </span>
-          <div className="flex gap-2">
-            <Btn onClick={onClose}>Cancel</Btn>
-            <Btn
-              variant="ink"
-              disabled={!dirty}
-              onClick={() => {
-                setDirty(false);
-                setSaved(true);
-              }}
-            >
-              Save changes
-            </Btn>
-          </div>
-        </div>
+        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4"><Btn onClick={onClose}>Cancel</Btn><Btn variant="ink" disabled={saving} onClick={() => void save()}>{saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}{saving ? "Saving…" : "Save program"}</Btn></div>
       </div>
     </div>
   );
 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-      {children}
-    </span>
-  );
+  return <span className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{children}</span>;
 }
 
-function Field({
-  label,
-  defaultValue,
-  onChange,
-}: {
-  label: string;
-  defaultValue: string;
-  onChange: () => void;
-}) {
-  return (
-    <div>
-      <Label>{label}</Label>
-      <input
-        defaultValue={defaultValue}
-        onChange={onChange}
-        className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-      />
-    </div>
-  );
+function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (value: string) => void; type?: string }) {
+  return <label className="block"><Label>{label}</Label><input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm" /></label>;
 }
 
+function TextArea({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return <label className="block"><Label>{label}</Label><textarea rows={3} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm" /></label>;
+}
+
+function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
+  return <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-4 w-4 accent-lime" />{label}</label>;
+}

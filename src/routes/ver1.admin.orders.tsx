@@ -1,89 +1,41 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 import { PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
-import { orders, type OrderStatus } from "@/lib/admin-mock";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type Order = Database["public"]["Tables"]["orders"]["Row"];
+type Program = Database["public"]["Tables"]["programs"]["Row"];
 
 export const Route = createFileRoute("/ver1/admin/orders")({
-  head: () => ({
-    meta: [
-      { title: "Orders & access — LegitBodyFix Admin" },
-      { name: "description", content: "Read-only mock order ledger with customer, program and status." },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
+  head: () => ({ meta: [{ title: "Orders & access — LegitBodyFix Admin" }, { name: "robots", content: "noindex" }] }),
   component: OrdersView,
 });
 
-const filters: Array<OrderStatus | "All"> = ["All", "Paid", "Pending", "Refunded"];
-
 function OrdersView() {
-  const [filter, setFilter] = useState<OrderStatus | "All">("All");
-  const rows = filter === "All" ? orders : orders.filter((o) => o.status === filter);
-  const total = rows.filter((o) => o.status === "Paid").reduce((s, o) => s + o.amount, 0);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  return (
-    <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
-      <PageHead title="Orders & access" meta="Read-only mock ledger · amounts are not editable" />
+  useEffect(() => {
+    void (async () => {
+      const [orderResult, programResult] = await Promise.all([
+        supabase.from("orders").select("*").order("created_at", { ascending: false }),
+        supabase.from("programs").select("*").order("name"),
+      ]);
+      const firstError = orderResult.error ?? programResult.error;
+      if (firstError) setError(firstError.message);
+      else { setOrders(orderResult.data ?? []); setPrograms(programResult.data ?? []); }
+      setLoading(false);
+    })();
+  }, []);
 
-      <div className="mt-5 flex flex-wrap items-center gap-2">
-        {filters.map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFilter(f)}
-            className={`rounded-sm border px-3 py-1.5 text-xs font-bold ${
-              f === filter
-                ? "border-ink bg-ink text-ink-foreground"
-                : "border-border bg-background text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-        <span className="ml-auto font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-          Paid total (mock): ${total}
-        </span>
-      </div>
+  const visible = filter === "all" ? orders : orders.filter((order) => order.status === filter);
+  const paidTotal = useMemo(() => orders.filter((order) => order.status === "paid").reduce((sum, order) => sum + order.amount_total, 0), [orders]);
+  const programName = (id: string | null) => programs.find((program) => program.id === id)?.name ?? "Unknown program";
 
-      <Panel className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[760px] text-sm">
-          <thead>
-            <tr>
-              <Th>Order</Th>
-              <Th>Date</Th>
-              <Th>Customer</Th>
-              <Th>Program</Th>
-              <Th className="text-right">Amount</Th>
-              <Th>Status</Th>
-              <Th>Access</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((o) => (
-              <tr key={o.id} className="hover:bg-secondary/50">
-                <Td className="font-mono text-xs">{o.id}</Td>
-                <Td className="font-mono text-xs text-muted-foreground">{o.date}</Td>
-                <Td className="font-medium">{o.customer}</Td>
-                <Td className="text-muted-foreground">{o.program}</Td>
-                <Td className="text-right font-mono text-xs">${o.amount}</Td>
-                <Td>
-                  <Tag tone={o.status === "Paid" ? "accent" : o.status === "Refunded" ? "warn" : "muted"}>
-                    {o.status}
-                  </Tag>
-                </Td>
-                <Td className="font-mono text-[11px] text-muted-foreground">
-                  {o.status === "Paid" ? "Granted" : o.status === "Refunded" ? "Revoked" : "Pending"}
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Panel>
-
-      <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-        Order amounts are displayed as recorded. Refunds and price changes happen in the payment provider, not here.
-      </p>
-    </div>
-  );
+  return <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8"><PageHead title="Orders & access" meta={`${orders.length} real records · ${(paidTotal / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} paid`} />{error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}<div className="mt-5 flex flex-wrap gap-2">{["all", "paid", "pending", "refunded", "failed", "disputed"].map((status) => <button key={status} type="button" onClick={() => setFilter(status)} className={`rounded-sm border px-3 py-1.5 text-xs font-bold capitalize ${filter === status ? "border-ink bg-ink text-ink-foreground" : "border-border bg-background text-muted-foreground"}`}>{status}</button>)}</div><Panel className="mt-4 overflow-x-auto">{loading ? <div className="flex min-h-44 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading orders…</div> : <table className="w-full min-w-[860px] text-sm"><thead><tr><Th>Customer</Th><Th>Program</Th><Th>Amount</Th><Th>Status</Th><Th>Purchased</Th><Th>Stripe reference</Th></tr></thead><tbody>{visible.map((order) => <tr key={order.id} className="hover:bg-secondary/50"><Td>{order.customer_email || "Email unavailable"}</Td><Td>{programName(order.program_id)}</Td><Td className="font-mono text-xs">{(order.amount_total / 100).toLocaleString("en-US", { style: "currency", currency: order.currency.toUpperCase() })}</Td><Td><Tag tone={order.status === "paid" ? "accent" : "muted"}>{order.status}</Tag></Td><Td className="font-mono text-xs text-muted-foreground">{new Date(order.purchased_at ?? order.created_at).toLocaleString()}</Td><Td className="max-w-56 truncate font-mono text-[10px] text-muted-foreground">{order.stripe_checkout_session_id || order.stripe_payment_intent_id || "—"}</Td></tr>)}{!visible.length && <tr><Td colSpan={6} className="py-12 text-center text-muted-foreground">No orders in this view.</Td></tr>}</tbody></table>}</Panel><p className="mt-3 text-xs leading-5 text-muted-foreground">This ledger is read-only. Stripe webhooks will create and update these rows; manual customer access is managed from the Customers page.</p></div>;
 }
-
