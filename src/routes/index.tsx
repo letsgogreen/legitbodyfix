@@ -128,15 +128,15 @@ function PhaseOneHomepage() {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-                  FOCUSED PROGRAMS
+                  INSIDE THE LIBRARY
                 </p>
                 <h2 className="mt-4 text-3xl font-extrabold uppercase sm:text-5xl">
-                  A clearer path is coming.
+                  Short sessions. Serious intent.
                 </h2>
               </div>
               <p className="max-w-xl text-base leading-relaxed text-muted-foreground lg:justify-self-end">
-                Focused, one-time-purchase programs are in development. Preview the starting catalog
-                without being asked to buy something that is not ready.
+                Train by body area, follow a focused session from start to finish, and return
+                whenever your movement needs attention.
               </p>
             </div>
             <div className="mt-10">
