@@ -28,7 +28,7 @@ function Dashboard() {
     setError(null);
     const [programResult, lessonResult, customerResult, orderResult] = await Promise.all([
       supabase.from("programs").select("*").order("featured_rank", { ascending: true, nullsFirst: false }),
-      supabase.from("lessons").select("*").order("sort_order"),
+      supabase.from("lessons").select("*").order("position"),
       supabase.from("customer_profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(8),
     ]);
