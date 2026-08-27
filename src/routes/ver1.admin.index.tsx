@@ -26,13 +26,20 @@ function Dashboard() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const [programResult, lessonResult, customerResult, orderResult] = await Promise.all([
+    const fetchDashboard = () => Promise.all([
       supabase.from("programs").select("*").order("featured_rank", { ascending: true, nullsFirst: false }),
       supabase.from("lessons").select("*").order("position"),
       supabase.from("customer_profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(8),
     ]);
-    const firstError = programResult.error ?? lessonResult.error ?? customerResult.error ?? orderResult.error;
+    let results = await fetchDashboard();
+    let firstError = results[0].error ?? results[1].error ?? results[2].error ?? results[3].error;
+    if (firstError?.message.includes("JWT issued at future")) {
+      await new Promise((resolve) => window.setTimeout(resolve, 3_000));
+      results = await fetchDashboard();
+      firstError = results[0].error ?? results[1].error ?? results[2].error ?? results[3].error;
+    }
+    const [programResult, lessonResult, customerResult, orderResult] = results;
     if (firstError) setError(firstError.message);
     else {
       setPrograms(programResult.data ?? []);
