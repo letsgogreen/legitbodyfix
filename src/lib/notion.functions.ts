@@ -8,6 +8,11 @@ export type RehostReport = {
   error: string | null;
 };
 
+function hasAdminAccess(claims: unknown) {
+  const adminClaims = claims as { email?: string; app_metadata?: { is_admin?: boolean } };
+  return adminClaims.app_metadata?.is_admin === true && adminClaims.email?.trim().toLowerCase() === "thriveinside@protonmail.com";
+}
+
 
 /**
  * Admin-only. Copies Notion cover images for already-committed recipes into Supabase Storage and
@@ -19,9 +24,7 @@ export const rehostRecipeCovers = createServerFn({ method: "POST" })
     notionPageIds: (data?.notionPageIds ?? []).map(String).filter(Boolean),
   }))
   .handler(async ({ data, context }): Promise<RehostReport> => {
-    const isAdmin = Boolean(
-      (context.claims as { app_metadata?: { is_admin?: boolean } }).app_metadata?.is_admin,
-    );
+    const isAdmin = hasAdminAccess(context.claims);
     if (!isAdmin) return { results: [], skipped: [], error: "Administrator access required." };
 
     const results: RehostReport["results"] = [];
@@ -77,9 +80,7 @@ export type RecipePreviewResult = {
 export const previewNotionRecipes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<RecipePreviewResult> => {
-    const isAdmin = Boolean(
-      (context.claims as { app_metadata?: { is_admin?: boolean } }).app_metadata?.is_admin,
-    );
+    const isAdmin = hasAdminAccess(context.claims);
     if (!isAdmin) return { rows: [], error: "Administrator access required." };
 
     try {

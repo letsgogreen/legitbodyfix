@@ -4,6 +4,12 @@ import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 
 type AuthState = "loading" | "signed-out" | "forbidden" | "ready";
 
+const ADMIN_EMAIL = "thriveinside@protonmail.com";
+
+export function isApprovedAdminEmail(email?: string | null) {
+  return email?.trim().toLowerCase() === ADMIN_EMAIL;
+}
+
 const VER1_AUTH_BRIDGE_URL =
   "https://move-system-landing.lovable.app/auth/callback?target=ver1";
 
@@ -27,7 +33,7 @@ export function AdminAuthGate({
     const syncUser = (nextUser?: User) => {
       setUser(nextUser);
       if (!nextUser) setState("signed-out");
-      else if (nextUser.app_metadata?.["is_admin"] === true) {
+      else if (nextUser.app_metadata?.["is_admin"] === true && isApprovedAdminEmail(nextUser.email)) {
         cleanConsumedAuthFragment();
         setState("ready");
       }
@@ -94,6 +100,11 @@ function AdminSignIn({ redirectPath }: { redirectPath: string }) {
     const client = getSupabaseClient();
     if (!client) return;
 
+    if (!isApprovedAdminEmail(email)) {
+      setMessage(`Access denied. Administrator sign-in is restricted to ${ADMIN_EMAIL}.`);
+      return;
+    }
+
     setSubmitting(true);
     setMessage("");
     const emailRedirectTo = redirectPath.startsWith("/ver1/admin")
@@ -121,7 +132,7 @@ function AdminSignIn({ redirectPath }: { redirectPath: string }) {
               required
               autoComplete="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => { setEmail(event.target.value); if (message) setMessage(""); }}
               className="min-h-11 rounded-sm border border-border bg-background px-3 text-sm font-normal normal-case tracking-normal"
             />
           </label>
