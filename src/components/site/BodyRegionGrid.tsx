@@ -10,16 +10,31 @@ export function BodyRegionGrid() {
           key={region.slug}
           to="/movement-check"
           search={{ region: region.slug }}
-          className="group min-w-0 bg-card p-6 outline-none transition-colors hover:bg-secondary focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:p-7"
+          className="group min-w-0 bg-card outline-none transition-colors hover:bg-secondary focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
         >
-          <div className="flex items-start justify-between gap-4">
-            <h3 className="text-xl font-bold">{region.title}</h3>
-            <ArrowRight
-              className="mt-1 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1"
-              aria-hidden="true"
+          <div className="relative h-36 overflow-hidden border-b border-border bg-white sm:h-40">
+            <img
+              src={region.imageUrl}
+              alt={region.imageAlt}
+              loading="lazy"
+              className="h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-[1.03]"
             />
+            <span className="absolute left-3 top-3 bg-background/95 px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.14em]">
+              {region.title}
+            </span>
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{region.description}</p>
+          <div className="p-6 sm:p-7">
+            <div className="flex items-start justify-between gap-4">
+              <h3 className="text-xl font-bold">{region.title}</h3>
+              <ArrowRight
+                className="mt-1 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1"
+                aria-hidden="true"
+              />
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {region.description}
+            </p>
+          </div>
         </Link>
       ))}
     </div>
