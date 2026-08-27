@@ -27,7 +27,10 @@ export function AdminAuthGate({
     const syncUser = (nextUser?: User) => {
       setUser(nextUser);
       if (!nextUser) setState("signed-out");
-      else if (nextUser.app_metadata?.["is_admin"] === true) setState("ready");
+      else if (nextUser.app_metadata?.["is_admin"] === true) {
+        cleanConsumedAuthFragment();
+        setState("ready");
+      }
       else setState("forbidden");
     };
 
@@ -60,6 +63,25 @@ export function AdminAuthGate({
   }
 
   return <>{children}</>;
+}
+
+function cleanConsumedAuthFragment() {
+  if (typeof window === "undefined") return;
+
+  const isEmptyFragment = window.location.href.endsWith("#");
+  const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const carriedAuthTokens =
+    fragment.has("access_token") ||
+    fragment.has("refresh_token") ||
+    fragment.get("type") === "magiclink";
+
+  if (isEmptyFragment || carriedAuthTokens) {
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${window.location.pathname}${window.location.search}`,
+    );
+  }
 }
 
 function AdminSignIn({ redirectPath }: { redirectPath: string }) {
