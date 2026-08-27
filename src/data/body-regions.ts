@@ -2,6 +2,8 @@ export type BodyRegion = {
   slug: string;
   title: string;
   description: string;
+  imageUrl: string;
+  imageAlt: string;
   intro: string;
   programs: RegionResource[];
   recipes: RegionResource[];
@@ -21,6 +23,8 @@ export const bodyRegions: BodyRegion[] = [
     slug: "head-neck",
     title: "Head & neck",
     description: "Explore neck movement, head position, and upper-back contribution.",
+    imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Sternocleidomastoideus.png",
+    imageAlt: "Anatomical illustration highlighting the sternocleidomastoid of the neck",
     intro:
       "Start with comfortable neck motion, head position, breathing, and the upper-back movement that supports them.",
     programs: [
@@ -68,6 +72,8 @@ export const bodyRegions: BodyRegion[] = [
     slug: "shoulder-arm",
     title: "Shoulder & arm",
     description: "Start with reaching, pressing, pulling, or overhead movement.",
+    imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Deltoideus.png",
+    imageAlt: "Anatomical illustration highlighting the deltoid muscle of the shoulder",
     intro:
       "Connect shoulder motion with scapular control, thoracic contribution, and the demands of reaching or loading.",
     programs: [
@@ -115,6 +121,8 @@ export const bodyRegions: BodyRegion[] = [
     slug: "spine-rib-cage",
     title: "Spine & rib cage",
     description: "Explore breathing, rotation, bending, and trunk control.",
+    imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1117_Muscles_of_the_Back.png",
+    imageAlt: "Posterior anatomical illustration of the muscles supporting the spine",
     intro:
       "Begin with breathing mechanics and comfortable trunk movement before adding speed, range, or load.",
     programs: [
@@ -168,6 +176,8 @@ export const bodyRegions: BodyRegion[] = [
     slug: "hip-pelvis",
     title: "Hip & pelvis",
     description: "Start with hip motion, pelvic control, squatting, or hinging.",
+    imageUrl: "/assets/images/postures/anterior-pelvic-tilt.png",
+    imageAlt: "Posture illustration showing the pelvis and hip region",
     intro:
       "Compare hip motion and side-to-side control, then connect the result to squatting, hinging, balance, or walking.",
     programs: [
@@ -222,6 +232,8 @@ export const bodyRegions: BodyRegion[] = [
     slug: "knee",
     title: "Knee",
     description: "Explore knee tolerance, single-leg control, and return to loading.",
+    imageUrl: "/assets/images/postures/knee-valgus-varus.jpg",
+    imageAlt: "Movement illustration comparing knee alignment patterns",
     intro:
       "Start with comfortable loading and knee control, then consider how the hip, ankle, and foot influence the task.",
     programs: [
@@ -275,6 +287,8 @@ export const bodyRegions: BodyRegion[] = [
     slug: "ankle-foot",
     title: "Ankle & foot",
     description: "Start with ankle motion, balance, gait, or foot mechanics.",
+    imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Gastrocnemius.png",
+    imageAlt: "Anatomical illustration highlighting the calf above the ankle and foot",
     intro:
       "Review ankle motion, foot pressure, balance, and walking tolerance before progressing impact or single-leg demand.",
     programs: [
