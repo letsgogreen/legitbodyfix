@@ -310,10 +310,43 @@
   <script src="assets/js/site-content.js?v=20260817-2" defer></script>
   <script src="assets/js/videos.js?v=20260814-1" defer></script>
   <script>
-    // Keep the preserved homepage navigable while it is mounted below /ver1.
-    document.querySelectorAll('a[href$=".html"], a[href*=".html?"]').forEach(function (link) {
+    // Bridge the preserved /ver1 presentation to the live application routes.
+    // The snapshot stays visually intact while authentication, content and
+    // customer access are handled by the current Supabase-backed application.
+    document.querySelectorAll("a[href]").forEach(function (link) {
       var href = link.getAttribute("href");
-      if (href && href.charAt(0) !== "/") link.setAttribute("href", "/" + href);
+      if (!href) return;
+
+      if (href === "library.html") {
+        link.setAttribute("href", "/library");
+        link.setAttribute("target", "_top");
+        return;
+      }
+
+      if (href.indexOf("knowledge.html?type=muscles") === 0) {
+        var muscleId = new URL(href, window.location.href).searchParams.get("id");
+        link.setAttribute("href", muscleId ? "/muscles/" + encodeURIComponent(muscleId) : "/muscles");
+        link.setAttribute("target", "_top");
+        return;
+      }
+
+      if (href.indexOf("knowledge.html?type=recipes") === 0) {
+        var recipeId = new URL(href, window.location.href).searchParams.get("id");
+        link.setAttribute("href", recipeId ? "/recipes/" + encodeURIComponent(recipeId) : "/movement-check");
+        link.setAttribute("target", "_top");
+        return;
+      }
+
+      if (href === "knowledge.html" || href.indexOf("knowledge.html?type=conditions") === 0) {
+        link.setAttribute("href", "/movement-check");
+        link.setAttribute("target", "_top");
+        return;
+      }
+
+      if (href.charAt(0) !== "/" && (href.endsWith(".html") || href.indexOf(".html?") !== -1)) {
+        link.setAttribute("href", "/" + href);
+        link.setAttribute("target", "_top");
+      }
     });
   </script>
 </body>
