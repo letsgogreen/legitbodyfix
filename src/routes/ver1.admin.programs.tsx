@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Plus, X } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { FileVideo, Loader2, Plus, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -109,7 +109,7 @@ function ProgramsView() {
                   <Td className="font-mono text-xs text-muted-foreground">{program.stripe_price_lookup_key || "Not connected"}</Td>
                   <Td><Tag tone={program.published ? "accent" : "muted"}>{program.published ? "Published" : "Draft"}</Tag></Td>
                   <Td className="font-mono text-xs text-muted-foreground">{new Date(program.updated_at).toLocaleDateString()}</Td>
-                  <Td className="text-right"><Btn onClick={() => setEditing(rowToDraft(program))}>Edit</Btn></Td>
+                  <Td className="text-right"><div className="flex justify-end gap-2"><Link to="/ver1/admin/lessons" search={{ program: program.id }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><FileVideo className="mr-1.5 h-3.5 w-3.5" /> Videos</Link><Btn onClick={() => setEditing(rowToDraft(program))}>Edit</Btn></div></Td>
                 </tr>
               ))}
               {!programs.length && <tr><Td colSpan={6} className="py-12 text-center text-muted-foreground">No programs yet. Create the first program to begin.</Td></tr>}
@@ -190,6 +190,7 @@ function ProgramDrawer({ initial, onClose, onSaved }: { initial: ProgramDraft; o
           <button type="button" onClick={onClose} aria-label="Close" className="rounded-sm border border-border p-1.5"><X className="h-4 w-4" /></button>
         </div>
         <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
+          {draft.id && <div className="flex items-center justify-between gap-4 border border-border bg-secondary/40 p-4"><div><p className="text-sm font-bold">Curriculum & videos</p><p className="mt-1 text-xs text-muted-foreground">Upload lessons, choose video frames, and preview playback.</p></div><Link to="/ver1/admin/lessons" search={{ program: draft.id }} className="inline-flex min-h-10 shrink-0 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"><FileVideo className="mr-1.5 h-4 w-4" /> Manage</Link></div>}
           <Field label="Program name" value={draft.name} onChange={(value) => update("name", value)} />
           <Field label="URL slug" value={draft.slug} onChange={(value) => update("slug", value)} />
           <TextArea label="Outcome / promise" value={draft.outcome} onChange={(value) => update("outcome", value)} />

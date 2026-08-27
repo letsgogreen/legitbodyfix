@@ -148,6 +148,30 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
     return { status: state, thumbnailUrl: video.thumbnail ?? null, durationSeconds: video.duration ? Math.round(video.duration) : null };
   });
 
+export const setStreamThumbnailFrame = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ lessonId: z.string().uuid(), timeSeconds: z.number().min(0) }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { data: lesson, error } = await context.supabase.from("lessons").select("stream_uid,duration_seconds").eq("id", data.lessonId).single();
+    if (error || !lesson?.stream_uid) throw new Error(error?.message || "This lesson has no Stream video.");
+    let duration = lesson.duration_seconds ?? 0;
+    if (!duration) {
+      const current = await cloudflare<{ duration?: number }>(`/${lesson.stream_uid}`);
+      duration = current.duration ?? 0;
+    }
+    if (!duration) throw new Error("Stream has not reported the video duration yet.");
+    const thumbnailTimestampPct = Math.min(1, data.timeSeconds / duration);
+    const video = await cloudflare<{ thumbnail?: string }>(`/${lesson.stream_uid}`, {
+      method: "POST",
+      body: JSON.stringify({ thumbnailTimestampPct }),
+    });
+    const thumbnailUrl = video.thumbnail ?? null;
+    const { error: updateError } = await context.supabase.from("lessons").update({ thumbnail_url: thumbnailUrl, stream_thumbnail_url: thumbnailUrl }).eq("id", data.lessonId);
+    if (updateError) throw new Error(updateError.message);
+    return { thumbnailUrl, timeSeconds: Math.round(thumbnailTimestampPct * duration) };
+  });
+
 export const getStreamPlayback = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ lessonId: z.string().uuid() }).parse(input))

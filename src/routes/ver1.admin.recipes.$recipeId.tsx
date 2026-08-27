@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, CheckCircle2, Save } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, Plus, Save, X } from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +45,9 @@ type RecipeRow = {
 };
 
 type LinkRow = { role: string; muscle_id: string; muscles: { name: string; published: boolean } | null };
+type MuscleOption = { id: string; name: string; anatomical_group: string; published: boolean };
+type ProgramOption = { id: string; name: string; published: boolean };
+type ProgramLink = { program_id: string; position: number | null; programs: { name: string; published: boolean } | null };
 
 const EDITABLE = [
   ["goal", "Goal"],
@@ -83,6 +86,11 @@ function RecipeReview() {
   const { recipeId } = Route.useParams();
   const [record, setRecord] = useState<RecipeRow | null>(null);
   const [links, setLinks] = useState<LinkRow[]>([]);
+  const [programLinks, setProgramLinks] = useState<ProgramLink[]>([]);
+  const [muscles, setMuscles] = useState<MuscleOption[]>([]);
+  const [programs, setPrograms] = useState<ProgramOption[]>([]);
+  const [muscleQuery, setMuscleQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState<"tight" | "weak">("tight");
   const [status, setStatus] = useState("Loading recipe…");
   const [busy, setBusy] = useState(false);
 
@@ -95,11 +103,16 @@ function RecipeReview() {
     setRecord(data as RecipeRow);
     setStatus(`Version ${data.version} loaded · review status ${data.review_status}.`);
 
-    const { data: linkRows } = await supabase
-      .from("recipe_muscles")
-      .select("role, muscle_id, muscles(name, published)")
-      .eq("recipe_id", recipeId);
-    setLinks((linkRows ?? []) as unknown as LinkRow[]);
+    const [muscleLinksResult, programLinksResult, musclesResult, programsResult] = await Promise.all([
+      supabase.from("recipe_muscles").select("role, muscle_id, muscles(name, published)").eq("recipe_id", recipeId),
+      supabase.from("program_recipes").select("program_id, position, programs(name, published)").eq("recipe_id", recipeId).order("position"),
+      supabase.from("muscles").select("id, name, anatomical_group, published").order("name"),
+      supabase.from("programs").select("id, name, published").order("name"),
+    ]);
+    setLinks((muscleLinksResult.data ?? []) as unknown as LinkRow[]);
+    setProgramLinks((programLinksResult.data ?? []) as unknown as ProgramLink[]);
+    setMuscles((musclesResult.data ?? []) as MuscleOption[]);
+    setPrograms((programsResult.data ?? []) as ProgramOption[]);
   }, [recipeId]);
 
   useEffect(() => {
@@ -108,6 +121,32 @@ function RecipeReview() {
 
   function setField<K extends keyof RecipeRow>(field: K, value: RecipeRow[K]) {
     setRecord((current) => (current ? { ...current, [field]: value } : current));
+  }
+
+  async function addMuscle(muscleId: string) {
+    if (links.some((link) => link.muscle_id === muscleId && link.role === selectedRole)) return;
+    const { error } = await supabase.from("recipe_muscles").insert({ recipe_id: recipeId, muscle_id: muscleId, role: selectedRole });
+    if (error) { setStatus(`Could not link muscle: ${error.message}`); return; }
+    setMuscleQuery("");
+    setStatus("Muscle relation added.");
+    await load();
+  }
+
+  async function removeMuscle(muscleId: string, role: string) {
+    const { error } = await supabase.from("recipe_muscles").delete().eq("recipe_id", recipeId).eq("muscle_id", muscleId).eq("role", role as "tight" | "weak");
+    if (error) { setStatus(`Could not remove muscle: ${error.message}`); return; }
+    setStatus("Muscle relation removed.");
+    await load();
+  }
+
+  async function toggleProgram(programId: string) {
+    const existing = programLinks.find((link) => link.program_id === programId);
+    const result = existing
+      ? await supabase.from("program_recipes").delete().eq("program_id", programId).eq("recipe_id", recipeId)
+      : await supabase.from("program_recipes").insert({ program_id: programId, recipe_id: recipeId, position: programLinks.length + 1 });
+    if (result.error) { setStatus(`Could not update program relation: ${result.error.message}`); return; }
+    setStatus(existing ? "Recipe removed from program." : "Recipe added to program.");
+    await load();
   }
 
   async function save(publish?: boolean) {
@@ -302,6 +341,7 @@ function RecipeReview() {
                     {!link.muscles?.published && (
                       <span className="text-muted-foreground">(muscle unpublished)</span>
                     )}
+                    <button type="button" onClick={() => void removeMuscle(link.muscle_id, link.role)} aria-label={`Remove ${link.muscles?.name ?? link.muscle_id}`} className="ml-auto rounded-sm border border-border p-1 hover:bg-secondary"><X className="h-3 w-3" /></button>
                   </li>
                 ))
               ) : (
@@ -312,7 +352,10 @@ function RecipeReview() {
               Fuzzy matches from the Notion import are never linked automatically — check the import
               preview if a relation looks missing.
             </p>
+            <div className="mt-4 border-t border-border pt-4"><div className="flex gap-2"><select value={selectedRole} onChange={(event) => setSelectedRole(event.target.value as "tight" | "weak")} className="rounded-sm border border-border bg-background px-2 text-xs"><option value="tight">Overactive / restricted</option><option value="weak">Underactive / capacity</option></select><input value={muscleQuery} onChange={(event) => setMuscleQuery(event.target.value)} placeholder="Search muscle…" className="min-w-0 flex-1 rounded-sm border border-border bg-background px-3 py-2 text-xs" /></div>{muscleQuery.trim() && <div className="mt-2 max-h-48 overflow-y-auto border border-border">{muscles.filter((muscle) => `${muscle.name} ${muscle.anatomical_group}`.toLowerCase().includes(muscleQuery.toLowerCase())).slice(0, 12).map((muscle) => <button key={muscle.id} type="button" onClick={() => void addMuscle(muscle.id)} className="flex w-full items-center justify-between border-b border-border/60 px-3 py-2 text-left text-xs last:border-0 hover:bg-secondary"><span><strong>{muscle.name}</strong><span className="ml-2 text-muted-foreground">{muscle.anatomical_group}</span></span><Plus className="h-3.5 w-3.5" /></button>)}</div>}</div>
           </Panel>
+
+          <Panel className="p-4"><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Included with programs ({programLinks.length})</p><div className="mt-3 space-y-2">{programs.map((program) => { const linked = programLinks.some((link) => link.program_id === program.id); return <label key={program.id} className="flex cursor-pointer items-center gap-3 rounded-sm border border-border px-3 py-2 text-xs hover:bg-secondary"><input type="checkbox" checked={linked} onChange={() => void toggleProgram(program.id)} className="h-4 w-4 accent-lime" /><span className="flex-1 font-bold">{program.name}</span><Tag tone={program.published ? "accent" : "muted"}>{program.published ? "live" : "draft"}</Tag></label>; })}{!programs.length && <p className="text-xs text-muted-foreground">Create a program before linking this recipe.</p>}</div></Panel>
 
           {record.notion_url && (
             <Panel className="p-4 text-xs">

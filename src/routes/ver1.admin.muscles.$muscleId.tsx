@@ -12,6 +12,10 @@ import { getSupabaseClient } from "@/lib/supabase";
 
 type EditableMuscle = Muscle & { version: number };
 
+const ANATOMICAL_GROUPS = ["Head & neck", "Shoulder girdle", "Chest", "Upper back", "Deep back", "Abdomen", "Hip & pelvis", "Pelvic floor", "Upper arm", "Forearm & hand", "Anterior thigh", "Posterior thigh", "Lower leg", "Foot"];
+const BODY_REGIONS = ["head-neck", "shoulder-girdle", "chest", "upper-back", "deep-back", "abdomen", "hip-pelvis", "pelvic-floor", "upper-arm", "forearm-hand", "anterior-thigh", "posterior-thigh", "lower-leg", "foot"];
+const FUNCTION_TAGS = ["Flexion", "Extension", "Abduction", "Adduction", "Internal rotation", "External rotation", "Lateral flexion", "Scapular elevation", "Scapular depression", "Scapular protraction", "Scapular retraction", "Scapular upward rotation", "Scapular downward rotation", "Stabilization", "Inspiration", "Expiration"];
+
 export const Route = createFileRoute("/ver1/admin/muscles/$muscleId")({
   loader: ({ params }) => {
     // The database is the source of truth; the fixture is only a first-paint fallback.
@@ -178,6 +182,7 @@ function MuscleEditor() {
             label="Anatomical group"
             value={record.group}
             onChange={(v) => setField("group", v)}
+            suggestions={ANATOMICAL_GROUPS}
           />
           <Field
             label="Family"
@@ -188,6 +193,7 @@ function MuscleEditor() {
             label="Body map region"
             value={record.bodyMap ?? ""}
             onChange={(v) => setField("bodyMap", v)}
+            suggestions={BODY_REGIONS}
           />
           <TextArea label="Origin" value={record.origin} onChange={(v) => setField("origin", v)} />
           <TextArea
@@ -196,6 +202,7 @@ function MuscleEditor() {
             onChange={(v) => setField("insertion", v)}
           />
           <div className="sm:col-span-2">
+            <div className="mb-3"><p className="mb-2 text-xs font-bold uppercase tracking-[0.1em]">Quick function classification</p><div className="flex flex-wrap gap-2">{FUNCTION_TAGS.map((tag) => <button key={tag} type="button" onClick={() => { const current = record.actions.trim(); if (!current.toLowerCase().includes(tag.toLowerCase())) setField("actions", current ? `${current}; ${tag}` : tag); }} className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-xs font-medium hover:border-foreground">+ {tag}</button>)}</div><p className="mt-2 text-[11px] text-muted-foreground">Use canonical labels first, then add anatomy-specific detail below.</p></div>
             <TextArea
               label="Functions and actions"
               value={record.actions}
@@ -231,19 +238,24 @@ function Field({
   label,
   value,
   onChange,
+  suggestions,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  suggestions?: string[];
 }) {
+  const listId = suggestions ? `options-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}` : undefined;
   return (
     <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.1em]">
       {label}
       <input
         value={value}
+        list={listId}
         onChange={(event) => onChange(event.target.value)}
         className="min-h-11 rounded-sm border border-border bg-background px-3 text-sm font-normal normal-case tracking-normal"
       />
+      {suggestions && <datalist id={listId}>{suggestions.map((suggestion) => <option key={suggestion} value={suggestion} />)}</datalist>}
     </label>
   );
 }
