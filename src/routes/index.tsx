@@ -53,28 +53,18 @@ function PhaseOneHomepage() {
 
       <main>
         <section className="overflow-hidden border-b border-border">
-          <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl items-center gap-12 px-5 py-14 lg:grid-cols-[minmax(0,0.92fr)_minmax(28rem,1.08fr)] lg:gap-8 lg:px-8 lg:py-20">
+          <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-[1220px] items-center gap-12 px-6 py-[54px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:py-[76px]">
             <div className="min-w-0">
-              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em]">
                 Corrective movement. No fluff.
               </p>
-              <h1 className="mt-8 text-[3.8rem] font-extrabold uppercase leading-[0.86] tracking-[-0.055em] sm:text-[6.5rem] lg:text-[7.1rem]">
+              <h1 className="original-hero-title mt-[31px] max-w-[650px] text-[clamp(3.875rem,9.2vw,8.125rem)] font-black uppercase leading-[0.86] tracking-[-0.085em]">
                 <span className="block">Move</span>
                 <span className="block">better.</span>
-                <span
-                  className="block text-transparent"
-                  style={{ WebkitTextStroke: "2px currentColor" }}
-                >
-                  Hurt
-                </span>
-                <span
-                  className="block text-transparent"
-                  style={{ WebkitTextStroke: "2px currentColor" }}
-                >
-                  less.
-                </span>
+                <span className="original-outline block">Hurt</span>
+                <span className="original-outline block">less.</span>
               </h1>
-              <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground">
+              <p className="mt-6 max-w-[550px] text-lg leading-[1.75] text-muted-foreground">
                 Follow clear corrective exercise sessions that help you understand your body,
                 rebuild weak links, and move with confidence again.
               </p>
@@ -96,7 +86,7 @@ function PhaseOneHomepage() {
                 Clear guidance · Focused progressions · One-time purchase
               </p>
             </div>
-            <div className="mx-auto w-full max-w-lg min-w-0 lg:max-w-none">
+            <div className="mx-auto w-full min-w-0">
               <HeroBodyMap />
             </div>
           </div>
