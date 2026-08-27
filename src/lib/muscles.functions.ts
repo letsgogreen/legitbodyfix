@@ -31,7 +31,8 @@ export const listPublishedMuscles = createServerFn({ method: "GET" }).handler(as
 export const getPublishedMuscle = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ id: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
-    const { data, error } = await publicClient()
+    const supabase = publicClient();
+    const { data, error } = await supabase
       .from("muscles")
       .select(MUSCLE_COLUMNS)
       .eq("id", input.id)
@@ -43,5 +44,90 @@ export const getPublishedMuscle = createServerFn({ method: "GET" })
       return null;
     }
 
-    return data ? muscleFromRow(data as unknown as MuscleRow) : null;
+    if (!data) return null;
+
+    const [recipeResult, guideResult] = await Promise.all([
+      supabase
+        .from("recipe_muscles")
+        .select("role,recipes(id,slug,title,goal,summary,image_url,image_alt,published)")
+        .eq("muscle_id", input.id),
+      supabase
+        .from("guide_muscles")
+        .select("role,guides(id,slug,title,pattern_summary,published)")
+        .eq("muscle_id", input.id),
+    ]);
+
+    if (recipeResult.error) {
+      console.error("muscle recipe links failed:", recipeResult.error.message);
+    }
+    if (guideResult.error) {
+      console.error("muscle guide links failed:", guideResult.error.message);
+    }
+
+    const recipes = (recipeResult.data ?? []).flatMap((row) => {
+      const recipe = row.recipes as unknown as {
+        id: string;
+        slug: string;
+        title: string;
+        goal: string | null;
+        summary: string | null;
+        image_url: string | null;
+        image_alt: string | null;
+        published: boolean;
+      } | null;
+      return recipe?.published ? [{ ...recipe, role: row.role as "tight" | "weak" }] : [];
+    });
+
+    const guides = (guideResult.data ?? []).flatMap((row) => {
+      const guide = row.guides as unknown as {
+        id: string;
+        slug: string;
+        title: string;
+        pattern_summary: string | null;
+        published: boolean;
+      } | null;
+      return guide?.published ? [{ ...guide, role: row.role as "tight" | "weak" | null }] : [];
+    });
+
+    const [recipePrograms, guidePrograms] = await Promise.all([
+      recipes.length
+        ? supabase
+            .from("program_recipes")
+            .select("programs(slug,name,outcome,published)")
+            .in(
+              "recipe_id",
+              recipes.map((recipe) => recipe.id),
+            )
+        : Promise.resolve({ data: [], error: null }),
+      guides.length
+        ? supabase
+            .from("guide_programs")
+            .select("programs(slug,name,outcome,published)")
+            .in(
+              "guide_id",
+              guides.map((guide) => guide.id),
+            )
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+    const programMap = new Map<
+      string,
+      { slug: string; name: string; outcome: string | null; published: boolean }
+    >();
+    for (const row of [...(recipePrograms.data ?? []), ...(guidePrograms.data ?? [])]) {
+      const program = row.programs as unknown as {
+        slug: string;
+        name: string;
+        outcome: string | null;
+        published: boolean;
+      } | null;
+      if (program?.published) programMap.set(program.slug, program);
+    }
+
+    return {
+      ...muscleFromRow(data as unknown as MuscleRow),
+      recipes,
+      guides,
+      programs: [...programMap.values()],
+    };
   });
