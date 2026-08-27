@@ -42,6 +42,7 @@ import { Route as AdminRecipesImportRouteImport } from './routes/admin.recipes.i
 import { Route as Ver1AdminIndexRouteImport } from './routes/ver1.admin.index'
 import { Route as Ver1AdminContentRouteImport } from './routes/ver1.admin.content'
 import { Route as Ver1AdminCustomersRouteImport } from './routes/ver1.admin.customers'
+import { Route as Ver1AdminGuidesRouteImport } from './routes/ver1.admin.guides'
 import { Route as Ver1AdminLessonsRouteImport } from './routes/ver1.admin.lessons'
 import { Route as Ver1AdminOrdersRouteImport } from './routes/ver1.admin.orders'
 import { Route as Ver1AdminProgramsRouteImport } from './routes/ver1.admin.programs'
@@ -218,6 +219,11 @@ const Ver1AdminCustomersRoute = Ver1AdminCustomersRouteImport.update({
   path: '/customers',
   getParentRoute: () => Ver1AdminRoute,
 } as any)
+const Ver1AdminGuidesRoute = Ver1AdminGuidesRouteImport.update({
+  id: '/guides',
+  path: '/guides',
+  getParentRoute: () => Ver1AdminRoute,
+} as any)
 const Ver1AdminLessonsRoute = Ver1AdminLessonsRouteImport.update({
   id: '/lessons',
   path: '/lessons',
@@ -297,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/admin/recipes/import': typeof AdminRecipesImportRoute
   '/ver1/admin/content': typeof Ver1AdminContentRoute
   '/ver1/admin/customers': typeof Ver1AdminCustomersRoute
+  '/ver1/admin/guides': typeof Ver1AdminGuidesRoute
   '/ver1/admin/lessons': typeof Ver1AdminLessonsRoute
   '/ver1/admin/orders': typeof Ver1AdminOrdersRoute
   '/ver1/admin/programs': typeof Ver1AdminProgramsRoute
@@ -336,6 +343,7 @@ export interface FileRoutesByTo {
   '/admin/recipes/import': typeof AdminRecipesImportRoute
   '/ver1/admin/content': typeof Ver1AdminContentRoute
   '/ver1/admin/customers': typeof Ver1AdminCustomersRoute
+  '/ver1/admin/guides': typeof Ver1AdminGuidesRoute
   '/ver1/admin/lessons': typeof Ver1AdminLessonsRoute
   '/ver1/admin/orders': typeof Ver1AdminOrdersRoute
   '/ver1/admin/programs': typeof Ver1AdminProgramsRoute
@@ -381,6 +389,7 @@ export interface FileRoutesById {
   '/admin/recipes/import': typeof AdminRecipesImportRoute
   '/ver1/admin/content': typeof Ver1AdminContentRoute
   '/ver1/admin/customers': typeof Ver1AdminCustomersRoute
+  '/ver1/admin/guides': typeof Ver1AdminGuidesRoute
   '/ver1/admin/lessons': typeof Ver1AdminLessonsRoute
   '/ver1/admin/orders': typeof Ver1AdminOrdersRoute
   '/ver1/admin/programs': typeof Ver1AdminProgramsRoute
@@ -427,6 +436,7 @@ export interface FileRouteTypes {
     | '/admin/recipes/import'
     | '/ver1/admin/content'
     | '/ver1/admin/customers'
+    | '/ver1/admin/guides'
     | '/ver1/admin/lessons'
     | '/ver1/admin/orders'
     | '/ver1/admin/programs'
@@ -466,6 +476,7 @@ export interface FileRouteTypes {
     | '/admin/recipes/import'
     | '/ver1/admin/content'
     | '/ver1/admin/customers'
+    | '/ver1/admin/guides'
     | '/ver1/admin/lessons'
     | '/ver1/admin/orders'
     | '/ver1/admin/programs'
@@ -510,6 +521,7 @@ export interface FileRouteTypes {
     | '/admin/recipes/import'
     | '/ver1/admin/content'
     | '/ver1/admin/customers'
+    | '/ver1/admin/guides'
     | '/ver1/admin/lessons'
     | '/ver1/admin/orders'
     | '/ver1/admin/programs'
@@ -771,6 +783,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Ver1AdminCustomersRouteImport
       parentRoute: typeof Ver1AdminRoute
     }
+    '/ver1/admin/guides': {
+      id: '/ver1/admin/guides'
+      path: '/guides'
+      fullPath: '/ver1/admin/guides'
+      preLoaderRoute: typeof Ver1AdminGuidesRouteImport
+      parentRoute: typeof Ver1AdminRoute
+    }
     '/ver1/admin/lessons': {
       id: '/ver1/admin/lessons'
       path: '/lessons'
@@ -900,6 +919,7 @@ const MusclesRouteWithChildren =
 interface Ver1AdminRouteChildren {
   Ver1AdminContentRoute: typeof Ver1AdminContentRoute
   Ver1AdminCustomersRoute: typeof Ver1AdminCustomersRoute
+  Ver1AdminGuidesRoute: typeof Ver1AdminGuidesRoute
   Ver1AdminLessonsRoute: typeof Ver1AdminLessonsRoute
   Ver1AdminOrdersRoute: typeof Ver1AdminOrdersRoute
   Ver1AdminProgramsRoute: typeof Ver1AdminProgramsRoute
@@ -915,6 +935,7 @@ interface Ver1AdminRouteChildren {
 const Ver1AdminRouteChildren: Ver1AdminRouteChildren = {
   Ver1AdminContentRoute: Ver1AdminContentRoute,
   Ver1AdminCustomersRoute: Ver1AdminCustomersRoute,
+  Ver1AdminGuidesRoute: Ver1AdminGuidesRoute,
   Ver1AdminLessonsRoute: Ver1AdminLessonsRoute,
   Ver1AdminOrdersRoute: Ver1AdminOrdersRoute,
   Ver1AdminProgramsRoute: Ver1AdminProgramsRoute,

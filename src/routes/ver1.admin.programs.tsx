@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileVideo, Loader2, Plus, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ExternalLink, FileVideo, Loader2, Plus, Trash2, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type ProgramRow = Database["public"]["Tables"]["programs"]["Row"];
+type RecipeOption = Pick<Database["public"]["Tables"]["recipes"]["Row"], "id" | "title" | "published" | "image_url">;
+type RecipeLink = { recipe_id: string; position: number | null };
 type ProgramDraft = {
   id?: string;
   name: string;
@@ -18,6 +20,8 @@ type ProgramDraft = {
   regions: string;
   goals: string;
   stripe_price_lookup_key: string;
+  stripe_price_id: string;
+  stripe_product_id: string;
   entitlement_key: string;
   image_url: string;
   image_alt: string;
@@ -37,6 +41,8 @@ const emptyDraft: ProgramDraft = {
   regions: "",
   goals: "",
   stripe_price_lookup_key: "",
+  stripe_price_id: "",
+  stripe_product_id: "",
   entitlement_key: "",
   image_url: "",
   image_alt: "",
@@ -136,6 +142,8 @@ function rowToDraft(program: ProgramRow): ProgramDraft {
     regions: program.regions.join(", "),
     goals: program.goals.join(", "),
     stripe_price_lookup_key: program.stripe_price_lookup_key ?? "",
+    stripe_price_id: program.stripe_price_id ?? "",
+    stripe_product_id: program.stripe_product_id ?? "",
     entitlement_key: program.entitlement_key ?? "",
     image_url: program.image_url ?? "",
     image_alt: program.image_alt ?? "",
@@ -153,7 +161,53 @@ function ProgramDrawer({ initial, onClose, onSaved }: { initial: ProgramDraft; o
   const [draft, setDraft] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recipes, setRecipes] = useState<RecipeOption[]>([]);
+  const [recipeLinks, setRecipeLinks] = useState<RecipeLink[]>([]);
   const update = <K extends keyof ProgramDraft>(key: K, value: ProgramDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
+
+  const loadRecipeLinks = async () => {
+    if (!initial.id) return;
+    const [recipeResult, linkResult] = await Promise.all([
+      supabase.from("recipes").select("id,title,published,image_url").order("title"),
+      supabase.from("program_recipes").select("recipe_id,position").eq("program_id", initial.id).order("position"),
+    ]);
+    const readError = recipeResult.error ?? linkResult.error;
+    if (readError) { setError(`Could not load recipe relationships: ${readError.message}`); return; }
+    setRecipes(recipeResult.data ?? []);
+    setRecipeLinks((linkResult.data ?? []) as RecipeLink[]);
+  };
+
+  useEffect(() => { void loadRecipeLinks(); }, [initial.id]);
+
+  async function addRecipe(recipeId: string) {
+    if (!initial.id || !recipeId || recipeLinks.some((link) => link.recipe_id === recipeId)) return;
+    const { error: relationError } = await supabase.from("program_recipes").insert({ program_id: initial.id, recipe_id: recipeId, position: recipeLinks.length + 1 });
+    if (relationError) { setError(relationError.message); return; }
+    await loadRecipeLinks();
+  }
+
+  async function removeRecipe(recipeId: string) {
+    if (!initial.id) return;
+    const { error: relationError } = await supabase.from("program_recipes").delete().eq("program_id", initial.id).eq("recipe_id", recipeId);
+    if (relationError) { setError(relationError.message); return; }
+    await loadRecipeLinks();
+  }
+
+  async function moveRecipe(index: number, delta: number) {
+    if (!initial.id) return;
+    const target = index + delta;
+    if (target < 0 || target >= recipeLinks.length) return;
+    const next = [...recipeLinks];
+    const current = next[index];
+    const swap = next[target];
+    if (!current || !swap) return;
+    next[index] = swap;
+    next[target] = current;
+    const results = await Promise.all(next.map((link, position) => supabase.from("program_recipes").update({ position: position + 1 }).eq("program_id", initial.id!).eq("recipe_id", link.recipe_id)));
+    const relationError = results.find((result) => result.error)?.error;
+    if (relationError) { setError(relationError.message); return; }
+    setRecipeLinks(next.map((link, position) => ({ ...link, position: position + 1 })));
+  }
 
   const save = async () => {
     if (!draft.name.trim() || !draft.slug.trim()) { setError("Name and slug are required."); return; }
@@ -200,10 +254,12 @@ function ProgramDrawer({ initial, onClose, onSaved }: { initial: ProgramDraft; o
           <Field label="Regions (comma-separated)" value={draft.regions} onChange={(value) => update("regions", value)} />
           <Field label="Goals (comma-separated)" value={draft.goals} onChange={(value) => update("goals", value)} />
           <Field label="Stripe price lookup key" value={draft.stripe_price_lookup_key} onChange={(value) => update("stripe_price_lookup_key", value)} />
+          {draft.id && <div className="grid grid-cols-2 gap-3"><ReadOnly label="Stripe price ID" value={draft.stripe_price_id || "Not resolved"} /><ReadOnly label="Stripe product ID" value={draft.stripe_product_id || "Not connected"} /></div>}
           <Field label="Entitlement key" value={draft.entitlement_key} onChange={(value) => update("entitlement_key", value)} />
           <Field label="Cover image URL" value={draft.image_url} onChange={(value) => update("image_url", value)} />
           <Field label="Image alt text" value={draft.image_alt} onChange={(value) => update("image_alt", value)} />
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3"><Toggle label="Feature on homepage" checked={draft.featured} onChange={(value) => update("featured", value)} /><Toggle label="Publish program" checked={draft.published} onChange={(value) => update("published", value)} /></div>
+          {draft.id && <div className="border border-border bg-card p-4"><div className="flex items-center justify-between gap-3"><div><p className="text-sm font-bold">Linked corrective recipes</p><p className="mt-1 text-xs text-muted-foreground">Order the supporting material included with this program.</p></div><Link to="/library/$programSlug" params={{ programSlug: draft.slug }} target="_blank" className="inline-flex items-center gap-1 text-xs font-bold underline">Sales-page preview <ExternalLink className="h-3 w-3" /></Link></div><select defaultValue="" onChange={(event) => { if (event.target.value) void addRecipe(event.target.value); event.target.value = ""; }} className="mt-4 w-full rounded-sm border border-border bg-background px-3 py-2 text-xs"><option value="">Add a recipe…</option>{recipes.filter((recipe) => !recipeLinks.some((link) => link.recipe_id === recipe.id)).map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.title}</option>)}</select><div className="mt-3 space-y-2">{recipeLinks.map((link, index) => { const recipe = recipes.find((item) => item.id === link.recipe_id); return <div key={link.recipe_id} className="flex items-center gap-2 border border-border px-3 py-2"><span className="min-w-0 flex-1 text-xs font-bold">{recipe?.title ?? link.recipe_id}</span><Tag tone={recipe?.published ? "accent" : "muted"}>{recipe?.published ? "live" : "draft"}</Tag>{!recipe?.image_url && <Tag tone="warn">no image</Tag>}<Btn disabled={index === 0} onClick={() => void moveRecipe(index, -1)}><ArrowUp className="h-3 w-3" /></Btn><Btn disabled={index === recipeLinks.length - 1} onClick={() => void moveRecipe(index, 1)}><ArrowDown className="h-3 w-3" /></Btn><Btn onClick={() => void removeRecipe(link.recipe_id)}><Trash2 className="h-3 w-3" /></Btn></div>; })}{!recipeLinks.length && <p className="py-3 text-center text-xs text-muted-foreground">No recipes linked yet.</p>}</div></div>}
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Prices remain controlled by Stripe. This page stores only the lookup key used to retrieve the live price.</p>
           {error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
         </div>
@@ -223,6 +279,10 @@ function Field({ label, value, onChange, type = "text" }: { label: string; value
 
 function TextArea({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
   return <label className="block"><Label>{label}</Label><textarea rows={3} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm" /></label>;
+}
+
+function ReadOnly({ label, value }: { label: string; value: string }) {
+  return <div><Label>{label}</Label><p className="min-h-9 break-all rounded-sm border border-border bg-secondary/50 px-3 py-2 font-mono text-[10px] text-muted-foreground">{value}</p></div>;
 }
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
