@@ -33,6 +33,7 @@ function AdminMuscles() {
   const [group, setGroup] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [all, setAll] = useState<Muscle[]>([]);
+  const [liveReferenceCounts, setLiveReferenceCounts] = useState<Record<string, number>>({});
   const [loadState, setLoadState] = useState("Loading records from the database…");
 
   useEffect(() => {
@@ -42,32 +43,52 @@ function AdminMuscles() {
       return;
     }
 
-    void client
-      .from("muscles")
-      .select(MUSCLE_COLUMNS)
-      .order("name", { ascending: true })
-      .then(({ data, error }) => {
-        if (error) {
-          setLoadState(`Could not load records: ${error.message}`);
-          return;
-        }
-        const list = ((data ?? []) as unknown as MuscleRow[]).map(muscleFromRow);
-        setAll(list);
-        warnOnFixtureMismatch(
-          "/ver1/admin/muscles",
-          list.map((muscle) => muscle.id),
-        );
-        setLoadState(`${list.length} records loaded from the database.`);
-      });
+    void Promise.all([
+      client.from("muscles").select(MUSCLE_COLUMNS).order("name", { ascending: true }),
+      client
+        .from("recipe_muscles")
+        .select("muscle_id,recipes!inner(published)")
+        .eq("recipes.published", true),
+      client
+        .from("guide_muscles")
+        .select("muscle_id,guides!inner(published)")
+        .eq("guides.published", true),
+    ]).then(([musclesResult, recipeLinksResult, guideLinksResult]) => {
+      const { data, error } = musclesResult;
+      if (error) {
+        setLoadState(`Could not load records: ${error.message}`);
+        return;
+      }
+      const list = ((data ?? []) as unknown as MuscleRow[]).map(muscleFromRow);
+      setAll(list);
+      warnOnFixtureMismatch(
+        "/ver1/admin/muscles",
+        list.map((muscle) => muscle.id),
+      );
+      const counts: Record<string, number> = {};
+      for (const row of [...(recipeLinksResult.data ?? []), ...(guideLinksResult.data ?? [])]) {
+        const muscleId = String(row.muscle_id);
+        counts[muscleId] = (counts[muscleId] ?? 0) + 1;
+      }
+      setLiveReferenceCounts(counts);
+      setLoadState(`${list.length} records loaded from the database.`);
+    });
   }, []);
 
   const muscleGroups = useMemo(() => groupsOf(all), [all]);
   const rows = useMemo(
     () =>
-      filterMuscleList(all, query, group).filter(
-        (muscle) => statusFilter === "all" || getMuscleReadiness(muscle).key === statusFilter,
-      ),
-    [all, group, query, statusFilter],
+      filterMuscleList(all, query, group)
+        .filter((muscle) => {
+          if (statusFilter === "referenced") return Boolean(liveReferenceCounts[muscle.id]);
+          return statusFilter === "all" || getMuscleReadiness(muscle).key === statusFilter;
+        })
+        .sort((a, b) => {
+          const referenceDifference =
+            (liveReferenceCounts[b.id] ?? 0) - (liveReferenceCounts[a.id] ?? 0);
+          return referenceDifference || a.title.localeCompare(b.title);
+        }),
+    [all, group, liveReferenceCounts, query, statusFilter],
   );
   const publishedCount = all.filter((muscle) => muscle.published).length;
   const readyCount = all.filter((muscle) => getMuscleReadiness(muscle).key === "ready").length;
@@ -77,6 +98,7 @@ function AdminMuscles() {
   const anatomyReviewCount = all.filter(
     (muscle) => getMuscleReadiness(muscle).key === "anatomy",
   ).length;
+  const referencedCount = Object.keys(liveReferenceCounts).length;
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
@@ -102,9 +124,10 @@ function AdminMuscles() {
         }
       />
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         <Stat label="Database records" value={all.length} />
         <Stat label="Published" value={publishedCount} />
+        <Stat label="Used in live content" value={referencedCount} />
         <Stat label="Ready to publish" value={readyCount} />
         <Stat label="Image review" value={imageReviewCount} />
         <Stat label="Anatomy review" value={anatomyReviewCount} />
@@ -147,6 +170,7 @@ function AdminMuscles() {
           {[
             ["all", "All", all.length],
             ["live", "Live", publishedCount],
+            ["referenced", "Used in live content", referencedCount],
             ["ready", "Ready", readyCount],
             ["image", "Image review", imageReviewCount],
             ["anatomy", "Anatomy review", anatomyReviewCount],
@@ -172,6 +196,7 @@ function AdminMuscles() {
         {rows.map((muscle) => {
           const readiness = getMuscleReadiness(muscle);
           const tone = readiness.key === "live" || readiness.key === "ready" ? "accent" : "muted";
+          const referenceCount = liveReferenceCounts[muscle.id] ?? 0;
 
           return (
             <Panel key={muscle.id} className="overflow-hidden">
@@ -193,6 +218,13 @@ function AdminMuscles() {
                 <span className="absolute left-3 top-3">
                   <Tag tone={tone}>{readiness.label}</Tag>
                 </span>
+                {referenceCount > 0 && (
+                  <span className="absolute right-3 top-3">
+                    <Tag tone="accent">
+                      Used in {referenceCount} live {referenceCount === 1 ? "item" : "items"}
+                    </Tag>
+                  </span>
+                )}
               </div>
               <div className="p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
