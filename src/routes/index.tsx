@@ -55,8 +55,8 @@ function PhaseOneHomepage() {
         <section className="overflow-hidden border-b border-border">
           <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-[1220px] items-center gap-12 px-6 py-[54px] lg:grid-cols-2 lg:gap-16 lg:py-[60px]">
             <div className="min-w-0">
-              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em]">
-                Corrective movement. No fluff.
+              <p className="inline-block bg-accent px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-accent-foreground">
+                Movement guidance for those who want better
               </p>
               <h1 className="original-hero-title mt-[26px] max-w-[620px] text-[clamp(3.5rem,5.6vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.065em]">
                 <span className="block">Move</span>
