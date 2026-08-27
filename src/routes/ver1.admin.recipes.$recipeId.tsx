@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, CheckCircle2, Plus, Save, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, Plus, Save, X } from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,6 +48,8 @@ type LinkRow = { role: string; muscle_id: string; muscles: { name: string; publi
 type MuscleOption = { id: string; name: string; anatomical_group: string; published: boolean };
 type ProgramOption = { id: string; name: string; published: boolean };
 type ProgramLink = { program_id: string; position: number | null; programs: { name: string; published: boolean } | null };
+type GuideOption = { id: string; slug: string; title: string; published: boolean };
+type GuideLink = { guide_id: string; position: number | null; guides: { slug: string; title: string; published: boolean } | null };
 
 const EDITABLE = [
   ["goal", "Goal"],
@@ -87,8 +89,10 @@ function RecipeReview() {
   const [record, setRecord] = useState<RecipeRow | null>(null);
   const [links, setLinks] = useState<LinkRow[]>([]);
   const [programLinks, setProgramLinks] = useState<ProgramLink[]>([]);
+  const [guideLinks, setGuideLinks] = useState<GuideLink[]>([]);
   const [muscles, setMuscles] = useState<MuscleOption[]>([]);
   const [programs, setPrograms] = useState<ProgramOption[]>([]);
+  const [guides, setGuides] = useState<GuideOption[]>([]);
   const [muscleQuery, setMuscleQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<"tight" | "weak">("tight");
   const [status, setStatus] = useState("Loading recipe…");
@@ -103,16 +107,20 @@ function RecipeReview() {
     setRecord(data as RecipeRow);
     setStatus(`Version ${data.version} loaded · review status ${data.review_status}.`);
 
-    const [muscleLinksResult, programLinksResult, musclesResult, programsResult] = await Promise.all([
+    const [muscleLinksResult, programLinksResult, guideLinksResult, musclesResult, programsResult, guidesResult] = await Promise.all([
       supabase.from("recipe_muscles").select("role, muscle_id, muscles(name, published)").eq("recipe_id", recipeId),
       supabase.from("program_recipes").select("program_id, position, programs(name, published)").eq("recipe_id", recipeId).order("position"),
+      supabase.from("guide_recipes").select("guide_id, position, guides(slug, title, published)").eq("recipe_id", recipeId).order("position"),
       supabase.from("muscles").select("id, name, anatomical_group, published").order("name"),
       supabase.from("programs").select("id, name, published").order("name"),
+      supabase.from("guides").select("id, slug, title, published").order("title"),
     ]);
     setLinks((muscleLinksResult.data ?? []) as unknown as LinkRow[]);
     setProgramLinks((programLinksResult.data ?? []) as unknown as ProgramLink[]);
+    setGuideLinks((guideLinksResult.data ?? []) as unknown as GuideLink[]);
     setMuscles((musclesResult.data ?? []) as MuscleOption[]);
     setPrograms((programsResult.data ?? []) as ProgramOption[]);
+    setGuides((guidesResult.data ?? []) as GuideOption[]);
   }, [recipeId]);
 
   useEffect(() => {
@@ -146,6 +154,16 @@ function RecipeReview() {
       : await supabase.from("program_recipes").insert({ program_id: programId, recipe_id: recipeId, position: programLinks.length + 1 });
     if (result.error) { setStatus(`Could not update program relation: ${result.error.message}`); return; }
     setStatus(existing ? "Recipe removed from program." : "Recipe added to program.");
+    await load();
+  }
+
+  async function toggleGuide(guideId: string) {
+    const existing = guideLinks.find((link) => link.guide_id === guideId);
+    const result = existing
+      ? await supabase.from("guide_recipes").delete().eq("guide_id", guideId).eq("recipe_id", recipeId)
+      : await supabase.from("guide_recipes").insert({ guide_id: guideId, recipe_id: recipeId, position: guideLinks.length + 1 });
+    if (result.error) { setStatus(`Could not update posture relation: ${result.error.message}`); return; }
+    setStatus(existing ? "Recipe removed from posture page." : "Recipe added to posture page.");
     await load();
   }
 
@@ -214,6 +232,16 @@ function RecipeReview() {
             >
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> Recipes
             </Link>
+            {record.published && (
+              <Link
+                to="/recipes/$slug"
+                params={{ slug: record.slug }}
+                target="_blank"
+                className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-bold"
+              >
+                Public preview <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            )}
             <button
               type="button"
               onClick={() => void save()}
@@ -356,6 +384,8 @@ function RecipeReview() {
           </Panel>
 
           <Panel className="p-4"><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Included with programs ({programLinks.length})</p><div className="mt-3 space-y-2">{programs.map((program) => { const linked = programLinks.some((link) => link.program_id === program.id); return <label key={program.id} className="flex cursor-pointer items-center gap-3 rounded-sm border border-border px-3 py-2 text-xs hover:bg-secondary"><input type="checkbox" checked={linked} onChange={() => void toggleProgram(program.id)} className="h-4 w-4 accent-lime" /><span className="flex-1 font-bold">{program.name}</span><Tag tone={program.published ? "accent" : "muted"}>{program.published ? "live" : "draft"}</Tag></label>; })}{!programs.length && <p className="text-xs text-muted-foreground">Create a program before linking this recipe.</p>}</div></Panel>
+
+          <Panel className="p-4"><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Shown on posture pages ({guideLinks.length})</p><p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">Select every posture or condition guide where this recipe should appear. Only published guide + recipe pairs are public.</p><div className="mt-3 space-y-2">{guides.map((guide) => { const linked = guideLinks.some((link) => link.guide_id === guide.id); return <label key={guide.id} className="flex cursor-pointer items-center gap-3 rounded-sm border border-border px-3 py-2 text-xs hover:bg-secondary"><input type="checkbox" checked={linked} onChange={() => void toggleGuide(guide.id)} className="h-4 w-4 accent-lime" /><span className="flex-1"><strong className="block">{guide.title}</strong><span className="text-[10px] text-muted-foreground">/{guide.slug}</span></span><Tag tone={guide.published ? "accent" : "muted"}>{guide.published ? "live" : "draft"}</Tag></label>; })}{!guides.length && <p className="text-xs text-muted-foreground">No posture guides are available yet.</p>}</div></Panel>
 
           {record.notion_url && (
             <Panel className="p-4 text-xs">
