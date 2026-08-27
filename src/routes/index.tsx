@@ -53,18 +53,18 @@ function PhaseOneHomepage() {
 
       <main>
         <section className="overflow-hidden border-b border-border">
-          <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-[1220px] items-center gap-12 px-6 py-[54px] lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:py-[76px]">
+          <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-[1220px] items-center gap-12 px-6 py-[54px] lg:grid-cols-2 lg:gap-16 lg:py-[60px]">
             <div className="min-w-0">
               <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em]">
                 Corrective movement. No fluff.
               </p>
-              <h1 className="original-hero-title mt-[31px] max-w-[650px] text-[clamp(3.875rem,9.2vw,8.125rem)] font-black uppercase leading-[0.86] tracking-[-0.085em]">
+              <h1 className="original-hero-title mt-[26px] max-w-[620px] text-[clamp(3.5rem,5.6vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.065em]">
                 <span className="block">Move</span>
                 <span className="block">better.</span>
                 <span className="original-outline block">Hurt</span>
                 <span className="original-outline block">less.</span>
               </h1>
-              <p className="mt-6 max-w-[550px] text-lg leading-[1.75] text-muted-foreground">
+              <p className="mt-6 max-w-[550px] text-lg leading-[1.65] text-muted-foreground">
                 Follow clear corrective exercise sessions that help you understand your body,
                 rebuild weak links, and move with confidence again.
               </p>
