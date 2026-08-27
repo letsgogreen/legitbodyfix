@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as MovementCheckRouteImport } from './routes/movement-check'
+import { Route as MusclesRouteImport } from './routes/muscles'
 import { Route as Ver1RouteImport } from './routes/ver1'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
@@ -19,6 +21,16 @@ import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
+import { Route as ApiCloudflareStreamWebhookRouteImport } from './routes/api/cloudflare-stream-webhook'
+import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe-webhook'
+import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
+import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
+import { Route as LibraryIndexRouteImport } from './routes/library.index'
+import { Route as LibraryProgramSlugRouteImport } from './routes/library.$programSlug'
+import { Route as LibraryAccountRouteImport } from './routes/library.account'
+import { Route as MusclesIndexRouteImport } from './routes/muscles.index'
+import { Route as MusclesMuscleIdRouteImport } from './routes/muscles.$muscleId'
+import { Route as RecipesSlugRouteImport } from './routes/recipes.$slug'
 import { Route as Ver1IndexRouteImport } from './routes/ver1.index'
 import { Route as Ver1AdminRouteImport } from './routes/ver1.admin'
 import { Route as AdminMusclesIndexRouteImport } from './routes/admin.muscles.index'
@@ -50,9 +62,19 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MovementCheckRoute = MovementCheckRouteImport.update({
   id: '/movement-check',
   path: '/movement-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MusclesRoute = MusclesRouteImport.update({
+  id: '/muscles',
+  path: '/muscles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Ver1Route = Ver1RouteImport.update({
@@ -89,6 +111,57 @@ const AdminProgramsRoute = AdminProgramsRouteImport.update({
   id: '/programs',
   path: '/programs',
   getParentRoute: () => AdminRoute,
+} as any)
+const ApiCloudflareStreamWebhookRoute =
+  ApiCloudflareStreamWebhookRouteImport.update({
+    id: '/api/cloudflare-stream-webhook',
+    path: '/api/cloudflare-stream-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
+  id: '/api/stripe-webhook',
+  path: '/api/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
+  id: '/checkout/success',
+  path: '/checkout/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryIndexRoute = LibraryIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibraryProgramSlugRoute = LibraryProgramSlugRouteImport.update({
+  id: '/$programSlug',
+  path: '/$programSlug',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibraryAccountRoute = LibraryAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const MusclesIndexRoute = MusclesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MusclesRoute,
+} as any)
+const MusclesMuscleIdRoute = MusclesMuscleIdRouteImport.update({
+  id: '/$muscleId',
+  path: '/$muscleId',
+  getParentRoute: () => MusclesRoute,
+} as any)
+const RecipesSlugRoute = RecipesSlugRouteImport.update({
+  id: '/recipes/$slug',
+  path: '/recipes/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const Ver1IndexRoute = Ver1IndexRouteImport.update({
   id: '/',
@@ -196,15 +269,27 @@ const Ver1AdminRecipesImportRoute = Ver1AdminRecipesImportRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/library': typeof LibraryRouteWithChildren
   '/movement-check': typeof MovementCheckRoute
+  '/muscles': typeof MusclesRouteWithChildren
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
+  '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/library/$programSlug': typeof LibraryProgramSlugRoute
+  '/library/account': typeof LibraryAccountRoute
+  '/muscles/$muscleId': typeof MusclesMuscleIdRoute
+  '/recipes/$slug': typeof RecipesSlugRoute
   '/ver1/admin': typeof Ver1AdminRouteWithChildren
   '/admin/': typeof AdminIndexRoute
+  '/library/': typeof LibraryIndexRoute
+  '/muscles/': typeof MusclesIndexRoute
   '/ver1/': typeof Ver1IndexRoute
   '/admin/muscles/$muscleId': typeof AdminMusclesMuscleIdRoute
   '/admin/muscles/import': typeof AdminMusclesImportRoute
@@ -233,7 +318,17 @@ export interface FileRoutesByTo {
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
+  '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/library/$programSlug': typeof LibraryProgramSlugRoute
+  '/library/account': typeof LibraryAccountRoute
+  '/muscles/$muscleId': typeof MusclesMuscleIdRoute
+  '/recipes/$slug': typeof RecipesSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/library': typeof LibraryIndexRoute
+  '/muscles': typeof MusclesIndexRoute
   '/ver1': typeof Ver1IndexRoute
   '/admin/muscles/$muscleId': typeof AdminMusclesMuscleIdRoute
   '/admin/muscles/import': typeof AdminMusclesImportRoute
@@ -258,15 +353,27 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/library': typeof LibraryRouteWithChildren
   '/movement-check': typeof MovementCheckRoute
+  '/muscles': typeof MusclesRouteWithChildren
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
+  '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/library/$programSlug': typeof LibraryProgramSlugRoute
+  '/library/account': typeof LibraryAccountRoute
+  '/muscles/$muscleId': typeof MusclesMuscleIdRoute
+  '/recipes/$slug': typeof RecipesSlugRoute
   '/ver1/admin': typeof Ver1AdminRouteWithChildren
   '/admin/': typeof AdminIndexRoute
+  '/library/': typeof LibraryIndexRoute
+  '/muscles/': typeof MusclesIndexRoute
   '/ver1/': typeof Ver1IndexRoute
   '/admin/muscles/$muscleId': typeof AdminMusclesMuscleIdRoute
   '/admin/muscles/import': typeof AdminMusclesImportRoute
@@ -292,15 +399,27 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/library'
     | '/movement-check'
+    | '/muscles'
     | '/ver1'
     | '/admin/content'
     | '/admin/customers'
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
+    | '/api/cloudflare-stream-webhook'
+    | '/api/stripe-webhook'
+    | '/checkout/success'
+    | '/guides/$slug'
+    | '/library/$programSlug'
+    | '/library/account'
+    | '/muscles/$muscleId'
+    | '/recipes/$slug'
     | '/ver1/admin'
     | '/admin/'
+    | '/library/'
+    | '/muscles/'
     | '/ver1/'
     | '/admin/muscles/$muscleId'
     | '/admin/muscles/import'
@@ -329,7 +448,17 @@ export interface FileRouteTypes {
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
+    | '/api/cloudflare-stream-webhook'
+    | '/api/stripe-webhook'
+    | '/checkout/success'
+    | '/guides/$slug'
+    | '/library/$programSlug'
+    | '/library/account'
+    | '/muscles/$muscleId'
+    | '/recipes/$slug'
     | '/admin'
+    | '/library'
+    | '/muscles'
     | '/ver1'
     | '/admin/muscles/$muscleId'
     | '/admin/muscles/import'
@@ -353,15 +482,27 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/library'
     | '/movement-check'
+    | '/muscles'
     | '/ver1'
     | '/admin/content'
     | '/admin/customers'
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
+    | '/api/cloudflare-stream-webhook'
+    | '/api/stripe-webhook'
+    | '/checkout/success'
+    | '/guides/$slug'
+    | '/library/$programSlug'
+    | '/library/account'
+    | '/muscles/$muscleId'
+    | '/recipes/$slug'
     | '/ver1/admin'
     | '/admin/'
+    | '/library/'
+    | '/muscles/'
     | '/ver1/'
     | '/admin/muscles/$muscleId'
     | '/admin/muscles/import'
@@ -386,8 +527,15 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  LibraryRoute: typeof LibraryRouteWithChildren
   MovementCheckRoute: typeof MovementCheckRoute
+  MusclesRoute: typeof MusclesRouteWithChildren
   Ver1Route: typeof Ver1RouteWithChildren
+  ApiCloudflareStreamWebhookRoute: typeof ApiCloudflareStreamWebhookRoute
+  ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
+  CheckoutSuccessRoute: typeof CheckoutSuccessRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
+  RecipesSlugRoute: typeof RecipesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -406,11 +554,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/movement-check': {
       id: '/movement-check'
       path: '/movement-check'
       fullPath: '/movement-check'
       preLoaderRoute: typeof MovementCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/muscles': {
+      id: '/muscles'
+      path: '/muscles'
+      fullPath: '/muscles'
+      preLoaderRoute: typeof MusclesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ver1': {
@@ -461,6 +623,76 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/programs'
       preLoaderRoute: typeof AdminProgramsRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/api/cloudflare-stream-webhook': {
+      id: '/api/cloudflare-stream-webhook'
+      path: '/api/cloudflare-stream-webhook'
+      fullPath: '/api/cloudflare-stream-webhook'
+      preLoaderRoute: typeof ApiCloudflareStreamWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/stripe-webhook': {
+      id: '/api/stripe-webhook'
+      path: '/api/stripe-webhook'
+      fullPath: '/api/stripe-webhook'
+      preLoaderRoute: typeof ApiStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/success': {
+      id: '/checkout/success'
+      path: '/checkout/success'
+      fullPath: '/checkout/success'
+      preLoaderRoute: typeof CheckoutSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library/': {
+      id: '/library/'
+      path: '/'
+      fullPath: '/library/'
+      preLoaderRoute: typeof LibraryIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/library/$programSlug': {
+      id: '/library/$programSlug'
+      path: '/$programSlug'
+      fullPath: '/library/$programSlug'
+      preLoaderRoute: typeof LibraryProgramSlugRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/library/account': {
+      id: '/library/account'
+      path: '/account'
+      fullPath: '/library/account'
+      preLoaderRoute: typeof LibraryAccountRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/muscles/': {
+      id: '/muscles/'
+      path: '/'
+      fullPath: '/muscles/'
+      preLoaderRoute: typeof MusclesIndexRouteImport
+      parentRoute: typeof MusclesRoute
+    }
+    '/muscles/$muscleId': {
+      id: '/muscles/$muscleId'
+      path: '/$muscleId'
+      fullPath: '/muscles/$muscleId'
+      preLoaderRoute: typeof MusclesMuscleIdRouteImport
+      parentRoute: typeof MusclesRoute
+    }
+    '/recipes/$slug': {
+      id: '/recipes/$slug'
+      path: '/recipes/$slug'
+      fullPath: '/recipes/$slug'
+      preLoaderRoute: typeof RecipesSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/ver1/': {
       id: '/ver1/'
@@ -637,6 +869,34 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface LibraryRouteChildren {
+  LibraryProgramSlugRoute: typeof LibraryProgramSlugRoute
+  LibraryAccountRoute: typeof LibraryAccountRoute
+  LibraryIndexRoute: typeof LibraryIndexRoute
+}
+
+const LibraryRouteChildren: LibraryRouteChildren = {
+  LibraryProgramSlugRoute: LibraryProgramSlugRoute,
+  LibraryAccountRoute: LibraryAccountRoute,
+  LibraryIndexRoute: LibraryIndexRoute,
+}
+
+const LibraryRouteWithChildren =
+  LibraryRoute._addFileChildren(LibraryRouteChildren)
+
+interface MusclesRouteChildren {
+  MusclesMuscleIdRoute: typeof MusclesMuscleIdRoute
+  MusclesIndexRoute: typeof MusclesIndexRoute
+}
+
+const MusclesRouteChildren: MusclesRouteChildren = {
+  MusclesMuscleIdRoute: MusclesMuscleIdRoute,
+  MusclesIndexRoute: MusclesIndexRoute,
+}
+
+const MusclesRouteWithChildren =
+  MusclesRoute._addFileChildren(MusclesRouteChildren)
+
 interface Ver1AdminRouteChildren {
   Ver1AdminContentRoute: typeof Ver1AdminContentRoute
   Ver1AdminCustomersRoute: typeof Ver1AdminCustomersRoute
@@ -686,8 +946,15 @@ const Ver1RouteWithChildren = Ver1Route._addFileChildren(Ver1RouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  LibraryRoute: LibraryRouteWithChildren,
   MovementCheckRoute: MovementCheckRoute,
+  MusclesRoute: MusclesRouteWithChildren,
   Ver1Route: Ver1RouteWithChildren,
+  ApiCloudflareStreamWebhookRoute: ApiCloudflareStreamWebhookRoute,
+  ApiStripeWebhookRoute: ApiStripeWebhookRoute,
+  CheckoutSuccessRoute: CheckoutSuccessRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
+  RecipesSlugRoute: RecipesSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

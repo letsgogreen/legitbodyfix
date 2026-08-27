@@ -600,6 +600,117 @@ export type Database = {
           },
         ]
       }
+      customer_profiles: {
+        Row: { created_at: string; display_name: string | null; email: string | null; updated_at: string; user_id: string }
+        Insert: { created_at?: string; display_name?: string | null; email?: string | null; updated_at?: string; user_id: string }
+        Update: { created_at?: string; display_name?: string | null; email?: string | null; updated_at?: string; user_id?: string }
+        Relationships: []
+      }
+      entitlements: {
+        Row: { active: boolean; created_at: string; granted_at: string; id: string; order_id: string | null; program_id: string; revoked_at: string | null; source: string; updated_at: string; user_id: string }
+        Insert: { active?: boolean; created_at?: string; granted_at?: string; id?: string; order_id?: string | null; program_id: string; revoked_at?: string | null; source?: string; updated_at?: string; user_id: string }
+        Update: { active?: boolean; created_at?: string; granted_at?: string; id?: string; order_id?: string | null; program_id?: string; revoked_at?: string | null; source?: string; updated_at?: string; user_id?: string }
+        Relationships: []
+      }
+      lessons: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          module_id: string | null
+          position: number
+          preview_free: boolean
+          program_id: string
+          published: boolean
+          slug: string
+          summary: string | null
+          stream_error: string | null
+          stream_status: string
+          stream_thumbnail_url: string | null
+          stream_uid: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          module_id?: string | null
+          position?: number
+          preview_free?: boolean
+          program_id: string
+          published?: boolean
+          slug: string
+          summary?: string | null
+          stream_error?: string | null
+          stream_status?: string
+          stream_thumbnail_url?: string | null
+          stream_uid?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          module_id?: string | null
+          position?: number
+          preview_free?: boolean
+          program_id?: string
+          published?: boolean
+          slug?: string
+          summary?: string | null
+          stream_error?: string | null
+          stream_status?: string
+          stream_thumbnail_url?: string | null
+          stream_uid?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_path?: string | null
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: { amount_total: number; created_at: string; currency: string; customer_email: string | null; id: string; program_id: string | null; purchased_at: string | null; status: string; stripe_checkout_session_id: string | null; stripe_payment_intent_id: string | null; updated_at: string; user_id: string | null }
+        Insert: { amount_total?: number; created_at?: string; currency?: string; customer_email?: string | null; id?: string; program_id?: string | null; purchased_at?: string | null; status?: string; stripe_checkout_session_id?: string | null; stripe_payment_intent_id?: string | null; updated_at?: string; user_id?: string | null }
+        Update: { amount_total?: number; created_at?: string; currency?: string; customer_email?: string | null; id?: string; program_id?: string | null; purchased_at?: string | null; status?: string; stripe_checkout_session_id?: string | null; stripe_payment_intent_id?: string | null; updated_at?: string; user_id?: string | null }
+        Relationships: []
+      }
+      program_modules: {
+        Row: {
+          created_at: string
+          id: string
+          position: number
+          program_id: string
+          published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          position?: number
+          program_id: string
+          published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          position?: number
+          program_id?: string
+          published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       programs: {
         Row: {
           created_at: string

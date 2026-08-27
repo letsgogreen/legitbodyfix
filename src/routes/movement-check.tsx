@@ -76,6 +76,7 @@ function ResourceCard({
 function MovementCheck() {
   const { region: regionSlug } = Route.useSearch();
   const region = findBodyRegion(regionSlug) || bodyRegions[0];
+  if (!region) return null;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
