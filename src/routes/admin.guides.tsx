@@ -49,7 +49,7 @@ const blankGuide = (): Guide => ({
   updated_at: new Date().toISOString(),
 });
 
-export const Route = createFileRoute("/ver1/admin/guides")({
+export const Route = createFileRoute("/admin/guides")({
   validateSearch: (search: Record<string, unknown>): GuideSearch => {
     const parsed: GuideSearch = {};
     if (typeof search["guide"] === "string") parsed.guide = search["guide"];

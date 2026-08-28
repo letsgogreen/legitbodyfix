@@ -18,6 +18,7 @@ import { Route as Ver1RouteImport } from './routes/ver1'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
+import { Route as AdminGuidesRouteImport } from './routes/admin.guides'
 import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
@@ -39,19 +40,7 @@ import { Route as AdminMusclesImportRouteImport } from './routes/admin.muscles.i
 import { Route as AdminRecipesIndexRouteImport } from './routes/admin.recipes.index'
 import { Route as AdminRecipesRecipeIdRouteImport } from './routes/admin.recipes.$recipeId'
 import { Route as AdminRecipesImportRouteImport } from './routes/admin.recipes.import'
-import { Route as Ver1AdminIndexRouteImport } from './routes/ver1.admin.index'
-import { Route as Ver1AdminContentRouteImport } from './routes/ver1.admin.content'
-import { Route as Ver1AdminCustomersRouteImport } from './routes/ver1.admin.customers'
-import { Route as Ver1AdminGuidesRouteImport } from './routes/ver1.admin.guides'
-import { Route as Ver1AdminLessonsRouteImport } from './routes/ver1.admin.lessons'
-import { Route as Ver1AdminOrdersRouteImport } from './routes/ver1.admin.orders'
-import { Route as Ver1AdminProgramsRouteImport } from './routes/ver1.admin.programs'
-import { Route as Ver1AdminMusclesIndexRouteImport } from './routes/ver1.admin.muscles.index'
-import { Route as Ver1AdminMusclesMuscleIdRouteImport } from './routes/ver1.admin.muscles.$muscleId'
-import { Route as Ver1AdminMusclesImportRouteImport } from './routes/ver1.admin.muscles.import'
-import { Route as Ver1AdminRecipesIndexRouteImport } from './routes/ver1.admin.recipes.index'
-import { Route as Ver1AdminRecipesRecipeIdRouteImport } from './routes/ver1.admin.recipes.$recipeId'
-import { Route as Ver1AdminRecipesImportRouteImport } from './routes/ver1.admin.recipes.import'
+import { Route as Ver1AdminSplatRouteImport } from './routes/ver1.admin.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,6 +85,11 @@ const AdminContentRoute = AdminContentRouteImport.update({
 const AdminCustomersRoute = AdminCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGuidesRoute = AdminGuidesRouteImport.update({
+  id: '/guides',
+  path: '/guides',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminLessonsRoute = AdminLessonsRouteImport.update({
@@ -204,71 +198,9 @@ const AdminRecipesImportRoute = AdminRecipesImportRouteImport.update({
   path: '/recipes/import',
   getParentRoute: () => AdminRoute,
 } as any)
-const Ver1AdminIndexRoute = Ver1AdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminContentRoute = Ver1AdminContentRouteImport.update({
-  id: '/content',
-  path: '/content',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminCustomersRoute = Ver1AdminCustomersRouteImport.update({
-  id: '/customers',
-  path: '/customers',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminGuidesRoute = Ver1AdminGuidesRouteImport.update({
-  id: '/guides',
-  path: '/guides',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminLessonsRoute = Ver1AdminLessonsRouteImport.update({
-  id: '/lessons',
-  path: '/lessons',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminOrdersRoute = Ver1AdminOrdersRouteImport.update({
-  id: '/orders',
-  path: '/orders',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminProgramsRoute = Ver1AdminProgramsRouteImport.update({
-  id: '/programs',
-  path: '/programs',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminMusclesIndexRoute = Ver1AdminMusclesIndexRouteImport.update({
-  id: '/muscles/',
-  path: '/muscles/',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminMusclesMuscleIdRoute =
-  Ver1AdminMusclesMuscleIdRouteImport.update({
-    id: '/muscles/$muscleId',
-    path: '/muscles/$muscleId',
-    getParentRoute: () => Ver1AdminRoute,
-  } as any)
-const Ver1AdminMusclesImportRoute = Ver1AdminMusclesImportRouteImport.update({
-  id: '/muscles/import',
-  path: '/muscles/import',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminRecipesIndexRoute = Ver1AdminRecipesIndexRouteImport.update({
-  id: '/recipes/',
-  path: '/recipes/',
-  getParentRoute: () => Ver1AdminRoute,
-} as any)
-const Ver1AdminRecipesRecipeIdRoute =
-  Ver1AdminRecipesRecipeIdRouteImport.update({
-    id: '/recipes/$recipeId',
-    path: '/recipes/$recipeId',
-    getParentRoute: () => Ver1AdminRoute,
-  } as any)
-const Ver1AdminRecipesImportRoute = Ver1AdminRecipesImportRouteImport.update({
-  id: '/recipes/import',
-  path: '/recipes/import',
+const Ver1AdminSplatRoute = Ver1AdminSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => Ver1AdminRoute,
 } as any)
 
@@ -281,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/guides': typeof AdminGuidesRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
@@ -301,27 +234,16 @@ export interface FileRoutesByFullPath {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
-  '/ver1/admin/content': typeof Ver1AdminContentRoute
-  '/ver1/admin/customers': typeof Ver1AdminCustomersRoute
-  '/ver1/admin/guides': typeof Ver1AdminGuidesRoute
-  '/ver1/admin/lessons': typeof Ver1AdminLessonsRoute
-  '/ver1/admin/orders': typeof Ver1AdminOrdersRoute
-  '/ver1/admin/programs': typeof Ver1AdminProgramsRoute
+  '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles/': typeof AdminMusclesIndexRoute
   '/admin/recipes/': typeof AdminRecipesIndexRoute
-  '/ver1/admin/': typeof Ver1AdminIndexRoute
-  '/ver1/admin/muscles/$muscleId': typeof Ver1AdminMusclesMuscleIdRoute
-  '/ver1/admin/muscles/import': typeof Ver1AdminMusclesImportRoute
-  '/ver1/admin/recipes/$recipeId': typeof Ver1AdminRecipesRecipeIdRoute
-  '/ver1/admin/recipes/import': typeof Ver1AdminRecipesImportRoute
-  '/ver1/admin/muscles/': typeof Ver1AdminMusclesIndexRoute
-  '/ver1/admin/recipes/': typeof Ver1AdminRecipesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/guides': typeof AdminGuidesRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
@@ -333,6 +255,7 @@ export interface FileRoutesByTo {
   '/library/account': typeof LibraryAccountRoute
   '/muscles/$muscleId': typeof MusclesMuscleIdRoute
   '/recipes/$slug': typeof RecipesSlugRoute
+  '/ver1/admin': typeof Ver1AdminRouteWithChildren
   '/admin': typeof AdminIndexRoute
   '/library': typeof LibraryIndexRoute
   '/muscles': typeof MusclesIndexRoute
@@ -341,21 +264,9 @@ export interface FileRoutesByTo {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
-  '/ver1/admin/content': typeof Ver1AdminContentRoute
-  '/ver1/admin/customers': typeof Ver1AdminCustomersRoute
-  '/ver1/admin/guides': typeof Ver1AdminGuidesRoute
-  '/ver1/admin/lessons': typeof Ver1AdminLessonsRoute
-  '/ver1/admin/orders': typeof Ver1AdminOrdersRoute
-  '/ver1/admin/programs': typeof Ver1AdminProgramsRoute
+  '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles': typeof AdminMusclesIndexRoute
   '/admin/recipes': typeof AdminRecipesIndexRoute
-  '/ver1/admin': typeof Ver1AdminIndexRoute
-  '/ver1/admin/muscles/$muscleId': typeof Ver1AdminMusclesMuscleIdRoute
-  '/ver1/admin/muscles/import': typeof Ver1AdminMusclesImportRoute
-  '/ver1/admin/recipes/$recipeId': typeof Ver1AdminRecipesRecipeIdRoute
-  '/ver1/admin/recipes/import': typeof Ver1AdminRecipesImportRoute
-  '/ver1/admin/muscles': typeof Ver1AdminMusclesIndexRoute
-  '/ver1/admin/recipes': typeof Ver1AdminRecipesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -367,6 +278,7 @@ export interface FileRoutesById {
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/guides': typeof AdminGuidesRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
@@ -387,21 +299,9 @@ export interface FileRoutesById {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
-  '/ver1/admin/content': typeof Ver1AdminContentRoute
-  '/ver1/admin/customers': typeof Ver1AdminCustomersRoute
-  '/ver1/admin/guides': typeof Ver1AdminGuidesRoute
-  '/ver1/admin/lessons': typeof Ver1AdminLessonsRoute
-  '/ver1/admin/orders': typeof Ver1AdminOrdersRoute
-  '/ver1/admin/programs': typeof Ver1AdminProgramsRoute
+  '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles/': typeof AdminMusclesIndexRoute
   '/admin/recipes/': typeof AdminRecipesIndexRoute
-  '/ver1/admin/': typeof Ver1AdminIndexRoute
-  '/ver1/admin/muscles/$muscleId': typeof Ver1AdminMusclesMuscleIdRoute
-  '/ver1/admin/muscles/import': typeof Ver1AdminMusclesImportRoute
-  '/ver1/admin/recipes/$recipeId': typeof Ver1AdminRecipesRecipeIdRoute
-  '/ver1/admin/recipes/import': typeof Ver1AdminRecipesImportRoute
-  '/ver1/admin/muscles/': typeof Ver1AdminMusclesIndexRoute
-  '/ver1/admin/recipes/': typeof Ver1AdminRecipesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -414,6 +314,7 @@ export interface FileRouteTypes {
     | '/ver1'
     | '/admin/content'
     | '/admin/customers'
+    | '/admin/guides'
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
@@ -434,27 +335,16 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
-    | '/ver1/admin/content'
-    | '/ver1/admin/customers'
-    | '/ver1/admin/guides'
-    | '/ver1/admin/lessons'
-    | '/ver1/admin/orders'
-    | '/ver1/admin/programs'
+    | '/ver1/admin/$'
     | '/admin/muscles/'
     | '/admin/recipes/'
-    | '/ver1/admin/'
-    | '/ver1/admin/muscles/$muscleId'
-    | '/ver1/admin/muscles/import'
-    | '/ver1/admin/recipes/$recipeId'
-    | '/ver1/admin/recipes/import'
-    | '/ver1/admin/muscles/'
-    | '/ver1/admin/recipes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/movement-check'
     | '/admin/content'
     | '/admin/customers'
+    | '/admin/guides'
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
@@ -466,6 +356,7 @@ export interface FileRouteTypes {
     | '/library/account'
     | '/muscles/$muscleId'
     | '/recipes/$slug'
+    | '/ver1/admin'
     | '/admin'
     | '/library'
     | '/muscles'
@@ -474,21 +365,9 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
-    | '/ver1/admin/content'
-    | '/ver1/admin/customers'
-    | '/ver1/admin/guides'
-    | '/ver1/admin/lessons'
-    | '/ver1/admin/orders'
-    | '/ver1/admin/programs'
+    | '/ver1/admin/$'
     | '/admin/muscles'
     | '/admin/recipes'
-    | '/ver1/admin'
-    | '/ver1/admin/muscles/$muscleId'
-    | '/ver1/admin/muscles/import'
-    | '/ver1/admin/recipes/$recipeId'
-    | '/ver1/admin/recipes/import'
-    | '/ver1/admin/muscles'
-    | '/ver1/admin/recipes'
   id:
     | '__root__'
     | '/'
@@ -499,6 +378,7 @@ export interface FileRouteTypes {
     | '/ver1'
     | '/admin/content'
     | '/admin/customers'
+    | '/admin/guides'
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
@@ -519,21 +399,9 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
-    | '/ver1/admin/content'
-    | '/ver1/admin/customers'
-    | '/ver1/admin/guides'
-    | '/ver1/admin/lessons'
-    | '/ver1/admin/orders'
-    | '/ver1/admin/programs'
+    | '/ver1/admin/$'
     | '/admin/muscles/'
     | '/admin/recipes/'
-    | '/ver1/admin/'
-    | '/ver1/admin/muscles/$muscleId'
-    | '/ver1/admin/muscles/import'
-    | '/ver1/admin/recipes/$recipeId'
-    | '/ver1/admin/recipes/import'
-    | '/ver1/admin/muscles/'
-    | '/ver1/admin/recipes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -613,6 +481,13 @@ declare module '@tanstack/react-router' {
       path: '/customers'
       fullPath: '/admin/customers'
       preLoaderRoute: typeof AdminCustomersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/guides': {
+      id: '/admin/guides'
+      path: '/guides'
+      fullPath: '/admin/guides'
+      preLoaderRoute: typeof AdminGuidesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/lessons': {
@@ -762,95 +637,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRecipesImportRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/ver1/admin/': {
-      id: '/ver1/admin/'
-      path: '/'
-      fullPath: '/ver1/admin/'
-      preLoaderRoute: typeof Ver1AdminIndexRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/content': {
-      id: '/ver1/admin/content'
-      path: '/content'
-      fullPath: '/ver1/admin/content'
-      preLoaderRoute: typeof Ver1AdminContentRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/customers': {
-      id: '/ver1/admin/customers'
-      path: '/customers'
-      fullPath: '/ver1/admin/customers'
-      preLoaderRoute: typeof Ver1AdminCustomersRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/guides': {
-      id: '/ver1/admin/guides'
-      path: '/guides'
-      fullPath: '/ver1/admin/guides'
-      preLoaderRoute: typeof Ver1AdminGuidesRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/lessons': {
-      id: '/ver1/admin/lessons'
-      path: '/lessons'
-      fullPath: '/ver1/admin/lessons'
-      preLoaderRoute: typeof Ver1AdminLessonsRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/orders': {
-      id: '/ver1/admin/orders'
-      path: '/orders'
-      fullPath: '/ver1/admin/orders'
-      preLoaderRoute: typeof Ver1AdminOrdersRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/programs': {
-      id: '/ver1/admin/programs'
-      path: '/programs'
-      fullPath: '/ver1/admin/programs'
-      preLoaderRoute: typeof Ver1AdminProgramsRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/muscles/': {
-      id: '/ver1/admin/muscles/'
-      path: '/muscles'
-      fullPath: '/ver1/admin/muscles/'
-      preLoaderRoute: typeof Ver1AdminMusclesIndexRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/muscles/$muscleId': {
-      id: '/ver1/admin/muscles/$muscleId'
-      path: '/muscles/$muscleId'
-      fullPath: '/ver1/admin/muscles/$muscleId'
-      preLoaderRoute: typeof Ver1AdminMusclesMuscleIdRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/muscles/import': {
-      id: '/ver1/admin/muscles/import'
-      path: '/muscles/import'
-      fullPath: '/ver1/admin/muscles/import'
-      preLoaderRoute: typeof Ver1AdminMusclesImportRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/recipes/': {
-      id: '/ver1/admin/recipes/'
-      path: '/recipes'
-      fullPath: '/ver1/admin/recipes/'
-      preLoaderRoute: typeof Ver1AdminRecipesIndexRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/recipes/$recipeId': {
-      id: '/ver1/admin/recipes/$recipeId'
-      path: '/recipes/$recipeId'
-      fullPath: '/ver1/admin/recipes/$recipeId'
-      preLoaderRoute: typeof Ver1AdminRecipesRecipeIdRouteImport
-      parentRoute: typeof Ver1AdminRoute
-    }
-    '/ver1/admin/recipes/import': {
-      id: '/ver1/admin/recipes/import'
-      path: '/recipes/import'
-      fullPath: '/ver1/admin/recipes/import'
-      preLoaderRoute: typeof Ver1AdminRecipesImportRouteImport
+    '/ver1/admin/$': {
+      id: '/ver1/admin/$'
+      path: '/$'
+      fullPath: '/ver1/admin/$'
+      preLoaderRoute: typeof Ver1AdminSplatRouteImport
       parentRoute: typeof Ver1AdminRoute
     }
   }
@@ -859,6 +650,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminContentRoute: typeof AdminContentRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
+  AdminGuidesRoute: typeof AdminGuidesRoute
   AdminLessonsRoute: typeof AdminLessonsRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProgramsRoute: typeof AdminProgramsRoute
@@ -874,6 +666,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminContentRoute: AdminContentRoute,
   AdminCustomersRoute: AdminCustomersRoute,
+  AdminGuidesRoute: AdminGuidesRoute,
   AdminLessonsRoute: AdminLessonsRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProgramsRoute: AdminProgramsRoute,
@@ -917,35 +710,11 @@ const MusclesRouteWithChildren =
   MusclesRoute._addFileChildren(MusclesRouteChildren)
 
 interface Ver1AdminRouteChildren {
-  Ver1AdminContentRoute: typeof Ver1AdminContentRoute
-  Ver1AdminCustomersRoute: typeof Ver1AdminCustomersRoute
-  Ver1AdminGuidesRoute: typeof Ver1AdminGuidesRoute
-  Ver1AdminLessonsRoute: typeof Ver1AdminLessonsRoute
-  Ver1AdminOrdersRoute: typeof Ver1AdminOrdersRoute
-  Ver1AdminProgramsRoute: typeof Ver1AdminProgramsRoute
-  Ver1AdminIndexRoute: typeof Ver1AdminIndexRoute
-  Ver1AdminMusclesMuscleIdRoute: typeof Ver1AdminMusclesMuscleIdRoute
-  Ver1AdminMusclesImportRoute: typeof Ver1AdminMusclesImportRoute
-  Ver1AdminRecipesRecipeIdRoute: typeof Ver1AdminRecipesRecipeIdRoute
-  Ver1AdminRecipesImportRoute: typeof Ver1AdminRecipesImportRoute
-  Ver1AdminMusclesIndexRoute: typeof Ver1AdminMusclesIndexRoute
-  Ver1AdminRecipesIndexRoute: typeof Ver1AdminRecipesIndexRoute
+  Ver1AdminSplatRoute: typeof Ver1AdminSplatRoute
 }
 
 const Ver1AdminRouteChildren: Ver1AdminRouteChildren = {
-  Ver1AdminContentRoute: Ver1AdminContentRoute,
-  Ver1AdminCustomersRoute: Ver1AdminCustomersRoute,
-  Ver1AdminGuidesRoute: Ver1AdminGuidesRoute,
-  Ver1AdminLessonsRoute: Ver1AdminLessonsRoute,
-  Ver1AdminOrdersRoute: Ver1AdminOrdersRoute,
-  Ver1AdminProgramsRoute: Ver1AdminProgramsRoute,
-  Ver1AdminIndexRoute: Ver1AdminIndexRoute,
-  Ver1AdminMusclesMuscleIdRoute: Ver1AdminMusclesMuscleIdRoute,
-  Ver1AdminMusclesImportRoute: Ver1AdminMusclesImportRoute,
-  Ver1AdminRecipesRecipeIdRoute: Ver1AdminRecipesRecipeIdRoute,
-  Ver1AdminRecipesImportRoute: Ver1AdminRecipesImportRoute,
-  Ver1AdminMusclesIndexRoute: Ver1AdminMusclesIndexRoute,
-  Ver1AdminRecipesIndexRoute: Ver1AdminRecipesIndexRoute,
+  Ver1AdminSplatRoute: Ver1AdminSplatRoute,
 }
 
 const Ver1AdminRouteWithChildren = Ver1AdminRoute._addFileChildren(

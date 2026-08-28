@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ExternalLink, FileUp, Search } from "lucide-react";
-import { PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { ExternalLink, FileUp, ImageOff, Search } from "lucide-react";
+import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import {
   filterMuscleList,
+  getMuscleReadiness,
   groupsOf,
   MUSCLE_COLUMNS,
   muscleFromRow,
@@ -30,7 +31,9 @@ export const Route = createFileRoute("/admin/muscles/")({
 function AdminMuscles() {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [all, setAll] = useState<Muscle[]>([]);
+  const [liveReferenceCounts, setLiveReferenceCounts] = useState<Record<string, number>>({});
   const [loadState, setLoadState] = useState("Loading records from the database…");
 
   useEffect(() => {
@@ -40,29 +43,62 @@ function AdminMuscles() {
       return;
     }
 
-    void client
-      .from("muscles")
-      .select(MUSCLE_COLUMNS)
-      .order("name", { ascending: true })
-      .then(({ data, error }) => {
-        if (error) {
-          setLoadState(`Could not load records: ${error.message}`);
-          return;
-        }
-        const list = ((data ?? []) as unknown as MuscleRow[]).map(muscleFromRow);
-        setAll(list);
-        warnOnFixtureMismatch(
-          "/admin/muscles",
-          list.map((muscle) => muscle.id),
-        );
-        setLoadState(`${list.length} records loaded from the database.`);
-      });
+    void Promise.all([
+      client.from("muscles").select(MUSCLE_COLUMNS).order("name", { ascending: true }),
+      client
+        .from("recipe_muscles")
+        .select("muscle_id,recipes!inner(published)")
+        .eq("recipes.published", true),
+      client
+        .from("guide_muscles")
+        .select("muscle_id,guides!inner(published)")
+        .eq("guides.published", true),
+    ]).then(([musclesResult, recipeLinksResult, guideLinksResult]) => {
+      const { data, error } = musclesResult;
+      if (error) {
+        setLoadState(`Could not load records: ${error.message}`);
+        return;
+      }
+      const list = ((data ?? []) as unknown as MuscleRow[]).map(muscleFromRow);
+      setAll(list);
+      warnOnFixtureMismatch(
+        "/admin/muscles",
+        list.map((muscle) => muscle.id),
+      );
+      const counts: Record<string, number> = {};
+      for (const row of [...(recipeLinksResult.data ?? []), ...(guideLinksResult.data ?? [])]) {
+        const muscleId = String(row.muscle_id);
+        counts[muscleId] = (counts[muscleId] ?? 0) + 1;
+      }
+      setLiveReferenceCounts(counts);
+      setLoadState(`${list.length} records loaded from the database.`);
+    });
   }, []);
 
   const muscleGroups = useMemo(() => groupsOf(all), [all]);
-  const rows = useMemo(() => filterMuscleList(all, query, group), [all, query, group]);
+  const rows = useMemo(
+    () =>
+      filterMuscleList(all, query, group)
+        .filter((muscle) => {
+          if (statusFilter === "referenced") return Boolean(liveReferenceCounts[muscle.id]);
+          return statusFilter === "all" || getMuscleReadiness(muscle).key === statusFilter;
+        })
+        .sort((a, b) => {
+          const referenceDifference =
+            (liveReferenceCounts[b.id] ?? 0) - (liveReferenceCounts[a.id] ?? 0);
+          return referenceDifference || a.title.localeCompare(b.title);
+        }),
+    [all, group, liveReferenceCounts, query, statusFilter],
+  );
   const publishedCount = all.filter((muscle) => muscle.published).length;
-  const unpublishedCount = all.length - publishedCount;
+  const readyCount = all.filter((muscle) => getMuscleReadiness(muscle).key === "ready").length;
+  const imageReviewCount = all.filter(
+    (muscle) => getMuscleReadiness(muscle).key === "image",
+  ).length;
+  const anatomyReviewCount = all.filter(
+    (muscle) => getMuscleReadiness(muscle).key === "anatomy",
+  ).length;
+  const referencedCount = Object.keys(liveReferenceCounts).length;
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
@@ -88,10 +124,13 @@ function AdminMuscles() {
         }
       />
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         <Stat label="Database records" value={all.length} />
         <Stat label="Published" value={publishedCount} />
-        <Stat label="Needs review" value={unpublishedCount} />
+        <Stat label="Used in live content" value={referencedCount} />
+        <Stat label="Ready to publish" value={readyCount} />
+        <Stat label="Image review" value={imageReviewCount} />
+        <Stat label="Anatomy review" value={anatomyReviewCount} />
       </div>
 
       <Panel className="mt-5 p-4">
@@ -127,72 +166,99 @@ function AdminMuscles() {
         <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
           {loadState} · publishing stays a separate manual step
         </p>
+        <div className="mt-4 flex flex-wrap gap-2" aria-label="Filter by review status">
+          {[
+            ["all", "All", all.length],
+            ["live", "Live", publishedCount],
+            ["referenced", "Used in live content", referencedCount],
+            ["ready", "Ready", readyCount],
+            ["image", "Image review", imageReviewCount],
+            ["anatomy", "Anatomy review", anatomyReviewCount],
+          ].map(([value, label, count]) => (
+            <button
+              key={String(value)}
+              type="button"
+              aria-pressed={statusFilter === value}
+              onClick={() => setStatusFilter(String(value))}
+              className={`min-h-10 rounded-sm border px-3 text-xs font-bold ${
+                statusFilter === value
+                  ? "border-ink bg-ink text-ink-foreground"
+                  : "border-border bg-background"
+              }`}
+            >
+              {label} <span className="font-mono text-[10px]">{count}</span>
+            </button>
+          ))}
+        </div>
       </Panel>
 
-      <Panel className="mt-5 overflow-x-auto">
-        <table className="w-full min-w-[900px] text-sm">
-          <thead>
-            <tr>
-              <Th>Image</Th>
-              <Th>Muscle</Th>
-              <Th>Group</Th>
-              <Th>Family</Th>
-              <Th>Status</Th>
-              <Th>Sources</Th>
-              <Th />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((muscle) => (
-              <tr key={muscle.id} className="hover:bg-secondary/50">
-                <Td>
-                  <div className="h-14 w-20 overflow-hidden rounded-sm border border-border bg-secondary">
-                    <img
-                      src={muscle.imageUrl}
-                      alt=""
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      className="h-full w-full object-contain"
-                    />
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {rows.map((muscle) => {
+          const readiness = getMuscleReadiness(muscle);
+          const tone = readiness.key === "live" || readiness.key === "ready" ? "accent" : "muted";
+          const referenceCount = liveReferenceCounts[muscle.id] ?? 0;
+
+          return (
+            <Panel key={muscle.id} className="overflow-hidden">
+              <div className="relative grid h-64 place-items-center border-b border-border bg-white p-4">
+                {muscle.imageUrl ? (
+                  <img
+                    src={muscle.imageUrl}
+                    alt={muscle.imageAlt || ""}
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    className="h-full w-full object-contain"
+                  />
+                ) : (
+                  <div className="grid place-items-center gap-2 text-center text-muted-foreground">
+                    <ImageOff className="h-8 w-8" aria-hidden="true" />
+                    <span className="text-xs font-bold">No image</span>
                   </div>
-                </Td>
-                <Td>
-                  <p className="font-bold">{muscle.title}</p>
-                  <p className="mt-1 max-w-md truncate text-xs text-muted-foreground">
-                    {muscle.actions}
-                  </p>
-                </Td>
-                <Td>{muscle.group}</Td>
-                <Td className="text-muted-foreground">{muscle.family || "—"}</Td>
-                <Td>
-                  <Tag tone={muscle.published ? "accent" : "muted"}>
-                    {muscle.published ? "Published" : "Draft"}
-                  </Tag>
-                </Td>
-                <Td>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                    Anatomy + image
+                )}
+                <span className="absolute left-3 top-3">
+                  <Tag tone={tone}>{readiness.label}</Tag>
+                </span>
+                {referenceCount > 0 && (
+                  <span className="absolute right-3 top-3">
+                    <Tag tone="accent">
+                      Used in {referenceCount} live {referenceCount === 1 ? "item" : "items"}
+                    </Tag>
                   </span>
-                </Td>
-                <Td className="text-right">
-                  <Link
-                    to="/admin/muscles/$muscleId"
-                    params={{ muscleId: muscle.id }}
-                    className="inline-flex min-h-10 items-center rounded-sm border border-border px-3 py-2 text-xs font-bold"
-                  >
-                    Edit
-                  </Link>
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {rows.length === 0 && (
-          <p className="p-8 text-center text-sm text-muted-foreground">
-            No muscle records match this filter.
-          </p>
-        )}
-      </Panel>
+                )}
+              </div>
+              <div className="p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                  {muscle.group} {muscle.family ? `· ${muscle.family}` : ""}
+                </p>
+                <h2 className="mt-2 text-xl font-extrabold tracking-tight">{muscle.title}</h2>
+                <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-muted-foreground">
+                  {muscle.actions || "No function summary yet."}
+                </p>
+                {readiness.issues.length > 0 ? (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Fix next: {readiness.issues.slice(0, 3).join(", ")}
+                    {readiness.issues.length > 3 ? ` +${readiness.issues.length - 3}` : ""}
+                  </p>
+                ) : (
+                  <p className="mt-3 text-xs font-bold">Ready for final review.</p>
+                )}
+                <Link
+                  to="/admin/muscles/$muscleId"
+                  params={{ muscleId: muscle.id }}
+                  className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-sm border border-border px-3 py-2 text-xs font-bold"
+                >
+                  Review muscle
+                </Link>
+              </div>
+            </Panel>
+          );
+        })}
+      </div>
+      {rows.length === 0 && (
+        <Panel className="mt-5 p-8 text-center text-sm text-muted-foreground">
+          No muscle records match this filter.
+        </Panel>
+      )}
     </div>
   );
 }

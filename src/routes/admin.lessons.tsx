@@ -4,13 +4,14 @@ import { FileVideo, Loader2, Play, Plus, Upload, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { attachStreamVideo, createStreamTusUpload, getStreamConfigurationStatus, getStreamPlayback, listStreamVideos, refreshStreamVideo, type StreamLibraryVideo } from "@/lib/stream.functions";
+import { attachStreamVideo, createStreamTusUpload, getStreamConfigurationStatus, getStreamPlayback, listStreamVideos, refreshStreamVideo, setStreamThumbnailFrame, type StreamLibraryVideo } from "@/lib/stream.functions";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 type Module = Database["public"]["Tables"]["program_modules"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 
 export const Route = createFileRoute("/admin/lessons")({
+  validateSearch: (search: Record<string, unknown>) => ({ program: typeof search["program"] === "string" ? search["program"] : undefined }),
   head: () => ({
     meta: [
       { title: "Lessons & videos — LegitBodyFix Admin" },
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/admin/lessons")({
 });
 
 function LessonsView() {
+  const { program: requestedProgramId } = Route.useSearch();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [programId, setProgramId] = useState("");
   const [modules, setModules] = useState<Module[]>([]);
@@ -40,7 +42,8 @@ function LessonsView() {
       if (readError) setError(readError.message);
       else {
         setPrograms(data ?? []);
-        setProgramId((data ?? [])[0]?.id ?? "");
+        const available = data ?? [];
+        setProgramId(available.some((program) => program.id === requestedProgramId) ? requestedProgramId! : available[0]?.id ?? "");
       }
       setLoading(false);
     })();
@@ -184,6 +187,9 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
   const [showStreamLibrary, setShowStreamLibrary] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [thumbnailTime, setThumbnailTime] = useState("0");
+  const [thumbnailRevision, setThumbnailRevision] = useState(0);
 
   const uploadVideo = async (file: File) => {
     if (!lesson) { setError("Save the lesson before uploading its video."); return; }
@@ -209,8 +215,20 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
     if (!lesson || !streamUid) return;
     try {
       const playback = await getStreamPlayback({ data: { lessonId: lesson.id } });
-      window.open(playback.iframeUrl, "_blank", "noopener,noreferrer");
+      setPreviewUrl(playback.iframeUrl);
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
+  };
+
+  const useVideoFrame = async () => {
+    if (!lesson || !streamUid) { setError("Save the lesson and attach a Stream video first."); return; }
+    setSaving(true);
+    setError(null);
+    try {
+      const result = await setStreamThumbnailFrame({ data: { lessonId: lesson.id, timeSeconds: Math.max(0, Number(thumbnailTime) || 0) } });
+      if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl);
+      setThumbnailRevision((current) => current + 1);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
+    setSaving(false);
   };
 
   const openStreamLibrary = async () => {
@@ -278,8 +296,9 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{streamUid ? `${streamStatus} · ${streamUid}` : lesson ? "No Stream video uploaded" : "Save this lesson to enable upload"}</p>
             {videoPath && <p className="mt-2 break-all font-mono text-[10px] text-muted-foreground">Legacy Storage file retained: {videoPath}</p>}
             {showStreamLibrary && <div className="mt-4 max-h-72 overflow-y-auto border border-border bg-background"><div className="sticky top-0 flex items-center justify-between border-b border-border bg-background px-3 py-2"><span className="font-mono text-[10px] uppercase tracking-[0.12em]">Cloudflare library · {streamLibrary.length}</span><button type="button" onClick={() => setShowStreamLibrary(false)} aria-label="Close Stream library"><X className="h-4 w-4" /></button></div>{streamLibrary.map((video) => <button key={video.uid} type="button" disabled={!video.ready || !video.signed || uploading} onClick={() => void attachExisting(video)} className="flex w-full items-center gap-3 border-b border-border/70 p-3 text-left last:border-b-0 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-45">{video.thumbnail ? <img src={video.thumbnail} alt="" className="h-14 w-24 rounded-sm object-cover" /> : <div className="grid h-14 w-24 place-items-center bg-secondary"><FileVideo className="h-4 w-4" /></div>}<span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{video.name}</span><span className="mt-1 block font-mono text-[10px] text-muted-foreground">{formatDuration(video.durationSeconds)} · {video.ready ? "ready" : "processing"} · {video.signed ? "private" : "public"}</span></span></button>)}</div>}
+            {previewUrl && <div className="mt-4 overflow-hidden border border-border bg-black"><div className="flex items-center justify-between bg-background px-3 py-2"><span className="text-xs font-bold">Secure lesson preview</span><button type="button" onClick={() => setPreviewUrl("")} aria-label="Close preview"><X className="h-4 w-4" /></button></div><div className="aspect-video"><iframe src={previewUrl} title={`${title || "Lesson"} preview`} allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0" /></div></div>}
           </div>
-          <Field label="Thumbnail URL" value={thumbnailUrl} onChange={setThumbnailUrl} />
+          <div className="border border-border bg-card p-4"><Label>Video thumbnail</Label>{thumbnailUrl && <img src={`${thumbnailUrl}${thumbnailUrl.includes("?") ? "&" : "?"}preview=${thumbnailRevision}`} alt="Selected lesson thumbnail" className="mb-3 aspect-video w-full rounded-sm border border-border bg-white object-contain" />}<Field label="Thumbnail URL" value={thumbnailUrl} onChange={setThumbnailUrl} /><div className="mt-3 flex items-end gap-2"><div className="min-w-0 flex-1"><Field label="Frame time (seconds)" value={thumbnailTime} onChange={setThumbnailTime} type="number" /></div><Btn disabled={!lesson || !streamUid || saving} onClick={() => void useVideoFrame()}>Use this frame</Btn></div><p className="mt-2 text-[11px] text-muted-foreground">Enter a timestamp to set Cloudflare Stream's persistent default thumbnail for this video.</p></div>
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3"><Toggle label="Publish lesson" checked={published} onChange={setPublished} /><Toggle label="Free preview" checked={previewFree} onChange={setPreviewFree} /></div>
           {error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
         </div>
