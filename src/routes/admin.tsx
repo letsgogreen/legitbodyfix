@@ -8,6 +8,7 @@ import {
   Receipt,
   PanelsTopLeft,
   NotebookPen,
+  BookOpenCheck,
   ExternalLink,
   type LucideIcon,
 } from "lucide-react";
@@ -40,6 +41,7 @@ const nav: NavItem[] = [
   { to: "/admin/lessons", label: "Lessons & videos", icon: PlaySquare },
   { to: "/admin/muscles", label: "Muscle library", icon: Activity },
   { to: "/admin/recipes", label: "Recipes", icon: NotebookPen },
+  { to: "/admin/guides", label: "Posture guides", icon: BookOpenCheck },
   { to: "/admin/recipes/import", label: "Recipe import", icon: NotebookPen },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/orders", label: "Orders & access", icon: Receipt },

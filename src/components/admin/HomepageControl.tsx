@@ -6,7 +6,7 @@ import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { bodyRegions } from "@/data/body-regions";
 import { supabase } from "@/integrations/supabase/client";
 
-type AdminPrefix = "/admin" | "/ver1/admin";
+type AdminPrefix = "/admin";
 
 const sections = [
   {
@@ -154,11 +154,7 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
           {sections.map(({ name, description, icon: Icon, path }) => (
             <a
               key={name}
-              href={
-                adminPrefix === "/admin" && path === "/guides"
-                  ? "/ver1/admin/guides"
-                  : `${adminPrefix}${path}`
-              }
+              href={`${adminPrefix}${path}`}
               className="group rounded-sm border border-border bg-card p-5 transition-colors hover:bg-secondary"
             >
               <div className="flex items-start justify-between gap-4">
