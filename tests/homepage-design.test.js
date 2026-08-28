@@ -118,6 +118,12 @@ test("the Lovable control room is available as the primary admin workspace", fun
     },
   );
   assert.match(auth, /app_metadata\?\.\["is_admin"\] === true/);
+  assert.match(auth, /signInWithOtp/);
+  assert.match(auth, /shouldCreateUser:\s*false/);
+  assert.match(auth, /verifyOtp/);
+  assert.match(auth, /type:\s*"email"/);
+  assert.doesNotMatch(auth, /emailRedirectTo/);
+  assert.match(auth, /Send 6-digit code/);
   assert.match(start, /functionMiddleware: \[attachSupabaseAuth\]/);
   assert.ok(fs.existsSync(path.join(root, "src/routes/admin.muscles.import.tsx")));
   assert.ok(fs.existsSync(path.join(root, "src/routes/admin.recipes.import.tsx")));
