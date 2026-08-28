@@ -87,11 +87,12 @@ function cleanConsumedAuthFragment() {
 
 function AdminSignIn() {
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function requestOtp() {
     const client = getSupabaseClient();
     if (!client) return;
 
@@ -104,38 +105,124 @@ function AdminSignIn() {
     setMessage("");
     const { error } = await client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/admin` },
+      options: { shouldCreateUser: false },
     });
     setSubmitting(false);
-    setMessage(error ? error.message : "Check your email for the secure sign-in link.");
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setOtpSent(true);
+    setMessage("A 6-digit administrator code was sent to your email.");
+  }
+
+  async function verifyOtp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const client = getSupabaseClient();
+    if (!client) return;
+
+    if (!/^\d{6}$/.test(otp)) {
+      setMessage("Enter the complete 6-digit code.");
+      return;
+    }
+
+    setSubmitting(true);
+    setMessage("");
+    const { error } = await client.auth.verifyOtp({
+      email,
+      token: otp,
+      type: "email",
+    });
+    setSubmitting(false);
+    setMessage(error ? "That code is invalid or has expired. Request a new code and try again." : "Access verified. Opening the control room…");
+  }
+
+  function changeEmail() {
+    setOtp("");
+    setOtpSent(false);
+    setMessage("");
   }
 
   return (
     <AuthMessage
       title="Administrator sign-in"
-      body="Use the administrator email connected to Supabase. Access is granted only after the account metadata is verified."
+      body={otpSent
+        ? `Enter the 6-digit code sent to ${email}.`
+        : "Use the approved administrator email. We'll send a one-time 6-digit code—no link or new window required."}
       action={
-        <form onSubmit={submit} className="mt-6 grid gap-3">
-          <label className="grid gap-2 text-left text-xs font-bold uppercase tracking-[0.12em]">
-            Email
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(event) => { setEmail(event.target.value); if (message) setMessage(""); }}
-              className="min-h-11 rounded-sm border border-border bg-background px-3 text-sm font-normal normal-case tracking-normal"
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="min-h-11 rounded-sm bg-ink px-4 text-sm font-bold text-ink-foreground disabled:opacity-50"
+        otpSent ? (
+          <form onSubmit={verifyOtp} className="mt-6 grid gap-3">
+            <label className="grid gap-2 text-left text-xs font-bold uppercase tracking-[0.12em]">
+              Verification code
+              <input
+                type="text"
+                required
+                autoFocus
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={otp}
+                onChange={(event) => {
+                  setOtp(event.target.value.replace(/\D/g, "").slice(0, 6));
+                  if (message) setMessage("");
+                }}
+                className="min-h-14 rounded-sm border border-border bg-background px-3 text-center font-mono text-2xl font-bold tracking-[0.35em]"
+                aria-describedby="admin-otp-message"
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={submitting || otp.length !== 6}
+              className="min-h-11 rounded-sm bg-ink px-4 text-sm font-bold text-ink-foreground disabled:opacity-50"
+            >
+              {submitting ? "Verifying…" : "Verify and enter"}
+            </button>
+            <div className="flex flex-wrap justify-between gap-3 text-xs font-bold">
+              <button type="button" onClick={changeEmail} className="underline underline-offset-4">
+                Change email
+              </button>
+              <button
+                type="button"
+                onClick={() => void requestOtp()}
+                disabled={submitting}
+                className="underline underline-offset-4 disabled:opacity-50"
+              >
+                Send a new code
+              </button>
+            </div>
+            {message && <p id="admin-otp-message" aria-live="polite" className="text-sm text-muted-foreground">{message}</p>}
+          </form>
+        ) : (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void requestOtp();
+            }}
+            className="mt-6 grid gap-3"
           >
-            {submitting ? "Sending…" : "Send secure sign-in link"}
-          </button>
-          {message && <p className="text-sm text-muted-foreground">{message}</p>}
-        </form>
+            <label className="grid gap-2 text-left text-xs font-bold uppercase tracking-[0.12em]">
+              Email
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(event) => { setEmail(event.target.value); if (message) setMessage(""); }}
+                className="min-h-11 rounded-sm border border-border bg-background px-3 text-sm font-normal normal-case tracking-normal"
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="min-h-11 rounded-sm bg-ink px-4 text-sm font-bold text-ink-foreground disabled:opacity-50"
+            >
+              {submitting ? "Sending…" : "Send 6-digit code"}
+            </button>
+            {message && <p aria-live="polite" className="text-sm text-muted-foreground">{message}</p>}
+          </form>
+        )
       }
     />
   );
