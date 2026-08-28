@@ -10,15 +10,10 @@ export function isApprovedAdminEmail(email?: string | null) {
   return email?.trim().toLowerCase() === ADMIN_EMAIL;
 }
 
-const VER1_AUTH_BRIDGE_URL =
-  "https://move-system-landing.lovable.app/auth/callback?target=ver1";
-
 export function AdminAuthGate({
   children,
-  redirectPath = "/admin",
 }: {
   children: ReactNode;
-  redirectPath?: string;
 }) {
   const [state, setState] = useState<AuthState>("loading");
   const [user, setUser] = useState<User>();
@@ -57,7 +52,7 @@ export function AdminAuthGate({
       />
     );
   }
-  if (state === "signed-out") return <AdminSignIn redirectPath={redirectPath} />;
+  if (state === "signed-out") return <AdminSignIn />;
   if (state === "forbidden") {
     return (
       <AuthMessage
@@ -90,7 +85,7 @@ function cleanConsumedAuthFragment() {
   }
 }
 
-function AdminSignIn({ redirectPath }: { redirectPath: string }) {
+function AdminSignIn() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -107,13 +102,9 @@ function AdminSignIn({ redirectPath }: { redirectPath: string }) {
 
     setSubmitting(true);
     setMessage("");
-    const emailRedirectTo = redirectPath.startsWith("/ver1/admin")
-      ? VER1_AUTH_BRIDGE_URL
-      : `${window.location.origin}${redirectPath}`;
-
     const { error } = await client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo },
+      options: { emailRedirectTo: `${window.location.origin}/admin` },
     });
     setSubmitting(false);
     setMessage(error ? error.message : "Check your email for the secure sign-in link.");
