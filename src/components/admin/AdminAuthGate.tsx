@@ -138,12 +138,6 @@ function AdminSignIn() {
     setMessage(error ? "That code is invalid or has expired. Request a new code and try again." : "Access verified. Opening the control room…");
   }
 
-  function changeEmail() {
-    setOtp("");
-    setOtpSent(false);
-    setMessage("");
-  }
-
   return (
     <AuthMessage
       title="Administrator sign-in"
@@ -179,10 +173,7 @@ function AdminSignIn() {
             >
               {submitting ? "Verifying…" : "Verify and enter"}
             </button>
-            <div className="flex flex-wrap justify-between gap-3 text-xs font-bold">
-              <button type="button" onClick={changeEmail} className="underline underline-offset-4">
-                Change email
-              </button>
+            <div className="flex justify-end text-xs font-bold">
               <button
                 type="button"
                 onClick={() => void requestOtp()}
