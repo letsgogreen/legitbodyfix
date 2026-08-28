@@ -822,6 +822,27 @@ export type Database = {
           },
         ]
       }
+      site_media: {
+        Row: {
+          image_alt: string
+          image_url: string
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          image_alt?: string
+          image_url?: string
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          image_alt?: string
+          image_url?: string
+          key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       recipes: {
         Row: {
           assessment_clues: string | null

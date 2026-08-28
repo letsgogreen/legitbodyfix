@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Plus, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -200,8 +201,16 @@ function ProgramDrawer({ initial, onClose, onSaved }: { initial: ProgramDraft; o
           <Field label="Goals (comma-separated)" value={draft.goals} onChange={(value) => update("goals", value)} />
           <Field label="Stripe price lookup key" value={draft.stripe_price_lookup_key} onChange={(value) => update("stripe_price_lookup_key", value)} />
           <Field label="Entitlement key" value={draft.entitlement_key} onChange={(value) => update("entitlement_key", value)} />
-          <Field label="Cover image URL" value={draft.image_url} onChange={(value) => update("image_url", value)} />
-          <Field label="Image alt text" value={draft.image_alt} onChange={(value) => update("image_alt", value)} />
+          <div className="border border-border bg-card p-4">
+            <ImageUploadField
+              value={draft.image_url}
+              alt={draft.image_alt}
+              folder={`programs/${draft.id ?? (draft.slug || "new")}`}
+              label="Program cover image"
+              onChange={(value) => update("image_url", value)}
+              onAltChange={(value) => update("image_alt", value)}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3"><Toggle label="Feature on homepage" checked={draft.featured} onChange={(value) => update("featured", value)} /><Toggle label="Publish program" checked={draft.published} onChange={(value) => update("published", value)} /></div>
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Prices remain controlled by Stripe. This page stores only the lookup key used to retrieve the live price.</p>
           {error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}

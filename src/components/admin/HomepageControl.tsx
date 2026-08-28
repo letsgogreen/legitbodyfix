@@ -1,6 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, BookOpen, Dumbbell, ExternalLink, Map, PanelsTopLeft } from "lucide-react";
-import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
+import { useEffect, useState } from "react";
+import { ArrowUpRight, BookOpen, Check, Dumbbell, ExternalLink, Loader2, Map, PanelsTopLeft } from "lucide-react";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
+import { bodyRegions } from "@/data/body-regions";
+import { supabase } from "@/integrations/supabase/client";
 
 type AdminPrefix = "/admin" | "/ver1/admin";
 
@@ -32,6 +36,34 @@ const sections = [
 ] as const;
 
 export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
+  const [media, setMedia] = useState(() => Object.fromEntries(bodyRegions.map((region) => [region.slug, { image_url: region.imageUrl, image_alt: region.imageAlt }])));
+  const [saving, setSaving] = useState("");
+  const [saved, setSaved] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    void supabase.from("site_media").select("key,image_url,image_alt").like("key", "body-region:%").then(({ data, error: loadError }) => {
+      if (loadError) {
+        setError(loadError.message);
+        return;
+      }
+      if (!data) return;
+      setMedia((current) => ({ ...current, ...Object.fromEntries(data.map((item) => [item.key.replace("body-region:", ""), { image_url: item.image_url, image_alt: item.image_alt }])) }));
+    });
+  }, []);
+
+  async function saveRegion(slug: string) {
+    const item = media[slug];
+    if (!item) return;
+    setSaving(slug);
+    setSaved("");
+    setError("");
+    const { error: saveError } = await supabase.from("site_media").upsert({ key: `body-region:${slug}`, image_url: item.image_url, image_alt: item.image_alt, updated_at: new Date().toISOString() });
+    setSaving("");
+    if (saveError) setError(saveError.message);
+    else setSaved(slug);
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
@@ -66,6 +98,42 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
           />
         </div>
       </Panel>
+
+      <div className="mt-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Homepage media</p>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight">Body-region card images</h2>
+          </div>
+          <p className="max-w-xl text-sm leading-6 text-muted-foreground">Upload a broad regional anatomy, joint, or movement image. Changes appear on the homepage after saving.</p>
+        </div>
+        {error && <p className="mt-4 rounded-sm border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">{error}</p>}
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {bodyRegions.map((region) => {
+            const item = media[region.slug] ?? { image_url: region.imageUrl, image_alt: region.imageAlt };
+            return (
+              <Panel key={region.slug} className="p-4">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div><p className="text-base font-bold">{region.title}</p><p className="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">Homepage card</p></div>
+                  {saved === region.slug && <Tag tone="accent"><Check className="h-3 w-3" /> Saved</Tag>}
+                </div>
+                <ImageUploadField
+                  value={item.image_url}
+                  alt={item.image_alt}
+                  folder={`body-regions/${region.slug}`}
+                  label={`${region.title} image`}
+                  onChange={(image_url) => setMedia((current) => ({ ...current, [region.slug]: { ...item, image_url } }))}
+                  onAltChange={(image_alt) => setMedia((current) => ({ ...current, [region.slug]: { ...item, image_alt } }))}
+                />
+                <Btn variant="ink" className="mt-4 w-full justify-center" disabled={saving === region.slug} onClick={() => void saveRegion(region.slug)}>
+                  {saving === region.slug && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Save card image
+                </Btn>
+              </Panel>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="mt-5">
         <div className="flex flex-wrap items-end justify-between gap-3">
