@@ -1,11 +1,36 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
 import { bodyRegions } from "@/data/body-regions";
+import { supabase } from "@/integrations/supabase/client";
+
+type MediaOverride = { image_url: string; image_alt: string };
 
 export function BodyRegionGrid() {
+  const [media, setMedia] = useState<Record<string, MediaOverride>>({});
+
+  useEffect(() => {
+    let active = true;
+    void supabase
+      .from("site_media")
+      .select("key,image_url,image_alt")
+      .like("key", "body-region:%")
+      .then(({ data }) => {
+        if (!active || !data) return;
+        setMedia(Object.fromEntries(data.map((item) => [item.key, item])));
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="grid gap-px overflow-hidden rounded-sm border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-      {bodyRegions.map((region) => (
+      {bodyRegions.map((region) => {
+        const override = media[`body-region:${region.slug}`];
+        const imageUrl = override?.image_url || region.imageUrl;
+        const imageAlt = override?.image_alt || region.imageAlt;
+        return (
         <Link
           key={region.slug}
           to="/movement-check"
@@ -14,8 +39,8 @@ export function BodyRegionGrid() {
         >
           <div className="relative h-36 overflow-hidden border-b border-border bg-white sm:h-40">
             <img
-              src={region.imageUrl}
-              alt={region.imageAlt}
+              src={imageUrl}
+              alt={imageAlt}
               loading="lazy"
               className="h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-[1.03]"
             />
@@ -36,7 +61,8 @@ export function BodyRegionGrid() {
             </p>
           </div>
         </Link>
-      ))}
+        );
+      })}
     </div>
   );
 }

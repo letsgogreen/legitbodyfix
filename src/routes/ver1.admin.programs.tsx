@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -558,16 +559,16 @@ function ProgramDrawer({
             value={draft.entitlement_key}
             onChange={(value) => update("entitlement_key", value)}
           />
-          <Field
-            label="Cover image URL"
-            value={draft.image_url}
-            onChange={(value) => update("image_url", value)}
-          />
-          <Field
-            label="Image alt text"
-            value={draft.image_alt}
-            onChange={(value) => update("image_alt", value)}
-          />
+          <div className="border border-border bg-card p-4">
+            <ImageUploadField
+              value={draft.image_url}
+              alt={draft.image_alt}
+              folder={`programs/${draft.id ?? (draft.slug || "new")}`}
+              label="Program cover image"
+              onChange={(value) => update("image_url", value)}
+              onAltChange={(value) => update("image_alt", value)}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3">
             <Toggle
               label="Feature on homepage"
