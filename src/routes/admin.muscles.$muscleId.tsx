@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink, Save } from "lucide-react";
 import { PageHead, Panel } from "@/components/admin/AdminUI";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import {
   findFixtureMuscle,
   muscleFromRow,
@@ -149,15 +150,13 @@ function MuscleEditor() {
             />
           </div>
           <div className="space-y-4 border-t border-border p-4">
-            <Field
-              label="Image URL"
+            <ImageUploadField
               value={record.imageUrl}
+              alt={record.imageAlt}
+              folder={`muscles/${record.id}`}
+              label="Muscle image"
               onChange={(v) => setField("imageUrl", v)}
-            />
-            <Field
-              label="Image alt text"
-              value={record.imageAlt}
-              onChange={(v) => setField("imageAlt", v)}
+              onAltChange={(v) => setField("imageAlt", v)}
             />
             <Field
               label="Image credit"
