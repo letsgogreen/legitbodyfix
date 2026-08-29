@@ -52,7 +52,7 @@ export const getStreamConfigurationStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     return {
-      accountId: Boolean(process.env["CLOUDFLARE_ACCOUNT_ID"]),
+      accountId: Boolean(process.env["CLOUDFLARE_ACCOUNT_ID"] ?? process.env["CLOUDFLARE_STREAM_ACCOUNT_ID"]),
       apiToken: Boolean(process.env["CLOUDFLARE_STREAM_API_TOKEN"]),
       customerCode: Boolean(process.env["CLOUDFLARE_STREAM_CUSTOMER_CODE"]),
       webhookSecret: Boolean(process.env["CLOUDFLARE_STREAM_WEBHOOK_SECRET"]),

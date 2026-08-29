@@ -210,6 +210,34 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
   const [thumbnailTime, setThumbnailTime] = useState("0");
   const [thumbnailRevision, setThumbnailRevision] = useState(0);
 
+  useEffect(() => {
+    if (!lesson || !streamUid || !["uploading", "processing"].includes(streamStatus)) return;
+    let cancelled = false;
+    let refreshing = false;
+
+    const poll = async () => {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        const refreshed = await refreshStreamVideo({ data: { lessonId: lesson.id } });
+        if (cancelled) return;
+        setStreamStatus(refreshed.status);
+        if (refreshed.thumbnailUrl) setThumbnailUrl(refreshed.thumbnailUrl);
+        if (refreshed.durationSeconds) setDuration(String(refreshed.durationSeconds));
+      } catch (cause) {
+        if (!cancelled) setError(cause instanceof Error ? cause.message : String(cause));
+      } finally {
+        refreshing = false;
+      }
+    };
+
+    const timer = window.setInterval(() => void poll(), 5000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [lesson, streamStatus, streamUid]);
+
   const uploadVideo = async (file: File) => {
     if (!lesson) { setError("Save the lesson before uploading its video."); return; }
     setUploading(true);
@@ -224,6 +252,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
       const refreshed = await refreshStreamVideo({ data: { lessonId: lesson.id } });
       setStreamStatus(refreshed.status);
       if (refreshed.thumbnailUrl) setThumbnailUrl(refreshed.thumbnailUrl);
+      if (refreshed.durationSeconds) setDuration(String(refreshed.durationSeconds));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     }
