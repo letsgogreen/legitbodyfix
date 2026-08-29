@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ArrowDown,
@@ -71,6 +71,7 @@ const emptyDraft: ProgramDraft = {
 };
 
 export const Route = createFileRoute("/admin/programs")({
+  validateSearch: (search: Record<string, unknown>) => ({ action: search["action"] === "new" ? "new" : undefined, edit: typeof search["edit"] === "string" ? search["edit"] : undefined }),
   head: () => ({
     meta: [
       { title: "Programs — LegitBodyFix Admin" },
@@ -82,10 +83,13 @@ export const Route = createFileRoute("/admin/programs")({
 });
 
 function ProgramsView() {
+  const { action, edit } = Route.useSearch();
+  const navigate = useNavigate({ from: "/admin/programs" });
   const [programs, setPrograms] = useState<ProgramRow[]>([]);
   const [editing, setEditing] = useState<ProgramDraft | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const handledSearchRef = useRef<string | null>(null);
 
   const loadPrograms = async () => {
     setLoading(true);
@@ -104,10 +108,25 @@ function ProgramsView() {
     void loadPrograms();
   }, []);
 
+  useEffect(() => {
+    const searchKey = action === "new" ? "new" : edit ? `edit:${edit}` : null;
+    if (!searchKey) { handledSearchRef.current = null; return; }
+    if (loading || editing || handledSearchRef.current === searchKey) return;
+    handledSearchRef.current = searchKey;
+    if (action === "new") { setEditing({ ...emptyDraft }); return; }
+    const selected = programs.find((program) => program.id === edit);
+    if (selected) setEditing(rowToDraft(selected));
+  }, [action, edit, editing, loading, programs]);
+
   const liveCount = useMemo(
     () => programs.filter((program) => program.published).length,
     [programs],
   );
+
+  const closeEditor = () => {
+    setEditing(null);
+    if (action || edit) void navigate({ search: {} });
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
@@ -194,9 +213,9 @@ function ProgramsView() {
       {editing && (
         <ProgramDrawer
           initial={editing}
-          onClose={() => setEditing(null)}
+          onClose={closeEditor}
           onSaved={async () => {
-            setEditing(null);
+            closeEditor();
             await loadPrograms();
           }}
         />
@@ -247,6 +266,7 @@ function ProgramDrawer({
 }) {
   const [draft, setDraft] = useState(initial);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<RecipeOption[]>([]);
   const [recipeLinks, setRecipeLinks] = useState<RecipeLink[]>([]);
@@ -408,6 +428,33 @@ function ProgramDrawer({
       setSaving(false);
       return;
     }
+    await onSaved();
+  };
+
+  const deleteProgram = async () => {
+    if (!draft.id) return;
+    setDeleting(true);
+    setError(null);
+    const [orderResult, entitlementResult, lessonResult, moduleResult] = await Promise.all([
+      supabase.from("orders").select("id", { count: "exact", head: true }).eq("program_id", draft.id),
+      supabase.from("entitlements").select("id", { count: "exact", head: true }).eq("program_id", draft.id),
+      supabase.from("lessons").select("id", { count: "exact", head: true }).eq("program_id", draft.id),
+      supabase.from("program_modules").select("id", { count: "exact", head: true }).eq("program_id", draft.id),
+    ]);
+    const readError = orderResult.error ?? entitlementResult.error ?? lessonResult.error ?? moduleResult.error;
+    if (readError) { setError(`Could not check linked records: ${readError.message}`); setDeleting(false); return; }
+    const orderCount = orderResult.count ?? 0;
+    const entitlementCount = entitlementResult.count ?? 0;
+    if (orderCount || entitlementCount) {
+      setError(`This program cannot be deleted because it has ${orderCount} order${orderCount === 1 ? "" : "s"} and ${entitlementCount} customer access record${entitlementCount === 1 ? "" : "s"}. Unpublish it instead to preserve purchase history.`);
+      setDeleting(false);
+      return;
+    }
+    const lessonCount = lessonResult.count ?? 0;
+    const moduleCount = moduleResult.count ?? 0;
+    if (!window.confirm(`Delete “${draft.name}”? This also removes ${moduleCount} module${moduleCount === 1 ? "" : "s"}, ${lessonCount} lesson${lessonCount === 1 ? "" : "s"}, and its guide/recipe links. This cannot be undone.`)) { setDeleting(false); return; }
+    const { error: deleteError } = await supabase.from("programs").delete().eq("id", draft.id);
+    if (deleteError) { setError(deleteError.message); setDeleting(false); return; }
     await onSaved();
   };
 
@@ -660,12 +707,14 @@ function ProgramDrawer({
             </p>
           )}
         </div>
-        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
-          <Btn onClick={onClose}>Cancel</Btn>
-          <Btn variant="ink" disabled={saving} onClick={() => void save()}>
+        <div className="flex items-center justify-between gap-2 border-t border-border px-5 py-4">
+          <div>{draft.id && <Btn disabled={saving || deleting} onClick={() => void deleteProgram()}><Trash2 className="mr-1.5 h-4 w-4" />{deleting ? "Checking…" : "Delete program"}</Btn>}</div>
+          <div className="flex items-center gap-2"><Btn onClick={onClose}>Cancel</Btn>
+          <Btn variant="ink" disabled={saving || deleting} onClick={() => void save()}>
             {saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
             {saving ? "Saving…" : "Save program"}
           </Btn>
+          </div>
         </div>
       </div>
     </div>
