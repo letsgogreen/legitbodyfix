@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -10,11 +10,7 @@ export function isApprovedAdminEmail(email?: string | null) {
   return email?.trim().toLowerCase() === ADMIN_EMAIL;
 }
 
-export function AdminAuthGate({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function AdminAuthGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>("loading");
   const [user, setUser] = useState<User>();
 
@@ -31,14 +27,11 @@ export function AdminAuthGate({
       else if (nextUser.app_metadata?.["is_admin"] === true && isApprovedAdminEmail(nextUser.email)) {
         cleanConsumedAuthFragment();
         setState("ready");
-      }
-      else setState("forbidden");
+      } else setState("forbidden");
     };
 
     void client.auth.getUser().then(({ data }) => syncUser(data.user ?? undefined));
-    const { data } = client.auth.onAuthStateChange((_event, session) => {
-      syncUser(session?.user);
-    });
+    const { data } = client.auth.onAuthStateChange((_event, session) => syncUser(session?.user));
 
     return () => data.subscription.unsubscribe();
   }, []);
@@ -86,26 +79,21 @@ function cleanConsumedAuthFragment() {
 }
 
 function AdminSignIn() {
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  async function requestOtp() {
+  async function requestSignInLink() {
     const client = getSupabaseClient();
     if (!client) return;
-
-    if (!isApprovedAdminEmail(email)) {
-      setMessage(`Access denied. Administrator sign-in is restricted to ${ADMIN_EMAIL}.`);
-      return;
-    }
 
     setSubmitting(true);
     setMessage("");
     const { error } = await client.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false },
+      email: ADMIN_EMAIL,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${window.location.origin}/admin`,
+      },
     });
     setSubmitting(false);
     if (error) {
@@ -113,107 +101,28 @@ function AdminSignIn() {
       return;
     }
 
-    setOtpSent(true);
-    setMessage("A 6-digit administrator code was sent to your email.");
-  }
-
-  async function verifyOtp(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const client = getSupabaseClient();
-    if (!client) return;
-
-    if (!/^\d{6}$/.test(otp)) {
-      setMessage("Enter the complete 6-digit code.");
-      return;
-    }
-
-    setSubmitting(true);
-    setMessage("");
-    const { error } = await client.auth.verifyOtp({
-      email,
-      token: otp,
-      type: "email",
-    });
-    setSubmitting(false);
-    setMessage(error ? "That code is invalid or has expired. Request a new code and try again." : "Access verified. Opening the control room…");
+    setMessage("A secure administrator sign-in link was sent to your approved email.");
   }
 
   return (
     <AuthMessage
       title="Administrator sign-in"
-      body={otpSent
-        ? `Enter the 6-digit code sent to ${email}.`
-        : "Use the approved administrator email. We'll send a one-time 6-digit code—no link or new window required."}
+      body="Send a secure, one-time sign-in link to the approved administrator email. The link returns directly to this control room."
       action={
-        otpSent ? (
-          <form onSubmit={verifyOtp} className="mt-6 grid gap-3">
-            <label className="grid gap-2 text-left text-xs font-bold uppercase tracking-[0.12em]">
-              Verification code
-              <input
-                type="text"
-                required
-                autoFocus
-                autoComplete="one-time-code"
-                inputMode="numeric"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                value={otp}
-                onChange={(event) => {
-                  setOtp(event.target.value.replace(/\D/g, "").slice(0, 6));
-                  if (message) setMessage("");
-                }}
-                className="min-h-14 rounded-sm border border-border bg-background px-3 text-center font-mono text-2xl font-bold tracking-[0.35em]"
-                aria-describedby="admin-otp-message"
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={submitting || otp.length !== 6}
-              className="min-h-11 rounded-sm bg-ink px-4 text-sm font-bold text-ink-foreground disabled:opacity-50"
-            >
-              {submitting ? "Verifying…" : "Verify and enter"}
-            </button>
-            <div className="flex justify-end text-xs font-bold">
-              <button
-                type="button"
-                onClick={() => void requestOtp()}
-                disabled={submitting}
-                className="underline underline-offset-4 disabled:opacity-50"
-              >
-                Send a new code
-              </button>
-            </div>
-            {message && <p id="admin-otp-message" aria-live="polite" className="text-sm text-muted-foreground">{message}</p>}
-          </form>
-        ) : (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              void requestOtp();
-            }}
-            className="mt-6 grid gap-3"
+        <div className="mt-6 grid gap-3">
+          <p className="rounded-sm border border-border bg-secondary/50 px-3 py-2 font-mono text-xs text-muted-foreground">
+            {ADMIN_EMAIL}
+          </p>
+          <button
+            type="button"
+            onClick={() => void requestSignInLink()}
+            disabled={submitting}
+            className="min-h-11 rounded-sm bg-ink px-4 text-sm font-bold text-ink-foreground disabled:opacity-50"
           >
-            <label className="grid gap-2 text-left text-xs font-bold uppercase tracking-[0.12em]">
-              Email
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(event) => { setEmail(event.target.value); if (message) setMessage(""); }}
-                className="min-h-11 rounded-sm border border-border bg-background px-3 text-sm font-normal normal-case tracking-normal"
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="min-h-11 rounded-sm bg-ink px-4 text-sm font-bold text-ink-foreground disabled:opacity-50"
-            >
-              {submitting ? "Sending…" : "Send 6-digit code"}
-            </button>
-            {message && <p aria-live="polite" className="text-sm text-muted-foreground">{message}</p>}
-          </form>
-        )
+            {submitting ? "Sending…" : "Send secure sign-in link"}
+          </button>
+          {message && <p aria-live="polite" className="text-sm text-muted-foreground">{message}</p>}
+        </div>
       }
     />
   );
