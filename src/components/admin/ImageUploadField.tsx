@@ -14,6 +14,7 @@ export function ImageUploadField({
   alt,
   folder,
   label = "Image",
+  showAlt = true,
   onChange,
   onAltChange,
 }: {
@@ -21,8 +22,9 @@ export function ImageUploadField({
   alt: string;
   folder: string;
   label?: string;
+  showAlt?: boolean;
   onChange: (url: string) => void;
-  onAltChange: (alt: string) => void;
+  onAltChange?: (alt: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -99,10 +101,10 @@ export function ImageUploadField({
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Image URL</span>
         <input value={value} onChange={(event) => onChange(event.target.value)} className="min-h-10 w-full rounded-sm border border-border bg-background px-3 text-sm" placeholder="https://…" />
       </label>
-      <label className="block space-y-1.5">
+      {showAlt && <label className="block space-y-1.5">
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Alt text</span>
-        <input value={alt} onChange={(event) => onAltChange(event.target.value)} className="min-h-10 w-full rounded-sm border border-border bg-background px-3 text-sm" placeholder="Describe what the image shows" />
-      </label>
+        <input value={alt} onChange={(event) => onAltChange?.(event.target.value)} className="min-h-10 w-full rounded-sm border border-border bg-background px-3 text-sm" placeholder="Describe what the image shows" />
+      </label>}
       <p className="text-xs leading-5 text-muted-foreground">JPG, PNG, WebP, GIF, or AVIF · max 10 MB. Uploads are stored in Supabase Storage.</p>
       {error && <p className="rounded-sm border border-destructive/40 bg-destructive/5 p-2 text-xs text-destructive">{error}</p>}
     </div>
