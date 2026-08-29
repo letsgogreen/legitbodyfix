@@ -377,10 +377,6 @@ function ProgramDrawer({
       setError("Name and slug are required.");
       return;
     }
-    if (!initial.published && draft.published && launchBlockers.length) {
-      setError(`Cannot publish yet: ${launchBlockers.map((item) => item.label).join(", ")}.`);
-      return;
-    }
     setSaving(true);
     setError(null);
     const payload = {
@@ -467,12 +463,12 @@ function ProgramDrawer({
                 <div>
                   <p className="text-sm font-extrabold">
                     {launchBlockers.length
-                      ? `${launchBlockers.length} launch items remaining`
-                      : "Ready for launch"}
+                      ? `${launchBlockers.length} readiness suggestions`
+                      : "All readiness suggestions complete"}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    A program should have a clear offer, a working price, playable curriculum, a
-                    free preview, and useful supporting content before publication.
+                    These checks are editorial guidance only. Administrators can publish at any
+                    time, including while a program is still being assembled.
                   </p>
                 </div>
               </div>
