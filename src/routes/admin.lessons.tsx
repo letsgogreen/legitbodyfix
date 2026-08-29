@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { FileVideo, Loader2, Play, Plus, Upload, X } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { FileVideo, Loader2, Pencil, Play, Plus, Settings2, Upload, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -112,12 +112,17 @@ function LessonsView() {
 
       {streamConfig && <Panel className="mt-5 flex flex-wrap items-center justify-between gap-3 px-4 py-3"><div><p className="text-sm font-bold">Cloudflare Stream</p><p className="mt-1 font-mono text-[10px] text-muted-foreground">Webhook: {streamConfig.webhookPath}</p></div><div className="flex flex-wrap gap-2"><Tag tone={streamConfig.accountId && streamConfig.apiToken && streamConfig.customerCode ? "accent" : "warn"}>{streamConfig.accountId && streamConfig.apiToken && streamConfig.customerCode ? "Playback configured" : "Runtime keys missing"}</Tag><Tag tone={streamConfig.webhookSecret ? "accent" : "warn"}>{streamConfig.webhookSecret ? "Webhook secured" : "Webhook secret missing"}</Tag></div></Panel>}
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        {programs.map((program) => (
-          <button key={program.id} type="button" onClick={() => setProgramId(program.id)} className={`rounded-sm border px-3 py-1.5 text-xs font-bold transition-colors ${program.id === programId ? "border-ink bg-ink text-ink-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"}`}>
-            {program.name}
-          </button>
-        ))}
+      <div className="mt-5 border border-border bg-card p-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">{programs.map((program) => (
+            <button key={program.id} type="button" onClick={() => setProgramId(program.id)} className={`rounded-sm border px-3 py-1.5 text-xs font-bold transition-colors ${program.id === programId ? "border-ink bg-ink text-ink-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"}`}>{program.name}</button>
+          ))}</div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/admin/programs" search={{ action: "new" }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Plus className="mr-1.5 h-3.5 w-3.5" /> New program</Link>
+            {programId && <Link to="/admin/programs" search={{ edit: programId }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit selected</Link>}
+            <Link to="/admin/programs" search={{}} className="inline-flex min-h-9 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"><Settings2 className="mr-1.5 h-3.5 w-3.5" /> Manage programs</Link>
+          </div>
+        </div>
       </div>
 
       {programId && (
