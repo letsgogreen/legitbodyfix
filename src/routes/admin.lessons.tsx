@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileVideo, Loader2, Play, Plus, Upload, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
@@ -32,6 +32,8 @@ function LessonsView() {
   const [newModuleTitle, setNewModuleTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [previewing, setPreviewing] = useState<{ title: string; iframeUrl: string } | null>(null);
+  const [previewLoadingId, setPreviewLoadingId] = useState<string | null>(null);
   const [streamConfig, setStreamConfig] = useState<{ accountId: boolean; apiToken: boolean; customerCode: boolean; webhookSecret: boolean; webhookPath: string } | null>(null);
 
   useEffect(() => {
@@ -86,6 +88,18 @@ function LessonsView() {
     }
   };
 
+  const previewLesson = async (lesson: Lesson) => {
+    setPreviewLoadingId(lesson.id);
+    setError(null);
+    try {
+      const playback = await getStreamPlayback({ data: { lessonId: lesson.id } });
+      setPreviewing({ title: playback.title, iframeUrl: playback.iframeUrl });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    }
+    setPreviewLoadingId(null);
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
       <PageHead
@@ -122,9 +136,9 @@ function LessonsView() {
         ) : (
           <>
             {modules.map((module) => (
-              <ModulePanel key={module.id} module={module} lessons={lessons.filter((lesson) => lesson.module_id === module.id)} onEdit={setEditing} />
+              <ModulePanel key={module.id} module={module} lessons={lessons.filter((lesson) => lesson.module_id === module.id)} onEdit={setEditing} onPreview={previewLesson} previewLoadingId={previewLoadingId} />
             ))}
-            {unassigned.length > 0 && <ModulePanel module={{ id: "unassigned", title: "Unassigned lessons" } as Module} lessons={unassigned} onEdit={setEditing} />}
+            {unassigned.length > 0 && <ModulePanel module={{ id: "unassigned", title: "Unassigned lessons" } as Module} lessons={unassigned} onEdit={setEditing} onPreview={previewLesson} previewLoadingId={previewLoadingId} />}
             {!modules.length && !lessons.length && programId && <Panel className="px-5 py-12 text-center text-sm text-muted-foreground">No curriculum yet. Add a module, then create the first lesson.</Panel>}
             {!programId && !loading && <Panel className="px-5 py-12 text-center text-sm text-muted-foreground">Create a program first, then return here to build its curriculum.</Panel>}
           </>
@@ -132,11 +146,12 @@ function LessonsView() {
       </div>
 
       {editing && programId && <LessonDrawer lesson={editing === "new" ? null : editing} programId={programId} modules={modules} nextPosition={lessons.length + 1} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await loadCurriculum(); }} />}
+      {previewing && <VideoPreviewModal title={previewing.title} iframeUrl={previewing.iframeUrl} onClose={() => setPreviewing(null)} />}
     </div>
   );
 }
 
-function ModulePanel({ module, lessons, onEdit }: { module: Module; lessons: Lesson[]; onEdit: (lesson: Lesson) => void }) {
+function ModulePanel({ module, lessons, onEdit, onPreview, previewLoadingId }: { module: Module; lessons: Lesson[]; onEdit: (lesson: Lesson) => void; onPreview: (lesson: Lesson) => void; previewLoadingId: string | null }) {
   return (
     <Panel>
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -146,13 +161,17 @@ function ModulePanel({ module, lessons, onEdit }: { module: Module; lessons: Les
       <ul className="divide-y divide-border/70">
         {lessons.map((lesson) => (
           <li key={lesson.id} className="flex flex-wrap items-center gap-4 px-4 py-3 hover:bg-secondary/50">
-            <div className="grid h-12 w-20 shrink-0 place-items-center rounded-sm border border-border bg-secondary">{lesson.stream_status === "ready" || lesson.video_path ? <FileVideo className="h-4 w-4 text-foreground" /> : <Play className="h-4 w-4 text-muted-foreground" />}</div>
+            <button type="button" disabled={lesson.stream_status !== "ready" || previewLoadingId === lesson.id} onClick={() => onPreview(lesson)} aria-label={`Play ${lesson.title}`} className="group relative grid h-12 w-20 shrink-0 place-items-center overflow-hidden rounded-sm border border-border bg-secondary disabled:cursor-not-allowed">
+              {(lesson.thumbnail_url || lesson.stream_thumbnail_url) ? <img src={lesson.thumbnail_url || lesson.stream_thumbnail_url || ""} alt="" className="h-full w-full object-cover" /> : <FileVideo className="h-4 w-4 text-muted-foreground" />}
+              {lesson.stream_status === "ready" && <span className="absolute inset-0 grid place-items-center bg-black/25 text-white transition-colors group-hover:bg-black/40">{previewLoadingId === lesson.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}</span>}
+            </button>
             <div className="min-w-40 flex-1">
               <p className="text-sm font-medium"><span className="font-mono text-xs text-muted-foreground">{String(lesson.position).padStart(2, "0")}</span>{" "}{lesson.title}</p>
               <p className="font-mono text-[11px] text-muted-foreground">{formatDuration(lesson.duration_seconds)} · {lesson.stream_uid ? `Stream ${lesson.stream_status}` : lesson.video_path ? "legacy video" : "video missing"}</p>
             </div>
             {lesson.preview_free && <Tag tone="muted">Free preview</Tag>}
             <Tag tone={lesson.published ? "accent" : "muted"}>{lesson.published ? "Published" : "Draft"}</Tag>
+            {lesson.stream_status === "ready" && <Btn disabled={previewLoadingId === lesson.id} onClick={() => onPreview(lesson)}>{previewLoadingId === lesson.id ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Play className="mr-1.5 h-4 w-4" />}Play</Btn>}
             <Btn onClick={() => onEdit(lesson)}>Edit</Btn>
           </li>
         ))}
@@ -296,9 +315,9 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{streamUid ? `${streamStatus} · ${streamUid}` : lesson ? "No Stream video uploaded" : "Save this lesson to enable upload"}</p>
             {videoPath && <p className="mt-2 break-all font-mono text-[10px] text-muted-foreground">Legacy Storage file retained: {videoPath}</p>}
             {showStreamLibrary && <div className="mt-4 max-h-72 overflow-y-auto border border-border bg-background"><div className="sticky top-0 flex items-center justify-between border-b border-border bg-background px-3 py-2"><span className="font-mono text-[10px] uppercase tracking-[0.12em]">Cloudflare library · {streamLibrary.length}</span><button type="button" onClick={() => setShowStreamLibrary(false)} aria-label="Close Stream library"><X className="h-4 w-4" /></button></div>{streamLibrary.map((video) => <button key={video.uid} type="button" disabled={!video.ready || !video.signed || uploading} onClick={() => void attachExisting(video)} className="flex w-full items-center gap-3 border-b border-border/70 p-3 text-left last:border-b-0 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-45">{video.thumbnail ? <img src={video.thumbnail} alt="" className="h-14 w-24 rounded-sm object-cover" /> : <div className="grid h-14 w-24 place-items-center bg-secondary"><FileVideo className="h-4 w-4" /></div>}<span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{video.name}</span><span className="mt-1 block font-mono text-[10px] text-muted-foreground">{formatDuration(video.durationSeconds)} · {video.ready ? "ready" : "processing"} · {video.signed ? "private" : "public"}</span></span></button>)}</div>}
-            {previewUrl && <div className="mt-4 overflow-hidden border border-border bg-black"><div className="flex items-center justify-between bg-background px-3 py-2"><span className="text-xs font-bold">Secure lesson preview</span><button type="button" onClick={() => setPreviewUrl("")} aria-label="Close preview"><X className="h-4 w-4" /></button></div><div className="aspect-video"><iframe src={previewUrl} title={`${title || "Lesson"} preview`} allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0" /></div></div>}
+            {previewUrl && <div className="mt-4 overflow-hidden border border-border bg-black"><div className="flex items-center justify-between bg-background px-3 py-2"><div><span className="block text-xs font-bold">Secure lesson preview</span><span className="font-mono text-[10px] text-muted-foreground">Current frame: {formatTimestamp(Number(thumbnailTime) || 0)}</span></div><button type="button" onClick={() => setPreviewUrl("")} aria-label="Close preview"><X className="h-4 w-4" /></button></div><StreamPlayer iframeUrl={previewUrl} title={`${title || "Lesson"} preview`} onTimeChange={(time) => setThumbnailTime(time.toFixed(2))} /></div>}
           </div>
-          <div className="border border-border bg-card p-4"><Label>Video thumbnail</Label>{thumbnailUrl && <img src={`${thumbnailUrl}${thumbnailUrl.includes("?") ? "&" : "?"}preview=${thumbnailRevision}`} alt="Selected lesson thumbnail" className="mb-3 aspect-video w-full rounded-sm border border-border bg-white object-contain" />}<Field label="Thumbnail URL" value={thumbnailUrl} onChange={setThumbnailUrl} /><div className="mt-3 flex items-end gap-2"><div className="min-w-0 flex-1"><Field label="Frame time (seconds)" value={thumbnailTime} onChange={setThumbnailTime} type="number" /></div><Btn disabled={!lesson || !streamUid || saving} onClick={() => void useVideoFrame()}>Use this frame</Btn></div><p className="mt-2 text-[11px] text-muted-foreground">Enter a timestamp to set Cloudflare Stream's persistent default thumbnail for this video.</p></div>
+          <div className="border border-border bg-card p-4"><Label>Video thumbnail</Label>{thumbnailUrl && <img src={`${thumbnailUrl}${thumbnailUrl.includes("?") ? "&" : "?"}preview=${thumbnailRevision}`} alt="Selected lesson thumbnail" className="mb-3 aspect-video w-full rounded-sm border border-border bg-white object-contain" />}<Field label="Thumbnail URL" value={thumbnailUrl} onChange={setThumbnailUrl} /><div className="mt-3 flex items-end gap-2"><div className="min-w-0 flex-1"><Field label="Selected frame (seconds)" value={thumbnailTime} onChange={setThumbnailTime} type="number" /></div><Btn disabled={!lesson || !streamUid || saving || streamStatus !== "ready"} onClick={() => void useVideoFrame()}>Use current frame</Btn></div><p className="mt-2 text-[11px] text-muted-foreground">Play or scrub the secure preview above, pause on the frame you want, then select “Use current frame.” You can still enter an exact timestamp manually.</p></div>
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3"><Toggle label="Publish lesson" checked={published} onChange={setPublished} /><Toggle label="Free preview" checked={previewFree} onChange={setPreviewFree} /></div>
           {error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
         </div>
@@ -306,6 +325,73 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
       </div>
     </div>
   );
+}
+
+type StreamPlayerApi = {
+  currentTime: number;
+  addEventListener: (event: string, listener: () => void) => void;
+  removeEventListener: (event: string, listener: () => void) => void;
+};
+
+declare global {
+  interface Window {
+    Stream?: (iframe: HTMLIFrameElement) => StreamPlayerApi;
+  }
+}
+
+function StreamPlayer({ iframeUrl, title, onTimeChange }: { iframeUrl: string; title: string; onTimeChange?: (time: number) => void }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const onTimeChangeRef = useRef(onTimeChange);
+
+  useEffect(() => {
+    onTimeChangeRef.current = onTimeChange;
+  }, [onTimeChange]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let player: StreamPlayerApi | null = null;
+    let handleTimeUpdate: (() => void) | null = null;
+
+    const connect = () => {
+      if (cancelled || !iframeRef.current || !window.Stream) return;
+      player = window.Stream(iframeRef.current);
+      handleTimeUpdate = () => onTimeChangeRef.current?.(Math.max(0, Number(player?.currentTime) || 0));
+      player.addEventListener("timeupdate", handleTimeUpdate);
+      player.addEventListener("seeked", handleTimeUpdate);
+    };
+
+    const existing = document.querySelector<HTMLScriptElement>('script[data-cloudflare-stream-sdk="true"]');
+    if (window.Stream) connect();
+    else if (existing) existing.addEventListener("load", connect, { once: true });
+    else {
+      const script = document.createElement("script");
+      script.src = "https://embed.cloudflarestream.com/embed/sdk.latest.js";
+      script.async = true;
+      script.dataset.cloudflareStreamSdk = "true";
+      script.addEventListener("load", connect, { once: true });
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      cancelled = true;
+      if (existing) existing.removeEventListener("load", connect);
+      if (player && handleTimeUpdate) {
+        player.removeEventListener("timeupdate", handleTimeUpdate);
+        player.removeEventListener("seeked", handleTimeUpdate);
+      }
+    };
+  }, [iframeUrl]);
+
+  return <div className="aspect-video"><iframe ref={iframeRef} src={iframeUrl} title={title} allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0" /></div>;
+}
+
+function VideoPreviewModal({ title, iframeUrl, onClose }: { title: string; iframeUrl: string; onClose: () => void }) {
+  return <div className="fixed inset-0 z-[60] grid place-items-center bg-black/75 p-4" role="dialog" aria-modal="true" aria-label={`${title} preview`}><div className="w-full max-w-5xl overflow-hidden border border-border bg-background shadow-2xl"><div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3"><div><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Secure admin preview</p><h2 className="mt-1 text-sm font-extrabold">{title}</h2></div><button type="button" onClick={onClose} aria-label="Close video preview" className="rounded-sm border border-border p-2"><X className="h-4 w-4" /></button></div><div className="bg-black"><StreamPlayer iframeUrl={iframeUrl} title={`${title} secure preview`} /></div></div></div>;
+}
+
+function formatTimestamp(seconds: number) {
+  const whole = Math.max(0, Math.floor(seconds));
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
 }
 
 function Label({ children }: { children: React.ReactNode }) { return <span className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{children}</span>; }
