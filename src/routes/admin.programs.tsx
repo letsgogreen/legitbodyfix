@@ -582,7 +582,7 @@ function ProgramDrawer({
             onChange={(value) => update("goals", value)}
           />
           <Field label="Paddle product ID" value={draft.paddle_product_id} onChange={(value) => update("paddle_product_id", value)} />
-          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={(priceId) => update("paddle_price_id", priceId)} />}
+          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={({ productId, priceId }) => { update("paddle_product_id", productId); update("paddle_price_id", priceId); }} />}
           <Field
             label="Entitlement key"
             value={draft.entitlement_key}
@@ -714,7 +714,7 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
-function PaddlePricePanel({ programId, productId, priceId, onChanged }: { programId: string; productId: string; priceId: string; onChanged: (priceId: string) => void }) {
+function PaddlePricePanel({ programId, productId, priceId, onChanged }: { programId: string; productId: string; priceId: string; onChanged: (result: { productId: string; priceId: string }) => void }) {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [livePrice, setLivePrice] = useState<string | null>(null);
@@ -736,15 +736,16 @@ function PaddlePricePanel({ programId, productId, priceId, onChanged }: { progra
     setWorking(true); setMessage(null);
     try {
       const result = await updateProgramPrice({ data: { programId, amount: value, currency } });
-      onChanged(result.priceId); setLivePrice(result.livePrice); setAmount("");
-      setMessage(`Paddle price updated${result.previousArchived ? "; previous price archived" : ""}.`);
+      onChanged({ productId: result.productId, priceId: result.priceId }); setLivePrice(result.livePrice); setAmount("");
+      setMessage(`Paddle product and price saved${result.previousArchived ? "; previous price archived" : ""}.`);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Price update failed."); }
     finally { setWorking(false); }
   };
 
   return <div className="space-y-3 border border-border bg-card p-4">
     <div><Label>Live Paddle price</Label><p className="text-sm font-bold">{priceStatus === "loading" ? "Checking Paddle…" : priceStatus === "unavailable" ? "Unavailable — check Paddle configuration" : livePrice ?? "No price set"}</p></div>
-    {!productId ? <p className="text-xs text-muted-foreground">Add the Paddle product ID above and save first.</p> : <><div className="grid grid-cols-[1fr_7rem] gap-3"><Field label="New amount" type="number" value={amount} onChange={setAmount} /><Field label="Currency" value={currency} onChange={(value) => setCurrency(value.toUpperCase())} /></div><Btn variant="ink" disabled={working} onClick={() => void savePrice()}>{working ? "Updating…" : "Save Paddle price"}</Btn></>}
+    {!productId && <p className="text-xs text-muted-foreground">No Paddle product yet. Saving a price will create and connect it automatically.</p>}
+    <div className="grid grid-cols-[1fr_7rem] gap-3"><Field label="New amount" type="number" value={amount} onChange={setAmount} /><Field label="Currency" value={currency} onChange={(value) => setCurrency(value.toUpperCase())} /></div><Btn variant="ink" disabled={working} onClick={() => void savePrice()}>{working ? "Updating…" : productId ? "Save Paddle price" : "Create Paddle product & price"}</Btn>
     {message && <p className="text-xs text-muted-foreground">{message}</p>}
   </div>;
 }
