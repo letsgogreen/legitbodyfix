@@ -6,17 +6,34 @@ const API = { sandbox: "https://sandbox-api.paddle.com", production: "https://ap
 type Environment = keyof typeof API;
 const environment = (): Environment => process.env["PADDLE_ENVIRONMENT"]?.trim().toLowerCase() === "production" ? "production" : "sandbox";
 
+const PADDLE_API_KEY_PATTERN = /^pdl_(live|sdbx)_apikey_[a-z\d]{26}_[a-zA-Z\d]{22}_[a-zA-Z\d]{3}$/;
+
+function paddleApiKey() {
+  const key = process.env["PADDLE_API_KEY"]
+    ?.trim()
+    .replace(/^Bearer\s+/i, "")
+    .replace(/^(["'])(.*)\1$/, "$2")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "");
+  if (!key) throw new Error("Paddle is not configured: PADDLE_API_KEY is missing.");
+  if (!PADDLE_API_KEY_PATTERN.test(key)) {
+    throw new Error(`Paddle is not configured: PADDLE_API_KEY has an invalid format (${key.length} characters).`);
+  }
+  return key;
+}
+
 export const getPaddleClientConfig = createServerFn({ method: "GET" }).handler(async () => ({
   token: process.env["PADDLE_CLIENT_TOKEN"]?.trim() || null,
   environment: environment(),
 }));
 
 async function request(path: string, init: RequestInit = {}) {
-  const key = process.env["PADDLE_API_KEY"]?.trim();
-  if (!key) throw new Error("Paddle is not configured: PADDLE_API_KEY is missing.");
+  const key = paddleApiKey();
+  const headers = new Headers(init.headers);
+  headers.set("Authorization", `Bearer ${key}`);
+  headers.set("Content-Type", "application/json");
   const response = await fetch(`${API[environment()]}${path}`, {
     ...init,
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", ...init.headers },
+    headers,
   });
   const text = await response.text();
   const payload = text ? JSON.parse(text) as { data?: Record<string, unknown>; error?: { detail?: string } } : {};
