@@ -4,15 +4,15 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const API = { sandbox: "https://sandbox-api.paddle.com", production: "https://api.paddle.com" } as const;
 type Environment = keyof typeof API;
-const environment = (): Environment => process.env["PADDLE_ENVIRONMENT"] === "production" ? "production" : "sandbox";
+const environment = (): Environment => process.env["PADDLE_ENVIRONMENT"]?.trim().toLowerCase() === "production" ? "production" : "sandbox";
 
 export const getPaddleClientConfig = createServerFn({ method: "GET" }).handler(async () => ({
-  token: process.env["PADDLE_CLIENT_TOKEN"] ?? null,
+  token: process.env["PADDLE_CLIENT_TOKEN"]?.trim() || null,
   environment: environment(),
 }));
 
 async function request(path: string, init: RequestInit = {}) {
-  const key = process.env["PADDLE_API_KEY"];
+  const key = process.env["PADDLE_API_KEY"]?.trim();
   if (!key) throw new Error("Paddle is not configured: PADDLE_API_KEY is missing.");
   const response = await fetch(`${API[environment()]}${path}`, {
     ...init,
