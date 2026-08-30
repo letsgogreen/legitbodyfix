@@ -69,7 +69,7 @@ export const listStreamVideos = createServerFn({ method: "GET" })
       uid: video.uid,
       name: video.meta?.name || "Untitled Stream video",
       thumbnail: video.thumbnail ?? null,
-      durationSeconds: video.duration ? Math.round(video.duration) : null,
+      durationSeconds: video.duration ? Math.max(1, Math.round(video.duration)) : null,
       ready: video.readyToStream === true,
       signed: video.requireSignedURLs === true,
       created: video.created ?? null,
@@ -89,11 +89,11 @@ export const attachStreamVideo = createServerFn({ method: "POST" })
       stream_status: state,
       stream_error: video.status?.errorReasonText || null,
       stream_thumbnail_url: video.thumbnail || null,
-      ...(video.duration ? { duration_seconds: Math.round(video.duration) } : {}),
+      ...(video.duration ? { duration_seconds: Math.max(1, Math.round(video.duration)) } : {}),
     };
     const { error } = await context.supabase.from("lessons").update(update).eq("id", data.lessonId);
     if (error) throw new Error(error.message);
-    return { status: state, thumbnailUrl: video.thumbnail ?? null, durationSeconds: video.duration ? Math.round(video.duration) : null };
+    return { status: state, thumbnailUrl: video.thumbnail ?? null, durationSeconds: video.duration ? Math.max(1, Math.round(video.duration)) : null };
   });
 
 export const createStreamUpload = createServerFn({ method: "POST" })
@@ -143,10 +143,10 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
       stream_error: video.status?.errorReasonText || null,
       stream_thumbnail_url: video.thumbnail || null,
     };
-    if (video.duration) lessonUpdate.duration_seconds = Math.round(video.duration);
+    if (video.duration) lessonUpdate.duration_seconds = Math.max(1, Math.round(video.duration));
     const { error: updateError } = await context.supabase.from("lessons").update(lessonUpdate).eq("id", data.lessonId);
     if (updateError) throw new Error(updateError.message);
-    return { status: state, thumbnailUrl: video.thumbnail ?? null, durationSeconds: video.duration ? Math.round(video.duration) : null };
+    return { status: state, thumbnailUrl: video.thumbnail ?? null, durationSeconds: video.duration ? Math.max(1, Math.round(video.duration)) : null };
   });
 
 export const setStreamThumbnailFrame = createServerFn({ method: "POST" })
