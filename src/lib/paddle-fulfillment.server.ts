@@ -25,9 +25,9 @@ async function emailOf(tx: Transaction) {
   const embedded = tx.customer?.email?.trim();
   if (embedded) return embedded;
   if (!tx.customer_id) return null;
-  const key = process.env["PADDLE_API_KEY"];
+  const key = process.env["PADDLE_API_KEY"]?.trim();
   if (!key) return null;
-  const host = process.env["PADDLE_ENVIRONMENT"] === "production" ? "https://api.paddle.com" : "https://sandbox-api.paddle.com";
+  const host = process.env["PADDLE_ENVIRONMENT"]?.trim().toLowerCase() === "production" ? "https://api.paddle.com" : "https://sandbox-api.paddle.com";
   const response = await fetch(`${host}/customers/${tx.customer_id}`, { headers: { Authorization: `Bearer ${key}` } });
   if (!response.ok) return null;
   const payload = await response.json() as { data?: { email?: string | null } };
