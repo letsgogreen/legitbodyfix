@@ -77,7 +77,7 @@ export function FeaturedPrograms() {
 }
 
 function CheckoutButton({ program }: { program: PublicProgram }) {
-  const paddle = usePaddle();
+  const { paddle, loading, error: configurationError } = usePaddle();
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,9 +112,10 @@ function CheckoutButton({ program }: { program: PublicProgram }) {
   return (
     <div>
       <button type="button" disabled={!paddle || working} onClick={() => void openCheckout()} className="inline-flex min-h-11 w-full items-center justify-between gap-3 bg-accent px-4 text-sm font-bold text-accent-foreground disabled:cursor-wait disabled:opacity-60">
-        <span className="inline-flex items-center gap-2"><ShoppingBag className="h-4 w-4" />{working ? "Opening checkout…" : `Get instant access${program.price ? ` — ${program.price}` : ""}`}</span>
+        <span className="inline-flex items-center gap-2"><ShoppingBag className="h-4 w-4" />{working ? "Opening checkout…" : loading ? "Loading checkout…" : configurationError ? "Checkout unavailable" : `Get instant access${program.price ? ` — ${program.price}` : ""}`}</span>
         <ArrowUpRight className="h-4 w-4" />
       </button>
+      {configurationError && <p className="mt-2 text-xs text-white/70">{configurationError}</p>}
       {error && <p className="mt-2 text-xs text-red-200">{error}</p>}
     </div>
   );
