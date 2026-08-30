@@ -65,7 +65,7 @@ export function FeaturedPrograms() {
                 <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight">{program.name}</h3>
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/80">{program.outcome || "A focused progression built around a clear movement goal."}</p>
                 <p className="mt-3 font-mono text-[11px] text-white/80">{[program.duration, program.format, program.price].filter(Boolean).join(" · ")}</p>
-                <div className="mt-5 border-t border-white/30 pt-4"><CheckoutButton program={program} /></div>
+                <div className="mt-5 border-t border-white/30 pt-4"><Link to="/programs/$programSlug" params={{ programSlug: program.slug }} className="inline-flex min-h-11 w-full items-center justify-between gap-3 bg-accent px-4 text-sm font-bold text-accent-foreground"><span>View program{program.price ? ` — ${program.price}` : ""}</span><ArrowUpRight className="h-4 w-4" /></Link></div>
               </div>
             </div>
           </article>
@@ -76,7 +76,7 @@ export function FeaturedPrograms() {
   );
 }
 
-function CheckoutButton({ program }: { program: PublicProgram }) {
+export function CheckoutButton({ program }: { program: PublicProgram }) {
   const { paddle, loading, error: configurationError } = usePaddle();
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
