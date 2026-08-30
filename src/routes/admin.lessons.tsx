@@ -215,6 +215,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
   const [previewUrl, setPreviewUrl] = useState("");
   const autoPreviewedUid = useRef<string | null>(null);
   const [thumbnailTime, setThumbnailTime] = useState("0");
+  const [previewSeek, setPreviewSeek] = useState<{ time: number; request: number } | null>(null);
   const [thumbnailRevision, setThumbnailRevision] = useState(0);
 
   useEffect(() => {
@@ -369,7 +370,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{streamUid ? `${streamStatus} · ${streamUid}` : lesson ? "No Stream video uploaded" : "Save this lesson to enable upload"}</p>
             {videoPath && <p className="mt-2 break-all font-mono text-[10px] text-muted-foreground">Legacy Storage file retained: {videoPath}</p>}
             {showStreamLibrary && <div className="mt-4 max-h-72 overflow-y-auto border border-border bg-background"><div className="sticky top-0 flex items-center justify-between border-b border-border bg-background px-3 py-2"><span className="font-mono text-[10px] uppercase tracking-[0.12em]">Cloudflare library · {streamLibrary.length}</span><button type="button" onClick={() => setShowStreamLibrary(false)} aria-label="Close Stream library"><X className="h-4 w-4" /></button></div>{streamLibrary.map((video) => <button key={video.uid} type="button" disabled={!video.ready || !video.signed || uploading} onClick={() => void attachExisting(video)} className="flex w-full items-center gap-3 border-b border-border/70 p-3 text-left last:border-b-0 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-45">{video.thumbnail ? <img src={video.thumbnail} alt="" className="h-14 w-24 rounded-sm object-cover" /> : <div className="grid h-14 w-24 place-items-center bg-secondary"><FileVideo className="h-4 w-4" /></div>}<span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{video.name}</span><span className="mt-1 block font-mono text-[10px] text-muted-foreground">{formatDuration(video.durationSeconds)} · {video.ready ? "ready" : "processing"} · {video.signed ? "private" : "public"}</span></span></button>)}</div>}
-            {previewUrl && <div className="mt-4 overflow-hidden border border-border bg-black"><div className="flex items-center justify-between bg-background px-3 py-2"><div><span className="block text-xs font-bold">Secure lesson preview</span><span className="font-mono text-[10px] text-muted-foreground">Current frame: {formatTimestamp(Number(thumbnailTime) || 0)}</span></div><button type="button" onClick={() => setPreviewUrl("")} aria-label="Close preview"><X className="h-4 w-4" /></button></div><StreamPlayer iframeUrl={previewUrl} title={`${title || "Lesson"} preview`} onTimeChange={(time) => setThumbnailTime(time.toFixed(2))} /></div>}
+            {previewUrl && <div className="mt-4 overflow-hidden border border-border bg-black"><div className="flex items-center justify-between bg-background px-3 py-2"><div><span className="block text-xs font-bold">Choose a thumbnail frame</span><span className="font-mono text-[10px] text-muted-foreground">Play or scrub the video, then use the frame you see.</span></div><button type="button" onClick={() => setPreviewUrl("")} aria-label="Close preview"><X className="h-4 w-4" /></button></div><StreamPlayer iframeUrl={previewUrl} title={`${title || "Lesson"} preview`} onTimeChange={(time) => setThumbnailTime(time.toFixed(2))} seekRequest={previewSeek} /><div className="space-y-3 bg-background p-3"><input type="range" min="0" max={Math.max(1, Number(duration) || 1)} step="0.1" value={Math.min(Math.max(0, Number(thumbnailTime) || 0), Math.max(1, Number(duration) || 1))} onChange={(event) => { const time = Number(event.target.value); setThumbnailTime(time.toFixed(2)); setPreviewSeek((current) => ({ time, request: (current?.request ?? 0) + 1 })); }} aria-label="Thumbnail frame timeline" className="w-full accent-lime" /><div className="flex items-center justify-between gap-3"><span className="font-mono text-[11px] font-bold">{formatTimestamp(Number(thumbnailTime) || 0)} / {formatTimestamp(Number(duration) || 0)}</span><Btn variant="ink" disabled={!lesson || !streamUid || saving || streamStatus !== "ready"} onClick={() => void useVideoFrame()}>Use this frame as thumbnail</Btn></div></div></div>}
           </div>
           <div className="border border-border bg-card p-4">
             <ImageUploadField value={thumbnailUrl} alt={`${title || "Lesson"} thumbnail`} folder={`lesson-thumbnails/${lesson?.id ?? programId}`} label="Lesson thumbnail" showAlt={false} onChange={(url) => { setThumbnailUrl(url); setThumbnailRevision((current) => current + 1); }} />
@@ -377,8 +378,8 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
               {lesson?.stream_thumbnail_url && <Btn onClick={() => { setThumbnailUrl(lesson.stream_thumbnail_url ?? ""); setThumbnailRevision((current) => current + 1); }}>Use Stream default</Btn>}
               {thumbnailUrl && <Btn onClick={() => setThumbnailUrl("")}>Remove thumbnail</Btn>}
             </div>
-            <div className="mt-3 flex items-end gap-2"><div className="min-w-0 flex-1"><Field label="Selected frame (seconds)" value={thumbnailTime} onChange={setThumbnailTime} type="number" /></div><Btn disabled={!lesson || !streamUid || saving || streamStatus !== "ready"} onClick={() => void useVideoFrame()}>Use current frame</Btn></div>
-            <p className="mt-2 text-[11px] text-muted-foreground">Upload a custom image, paste an HTTPS URL, or pause the secure preview and use the current video frame. Custom uploads are stored in Supabase Storage.</p>
+            {!previewUrl && streamUid && streamStatus === "ready" && <div className="mt-3"><Btn onClick={() => void previewVideo()}>Open visual frame picker</Btn></div>}
+            <p className="mt-2 text-[11px] text-muted-foreground">Upload a custom image, paste an HTTPS URL, or choose a frame directly while watching the secure preview. Custom uploads are stored in Supabase Storage.</p>
           </div>
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3"><Toggle label="Publish lesson" checked={published} onChange={setPublished} /><Toggle label="Free preview" checked={previewFree} onChange={setPreviewFree} /></div>
           {error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
@@ -401,8 +402,9 @@ declare global {
   }
 }
 
-function StreamPlayer({ iframeUrl, title, onTimeChange }: { iframeUrl: string; title: string; onTimeChange?: (time: number) => void }) {
+function StreamPlayer({ iframeUrl, title, onTimeChange, seekRequest }: { iframeUrl: string; title: string; onTimeChange?: (time: number) => void; seekRequest?: { time: number; request: number } | null }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const playerRef = useRef<StreamPlayerApi | null>(null);
   const onTimeChangeRef = useRef(onTimeChange);
 
   useEffect(() => {
@@ -417,6 +419,7 @@ function StreamPlayer({ iframeUrl, title, onTimeChange }: { iframeUrl: string; t
     const connect = () => {
       if (cancelled || !iframeRef.current || !window.Stream) return;
       player = window.Stream(iframeRef.current);
+      playerRef.current = player;
       handleTimeUpdate = () => onTimeChangeRef.current?.(Math.max(0, Number(player?.currentTime) || 0));
       player.addEventListener("timeupdate", handleTimeUpdate);
       player.addEventListener("seeked", handleTimeUpdate);
@@ -441,8 +444,13 @@ function StreamPlayer({ iframeUrl, title, onTimeChange }: { iframeUrl: string; t
         player.removeEventListener("timeupdate", handleTimeUpdate);
         player.removeEventListener("seeked", handleTimeUpdate);
       }
+      playerRef.current = null;
     };
   }, [iframeUrl]);
+
+  useEffect(() => {
+    if (seekRequest && playerRef.current) playerRef.current.currentTime = Math.max(0, seekRequest.time);
+  }, [seekRequest]);
 
   return <div className="aspect-video"><iframe ref={iframeRef} src={iframeUrl} title={title} allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0" /></div>;
 }
