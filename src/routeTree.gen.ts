@@ -23,8 +23,6 @@ import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
 import { Route as ApiCloudflareStreamWebhookRouteImport } from './routes/api/cloudflare-stream-webhook'
-import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe-webhook'
-import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as LibraryIndexRouteImport } from './routes/library.index'
 import { Route as LibraryProgramSlugRouteImport } from './routes/library.$programSlug'
@@ -40,6 +38,7 @@ import { Route as AdminMusclesImportRouteImport } from './routes/admin.muscles.i
 import { Route as AdminRecipesIndexRouteImport } from './routes/admin.recipes.index'
 import { Route as AdminRecipesRecipeIdRouteImport } from './routes/admin.recipes.$recipeId'
 import { Route as AdminRecipesImportRouteImport } from './routes/admin.recipes.import'
+import { Route as ApiPublicPaddleWebhookRouteImport } from './routes/api.public.paddle-webhook'
 import { Route as Ver1AdminSplatRouteImport } from './routes/ver1.admin.$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -113,16 +112,6 @@ const ApiCloudflareStreamWebhookRoute =
     path: '/api/cloudflare-stream-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
-  id: '/api/stripe-webhook',
-  path: '/api/stripe-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
-  id: '/checkout/success',
-  path: '/checkout/success',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const GuidesSlugRoute = GuidesSlugRouteImport.update({
   id: '/guides/$slug',
   path: '/guides/$slug',
@@ -198,6 +187,11 @@ const AdminRecipesImportRoute = AdminRecipesImportRouteImport.update({
   path: '/recipes/import',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicPaddleWebhookRoute = ApiPublicPaddleWebhookRouteImport.update({
+  id: '/api/public/paddle-webhook',
+  path: '/api/public/paddle-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Ver1AdminSplatRoute = Ver1AdminSplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -218,8 +212,6 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
-  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
-  '/checkout/success': typeof CheckoutSuccessRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
@@ -234,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles/': typeof AdminMusclesIndexRoute
   '/admin/recipes/': typeof AdminRecipesIndexRoute
@@ -248,8 +241,6 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
-  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
-  '/checkout/success': typeof CheckoutSuccessRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
@@ -264,6 +255,7 @@ export interface FileRoutesByTo {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles': typeof AdminMusclesIndexRoute
   '/admin/recipes': typeof AdminRecipesIndexRoute
@@ -283,8 +275,6 @@ export interface FileRoutesById {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
-  '/api/stripe-webhook': typeof ApiStripeWebhookRoute
-  '/checkout/success': typeof CheckoutSuccessRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
@@ -299,6 +289,7 @@ export interface FileRoutesById {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles/': typeof AdminMusclesIndexRoute
   '/admin/recipes/': typeof AdminRecipesIndexRoute
@@ -319,8 +310,6 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
-    | '/api/stripe-webhook'
-    | '/checkout/success'
     | '/guides/$slug'
     | '/library/$programSlug'
     | '/library/account'
@@ -335,6 +324,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles/'
     | '/admin/recipes/'
@@ -349,8 +339,6 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
-    | '/api/stripe-webhook'
-    | '/checkout/success'
     | '/guides/$slug'
     | '/library/$programSlug'
     | '/library/account'
@@ -365,6 +353,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles'
     | '/admin/recipes'
@@ -383,8 +372,6 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
-    | '/api/stripe-webhook'
-    | '/checkout/success'
     | '/guides/$slug'
     | '/library/$programSlug'
     | '/library/account'
@@ -399,6 +386,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles/'
     | '/admin/recipes/'
@@ -412,10 +400,9 @@ export interface RootRouteChildren {
   MusclesRoute: typeof MusclesRouteWithChildren
   Ver1Route: typeof Ver1RouteWithChildren
   ApiCloudflareStreamWebhookRoute: typeof ApiCloudflareStreamWebhookRoute
-  ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
-  CheckoutSuccessRoute: typeof CheckoutSuccessRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   RecipesSlugRoute: typeof RecipesSlugRoute
+  ApiPublicPaddleWebhookRoute: typeof ApiPublicPaddleWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -516,20 +503,6 @@ declare module '@tanstack/react-router' {
       path: '/api/cloudflare-stream-webhook'
       fullPath: '/api/cloudflare-stream-webhook'
       preLoaderRoute: typeof ApiCloudflareStreamWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/stripe-webhook': {
-      id: '/api/stripe-webhook'
-      path: '/api/stripe-webhook'
-      fullPath: '/api/stripe-webhook'
-      preLoaderRoute: typeof ApiStripeWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout/success': {
-      id: '/checkout/success'
-      path: '/checkout/success'
-      fullPath: '/checkout/success'
-      preLoaderRoute: typeof CheckoutSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guides/$slug': {
@@ -637,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRecipesImportRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/paddle-webhook': {
+      id: '/api/public/paddle-webhook'
+      path: '/api/public/paddle-webhook'
+      fullPath: '/api/public/paddle-webhook'
+      preLoaderRoute: typeof ApiPublicPaddleWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ver1/admin/$': {
       id: '/ver1/admin/$'
       path: '/$'
@@ -741,10 +721,9 @@ const rootRouteChildren: RootRouteChildren = {
   MusclesRoute: MusclesRouteWithChildren,
   Ver1Route: Ver1RouteWithChildren,
   ApiCloudflareStreamWebhookRoute: ApiCloudflareStreamWebhookRoute,
-  ApiStripeWebhookRoute: ApiStripeWebhookRoute,
-  CheckoutSuccessRoute: CheckoutSuccessRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   RecipesSlugRoute: RecipesSlugRoute,
+  ApiPublicPaddleWebhookRoute: ApiPublicPaddleWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

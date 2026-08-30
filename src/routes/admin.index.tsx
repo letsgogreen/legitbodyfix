@@ -205,9 +205,7 @@ function Dashboard() {
                 const readyVideos = curriculum.filter(
                   (lesson) => lesson.stream_status === "ready",
                 ).length;
-                const hasPrice = Boolean(
-                  program.stripe_price_id || program.stripe_price_lookup_key,
-                );
+                const hasPrice = Boolean(program.paddle_price_id);
                 return (
                   <li key={program.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                     <span className="min-w-52 flex-1 text-sm font-medium">{program.name}</span>
@@ -215,7 +213,7 @@ function Dashboard() {
                       {curriculum.length} lessons · {readyVideos} ready videos
                     </span>
                     <Tag tone={hasPrice ? "accent" : "warn"}>
-                      {hasPrice ? "Price linked" : "No Stripe price"}
+                      {hasPrice ? "Price linked" : "No Paddle price"}
                     </Tag>
                     <Tag tone={program.published ? "accent" : "muted"}>
                       {program.published ? "Published" : "Draft"}
@@ -239,28 +237,28 @@ function Dashboard() {
 function IntegrationPanel({ integrations }: { integrations: IntegrationReadiness }) {
   const items = [
     { label: "Database", ready: integrations.supabase },
-    { label: "Stripe checkout", ready: integrations.stripeCheckout },
-    { label: "Stripe webhook", ready: integrations.stripeWebhook },
+    { label: "Paddle checkout", ready: integrations.paddleCheckout },
+    { label: "Paddle webhook", ready: integrations.paddleWebhook },
     { label: "Stream upload", ready: integrations.streamUpload },
     { label: "Stream playback", ready: integrations.streamPlayback },
     { label: "Stream webhook", ready: integrations.streamWebhook },
   ];
   const missing = items.filter((item) => !item.ready).length;
   const setupItems = [
-    ...(!integrations.stripeCheckout
+    ...(!integrations.paddleCheckout
       ? [
           {
-            key: "STRIPE_API_KEY",
-            source: "Stripe Dashboard → Developers → API keys → Secret key",
+            key: "PADDLE_CLIENT_TOKEN / PADDLE_API_KEY",
+            source: "Paddle → Developer tools → Authentication",
           },
         ]
       : []),
-    ...(!integrations.stripeWebhook
+    ...(!integrations.paddleWebhook
       ? [
           {
-            key: "STRIPE_WEBHOOK_SECRET",
-            source: "Stripe webhook signing secret",
-            endpoint: "https://www.legitbodyfix.com/api/stripe-webhook",
+            key: "PADDLE_NOTIFICATION_WEBHOOK_SECRET",
+            source: "Paddle → Developer tools → Notifications",
+            endpoint: "https://www.legitbodyfix.com/api/public/paddle-webhook",
           },
         ]
       : []),
