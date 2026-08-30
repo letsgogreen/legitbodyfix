@@ -23,6 +23,7 @@ import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
 import { Route as ApiCloudflareStreamWebhookRouteImport } from './routes/api/cloudflare-stream-webhook'
+import { Route as CheckoutCompleteRouteImport } from './routes/checkout.complete'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as LibraryIndexRouteImport } from './routes/library.index'
 import { Route as LibraryProgramSlugRouteImport } from './routes/library.$programSlug'
@@ -112,6 +113,11 @@ const ApiCloudflareStreamWebhookRoute =
     path: '/api/cloudflare-stream-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CheckoutCompleteRoute = CheckoutCompleteRouteImport.update({
+  id: '/checkout/complete',
+  path: '/checkout/complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuidesSlugRoute = GuidesSlugRouteImport.update({
   id: '/guides/$slug',
   path: '/guides/$slug',
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/checkout/complete': typeof CheckoutCompleteRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/checkout/complete': typeof CheckoutCompleteRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/checkout/complete': typeof CheckoutCompleteRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
+    | '/checkout/complete'
     | '/guides/$slug'
     | '/library/$programSlug'
     | '/library/account'
@@ -339,6 +349,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
+    | '/checkout/complete'
     | '/guides/$slug'
     | '/library/$programSlug'
     | '/library/account'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
+    | '/checkout/complete'
     | '/guides/$slug'
     | '/library/$programSlug'
     | '/library/account'
@@ -400,6 +412,7 @@ export interface RootRouteChildren {
   MusclesRoute: typeof MusclesRouteWithChildren
   Ver1Route: typeof Ver1RouteWithChildren
   ApiCloudflareStreamWebhookRoute: typeof ApiCloudflareStreamWebhookRoute
+  CheckoutCompleteRoute: typeof CheckoutCompleteRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   RecipesSlugRoute: typeof RecipesSlugRoute
   ApiPublicPaddleWebhookRoute: typeof ApiPublicPaddleWebhookRoute
@@ -503,6 +516,13 @@ declare module '@tanstack/react-router' {
       path: '/api/cloudflare-stream-webhook'
       fullPath: '/api/cloudflare-stream-webhook'
       preLoaderRoute: typeof ApiCloudflareStreamWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/complete': {
+      id: '/checkout/complete'
+      path: '/checkout/complete'
+      fullPath: '/checkout/complete'
+      preLoaderRoute: typeof CheckoutCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guides/$slug': {
@@ -721,6 +741,7 @@ const rootRouteChildren: RootRouteChildren = {
   MusclesRoute: MusclesRouteWithChildren,
   Ver1Route: Ver1RouteWithChildren,
   ApiCloudflareStreamWebhookRoute: ApiCloudflareStreamWebhookRoute,
+  CheckoutCompleteRoute: CheckoutCompleteRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   RecipesSlugRoute: RecipesSlugRoute,
   ApiPublicPaddleWebhookRoute: ApiPublicPaddleWebhookRoute,

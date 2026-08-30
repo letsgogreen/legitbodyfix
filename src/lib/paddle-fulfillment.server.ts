@@ -1,7 +1,8 @@
 const TOLERANCE_SECONDS = 300;
 type Transaction = {
   id?: string; status?: string; subscription_id?: string | null; transaction_id?: string | null; action?: string | null;
-  customer?: { email?: string | null } | null; custom_data?: { email?: string | null; user_id?: string | null } | null;
+  customer_id?: string | null; customer?: { email?: string | null } | null;
+  custom_data?: { program_id?: string | null; program_slug?: string | null } | null;
   currency_code?: string | null; details?: { totals?: { total?: string | number | null; currency_code?: string | null } | null } | null;
   items?: { price?: { id?: string | null; product_id?: string | null } | null; price_id?: string | null }[] | null;
 };
@@ -20,7 +21,18 @@ export async function verifyPaddleSignature(header: string | null, body: string,
   return mismatch === 0;
 }
 
-const emailOf = (tx: Transaction) => tx.customer?.email?.trim() || tx.custom_data?.email?.trim() || null;
+async function emailOf(tx: Transaction) {
+  const embedded = tx.customer?.email?.trim();
+  if (embedded) return embedded;
+  if (!tx.customer_id) return null;
+  const key = process.env["PADDLE_API_KEY"];
+  if (!key) return null;
+  const host = process.env["PADDLE_ENVIRONMENT"] === "production" ? "https://api.paddle.com" : "https://sandbox-api.paddle.com";
+  const response = await fetch(`${host}/customers/${tx.customer_id}`, { headers: { Authorization: `Bearer ${key}` } });
+  if (!response.ok) return null;
+  const payload = await response.json() as { data?: { email?: string | null } };
+  return payload.data?.email?.trim() || null;
+}
 const amountOf = (tx: Transaction) => { const value = Number.parseInt(String(tx.details?.totals?.total ?? "0"), 10); return Number.isFinite(value) ? value : 0; };
 const currencyOf = (tx: Transaction) => (tx.details?.totals?.currency_code || tx.currency_code || "usd").toLowerCase();
 
@@ -33,8 +45,7 @@ async function resolveProgramId(tx: Transaction) {
   return null;
 }
 
-async function resolveUserId(email: string | null, custom: Transaction["custom_data"]) {
-  if (custom?.user_id) return custom.user_id;
+async function resolveUserId(email: string | null) {
   if (!email) return null;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin.from("customer_profiles").select("user_id").ilike("email", email).maybeSingle();
@@ -44,7 +55,7 @@ async function resolveUserId(email: string | null, custom: Transaction["custom_d
 async function completed(tx: Transaction) {
   if (!tx.id) throw new Error("Transaction id is missing.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const email = emailOf(tx); const programId = await resolveProgramId(tx); const userId = await resolveUserId(email, tx.custom_data);
+  const email = await emailOf(tx); const programId = await resolveProgramId(tx); const userId = await resolveUserId(email);
   const { data: order, error } = await supabaseAdmin.from("orders").upsert({
     provider: "paddle", paddle_transaction_id: tx.id, paddle_subscription_id: tx.subscription_id ?? null,
     user_id: userId, program_id: programId, customer_email: email, amount_total: amountOf(tx),
@@ -60,8 +71,8 @@ async function completed(tx: Transaction) {
 async function failed(tx: Transaction) {
   if (!tx.id) throw new Error("Transaction id is missing.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const email = emailOf(tx);
-  const { error } = await supabaseAdmin.from("orders").upsert({ provider: "paddle", paddle_transaction_id: tx.id, user_id: await resolveUserId(email, tx.custom_data), program_id: await resolveProgramId(tx), customer_email: email, amount_total: amountOf(tx), currency: currencyOf(tx), status: "failed" }, { onConflict: "paddle_transaction_id" });
+  const email = await emailOf(tx);
+  const { error } = await supabaseAdmin.from("orders").upsert({ provider: "paddle", paddle_transaction_id: tx.id, user_id: await resolveUserId(email), program_id: await resolveProgramId(tx), customer_email: email, amount_total: amountOf(tx), currency: currencyOf(tx), status: "failed" }, { onConflict: "paddle_transaction_id" });
   if (error) throw new Error(error.message);
 }
 
