@@ -1,190 +1,121 @@
-import { useState } from "react";
-import { ArrowUpRight, Play } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowUpRight, Loader2, ShoppingBag } from "lucide-react";
+import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
+import { usePaddle } from "@/lib/usePaddle";
+import { supabase } from "@/integrations/supabase/client";
 
-type SessionCategory =
-  "Neck & shoulders" | "Ankle & foot" | "Hips & balance" | "Breathing & recovery";
+const categories = ["All", "Neck & shoulders", "Ankle & foot", "Hips & balance", "Breathing & recovery"] as const;
+type Category = (typeof categories)[number];
 
-type FeaturedSession = {
-  id: string;
-  level: "FOUNDATIONAL" | "INTERMEDIATE";
-  moduleNumber: number;
-  title: string;
-  category: SessionCategory;
-  durationMinutes: number;
-  equipment: string;
-  price: number;
-  thumbnailUrl?: string;
-  fallback: string;
-};
-
-const categories: Array<"All" | SessionCategory> = [
-  "All",
-  "Neck & shoulders",
-  "Ankle & foot",
-  "Hips & balance",
-  "Breathing & recovery",
-];
-
-const sessions: FeaturedSession[] = [
-  {
-    id: "neck-alignment",
-    level: "FOUNDATIONAL",
-    moduleNumber: 1,
-    title: "Neck Alignment",
-    category: "Neck & shoulders",
-    durationMinutes: 12,
-    equipment: "Bodyweight",
-    price: 45,
-    thumbnailUrl:
-      "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/thumbnails/2026-07/1785162514945-a92a560beb9397100d6dfc71-neck.png",
-    fallback: "from-stone-700 via-stone-800 to-neutral-950",
-  },
-  {
-    id: "ankle-sprain-rehabilitation",
-    level: "INTERMEDIATE",
-    moduleNumber: 2,
-    title: "Ankle Sprain Rehabilitation",
-    category: "Ankle & foot",
-    durationMinutes: 14,
-    equipment: "Resistance band",
-    price: 14,
-    thumbnailUrl:
-      "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/thumbnails/2026-07/1785530416111-28bf1c484c1f7bb75f197f9a-ankle-sprain.jpg",
-    fallback: "from-amber-900 via-stone-800 to-neutral-950",
-  },
-  {
-    id: "pelvic-balance",
-    level: "FOUNDATIONAL",
-    moduleNumber: 3,
-    title: "Pelvic Balance",
-    category: "Hips & balance",
-    durationMinutes: 15,
-    equipment: "Bodyweight",
-    price: 15,
-    fallback: "from-stone-400 via-stone-600 to-neutral-950",
-  },
-  {
-    id: "foot-mechanics",
-    level: "FOUNDATIONAL",
-    moduleNumber: 4,
-    title: "Foot Mechanics",
-    category: "Ankle & foot",
-    durationMinutes: 10,
-    equipment: "Bodyweight",
-    price: 10,
-    fallback: "from-zinc-300 via-stone-600 to-neutral-950",
-  },
-  {
-    id: "walking-mechanics",
-    level: "INTERMEDIATE",
-    moduleNumber: 5,
-    title: "Walking Mechanics",
-    category: "Hips & balance",
-    durationMinutes: 18,
-    equipment: "Bodyweight",
-    price: 16,
-    fallback: "from-neutral-400 via-zinc-700 to-black",
-  },
-  {
-    id: "breathing-fundamentals",
-    level: "FOUNDATIONAL",
-    moduleNumber: 6,
-    title: "Breathing Fundamentals",
-    category: "Breathing & recovery",
-    durationMinutes: 8,
-    equipment: "Guided",
-    price: 8,
-    fallback: "from-stone-300 via-neutral-600 to-stone-950",
-  },
-];
+function categoryOf(program: PublicProgram): Exclude<Category, "All"> {
+  const value = [...program.regions, ...program.goals].join(" ").toLowerCase();
+  if (/ankle|foot|hallux|bunion/.test(value)) return "Ankle & foot";
+  if (/hip|pelvi|balance|knee/.test(value)) return "Hips & balance";
+  if (/breath|rib|recovery/.test(value)) return "Breathing & recovery";
+  return "Neck & shoulders";
+}
 
 export function FeaturedPrograms() {
-  const [activeCategory, setActiveCategory] = useState<(typeof categories)[number]>("All");
-  const visibleSessions =
-    activeCategory === "All"
-      ? sessions
-      : sessions.filter((session) => session.category === activeCategory);
+  const [programs, setPrograms] = useState<PublicProgram[]>([]);
+  const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void getPublicPrograms()
+      .then((rows) => { if (active) setPrograms(rows); })
+      .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : "Programs could not be loaded."); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  const visiblePrograms = useMemo(
+    () => activeCategory === "All" ? programs : programs.filter((program) => categoryOf(program) === activeCategory),
+    [activeCategory, programs],
+  );
+
+  if (loading) return <div className="flex min-h-64 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading programs…</div>;
+  if (error) return <div className="border border-destructive/40 bg-destructive/5 px-5 py-8 text-sm text-destructive">{error}</div>;
+  if (!programs.length) return <div className="border border-border bg-card px-6 py-12"><h3 className="text-2xl font-extrabold">Programs are being prepared.</h3><p className="mt-2 text-sm text-muted-foreground">Published programs will appear here automatically.</p></div>;
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2" aria-label="Filter sessions by goal">
-        <span className="mr-2 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-          Filter by goal
-        </span>
-        {categories.map((category) => {
-          const isActive = category === activeCategory;
-
-          return (
-            <button
-              key={category}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => setActiveCategory(category)}
-              className={`min-h-9 border px-3 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                isActive
-                  ? "border-foreground bg-foreground text-[#c8ff2c]"
-                  : "border-border bg-background text-foreground hover:border-foreground"
-              }`}
-            >
-              {category}
-            </button>
-          );
-        })}
+      <div className="flex flex-wrap items-center gap-2" aria-label="Filter programs by goal">
+        <span className="mr-2 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Filter by goal</span>
+        {categories.map((category) => (
+          <button key={category} type="button" aria-pressed={category === activeCategory} onClick={() => setActiveCategory(category)} className={`min-h-9 border px-3 text-xs font-bold transition-colors ${category === activeCategory ? "border-foreground bg-foreground text-accent" : "border-border bg-background hover:border-foreground"}`}>
+            {category}
+          </button>
+        ))}
       </div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
-        {visibleSessions.map((session) => (
-          <a
-            key={session.id}
-            href={`/video.html?id=${encodeURIComponent(session.id)}`}
-            aria-label={`View ${session.title} session`}
-            className={`group relative isolate flex min-h-[23rem] overflow-hidden border border-neutral-800 bg-gradient-to-b ${session.fallback} p-5 text-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-[0_7px_0_#c8ff2c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c8ff2c] focus-visible:ring-offset-2`}
-          >
-            {session.thumbnailUrl ? (
-              <img
-                src={session.thumbnailUrl}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 -z-20 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-              />
-            ) : null}
+        {visiblePrograms.map((program, index) => (
+          <article key={program.id} className="group relative isolate flex min-h-[23rem] overflow-hidden border border-neutral-800 bg-neutral-900 p-5 text-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-[0_7px_0_#c8ff2c]">
+            {program.imageUrl && <img src={program.imageUrl} alt={program.imageAlt ?? ""} loading="lazy" decoding="async" className="absolute inset-0 -z-20 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" />}
             <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/10 via-black/30 to-black/90" />
-
             <div className="flex w-full flex-col">
               <div className="flex items-start justify-between gap-4">
-                <span className="bg-[#c8ff2c] px-3 py-1 font-mono text-[10px] font-bold text-black">
-                  {session.level}
-                </span>
-                <span className="grid size-9 place-items-center rounded-full border border-white/80 text-white transition group-hover:border-[#c8ff2c] group-hover:text-[#c8ff2c]">
-                  <Play className="ml-0.5 size-4" aria-hidden="true" />
-                </span>
+                <span className="bg-accent px-3 py-1 font-mono text-[10px] font-bold text-accent-foreground">{program.level?.toUpperCase() || "GUIDED"}</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/70">Program {String(index + 1).padStart(2, "0")}</span>
               </div>
-
               <div className="mt-auto">
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#c8ff2c]">
-                  Module {String(session.moduleNumber).padStart(2, "0")}
-                </p>
-                <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight">
-                  {session.title}
-                </h3>
-                <p className="mt-2 font-mono text-[11px] font-medium text-white/90">
-                  {session.durationMinutes} min · {session.equipment} · ${session.price}
-                </p>
-                <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/30 pt-4">
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#c8ff2c]">
-                    {session.category}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-[#c8ff2c]">
-                    View session
-                    <ArrowUpRight className="size-3.5" aria-hidden="true" />
-                  </span>
-                </div>
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-accent">{categoryOf(program)}</p>
+                <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight">{program.name}</h3>
+                <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/80">{program.outcome || "A focused progression built around a clear movement goal."}</p>
+                <p className="mt-3 font-mono text-[11px] text-white/80">{[program.duration, program.format, program.price].filter(Boolean).join(" · ")}</p>
+                <div className="mt-5 border-t border-white/30 pt-4"><CheckoutButton program={program} /></div>
               </div>
             </div>
-          </a>
+          </article>
         ))}
       </div>
+      {!visiblePrograms.length && <p className="mt-6 border border-border bg-card px-5 py-8 text-sm text-muted-foreground">No published programs in this category yet.</p>}
+    </div>
+  );
+}
+
+function CheckoutButton({ program }: { program: PublicProgram }) {
+  const paddle = usePaddle();
+  const [working, setWorking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!program.paddlePriceId) return <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/70">Coming soon</span>;
+
+  async function openCheckout() {
+    setError(null);
+    if (!paddle || !program.paddlePriceId) {
+      setError("Checkout is still loading. Try again in a moment.");
+      return;
+    }
+    setWorking(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const email = user?.email;
+      paddle.Checkout.open({
+        items: [{ priceId: program.paddlePriceId, quantity: 1 }],
+        customer: email ? { email } : undefined,
+        customData: {
+          program_id: program.id,
+          program_slug: program.slug,
+        },
+        settings: { successUrl: `${window.location.origin}/checkout/complete`, allowLogout: false },
+      });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Checkout could not be opened.");
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  return (
+    <div>
+      <button type="button" disabled={!paddle || working} onClick={() => void openCheckout()} className="inline-flex min-h-11 w-full items-center justify-between gap-3 bg-accent px-4 text-sm font-bold text-accent-foreground disabled:cursor-wait disabled:opacity-60">
+        <span className="inline-flex items-center gap-2"><ShoppingBag className="h-4 w-4" />{working ? "Opening checkout…" : `Get instant access${program.price ? ` — ${program.price}` : ""}`}</span>
+        <ArrowUpRight className="h-4 w-4" />
+      </button>
+      {error && <p className="mt-2 text-xs text-red-200">{error}</p>}
     </div>
   );
 }
