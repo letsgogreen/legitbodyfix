@@ -213,6 +213,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const autoPreviewedUid = useRef<string | null>(null);
   const [thumbnailTime, setThumbnailTime] = useState("0");
   const [thumbnailRevision, setThumbnailRevision] = useState(0);
 
@@ -272,6 +273,24 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
       setPreviewUrl(playback.iframeUrl);
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
   };
+
+  useEffect(() => {
+    if (!lesson || !streamUid || streamStatus !== "ready" || autoPreviewedUid.current === streamUid) return;
+    autoPreviewedUid.current = streamUid;
+    let cancelled = false;
+
+    void getStreamPlayback({ data: { lessonId: lesson.id } })
+      .then((playback) => {
+        if (!cancelled) setPreviewUrl(playback.iframeUrl);
+      })
+      .catch((cause) => {
+        if (!cancelled) setError(cause instanceof Error ? cause.message : String(cause));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lesson, streamStatus, streamUid]);
 
   const useVideoFrame = async () => {
     if (!lesson || !streamUid) { setError("Save the lesson and attach a Stream video first."); return; }
