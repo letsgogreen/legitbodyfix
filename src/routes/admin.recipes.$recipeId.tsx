@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, Plus, Save, X } from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -180,6 +181,8 @@ function RecipeReview() {
       dosage: record.dosage,
       evidence: record.evidence,
       regions: record.regions,
+      image_url: record.image_url,
+      image_alt: record.image_alt,
     };
     if (publish === true) patch["published"] = true;
     if (publish === false) {
@@ -338,6 +341,20 @@ function RecipeReview() {
         </Panel>
 
         <div className="space-y-4">
+          <Panel className="p-4">
+            <ImageUploadField
+              value={record.image_url ?? ""}
+              alt={record.image_alt ?? ""}
+              folder={`recipes/${record.id}`}
+              label="Recipe cover image"
+              onChange={(url) => setField("image_url", url || null)}
+              onAltChange={(alt) => setField("image_alt", alt || null)}
+            />
+            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+              Manual replacements are copied to permanent Supabase Storage. The original Notion source link remains available below for traceability.
+            </p>
+          </Panel>
+
           <Panel className="overflow-hidden">
             {record.image_url ? (
               <div className="grid min-h-72 place-items-center bg-secondary/30 p-4"><img
