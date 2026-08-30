@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/public/paddle-webhook")({
   server: { handlers: { POST: async ({ request }) => {
-    const secret = process.env["PADDLE_NOTIFICATION_WEBHOOK_SECRET"];
+    const secret = process.env["PADDLE_WEBHOOK_SECRET"] ?? process.env["PADDLE_NOTIFICATION_WEBHOOK_SECRET"];
     if (!secret) return new Response("Webhook is not configured", { status: 503 });
     const rawBody = await request.text();
     const { verifyPaddleSignature, handlePaddleEvent } = await import("@/lib/paddle-fulfillment.server");
