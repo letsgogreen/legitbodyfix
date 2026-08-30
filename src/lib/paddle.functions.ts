@@ -75,9 +75,20 @@ export const updateProgramPrice = createServerFn({ method: "POST" })
     const { data: program, error } = await supabaseAdmin.from("programs")
       .select("id,name,paddle_product_id,paddle_price_id").eq("id", data.programId).maybeSingle();
     if (error || !program) throw new Error(error?.message || "Program not found.");
-    if (!program.paddle_product_id) throw new Error("Add and save a Paddle product ID first.");
+    let productId = program.paddle_product_id;
+    if (!productId) {
+      const product = await request("/products", { method: "POST", body: JSON.stringify({
+        name: program.name,
+        description: "LegitBodyFix guided movement program",
+        type: "standard",
+        tax_category: "standard",
+        custom_data: { legitbodyfix_program_id: program.id },
+      }) });
+      productId = (product.data as { id?: string } | undefined)?.id ?? null;
+      if (!productId) throw new Error("Paddle did not return a product ID.");
+    }
     const created = await request("/prices", { method: "POST", body: JSON.stringify({
-      product_id: program.paddle_product_id,
+      product_id: productId,
       description: `${program.name} — one-time`,
       type: "standard",
       unit_price: { amount: String(Math.round(data.amount * 100)), currency_code: data.currency },
@@ -85,7 +96,8 @@ export const updateProgramPrice = createServerFn({ method: "POST" })
     }) });
     const priceId = (created.data as { id?: string } | undefined)?.id;
     if (!priceId) throw new Error("Paddle did not return a price ID.");
-    const { error: saveError } = await supabaseAdmin.from("programs").update({ paddle_price_id: priceId }).eq("id", program.id);
+    const { error: saveError } = await supabaseAdmin.from("programs")
+      .update({ paddle_product_id: productId, paddle_price_id: priceId }).eq("id", program.id);
     if (saveError) throw new Error(saveError.message);
     let previousArchived = false;
     if (program.paddle_price_id && program.paddle_price_id !== priceId) {
@@ -93,11 +105,11 @@ export const updateProgramPrice = createServerFn({ method: "POST" })
       catch (archiveError) { console.error("Previous Paddle price could not be archived:", archiveError); }
     }
     await supabaseAdmin.from("program_price_changes").insert({
-      program_id: program.id, paddle_product_id: program.paddle_product_id,
+      program_id: program.id, paddle_product_id: productId,
       previous_price_id: program.paddle_price_id, new_price_id: priceId,
       amount_minor: Math.round(data.amount * 100), currency: data.currency,
       previous_archived: previousArchived, changed_by: context.userId,
       changed_by_email: (claims as { email?: string }).email ?? null,
     });
-    return { priceId, livePrice: (await fetchPaddlePrices([priceId]))[priceId] ?? null, previousArchived };
+    return { productId, priceId, livePrice: (await fetchPaddlePrices([priceId]))[priceId] ?? null, previousArchived };
   });
