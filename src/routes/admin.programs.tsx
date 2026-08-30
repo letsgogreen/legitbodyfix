@@ -718,12 +718,16 @@ function PaddlePricePanel({ programId, productId, priceId, onChanged }: { progra
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [livePrice, setLivePrice] = useState<string | null>(null);
+  const [priceStatus, setPriceStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!priceId) { setLivePrice(null); return; }
-    void getProgramPrice({ data: { priceId } }).then((result) => setLivePrice(result.price)).catch(() => setLivePrice(null));
+    if (!priceId) { setLivePrice(null); setPriceStatus("idle"); return; }
+    setPriceStatus("loading");
+    void getProgramPrice({ data: { priceId } })
+      .then((result) => { setLivePrice(result.price); setPriceStatus(result.price ? "ready" : "unavailable"); })
+      .catch(() => { setLivePrice(null); setPriceStatus("unavailable"); });
   }, [priceId]);
 
   const savePrice = async () => {
@@ -739,7 +743,7 @@ function PaddlePricePanel({ programId, productId, priceId, onChanged }: { progra
   };
 
   return <div className="space-y-3 border border-border bg-card p-4">
-    <div><Label>Live Paddle price</Label><p className="text-sm font-bold">{livePrice ?? (priceId ? "Checking Paddle…" : "No price set")}</p></div>
+    <div><Label>Live Paddle price</Label><p className="text-sm font-bold">{priceStatus === "loading" ? "Checking Paddle…" : priceStatus === "unavailable" ? "Unavailable — check Paddle configuration" : livePrice ?? "No price set"}</p></div>
     {!productId ? <p className="text-xs text-muted-foreground">Add the Paddle product ID above and save first.</p> : <><div className="grid grid-cols-[1fr_7rem] gap-3"><Field label="New amount" type="number" value={amount} onChange={setAmount} /><Field label="Currency" value={currency} onChange={(value) => setCurrency(value.toUpperCase())} /></div><Btn variant="ink" disabled={working} onClick={() => void savePrice()}>{working ? "Updating…" : "Save Paddle price"}</Btn></>}
     {message && <p className="text-xs text-muted-foreground">{message}</p>}
   </div>;
