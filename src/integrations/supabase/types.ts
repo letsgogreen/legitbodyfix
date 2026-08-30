@@ -676,9 +676,9 @@ export type Database = {
         Relationships: []
       }
       orders: {
-        Row: { amount_total: number; created_at: string; currency: string; customer_email: string | null; id: string; program_id: string | null; purchased_at: string | null; status: string; stripe_checkout_session_id: string | null; stripe_payment_intent_id: string | null; updated_at: string; user_id: string | null }
-        Insert: { amount_total?: number; created_at?: string; currency?: string; customer_email?: string | null; id?: string; program_id?: string | null; purchased_at?: string | null; status?: string; stripe_checkout_session_id?: string | null; stripe_payment_intent_id?: string | null; updated_at?: string; user_id?: string | null }
-        Update: { amount_total?: number; created_at?: string; currency?: string; customer_email?: string | null; id?: string; program_id?: string | null; purchased_at?: string | null; status?: string; stripe_checkout_session_id?: string | null; stripe_payment_intent_id?: string | null; updated_at?: string; user_id?: string | null }
+        Row: { amount_total: number; created_at: string; currency: string; customer_email: string | null; id: string; paddle_subscription_id: string | null; paddle_transaction_id: string | null; program_id: string | null; provider: string; purchased_at: string | null; status: string; stripe_checkout_session_id: string | null; stripe_payment_intent_id: string | null; updated_at: string; user_id: string | null }
+        Insert: { amount_total?: number; created_at?: string; currency?: string; customer_email?: string | null; id?: string; paddle_subscription_id?: string | null; paddle_transaction_id?: string | null; program_id?: string | null; provider?: string; purchased_at?: string | null; status?: string; stripe_checkout_session_id?: string | null; stripe_payment_intent_id?: string | null; updated_at?: string; user_id?: string | null }
+        Update: { amount_total?: number; created_at?: string; currency?: string; customer_email?: string | null; id?: string; paddle_subscription_id?: string | null; paddle_transaction_id?: string | null; program_id?: string | null; provider?: string; purchased_at?: string | null; status?: string; stripe_checkout_session_id?: string | null; stripe_payment_intent_id?: string | null; updated_at?: string; user_id?: string | null }
         Relationships: []
       }
       program_modules: {
@@ -711,6 +711,12 @@ export type Database = {
         }
         Relationships: []
       }
+      program_price_changes: {
+        Row: { amount_minor: number; changed_by: string | null; changed_by_email: string | null; created_at: string; currency: string; id: string; new_price_id: string; paddle_product_id: string | null; previous_archived: boolean; previous_price_id: string | null; program_id: string }
+        Insert: { amount_minor: number; changed_by?: string | null; changed_by_email?: string | null; created_at?: string; currency: string; id?: string; new_price_id: string; paddle_product_id?: string | null; previous_archived?: boolean; previous_price_id?: string | null; program_id: string }
+        Update: { amount_minor?: number; changed_by?: string | null; changed_by_email?: string | null; created_at?: string; currency?: string; id?: string; new_price_id?: string; paddle_product_id?: string | null; previous_archived?: boolean; previous_price_id?: string | null; program_id?: string }
+        Relationships: []
+      }
       programs: {
         Row: {
           created_at: string
@@ -726,6 +732,8 @@ export type Database = {
           level: string | null
           name: string
           outcome: string | null
+          paddle_price_id: string | null
+          paddle_product_id: string | null
           published: boolean
           regions: string[]
           slug: string
@@ -749,6 +757,8 @@ export type Database = {
           level?: string | null
           name: string
           outcome?: string | null
+          paddle_price_id?: string | null
+          paddle_product_id?: string | null
           published?: boolean
           regions?: string[]
           slug: string
@@ -772,6 +782,8 @@ export type Database = {
           level?: string | null
           name?: string
           outcome?: string | null
+          paddle_price_id?: string | null
+          paddle_product_id?: string | null
           published?: boolean
           regions?: string[]
           slug?: string

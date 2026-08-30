@@ -16,6 +16,7 @@ import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { getProgramPrice, updateProgramPrice } from "@/lib/paddle.functions";
 
 type ProgramRow = Database["public"]["Tables"]["programs"]["Row"];
 type RecipeOption = Pick<
@@ -38,9 +39,8 @@ type ProgramDraft = {
   level: string;
   regions: string;
   goals: string;
-  stripe_price_lookup_key: string;
-  stripe_price_id: string;
-  stripe_product_id: string;
+  paddle_product_id: string;
+  paddle_price_id: string;
   entitlement_key: string;
   image_url: string;
   image_alt: string;
@@ -59,9 +59,8 @@ const emptyDraft: ProgramDraft = {
   level: "Foundational",
   regions: "",
   goals: "",
-  stripe_price_lookup_key: "",
-  stripe_price_id: "",
-  stripe_product_id: "",
+  paddle_product_id: "",
+  paddle_price_id: "",
   entitlement_key: "",
   image_url: "",
   image_alt: "",
@@ -157,7 +156,7 @@ function ProgramsView() {
               <tr>
                 <Th>Program</Th>
                 <Th>Regions</Th>
-                <Th>Stripe lookup key</Th>
+                <Th>Paddle price</Th>
                 <Th>Status</Th>
                 <Th>Updated</Th>
                 <Th />
@@ -174,7 +173,7 @@ function ProgramsView() {
                   </Td>
                   <Td className="text-muted-foreground">{program.regions.join(", ") || "—"}</Td>
                   <Td className="font-mono text-xs text-muted-foreground">
-                    {program.stripe_price_lookup_key || "Not connected"}
+                    {(program as ProgramRow & { paddle_price_id?: string | null }).paddle_price_id || "Not connected"}
                   </Td>
                   <Td>
                     <Tag tone={program.published ? "accent" : "muted"}>
@@ -236,9 +235,8 @@ function rowToDraft(program: ProgramRow): ProgramDraft {
     level: program.level ?? "",
     regions: program.regions.join(", "),
     goals: program.goals.join(", "),
-    stripe_price_lookup_key: program.stripe_price_lookup_key ?? "",
-    stripe_price_id: program.stripe_price_id ?? "",
-    stripe_product_id: program.stripe_product_id ?? "",
+    paddle_product_id: (program as ProgramRow & { paddle_product_id?: string | null }).paddle_product_id ?? "",
+    paddle_price_id: (program as ProgramRow & { paddle_price_id?: string | null }).paddle_price_id ?? "",
     entitlement_key: program.entitlement_key ?? "",
     image_url: program.image_url ?? "",
     image_alt: program.image_alt ?? "",
@@ -320,8 +318,8 @@ function ProgramDrawer({
         ready: Boolean(draft.image_url.trim() && draft.image_alt.trim()),
       },
       {
-        label: "Stripe price connected",
-        ready: Boolean(draft.stripe_price_id || draft.stripe_price_lookup_key.trim()),
+        label: "Paddle price connected",
+        ready: Boolean(draft.paddle_price_id),
       },
       { label: "At least one lesson", ready: lessons.length > 0 },
       {
@@ -412,7 +410,7 @@ function ProgramDrawer({
       level: draft.level.trim() || null,
       regions: csv(draft.regions),
       goals: csv(draft.goals),
-      stripe_price_lookup_key: draft.stripe_price_lookup_key.trim() || null,
+      paddle_product_id: draft.paddle_product_id.trim() || null,
       entitlement_key: draft.entitlement_key.trim() || null,
       image_url: draft.image_url.trim() || null,
       image_alt: draft.image_alt.trim() || null,
@@ -583,20 +581,8 @@ function ProgramDrawer({
             value={draft.goals}
             onChange={(value) => update("goals", value)}
           />
-          <Field
-            label="Stripe price lookup key"
-            value={draft.stripe_price_lookup_key}
-            onChange={(value) => update("stripe_price_lookup_key", value)}
-          />
-          {draft.id && (
-            <div className="grid grid-cols-2 gap-3">
-              <ReadOnly label="Stripe price ID" value={draft.stripe_price_id || "Not resolved"} />
-              <ReadOnly
-                label="Stripe product ID"
-                value={draft.stripe_product_id || "Not connected"}
-              />
-            </div>
-          )}
+          <Field label="Paddle product ID" value={draft.paddle_product_id} onChange={(value) => update("paddle_product_id", value)} />
+          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={(priceId) => update("paddle_price_id", priceId)} />}
           <Field
             label="Entitlement key"
             value={draft.entitlement_key}
@@ -698,8 +684,7 @@ function ProgramDrawer({
             </div>
           )}
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            Prices remain controlled by Stripe. This page stores only the lookup key used to
-            retrieve the live price.
+            New sales use Paddle. Historical Stripe identifiers remain stored only for old orders.
           </p>
           {error && (
             <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
@@ -727,6 +712,37 @@ function Label({ children }: { children: React.ReactNode }) {
       {children}
     </span>
   );
+}
+
+function PaddlePricePanel({ programId, productId, priceId, onChanged }: { programId: string; productId: string; priceId: string; onChanged: (priceId: string) => void }) {
+  const [amount, setAmount] = useState("");
+  const [currency, setCurrency] = useState("USD");
+  const [livePrice, setLivePrice] = useState<string | null>(null);
+  const [working, setWorking] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!priceId) { setLivePrice(null); return; }
+    void getProgramPrice({ data: { priceId } }).then((result) => setLivePrice(result.price)).catch(() => setLivePrice(null));
+  }, [priceId]);
+
+  const savePrice = async () => {
+    const value = Number(amount);
+    if (!Number.isFinite(value) || value <= 0) { setMessage("Enter a price greater than zero."); return; }
+    setWorking(true); setMessage(null);
+    try {
+      const result = await updateProgramPrice({ data: { programId, amount: value, currency } });
+      onChanged(result.priceId); setLivePrice(result.livePrice); setAmount("");
+      setMessage(`Paddle price updated${result.previousArchived ? "; previous price archived" : ""}.`);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Price update failed."); }
+    finally { setWorking(false); }
+  };
+
+  return <div className="space-y-3 border border-border bg-card p-4">
+    <div><Label>Live Paddle price</Label><p className="text-sm font-bold">{livePrice ?? (priceId ? "Checking Paddle…" : "No price set")}</p></div>
+    {!productId ? <p className="text-xs text-muted-foreground">Add the Paddle product ID above and save first.</p> : <><div className="grid grid-cols-[1fr_7rem] gap-3"><Field label="New amount" type="number" value={amount} onChange={setAmount} /><Field label="Currency" value={currency} onChange={(value) => setCurrency(value.toUpperCase())} /></div><Btn variant="ink" disabled={working} onClick={() => void savePrice()}>{working ? "Updating…" : "Save Paddle price"}</Btn></>}
+    {message && <p className="text-xs text-muted-foreground">{message}</p>}
+  </div>;
 }
 
 function Field({
