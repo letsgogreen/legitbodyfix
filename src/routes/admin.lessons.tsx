@@ -335,13 +335,14 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
     setSaving(true);
     setError(null);
     const parsedDuration = Number(duration);
+    const normalizedDuration = duration && Number.isFinite(parsedDuration) ? Math.round(parsedDuration) : null;
     const payload = {
       program_id: programId,
       module_id: moduleId || null,
       title: title.trim(),
       slug: (slug || title).trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, ""),
       summary: summary.trim() || null,
-      duration_seconds: duration && Number.isFinite(parsedDuration) && parsedDuration > 0 ? Math.round(parsedDuration) : null,
+      duration_seconds: normalizedDuration && normalizedDuration > 0 ? normalizedDuration : null,
       video_path: videoPath || null,
       thumbnail_url: thumbnailUrl.trim() || null,
       position: Number(position) || nextPosition,
