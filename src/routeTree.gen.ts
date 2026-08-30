@@ -30,6 +30,7 @@ import { Route as LibraryProgramSlugRouteImport } from './routes/library.$progra
 import { Route as LibraryAccountRouteImport } from './routes/library.account'
 import { Route as MusclesIndexRouteImport } from './routes/muscles.index'
 import { Route as MusclesMuscleIdRouteImport } from './routes/muscles.$muscleId'
+import { Route as ProgramsProgramSlugRouteImport } from './routes/programs.$programSlug'
 import { Route as RecipesSlugRouteImport } from './routes/recipes.$slug'
 import { Route as Ver1IndexRouteImport } from './routes/ver1.index'
 import { Route as Ver1AdminRouteImport } from './routes/ver1.admin'
@@ -148,6 +149,11 @@ const MusclesMuscleIdRoute = MusclesMuscleIdRouteImport.update({
   path: '/$muscleId',
   getParentRoute: () => MusclesRoute,
 } as any)
+const ProgramsProgramSlugRoute = ProgramsProgramSlugRouteImport.update({
+  id: '/programs/$programSlug',
+  path: '/programs/$programSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecipesSlugRoute = RecipesSlugRouteImport.update({
   id: '/recipes/$slug',
   path: '/recipes/$slug',
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
   '/muscles/$muscleId': typeof MusclesMuscleIdRoute
+  '/programs/$programSlug': typeof ProgramsProgramSlugRoute
   '/recipes/$slug': typeof RecipesSlugRoute
   '/ver1/admin': typeof Ver1AdminRouteWithChildren
   '/admin/': typeof AdminIndexRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
   '/muscles/$muscleId': typeof MusclesMuscleIdRoute
+  '/programs/$programSlug': typeof ProgramsProgramSlugRoute
   '/recipes/$slug': typeof RecipesSlugRoute
   '/ver1/admin': typeof Ver1AdminRouteWithChildren
   '/admin': typeof AdminIndexRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/library/$programSlug': typeof LibraryProgramSlugRoute
   '/library/account': typeof LibraryAccountRoute
   '/muscles/$muscleId': typeof MusclesMuscleIdRoute
+  '/programs/$programSlug': typeof ProgramsProgramSlugRoute
   '/recipes/$slug': typeof RecipesSlugRoute
   '/ver1/admin': typeof Ver1AdminRouteWithChildren
   '/admin/': typeof AdminIndexRoute
@@ -324,6 +333,7 @@ export interface FileRouteTypes {
     | '/library/$programSlug'
     | '/library/account'
     | '/muscles/$muscleId'
+    | '/programs/$programSlug'
     | '/recipes/$slug'
     | '/ver1/admin'
     | '/admin/'
@@ -354,6 +364,7 @@ export interface FileRouteTypes {
     | '/library/$programSlug'
     | '/library/account'
     | '/muscles/$muscleId'
+    | '/programs/$programSlug'
     | '/recipes/$slug'
     | '/ver1/admin'
     | '/admin'
@@ -388,6 +399,7 @@ export interface FileRouteTypes {
     | '/library/$programSlug'
     | '/library/account'
     | '/muscles/$muscleId'
+    | '/programs/$programSlug'
     | '/recipes/$slug'
     | '/ver1/admin'
     | '/admin/'
@@ -414,6 +426,7 @@ export interface RootRouteChildren {
   ApiCloudflareStreamWebhookRoute: typeof ApiCloudflareStreamWebhookRoute
   CheckoutCompleteRoute: typeof CheckoutCompleteRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
+  ProgramsProgramSlugRoute: typeof ProgramsProgramSlugRoute
   RecipesSlugRoute: typeof RecipesSlugRoute
   ApiPublicPaddleWebhookRoute: typeof ApiPublicPaddleWebhookRoute
 }
@@ -566,6 +579,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/muscles/$muscleId'
       preLoaderRoute: typeof MusclesMuscleIdRouteImport
       parentRoute: typeof MusclesRoute
+    }
+    '/programs/$programSlug': {
+      id: '/programs/$programSlug'
+      path: '/programs/$programSlug'
+      fullPath: '/programs/$programSlug'
+      preLoaderRoute: typeof ProgramsProgramSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/recipes/$slug': {
       id: '/recipes/$slug'
@@ -743,6 +763,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCloudflareStreamWebhookRoute: ApiCloudflareStreamWebhookRoute,
   CheckoutCompleteRoute: CheckoutCompleteRoute,
   GuidesSlugRoute: GuidesSlugRoute,
+  ProgramsProgramSlugRoute: ProgramsProgramSlugRoute,
   RecipesSlugRoute: RecipesSlugRoute,
   ApiPublicPaddleWebhookRoute: ApiPublicPaddleWebhookRoute,
 }
