@@ -72,29 +72,26 @@ export function BodyRegionGrid() {
       <ul className="border-t border-border">
         {rows.map(({ region, index, active, counts: regionCounts }) => (
           <li key={region.slug} className="border-b border-border">
-            <button
-              type="button"
-              onMouseEnter={() => setActiveIndex(index)}
-              onFocus={() => setActiveIndex(index)}
-              onClick={() => setActiveIndex(index)}
-              aria-pressed={active}
-              className={`group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 px-4 py-6 text-left transition-colors sm:px-5 ${
-                active ? "bg-ink text-ink-foreground" : "bg-background hover:bg-secondary/60"
-              }`}
-            >
-              <span className={`font-mono text-[11px] tracking-[0.18em] ${active ? "text-accent" : "text-muted-foreground"}`}>
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <span className="min-w-0">
-                <span className="block text-2xl font-extrabold uppercase leading-none sm:text-3xl">
-                  {region.title}
-                </span>
-                <span className={`mt-2 block font-mono text-[10px] uppercase tracking-[0.18em] ${active ? "text-ink-foreground/65" : "text-muted-foreground"}`}>
-                  {regionCounts.recipes} recipes · {regionCounts.programs} programs
-                </span>
-              </span>
-              <ArrowUpRight className={`h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${active ? "text-accent" : "text-muted-foreground"}`} aria-hidden="true" />
-            </button>
+            {active ? (
+              <Link
+                to="/movement-check"
+                search={{ region: region.slug }}
+                className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 bg-ink px-4 py-6 text-left text-ink-foreground transition-colors sm:px-5"
+              >
+                <RegionRowContent index={index} region={region} counts={regionCounts} active />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onMouseEnter={() => setActiveIndex(index)}
+                onFocus={() => setActiveIndex(index)}
+                onClick={() => setActiveIndex(index)}
+                aria-pressed={false}
+                className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 bg-background px-4 py-6 text-left transition-colors hover:bg-secondary/60 sm:px-5"
+              >
+                <RegionRowContent index={index} region={region} counts={regionCounts} active={false} />
+              </button>
+            )}
           </li>
         ))}
       </ul>
@@ -125,5 +122,34 @@ export function BodyRegionGrid() {
         </div>
       </aside>
     </div>
+  );
+}
+
+function RegionRowContent({
+  index,
+  region,
+  counts,
+  active,
+}: {
+  index: number;
+  region: (typeof bodyRegions)[number];
+  counts: RegionCounts;
+  active: boolean;
+}) {
+  return (
+    <>
+      <span className={`font-mono text-[11px] tracking-[0.18em] ${active ? "text-accent" : "text-muted-foreground"}`}>
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-2xl font-extrabold uppercase leading-none sm:text-3xl">
+          {region.title}
+        </span>
+        <span className={`mt-2 block font-mono text-[10px] uppercase tracking-[0.18em] ${active ? "text-ink-foreground/65" : "text-muted-foreground"}`}>
+          {counts.recipes} recipes · {counts.programs} programs
+        </span>
+      </span>
+      <ArrowUpRight className={`h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${active ? "text-accent" : "text-muted-foreground"}`} aria-hidden="true" />
+    </>
   );
 }
