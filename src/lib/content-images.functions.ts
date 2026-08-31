@@ -33,6 +33,13 @@ async function getAdminStorageClient() {
   return supabaseAdmin;
 }
 
+function storageSetupMessage(error: Error) {
+  if (/invalid api key|bucket not found|not found/i.test(error.message)) {
+    return "Image storage is not ready. Create a public Supabase Storage bucket named content-images, or fix SUPABASE_SERVICE_ROLE_KEY/SUPABASE_SECRET_KEY in Vercel so the app can create it automatically.";
+  }
+  return error.message;
+}
+
 export const uploadContentImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) => {
@@ -48,15 +55,25 @@ export const uploadContentImage = createServerFn({ method: "POST" })
     if (!ACCEPTED.has(file.type)) throw new Error("Use a JPG, PNG, WebP, GIF, or AVIF image.");
     if (file.size > MAX_BYTES) throw new Error("Image must be 10 MB or smaller.");
 
-    const supabaseAdmin = await getAdminStorageClient();
     const cleanFolder = safeSegment(folder) || "uploads";
     const cleanName = safeName(file.name) || "image";
     const path = `${cleanFolder}/${Date.now()}-${cleanName}`;
-    const { error } = await supabaseAdmin.storage
+
+    let storageClient = context.supabase;
+    try {
+      storageClient = await getAdminStorageClient();
+    } catch (cause) {
+      // Fall back to the authenticated admin session. This works when the
+      // content-images bucket and admin RLS policies already exist, even if the
+      // service-role env is missing or wrong in production.
+      storageClient = context.supabase;
+    }
+
+    const { error } = await storageClient.storage
       .from(CONTENT_IMAGE_BUCKET)
       .upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(storageSetupMessage(error));
 
-    const { data: publicUrl } = supabaseAdmin.storage.from(CONTENT_IMAGE_BUCKET).getPublicUrl(path);
+    const { data: publicUrl } = storageClient.storage.from(CONTENT_IMAGE_BUCKET).getPublicUrl(path);
     return { url: publicUrl.publicUrl, path };
   });
