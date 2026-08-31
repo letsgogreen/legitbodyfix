@@ -214,6 +214,15 @@ function ProgramsView() {
                             : "Publish"}
                       </Btn>
                       <Link
+                        to="/programs/$programSlug"
+                        params={{ programSlug: program.slug }}
+                        search={{ preview: "admin" }}
+                        target="_blank"
+                        className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"
+                      >
+                        Sales <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                      </Link>
+                      <Link
                         to="/admin/lessons"
                         search={{ program: program.id }}
                         className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"
