@@ -20,7 +20,7 @@ function hasAdminAccess(claims: unknown) {
  */
 export const rehostRecipeCovers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { notionPageIds: string[] }) => ({
+  .validator((data: { notionPageIds: string[] }) => ({
     notionPageIds: (data?.notionPageIds ?? []).map(String).filter(Boolean),
   }))
   .handler(async ({ data, context }): Promise<RehostReport> => {
