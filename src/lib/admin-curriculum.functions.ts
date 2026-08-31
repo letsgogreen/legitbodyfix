@@ -12,11 +12,6 @@ function isAdmin(claims: unknown) {
   return adminClaims.app_metadata?.is_admin === true && adminClaims.email?.trim().toLowerCase() === "thriveinside@protonmail.com";
 }
 
-async function adminClient() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
-}
-
 const lessonInput = z.object({
   id: z.string().uuid().optional(),
   programId: z.string().uuid(),
@@ -37,7 +32,7 @@ export const getAdminCurriculum = createServerFn({ method: "GET" })
   .validator((input) => z.object({ programId: z.string().uuid().optional() }).parse(input))
   .handler(async ({ data, context }): Promise<{ programs: Program[]; modules: Module[]; lessons: Lesson[]; selectedProgramId: string }> => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    const supabase = await adminClient();
+    const supabase = context.supabase;
     const { data: programs, error: programsError } = await supabase.from("programs").select("*").order("name");
     if (programsError) throw new Error(programsError.message);
     const selectedProgramId = (programs ?? []).some((program) => program.id === data.programId) ? data.programId! : programs?.[0]?.id ?? "";
@@ -60,7 +55,7 @@ export const createAdminModule = createServerFn({ method: "POST" })
   }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    const supabase = await adminClient();
+    const supabase = context.supabase;
     const { data: module, error } = await supabase
       .from("program_modules")
       .insert({ program_id: data.programId, title: data.title, position: data.position })
@@ -75,7 +70,7 @@ export const saveAdminLesson = createServerFn({ method: "POST" })
   .validator((input) => lessonInput.parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    const supabase = await adminClient();
+    const supabase = context.supabase;
     const payload = {
       program_id: data.programId,
       module_id: data.moduleId || null,
