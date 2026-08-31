@@ -620,8 +620,9 @@ function ProgramDrawer({
                   </p>
                 </div>
                 <Link
-                  to="/library/$programSlug"
+                  to="/programs/$programSlug"
                   params={{ programSlug: draft.slug }}
+                  search={{ preview: "admin" }}
                   target="_blank"
                   className="inline-flex items-center gap-1 text-xs font-bold underline"
                 >
