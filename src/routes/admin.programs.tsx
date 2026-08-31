@@ -176,6 +176,7 @@ function ProgramsView() {
                 <Th>Regions</Th>
                 <Th>Paddle price</Th>
                 <Th>Status</Th>
+                <Th>Ready</Th>
                 <Th>Updated</Th>
                 <Th />
               </tr>
@@ -197,6 +198,22 @@ function ProgramsView() {
                     <Tag tone={program.published ? "accent" : "muted"}>
                       {program.published ? "Published" : "Draft"}
                     </Tag>
+                  </Td>
+                  <Td>
+                    {(() => {
+                      const missing = programReadiness(program);
+                      return missing.length ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {missing.map((item) => (
+                            <Tag key={item} tone="warn">
+                              Missing {item}
+                            </Tag>
+                          ))}
+                        </div>
+                      ) : (
+                        <Tag tone="accent">Ready</Tag>
+                      );
+                    })()}
                   </Td>
                   <Td className="font-mono text-xs text-muted-foreground">
                     {new Date(program.updated_at).toLocaleDateString()}
@@ -236,7 +253,7 @@ function ProgramsView() {
               ))}
               {!programs.length && (
                 <tr>
-                  <Td colSpan={6} className="py-12 text-center text-muted-foreground">
+                  <Td colSpan={7} className="py-12 text-center text-muted-foreground">
                     No programs yet. Create the first program to begin.
                   </Td>
                 </tr>
@@ -288,6 +305,16 @@ function csv(value: string) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function programReadiness(program: ProgramRow) {
+  const missing: string[] = [];
+  if (!program.image_url || !program.image_alt) missing.push("cover");
+  if (!(program as ProgramRow & { paddle_price_id?: string | null }).paddle_price_id) {
+    missing.push("price");
+  }
+  if (!program.outcome) missing.push("outcome");
+  return missing;
 }
 
 function ProgramDrawer({
