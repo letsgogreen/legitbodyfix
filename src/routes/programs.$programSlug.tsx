@@ -4,24 +4,31 @@ import { ArrowLeft, Check, Clock3, Lock, PlayCircle } from "lucide-react";
 import { CheckoutButton } from "@/components/site/FeaturedPrograms";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
-import { getPublicProgramDetail, type PublicProgramDetail } from "@/lib/public-programs.functions";
+import { getAdminProgramPreview, getPublicProgramDetail, type PublicProgramDetail } from "@/lib/public-programs.functions";
 
-export const Route = createFileRoute("/programs/$programSlug")({ component: ProgramSalesPage });
+export const Route = createFileRoute("/programs/$programSlug")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    preview: search.preview === "admin" ? "admin" as const : undefined,
+  }),
+  component: ProgramSalesPage,
+});
 
 function ProgramSalesPage() {
   const { programSlug } = Route.useParams();
+  const { preview } = Route.useSearch();
   const [program, setProgram] = useState<PublicProgramDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    void getPublicProgramDetail({ data: { slug: programSlug } })
+    const request = preview === "admin" ? getAdminProgramPreview : getPublicProgramDetail;
+    void request({ data: { slug: programSlug } })
       .then((result) => { if (active) setProgram(result); })
       .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : "Program could not be loaded."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [programSlug]);
+  }, [preview, programSlug]);
 
   const sections = useMemo(() => {
     if (!program) return [];
@@ -38,6 +45,7 @@ function ProgramSalesPage() {
   const benefits = program.goals.length ? program.goals : ["A clear starting point", "A focused progression", "A repeatable movement practice"];
 
   return <div className="min-h-screen bg-background text-foreground"><SiteNav /><main>
+    {preview === "admin" && <div className="border-b border-border bg-accent px-5 py-3 text-center font-mono text-[11px] font-bold uppercase tracking-[.14em] text-accent-foreground">Administrator draft preview · checkout remains live when a Paddle price is connected</div>}
     <section className="border-b border-border"><div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,.8fr)] lg:px-8 lg:py-20"><div><Link to="/" hash="programs" className="inline-flex items-center gap-2 text-sm font-bold"><ArrowLeft className="h-4 w-4" />All programs</Link><p className="mt-10 font-mono text-xs font-bold uppercase tracking-[.16em] text-muted-foreground">{program.regions.join(" · ") || "Guided movement program"}</p><h1 className="mt-4 max-w-4xl text-5xl font-black uppercase leading-[.92] tracking-[-.05em] sm:text-7xl">{program.name}</h1><p className="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground">{program.outcome || "Follow a focused progression built around a clear movement goal."}</p><div className="mt-8 flex flex-wrap gap-2">{[program.duration, program.format, program.level].filter(Boolean).map((item) => <span key={item} className="border border-border bg-card px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-[.12em]">{item}</span>)}</div></div><aside className="lg:sticky lg:top-8 lg:self-start"><div className="overflow-hidden border border-border bg-neutral-950 text-white">{program.imageUrl ? <img src={program.imageUrl} alt={program.imageAlt || ""} className="aspect-[4/3] w-full object-cover" /> : <div className="grid aspect-[4/3] place-items-center bg-neutral-900"><PlayCircle className="h-12 w-12 text-accent" /></div>}<div className="p-6"><p className="font-mono text-[10px] uppercase tracking-[.16em] text-white/60">One-time access</p><p className="mt-2 text-3xl font-black">{program.price || "Price coming soon"}</p><div className="mt-5"><CheckoutButton program={program} /></div><p className="mt-4 text-xs leading-5 text-white/60">Secure checkout. Use the same email to open your private program library.</p></div></div></aside></div></section>
 
     <section className="border-b border-border bg-secondary/40"><div className="mx-auto max-w-7xl px-5 py-16 lg:px-8"><p className="font-mono text-xs font-bold uppercase tracking-[.16em] text-muted-foreground">What this helps you build</p><div className="mt-8 grid gap-px bg-border md:grid-cols-3">{benefits.slice(0,6).map((goal) => <article key={goal} className="bg-background p-7"><Check className="h-5 w-5" /><h2 className="mt-5 text-xl font-extrabold">{goal}</h2></article>)}</div></div></section>
