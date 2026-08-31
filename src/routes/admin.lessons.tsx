@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileVideo, Loader2, Pencil, Play, Plus, Settings2, Upload, X } from "lucide-react";
+import { FileVideo, Loader2, Pencil, Play, Plus, Settings2, Trash2, Upload, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import type { Database } from "@/integrations/supabase/types";
-import { createAdminModule, getAdminCurriculum, saveAdminLesson } from "@/lib/admin-curriculum.functions";
+import { createAdminModule, deleteAdminLesson, deleteAdminModule, getAdminCurriculum, saveAdminLesson, updateAdminModule } from "@/lib/admin-curriculum.functions";
 import { attachStreamVideo, createStreamTusUpload, getStreamConfigurationStatus, getStreamPlayback, listStreamVideos, refreshStreamVideo, setStreamThumbnailFrame, type StreamLibraryVideo } from "@/lib/stream.functions";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
@@ -30,6 +30,7 @@ function LessonsView() {
   const [modules, setModules] = useState<Module[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [editing, setEditing] = useState<Lesson | "new" | null>(null);
+  const [editingModule, setEditingModule] = useState<Module | null>(null);
   const [newModuleTitle, setNewModuleTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +107,29 @@ function LessonsView() {
     setPreviewLoadingId(null);
   };
 
+  const removeLesson = async (lesson: Lesson) => {
+    if (!window.confirm(`Delete “${lesson.title}”? This removes the lesson record and cannot be undone.`)) return;
+    setError(null);
+    try {
+      await deleteAdminLesson({ data: { id: lesson.id } });
+      await loadCurriculum();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    }
+  };
+
+  const removeModule = async (module: Module) => {
+    const count = lessons.filter((lesson) => lesson.module_id === module.id).length;
+    if (!window.confirm(`Delete module “${module.title}”? ${count} lesson${count === 1 ? "" : "s"} will move to Unassigned.`)) return;
+    setError(null);
+    try {
+      await deleteAdminModule({ data: { id: module.id } });
+      await loadCurriculum();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    }
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
       <PageHead
@@ -147,9 +171,9 @@ function LessonsView() {
         ) : (
           <>
             {modules.map((module) => (
-              <ModulePanel key={module.id} module={module} lessons={lessons.filter((lesson) => lesson.module_id === module.id)} onEdit={setEditing} onPreview={previewLesson} previewLoadingId={previewLoadingId} />
+              <ModulePanel key={module.id} module={module} lessons={lessons.filter((lesson) => lesson.module_id === module.id)} onEdit={setEditing} onDeleteLesson={removeLesson} onEditModule={setEditingModule} onDeleteModule={removeModule} onPreview={previewLesson} previewLoadingId={previewLoadingId} />
             ))}
-            {unassigned.length > 0 && <ModulePanel module={{ id: "unassigned", title: "Unassigned lessons" } as Module} lessons={unassigned} onEdit={setEditing} onPreview={previewLesson} previewLoadingId={previewLoadingId} />}
+            {unassigned.length > 0 && <ModulePanel module={{ id: "unassigned", title: "Unassigned lessons" } as Module} lessons={unassigned} onEdit={setEditing} onDeleteLesson={removeLesson} onPreview={previewLesson} previewLoadingId={previewLoadingId} />}
             {!modules.length && !lessons.length && programId && <Panel className="px-5 py-12 text-center text-sm text-muted-foreground">No curriculum yet. Add a module, then create the first lesson.</Panel>}
             {!programId && !loading && <Panel className="px-5 py-12 text-center text-sm text-muted-foreground">Create a program first, then return here to build its curriculum.</Panel>}
           </>
@@ -157,17 +181,45 @@ function LessonsView() {
       </div>
 
       {editing && programId && <LessonDrawer lesson={editing === "new" ? null : editing} programId={programId} modules={modules} nextPosition={lessons.length + 1} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await loadCurriculum(); }} />}
+      {editingModule && <ModuleDrawer module={editingModule} onClose={() => setEditingModule(null)} onSaved={async () => { setEditingModule(null); await loadCurriculum(); }} />}
       {previewing && <VideoPreviewModal title={previewing.title} iframeUrl={previewing.iframeUrl} onClose={() => setPreviewing(null)} />}
     </div>
   );
 }
 
-function ModulePanel({ module, lessons, onEdit, onPreview, previewLoadingId }: { module: Module; lessons: Lesson[]; onEdit: (lesson: Lesson) => void; onPreview: (lesson: Lesson) => void; previewLoadingId: string | null }) {
+function ModulePanel({
+  module,
+  lessons,
+  onEdit,
+  onDeleteLesson,
+  onEditModule,
+  onDeleteModule,
+  onPreview,
+  previewLoadingId,
+}: {
+  module: Module;
+  lessons: Lesson[];
+  onEdit: (lesson: Lesson) => void;
+  onDeleteLesson: (lesson: Lesson) => void;
+  onEditModule?: (module: Module) => void;
+  onDeleteModule?: (module: Module) => void;
+  onPreview: (lesson: Lesson) => void;
+  previewLoadingId: string | null;
+}) {
+  const editable = module.id !== "unassigned";
   return (
     <Panel>
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.14em]">{module.title}</h2>
-        <span className="font-mono text-[11px] text-muted-foreground">{lessons.length} lessons</span>
+        <div className="min-w-0">
+          <h2 className="font-mono text-[11px] uppercase tracking-[0.14em]">{module.title}</h2>
+          <p className="mt-1 font-mono text-[10px] text-muted-foreground">{lessons.length} lessons · {editable ? (module.published ? "Published module" : "Draft module") : "No module assigned"}</p>
+        </div>
+        {editable && (
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Btn onClick={() => onEditModule?.(module)}><Pencil className="mr-1.5 h-3.5 w-3.5" />Edit module</Btn>
+            <Btn onClick={() => onDeleteModule?.(module)}><Trash2 className="mr-1.5 h-3.5 w-3.5" />Delete module</Btn>
+          </div>
+        )}
       </div>
       <ul className="divide-y divide-border/70">
         {lessons.map((lesson) => (
@@ -184,11 +236,68 @@ function ModulePanel({ module, lessons, onEdit, onPreview, previewLoadingId }: {
             <Tag tone={lesson.published ? "accent" : "muted"}>{lesson.published ? "Published" : "Draft"}</Tag>
             {lesson.stream_status === "ready" && <Btn disabled={previewLoadingId === lesson.id} onClick={() => onPreview(lesson)}>{previewLoadingId === lesson.id ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Play className="mr-1.5 h-4 w-4" />}Play</Btn>}
             <Btn onClick={() => onEdit(lesson)}>Edit</Btn>
+            <Btn onClick={() => onDeleteLesson(lesson)}><Trash2 className="mr-1.5 h-3.5 w-3.5" />Delete</Btn>
           </li>
         ))}
         {!lessons.length && <li className="px-4 py-8 text-center text-sm text-muted-foreground">No lessons in this module.</li>}
       </ul>
     </Panel>
+  );
+}
+
+function ModuleDrawer({ module, onClose, onSaved }: { module: Module; onClose: () => void; onSaved: () => Promise<void> }) {
+  const [title, setTitle] = useState(module.title);
+  const [position, setPosition] = useState(String(module.position));
+  const [published, setPublished] = useState(module.published);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const save = async () => {
+    if (!title.trim()) {
+      setError("Module title is required.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await updateAdminModule({
+        data: {
+          id: module.id,
+          title: title.trim(),
+          position: Number(position) || module.position,
+          published,
+        },
+      });
+      await onSaved();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" role="dialog" aria-modal="true">
+      <div className="flex h-full w-full max-w-md flex-col border-l border-border bg-background">
+        <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Editing module</p>
+            <h2 className="mt-1 text-lg font-extrabold tracking-tight">{title || "Untitled module"}</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-sm border border-border p-1.5"><X className="h-4 w-4" /></button>
+        </div>
+        <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
+          <Field label="Module title" value={title} onChange={setTitle} />
+          <Field label="Position" value={position} onChange={setPosition} type="number" />
+          <div className="border border-border bg-card p-3"><Toggle label="Publish module" checked={published} onChange={setPublished} /></div>
+          <p className="text-xs leading-5 text-muted-foreground">Deleting a module does not delete its lessons. They move to Unassigned so you can place them elsewhere.</p>
+          {error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
+        </div>
+        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
+          <Btn onClick={onClose}>Cancel</Btn>
+          <Btn variant="ink" disabled={saving} onClick={() => void save()}>{saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}{saving ? "Saving…" : "Save module"}</Btn>
+        </div>
+      </div>
+    </div>
   );
 }
 

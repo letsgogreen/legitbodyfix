@@ -27,6 +27,13 @@ const lessonInput = z.object({
   previewFree: z.boolean(),
 });
 
+const moduleInput = z.object({
+  id: z.string().uuid(),
+  title: z.string().trim().min(1).max(160),
+  position: z.number().int().min(1).max(9999),
+  published: z.boolean(),
+});
+
 export const getAdminCurriculum = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input) => z.object({ programId: z.string().uuid().optional() }).parse(input))
@@ -65,6 +72,31 @@ export const createAdminModule = createServerFn({ method: "POST" })
     return module;
   });
 
+export const updateAdminModule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => moduleInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { data: module, error } = await context.supabase
+      .from("program_modules")
+      .update({ title: data.title, position: data.position, published: data.published })
+      .eq("id", data.id)
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return module;
+  });
+
+export const deleteAdminModule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { error } = await context.supabase.from("program_modules").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const saveAdminLesson = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) => lessonInput.parse(input))
@@ -90,4 +122,14 @@ export const saveAdminLesson = createServerFn({ method: "POST" })
     const { data: lesson, error } = await query.select("*").single();
     if (error) throw new Error(error.message);
     return lesson;
+  });
+
+export const deleteAdminLesson = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { error } = await context.supabase.from("lessons").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
