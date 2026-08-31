@@ -20,7 +20,7 @@ const RECIPE_COLUMNS =
 
 /** Published recipes only — the anon RLS policy enforces this server-side as well. */
 export const getPublishedRecipe = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ slug: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
     const supabase = publicClient();
 

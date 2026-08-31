@@ -68,7 +68,7 @@ export const getProgramPrice = createServerFn({ method: "GET" })
 
 export const updateProgramPrice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({
+  .validator((input) => z.object({
     programId: z.string().uuid(),
     amount: z.number().positive().max(1_000_000),
     currency: z.string().trim().length(3).transform((value) => value.toUpperCase()),

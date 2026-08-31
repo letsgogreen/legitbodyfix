@@ -25,7 +25,7 @@ function publicClient() {
 
 /** Published guides only. */
 export const getPublishedGuide = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ slug: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
     const supabase = publicClient();
 
@@ -82,7 +82,7 @@ export const getPublishedGuide = createServerFn({ method: "GET" })
 
 /** Guide (if any) that a given published recipe belongs to — used for the recipe page cross-link. */
 export const getGuideForRecipe = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ recipeSlug: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ recipeSlug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
     const supabase = publicClient();
 

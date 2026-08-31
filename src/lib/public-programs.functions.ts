@@ -127,12 +127,12 @@ async function loadProgramDetail(
 }
 
 export const getPublicProgramDetail = createServerFn({ method: "GET" })
-  .inputValidator((data: { slug: string }) => data)
+  .validator((data: { slug: string }) => data)
   .handler(async ({ data }) => loadProgramDetail(publicClient(), data.slug, true));
 
 export const getAdminProgramPreview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { slug: string }) => data)
+  .validator((data: { slug: string }) => data)
   .handler(async ({ data, context }) => {
     const claims = context.claims as { email?: string; app_metadata?: { is_admin?: boolean } };
     const isAdmin = claims.app_metadata?.is_admin === true

@@ -29,7 +29,7 @@ export const listPublishedMuscles = createServerFn({ method: "GET" }).handler(as
 });
 
 export const getPublishedMuscle = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ id: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ id: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
     const supabase = publicClient();
     const { data, error } = await supabase

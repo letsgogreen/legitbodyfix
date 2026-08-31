@@ -78,7 +78,7 @@ export const listStreamVideos = createServerFn({ method: "GET" })
 
 export const attachStreamVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ lessonId: z.string().uuid(), streamUid: z.string().regex(/^[a-f0-9]{32}$/) }).parse(input))
+  .validator((input) => z.object({ lessonId: z.string().uuid(), streamUid: z.string().regex(/^[a-f0-9]{32}$/) }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const video = await cloudflare<{ uid: string; readyToStream?: boolean; requireSignedURLs?: boolean; thumbnail?: string; duration?: number; status?: { state?: string; errorReasonText?: string } }>(`/${data.streamUid}`);
@@ -98,7 +98,7 @@ export const attachStreamVideo = createServerFn({ method: "POST" })
 
 export const createStreamUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ lessonId: z.string().uuid(), maxDurationSeconds: z.number().int().min(60).max(21600).default(7200) }).parse(input))
+  .validator((input) => z.object({ lessonId: z.string().uuid(), maxDurationSeconds: z.number().int().min(60).max(21600).default(7200) }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const upload = await cloudflare<{ uploadURL: string; uid: string }>("/direct_upload", {
@@ -112,7 +112,7 @@ export const createStreamUpload = createServerFn({ method: "POST" })
 
 export const createStreamTusUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ lessonId: z.string().uuid(), fileName: z.string().min(1).max(200), fileSize: z.number().int().positive(), maxDurationSeconds: z.number().int().min(60).max(21600).default(7200) }).parse(input))
+  .validator((input) => z.object({ lessonId: z.string().uuid(), fileName: z.string().min(1).max(200), fileSize: z.number().int().positive(), maxDurationSeconds: z.number().int().min(60).max(21600).default(7200) }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const { accountId, apiToken } = streamConfig();
@@ -131,7 +131,7 @@ export const createStreamTusUpload = createServerFn({ method: "POST" })
 
 export const refreshStreamVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ lessonId: z.string().uuid() }).parse(input))
+  .validator((input) => z.object({ lessonId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const { data: lesson, error } = await context.supabase.from("lessons").select("stream_uid").eq("id", data.lessonId).single();
@@ -151,7 +151,7 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
 
 export const setStreamThumbnailFrame = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ lessonId: z.string().uuid(), timeSeconds: z.number().min(0) }).parse(input))
+  .validator((input) => z.object({ lessonId: z.string().uuid(), timeSeconds: z.number().min(0) }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const { data: lesson, error } = await context.supabase.from("lessons").select("stream_uid,duration_seconds").eq("id", data.lessonId).single();
@@ -179,7 +179,7 @@ export const setStreamThumbnailFrame = createServerFn({ method: "POST" })
 
 export const getStreamPlayback = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ lessonId: z.string().uuid() }).parse(input))
+  .validator((input) => z.object({ lessonId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     // RLS permits this read only for an administrator or an active owner of the
     // program. Never accept a Stream UID directly from the browser.
