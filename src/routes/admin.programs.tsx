@@ -16,6 +16,7 @@ import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { deleteAdminProgram, getAdminPrograms, getProgramDeleteImpact, saveAdminProgram } from "@/lib/admin-programs.functions";
 import { getProgramPrice, updateProgramPrice } from "@/lib/paddle.functions";
 
 type ProgramRow = Database["public"]["Tables"]["programs"]["Row"];
@@ -93,13 +94,11 @@ function ProgramsView() {
   const loadPrograms = async () => {
     setLoading(true);
     setError(null);
-    const { data, error: readError } = await supabase
-      .from("programs")
-      .select("*")
-      .order("featured_rank", { ascending: true, nullsFirst: false })
-      .order("updated_at", { ascending: false });
-    if (readError) setError(readError.message);
-    else setPrograms(data ?? []);
+    try {
+      setPrograms(await getAdminPrograms());
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    }
     setLoading(false);
   };
 
@@ -404,56 +403,58 @@ function ProgramDrawer({
         .toLowerCase()
         .replace(/[^a-z0-9-]+/g, "-"),
       outcome: draft.outcome.trim() || null,
-      who_its_for: draft.who_its_for.trim() || null,
+      whoItsFor: draft.who_its_for.trim() || null,
       format: draft.format.trim() || null,
-      duration_label: draft.duration_label.trim() || null,
+      durationLabel: draft.duration_label.trim() || null,
       level: draft.level.trim() || null,
       regions: csv(draft.regions),
       goals: csv(draft.goals),
-      paddle_product_id: draft.paddle_product_id.trim() || null,
-      entitlement_key: draft.entitlement_key.trim() || null,
-      image_url: draft.image_url.trim() || null,
-      image_alt: draft.image_alt.trim() || null,
+      paddleProductId: draft.paddle_product_id.trim() || null,
+      entitlementKey: draft.entitlement_key.trim() || null,
+      imageUrl: draft.image_url.trim() || null,
+      imageAlt: draft.image_alt.trim() || null,
       featured: draft.featured,
-      featured_rank: draft.featured_rank ? Number(draft.featured_rank) : null,
+      featuredRank: draft.featured_rank ? Number(draft.featured_rank) : null,
       published: draft.published,
     };
-    const result = draft.id
-      ? await supabase.from("programs").update(payload).eq("id", draft.id)
-      : await supabase.from("programs").insert(payload);
-    if (result.error) {
-      setError(result.error.message);
+    try {
+      await saveAdminProgram({ data: { id: draft.id, ...payload } });
+      await onSaved();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
       setSaving(false);
-      return;
     }
-    await onSaved();
   };
 
   const deleteProgram = async () => {
     if (!draft.id) return;
     setDeleting(true);
     setError(null);
-    const [orderResult, entitlementResult, lessonResult, moduleResult] = await Promise.all([
-      supabase.from("orders").select("id", { count: "exact", head: true }).eq("program_id", draft.id),
-      supabase.from("entitlements").select("id", { count: "exact", head: true }).eq("program_id", draft.id),
-      supabase.from("lessons").select("id", { count: "exact", head: true }).eq("program_id", draft.id),
-      supabase.from("program_modules").select("id", { count: "exact", head: true }).eq("program_id", draft.id),
-    ]);
-    const readError = orderResult.error ?? entitlementResult.error ?? lessonResult.error ?? moduleResult.error;
-    if (readError) { setError(`Could not check linked records: ${readError.message}`); setDeleting(false); return; }
-    const orderCount = orderResult.count ?? 0;
-    const entitlementCount = entitlementResult.count ?? 0;
+    let impact: Awaited<ReturnType<typeof getProgramDeleteImpact>>;
+    try {
+      impact = await getProgramDeleteImpact({ data: { programId: draft.id } });
+    } catch (cause) {
+      setError(`Could not check linked records: ${cause instanceof Error ? cause.message : String(cause)}`);
+      setDeleting(false);
+      return;
+    }
+    const orderCount = impact.orders;
+    const entitlementCount = impact.entitlements;
     if (orderCount || entitlementCount) {
       setError(`This program cannot be deleted because it has ${orderCount} order${orderCount === 1 ? "" : "s"} and ${entitlementCount} customer access record${entitlementCount === 1 ? "" : "s"}. Unpublish it instead to preserve purchase history.`);
       setDeleting(false);
       return;
     }
-    const lessonCount = lessonResult.count ?? 0;
-    const moduleCount = moduleResult.count ?? 0;
+    const lessonCount = impact.lessons;
+    const moduleCount = impact.modules;
     if (!window.confirm(`Delete “${draft.name}”? This also removes ${moduleCount} module${moduleCount === 1 ? "" : "s"}, ${lessonCount} lesson${lessonCount === 1 ? "" : "s"}, and its guide/recipe links. This cannot be undone.`)) { setDeleting(false); return; }
-    const { error: deleteError } = await supabase.from("programs").delete().eq("id", draft.id);
-    if (deleteError) { setError(deleteError.message); setDeleting(false); return; }
-    await onSaved();
+    try {
+      await deleteAdminProgram({ data: { programId: draft.id } });
+      await onSaved();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+      setDeleting(false);
+    }
   };
 
   return (
