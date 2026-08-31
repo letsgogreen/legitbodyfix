@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/cloudflare-stream-webhook")({
           stream_status: state,
           stream_error: payload.status?.errorReasonText || null,
           stream_thumbnail_url: payload.thumbnail || null,
-          ...(payload.duration ? { duration_seconds: Math.round(payload.duration) } : {}),
+          ...(payload.duration ? { duration_seconds: Math.max(1, Math.round(payload.duration)) } : {}),
         };
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { error } = await supabaseAdmin.from("lessons").update(update).eq("stream_uid", payload.uid);

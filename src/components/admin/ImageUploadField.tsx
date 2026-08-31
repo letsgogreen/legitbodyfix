@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { ImageIcon, Loader2, Upload } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { uploadContentImage } from "@/lib/content-images.functions";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const ACCEPTED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
@@ -42,19 +42,19 @@ export function ImageUploadField({
     }
 
     setUploading(true);
-    const path = `${folder}/${Date.now()}-${safeName(file.name) || "image"}`;
-    const { error: uploadError } = await supabase.storage
-      .from("content-images")
-      .upload(path, file, { cacheControl: "3600", upsert: false });
+    const form = new FormData();
+    form.set("file", file, safeName(file.name) || "image");
+    form.set("folder", folder);
 
-    if (uploadError) {
-      setError(uploadError.message);
+    try {
+      const result = await uploadContentImage({ data: form });
+      onChange(result.url);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
       setUploading(false);
       return;
     }
 
-    const { data } = supabase.storage.from("content-images").getPublicUrl(path);
-    onChange(data.publicUrl);
     setUploading(false);
   }
 
