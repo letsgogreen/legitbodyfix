@@ -16,7 +16,7 @@ import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { deleteAdminProgram, getAdminPrograms, getProgramDeleteImpact, saveAdminProgram } from "@/lib/admin-programs.functions";
+import { deleteAdminProgram, getAdminPrograms, getProgramDeleteImpact, saveAdminProgram, setAdminProgramPublished } from "@/lib/admin-programs.functions";
 import { getProgramPrice, updateProgramPrice } from "@/lib/paddle.functions";
 
 type ProgramRow = Database["public"]["Tables"]["programs"]["Row"];
@@ -88,6 +88,7 @@ function ProgramsView() {
   const [programs, setPrograms] = useState<ProgramRow[]>([]);
   const [editing, setEditing] = useState<ProgramDraft | null>(null);
   const [loading, setLoading] = useState(true);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const handledSearchRef = useRef<string | null>(null);
 
@@ -124,6 +125,24 @@ function ProgramsView() {
   const closeEditor = () => {
     setEditing(null);
     if (action || edit) void navigate({ search: {} });
+  };
+
+  const togglePublished = async (program: ProgramRow) => {
+    const nextPublished = !program.published;
+    setPublishingId(program.id);
+    setError(null);
+    try {
+      const updated = await setAdminProgramPublished({
+        data: { programId: program.id, published: nextPublished },
+      });
+      setPrograms((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setPublishingId(null);
+    }
   };
 
   return (
@@ -184,6 +203,16 @@ function ProgramsView() {
                   </Td>
                   <Td className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Btn
+                        disabled={publishingId === program.id}
+                        onClick={() => void togglePublished(program)}
+                      >
+                        {publishingId === program.id
+                          ? "Saving…"
+                          : program.published
+                            ? "Unpublish"
+                            : "Publish"}
+                      </Btn>
                       <Link
                         to="/admin/lessons"
                         search={{ program: program.id }}

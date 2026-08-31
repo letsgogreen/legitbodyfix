@@ -74,6 +74,24 @@ export const saveAdminProgram = createServerFn({ method: "POST" })
     return program;
   });
 
+export const setAdminProgramPublished = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => z.object({
+    programId: z.string().uuid(),
+    published: z.boolean(),
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { data: program, error } = await context.supabase
+      .from("programs")
+      .update({ published: data.published })
+      .eq("id", data.programId)
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return program;
+  });
+
 export const getProgramDeleteImpact = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input) => z.object({ programId: z.string().uuid() }).parse(input))
