@@ -3,8 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { FileVideo, Loader2, Pencil, Play, Plus, Settings2, Upload, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
-import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { createAdminModule, getAdminCurriculum, saveAdminLesson } from "@/lib/admin-curriculum.functions";
 import { attachStreamVideo, createStreamTusUpload, getStreamConfigurationStatus, getStreamPlayback, listStreamVideos, refreshStreamVideo, setStreamThumbnailFrame, type StreamLibraryVideo } from "@/lib/stream.functions";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
@@ -41,12 +41,14 @@ function LessonsView() {
     void (async () => {
       try { setStreamConfig(await getStreamConfigurationStatus()); }
       catch { setStreamConfig(null); }
-      const { data, error: readError } = await supabase.from("programs").select("*").order("name");
-      if (readError) setError(readError.message);
-      else {
-        setPrograms(data ?? []);
-        const available = data ?? [];
-        setProgramId(available.some((program) => program.id === requestedProgramId) ? requestedProgramId! : available[0]?.id ?? "");
+      try {
+        const curriculum = await getAdminCurriculum({ data: { programId: requestedProgramId } });
+        setPrograms(curriculum.programs);
+        setModules(curriculum.modules);
+        setLessons(curriculum.lessons);
+        setProgramId(curriculum.selectedProgramId);
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : String(cause));
       }
       setLoading(false);
     })();
@@ -56,14 +58,14 @@ function LessonsView() {
     if (!selectedProgramId) return;
     setLoading(true);
     setError(null);
-    const [moduleResult, lessonResult] = await Promise.all([
-      supabase.from("program_modules").select("*").eq("program_id", selectedProgramId).order("position"),
-      supabase.from("lessons").select("*").eq("program_id", selectedProgramId).order("position"),
-    ]);
-    if (moduleResult.error || lessonResult.error) setError(moduleResult.error?.message ?? lessonResult.error?.message ?? "Could not load curriculum.");
-    else {
-      setModules(moduleResult.data ?? []);
-      setLessons(lessonResult.data ?? []);
+    try {
+      const curriculum = await getAdminCurriculum({ data: { programId: selectedProgramId } });
+      setPrograms(curriculum.programs);
+      setModules(curriculum.modules);
+      setLessons(curriculum.lessons);
+      if (curriculum.selectedProgramId !== selectedProgramId) setProgramId(curriculum.selectedProgramId);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
     }
     setLoading(false);
   };
@@ -77,15 +79,18 @@ function LessonsView() {
   const addModule = async () => {
     const title = newModuleTitle.trim();
     if (!title || !programId) return;
-    const { error: insertError } = await supabase.from("program_modules").insert({
-      program_id: programId,
-      title,
-      position: modules.length + 1,
-    });
-    if (insertError) setError(insertError.message);
-    else {
+    try {
+      await createAdminModule({
+        data: {
+          programId,
+          title,
+          position: modules.length + 1,
+        },
+      });
       setNewModuleTitle("");
       await loadCurriculum();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
     }
   };
 
@@ -337,21 +342,26 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
     const parsedDuration = Number(duration);
     const normalizedDuration = duration && Number.isFinite(parsedDuration) ? Math.round(parsedDuration) : null;
     const payload = {
-      program_id: programId,
-      module_id: moduleId || null,
+      id: lesson?.id,
+      programId,
+      moduleId: moduleId || null,
       title: title.trim(),
       slug: (slug || title).trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, ""),
       summary: summary.trim() || null,
-      duration_seconds: normalizedDuration && normalizedDuration > 0 ? normalizedDuration : null,
-      video_path: videoPath || null,
-      thumbnail_url: thumbnailUrl.trim() || null,
+      durationSeconds: normalizedDuration && normalizedDuration > 0 ? normalizedDuration : null,
+      videoPath: videoPath || null,
+      thumbnailUrl: thumbnailUrl.trim() || null,
       position: Number(position) || nextPosition,
       published,
-      preview_free: previewFree,
+      previewFree,
     };
-    const result = lesson ? await supabase.from("lessons").update(payload).eq("id", lesson.id) : await supabase.from("lessons").insert(payload);
-    if (result.error) { setError(result.error.message); setSaving(false); return; }
-    await onSaved();
+    try {
+      await saveAdminLesson({ data: payload });
+      await onSaved();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+      setSaving(false);
+    }
   };
 
   return (
