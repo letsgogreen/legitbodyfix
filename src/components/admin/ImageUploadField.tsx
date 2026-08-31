@@ -13,6 +13,7 @@ export function ImageUploadField({
   value,
   alt,
   folder,
+  bucket = "content-images",
   label = "Image",
   showAlt = true,
   onChange,
@@ -21,6 +22,7 @@ export function ImageUploadField({
   value: string;
   alt: string;
   folder: string;
+  bucket?: "content-images" | "program-images" | "lesson-images" | "recipe-images" | "muscle-images" | "region-images";
   label?: string;
   showAlt?: boolean;
   onChange: (url: string) => void;
@@ -45,6 +47,7 @@ export function ImageUploadField({
     const form = new FormData();
     form.set("file", file, safeName(file.name) || "image");
     form.set("folder", folder);
+    form.set("bucket", bucket);
 
     try {
       const result = await uploadContentImage({ data: form });
@@ -105,7 +108,7 @@ export function ImageUploadField({
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Alt text</span>
         <input value={alt} onChange={(event) => onAltChange?.(event.target.value)} className="min-h-10 w-full rounded-sm border border-border bg-background px-3 text-sm" placeholder="Describe what the image shows" />
       </label>}
-      <p className="text-xs leading-5 text-muted-foreground">JPG, PNG, WebP, GIF, or AVIF · max 10 MB. Uploads are stored in Supabase Storage.</p>
+      <p className="text-xs leading-5 text-muted-foreground">JPG, PNG, WebP, GIF, or AVIF · max 10 MB. Uploads are stored in the {bucket} Supabase Storage bucket.</p>
       {error && <p className="rounded-sm border border-destructive/40 bg-destructive/5 p-2 text-xs text-destructive">{error}</p>}
     </div>
   );

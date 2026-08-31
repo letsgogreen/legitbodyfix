@@ -594,6 +594,7 @@ function ProgramDrawer({
               value={draft.image_url}
               alt={draft.image_alt}
               folder={`programs/${draft.id ?? (draft.slug || "new")}`}
+              bucket="program-images"
               label="Program cover image"
               onChange={(value) => update("image_url", value)}
               onAltChange={(value) => update("image_alt", value)}

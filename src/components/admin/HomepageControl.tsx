@@ -121,6 +121,7 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
                   value={item.image_url}
                   alt={item.image_alt}
                   folder={`body-regions/${region.slug}`}
+                  bucket="region-images"
                   label={`${region.title} image`}
                   onChange={(image_url) => setMedia((current) => ({ ...current, [region.slug]: { ...item, image_url } }))}
                   onAltChange={(image_alt) => setMedia((current) => ({ ...current, [region.slug]: { ...item, image_alt } }))}

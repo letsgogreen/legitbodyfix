@@ -2,7 +2,16 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const CONTENT_IMAGE_BUCKET = "content-images";
+const CONTENT_IMAGE_BUCKETS = [
+  "content-images",
+  "program-images",
+  "lesson-images",
+  "recipe-images",
+  "muscle-images",
+  "region-images",
+] as const;
+type ContentImageBucket = typeof CONTENT_IMAGE_BUCKETS[number];
+const DEFAULT_CONTENT_IMAGE_BUCKET: ContentImageBucket = "content-images";
 const MAX_BYTES = 10 * 1024 * 1024;
 const ACCEPTED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
 
@@ -19,12 +28,17 @@ function safeName(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-async function getAdminStorageClient() {
+function parseBucket(value: FormDataEntryValue | null): ContentImageBucket {
+  if (!value) return DEFAULT_CONTENT_IMAGE_BUCKET;
+  return z.enum(CONTENT_IMAGE_BUCKETS).parse(value);
+}
+
+async function getAdminStorageClient(bucket: ContentImageBucket) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.storage.getBucket(CONTENT_IMAGE_BUCKET);
+  const { data } = await supabaseAdmin.storage.getBucket(bucket);
   if (data) return supabaseAdmin;
 
-  const { error } = await supabaseAdmin.storage.createBucket(CONTENT_IMAGE_BUCKET, {
+  const { error } = await supabaseAdmin.storage.createBucket(bucket, {
     public: true,
     fileSizeLimit: MAX_BYTES,
     allowedMimeTypes: [...ACCEPTED],
@@ -33,9 +47,9 @@ async function getAdminStorageClient() {
   return supabaseAdmin;
 }
 
-function storageSetupMessage(error: Error) {
+function storageSetupMessage(error: Error, bucket: ContentImageBucket) {
   if (/invalid api key|bucket not found|not found/i.test(error.message)) {
-    return "Image storage is not ready. Create a public Supabase Storage bucket named content-images, or fix SUPABASE_SERVICE_ROLE_KEY/SUPABASE_SECRET_KEY in Vercel so the app can create it automatically.";
+    return `Image storage is not ready. Create a public Supabase Storage bucket named ${bucket}, or fix SUPABASE_SERVICE_ROLE_KEY/SUPABASE_SECRET_KEY in Vercel so the app can create it automatically.`;
   }
   return error.message;
 }
@@ -51,6 +65,7 @@ export const uploadContentImage = createServerFn({ method: "POST" })
 
     const file = data.get("file");
     const folder = z.string().min(1).max(160).parse(data.get("folder"));
+    const bucket = parseBucket(data.get("bucket"));
     if (!(file instanceof File)) throw new Error("Choose an image file first.");
     if (!ACCEPTED.has(file.type)) throw new Error("Use a JPG, PNG, WebP, GIF, or AVIF image.");
     if (file.size > MAX_BYTES) throw new Error("Image must be 10 MB or smaller.");
@@ -61,19 +76,19 @@ export const uploadContentImage = createServerFn({ method: "POST" })
 
     let storageClient = context.supabase;
     try {
-      storageClient = await getAdminStorageClient();
+      storageClient = await getAdminStorageClient(bucket);
     } catch (cause) {
       // Fall back to the authenticated admin session. This works when the
-      // content-images bucket and admin RLS policies already exist, even if the
+      // selected bucket and admin RLS policies already exist, even if the
       // service-role env is missing or wrong in production.
       storageClient = context.supabase;
     }
 
     const { error } = await storageClient.storage
-      .from(CONTENT_IMAGE_BUCKET)
+      .from(bucket)
       .upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
-    if (error) throw new Error(storageSetupMessage(error));
+    if (error) throw new Error(storageSetupMessage(error, bucket));
 
-    const { data: publicUrl } = storageClient.storage.from(CONTENT_IMAGE_BUCKET).getPublicUrl(path);
-    return { url: publicUrl.publicUrl, path };
+    const { data: publicUrl } = storageClient.storage.from(bucket).getPublicUrl(path);
+    return { url: publicUrl.publicUrl, path, bucket };
   });

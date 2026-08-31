@@ -262,6 +262,7 @@ function MuscleEditor() {
               value={record.imageUrl}
               alt={record.imageAlt}
               folder={`muscles/${record.id}`}
+              bucket="muscle-images"
               label="Muscle image"
               onChange={(v) => {
                 setField("imageUrl", v);
