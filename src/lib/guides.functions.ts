@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import type { Database } from "@/integrations/supabase/types";
 
 export type GuideMuscleLink = { id: string; name: string; group: string | null; role: string | null };
 export type GuideRecipeLink = {
@@ -12,16 +14,22 @@ export type GuideRecipeLink = {
 };
 export type GuideProgramLink = { slug: string; name: string; outcome: string | null; published: boolean };
 
-/**
- * Published guides only. Uses the admin client so the related program can be shown even while
- * it is still unpublished ("Coming soon") — only non-sensitive marketing fields are returned.
- */
+function publicClient() {
+  const url = process.env["SUPABASE_URL"];
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
+  if (!url || !key) throw new Error("Guide data is not configured.");
+  return createClient<Database>(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/** Published guides only. */
 export const getPublishedGuide = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = publicClient();
 
-    const { data: guide, error } = await supabaseAdmin
+    const { data: guide, error } = await supabase
       .from("guides")
       .select("id,slug,title,pattern_summary,common_regions,self_check,watch_for")
       .eq("slug", input.slug)
@@ -32,15 +40,15 @@ export const getPublishedGuide = createServerFn({ method: "GET" })
     if (!guide) return null;
 
     const [recipeRows, muscleRows, programRows] = await Promise.all([
-      supabaseAdmin
+      supabase
         .from("guide_recipes")
         .select("recipes(slug,title,goal,summary,image_url,image_alt,published)")
         .eq("guide_id", guide.id),
-      supabaseAdmin
+      supabase
         .from("guide_muscles")
         .select("role,muscles(id,name,anatomical_group,published)")
         .eq("guide_id", guide.id),
-      supabaseAdmin
+      supabase
         .from("guide_programs")
         .select("programs(slug,name,outcome,published)")
         .eq("guide_id", guide.id),
@@ -76,9 +84,9 @@ export const getPublishedGuide = createServerFn({ method: "GET" })
 export const getGuideForRecipe = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ recipeSlug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = publicClient();
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from("guide_recipes")
       .select("guides!inner(slug,title,published),recipes!inner(slug)")
       .eq("recipes.slug", input.recipeSlug)
