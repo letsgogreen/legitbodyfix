@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { fetchPaddlePrices } from "@/lib/paddle.functions";
 import type { Database } from "@/integrations/supabase/types";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type PublicProgram = {
   id: string;
@@ -65,22 +66,33 @@ export type PublicProgramDetail = PublicProgram & {
   lessons: Array<{ id: string; moduleId: string | null; title: string; summary: string | null; durationSeconds: number | null; previewFree: boolean; thumbnailUrl: string | null; position: number }>;
 };
 
-export const getPublicProgramDetail = createServerFn({ method: "GET" })
-  .inputValidator((data: { slug: string }) => data)
-  .handler(async ({ data }): Promise<PublicProgramDetail | null> => {
-    const client = publicClient();
-    const { data: row, error } = await client
+type ProgramClient = ReturnType<typeof publicClient>;
+
+async function loadProgramDetail(
+  client: ProgramClient,
+  slug: string,
+  publishedOnly: boolean,
+): Promise<PublicProgramDetail | null> {
+    let programQuery = client
       .from("programs")
       .select("id,slug,name,outcome,format,duration_label,level,regions,goals,who_its_for,image_url,image_alt,paddle_price_id")
-      .eq("slug", data.slug)
-      .eq("published", true)
-      .maybeSingle();
+      .eq("slug", slug);
+    if (publishedOnly) programQuery = programQuery.eq("published", true);
+
+    const { data: row, error } = await programQuery.maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) return null;
 
+    let modulesQuery = client.from("program_modules").select("id,title,position").eq("program_id", row.id);
+    let lessonsQuery = client.from("lessons").select("id,module_id,title,summary,duration_seconds,preview_free,thumbnail_url,stream_thumbnail_url,position").eq("program_id", row.id);
+    if (publishedOnly) {
+      modulesQuery = modulesQuery.eq("published", true);
+      lessonsQuery = lessonsQuery.eq("published", true);
+    }
+
     const [{ data: modules, error: modulesError }, { data: lessons, error: lessonsError }] = await Promise.all([
-      client.from("program_modules").select("id,title,position").eq("program_id", row.id).eq("published", true).order("position"),
-      client.from("lessons").select("id,module_id,title,summary,duration_seconds,preview_free,thumbnail_url,stream_thumbnail_url,position").eq("program_id", row.id).eq("published", true).order("position"),
+      modulesQuery.order("position"),
+      lessonsQuery.order("position"),
     ]);
     if (modulesError || lessonsError) throw new Error(modulesError?.message || lessonsError?.message || "Curriculum could not be loaded.");
     const prices = await fetchPaddlePrices(row.paddle_price_id ? [row.paddle_price_id] : []);
@@ -112,4 +124,19 @@ export const getPublicProgramDetail = createServerFn({ method: "GET" })
         position: lesson.position,
       })),
     };
+}
+
+export const getPublicProgramDetail = createServerFn({ method: "GET" })
+  .inputValidator((data: { slug: string }) => data)
+  .handler(async ({ data }) => loadProgramDetail(publicClient(), data.slug, true));
+
+export const getAdminProgramPreview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { slug: string }) => data)
+  .handler(async ({ data, context }) => {
+    const claims = context.claims as { email?: string; app_metadata?: { is_admin?: boolean } };
+    const isAdmin = claims.app_metadata?.is_admin === true
+      && claims.email?.trim().toLowerCase() === "thriveinside@protonmail.com";
+    if (!isAdmin) throw new Error("Administrator access required.");
+    return loadProgramDetail(context.supabase as ProgramClient, data.slug, false);
   });
