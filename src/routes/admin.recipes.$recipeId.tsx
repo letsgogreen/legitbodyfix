@@ -346,6 +346,7 @@ function RecipeReview() {
               value={record.image_url ?? ""}
               alt={record.image_alt ?? ""}
               folder={`recipes/${record.id}`}
+              bucket="recipe-images"
               label="Recipe cover image"
               onChange={(url) => setField("image_url", url || null)}
               onAltChange={(alt) => setField("image_alt", alt || null)}
