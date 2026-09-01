@@ -171,16 +171,16 @@ function LessonsView() {
         ) : (
           <>
             {modules.map((module) => (
-              <ModulePanel key={module.id} module={module} lessons={lessons.filter((lesson) => lesson.module_id === module.id)} onEdit={setEditing} onDeleteLesson={removeLesson} onEditModule={setEditingModule} onDeleteModule={removeModule} onPreview={previewLesson} previewLoadingId={previewLoadingId} />
+              <ModulePanel key={module.id} module={module} lessons={lessons.filter((lesson) => lesson.module_id === module.id)} thumbnailVersion={loading ? "loading" : ""} onEdit={setEditing} onDeleteLesson={removeLesson} onEditModule={setEditingModule} onDeleteModule={removeModule} onPreview={previewLesson} previewLoadingId={previewLoadingId} />
             ))}
-            {unassigned.length > 0 && <ModulePanel module={{ id: "unassigned", title: "Unassigned lessons" } as Module} lessons={unassigned} onEdit={setEditing} onDeleteLesson={removeLesson} onPreview={previewLesson} previewLoadingId={previewLoadingId} />}
+            {unassigned.length > 0 && <ModulePanel module={{ id: "unassigned", title: "Unassigned lessons" } as Module} lessons={unassigned} thumbnailVersion={loading ? "loading" : ""} onEdit={setEditing} onDeleteLesson={removeLesson} onPreview={previewLesson} previewLoadingId={previewLoadingId} />}
             {!modules.length && !lessons.length && programId && <Panel className="px-5 py-12 text-center text-sm text-muted-foreground">No curriculum yet. Add a module, then create the first lesson.</Panel>}
             {!programId && !loading && <Panel className="px-5 py-12 text-center text-sm text-muted-foreground">Create a program first, then return here to build its curriculum.</Panel>}
           </>
         )}
       </div>
 
-      {editing && programId && <LessonDrawer lesson={editing === "new" ? null : editing} programId={programId} modules={modules} nextPosition={lessons.length + 1} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await loadCurriculum(); }} />}
+      {editing && programId && <LessonDrawer lesson={editing === "new" ? null : editing} programId={programId} modules={modules} nextPosition={lessons.length + 1} onClose={() => setEditing(null)} onChanged={async () => { await loadCurriculum(); }} onSaved={async () => { setEditing(null); await loadCurriculum(); }} />}
       {editingModule && <ModuleDrawer module={editingModule} onClose={() => setEditingModule(null)} onSaved={async () => { setEditingModule(null); await loadCurriculum(); }} />}
       {previewing && <VideoPreviewModal title={previewing.title} iframeUrl={previewing.iframeUrl} onClose={() => setPreviewing(null)} />}
     </div>
@@ -196,6 +196,7 @@ function ModulePanel({
   onDeleteModule,
   onPreview,
   previewLoadingId,
+  thumbnailVersion,
 }: {
   module: Module;
   lessons: Lesson[];
@@ -205,6 +206,7 @@ function ModulePanel({
   onDeleteModule?: (module: Module) => void;
   onPreview: (lesson: Lesson) => void;
   previewLoadingId: string | null;
+  thumbnailVersion?: string | number;
 }) {
   const editable = module.id !== "unassigned";
   return (
@@ -225,7 +227,7 @@ function ModulePanel({
         {lessons.map((lesson) => (
           <li key={lesson.id} className="flex flex-wrap items-center gap-4 px-4 py-3 hover:bg-secondary/50">
             <button type="button" disabled={lesson.stream_status !== "ready" || previewLoadingId === lesson.id} onClick={() => onPreview(lesson)} aria-label={`Play ${lesson.title}`} className="group relative grid h-12 w-20 shrink-0 place-items-center overflow-hidden rounded-sm border border-border bg-secondary disabled:cursor-not-allowed">
-              {(lesson.thumbnail_url || lesson.stream_thumbnail_url) ? <img src={lesson.thumbnail_url || lesson.stream_thumbnail_url || ""} alt="" className="h-full w-full object-cover" /> : <FileVideo className="h-4 w-4 text-muted-foreground" />}
+              {(lesson.thumbnail_url || lesson.stream_thumbnail_url) ? <img src={lessonThumbnailSrc(lesson, thumbnailVersion)} alt="" className="h-full w-full object-cover" /> : <FileVideo className="h-4 w-4 text-muted-foreground" />}
               {lesson.stream_status === "ready" && <span className="absolute inset-0 grid place-items-center bg-black/25 text-white transition-colors group-hover:bg-black/40">{previewLoadingId === lesson.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}</span>}
             </button>
             <div className="min-w-40 flex-1">
@@ -307,7 +309,16 @@ function formatDuration(seconds: number | null) {
   return `${minutes}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSaved }: { lesson: Lesson | null; programId: string; modules: Module[]; nextPosition: number; onClose: () => void; onSaved: () => Promise<void> }) {
+function lessonThumbnailSrc(lesson: Lesson, version?: string | number) {
+  const src = lesson.thumbnail_url || lesson.stream_thumbnail_url || "";
+  if (!src) return "";
+  const cacheVersion = [lesson.updated_at, version].filter(Boolean).join("-");
+  if (!cacheVersion) return src;
+  const separator = src.includes("?") ? "&" : "?";
+  return `${src}${separator}preview=${encodeURIComponent(cacheVersion)}`;
+}
+
+function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onChanged, onSaved }: { lesson: Lesson | null; programId: string; modules: Module[]; nextPosition: number; onClose: () => void; onChanged: () => Promise<void>; onSaved: () => Promise<void> }) {
   const [title, setTitle] = useState(lesson?.title ?? "");
   const [slug, setSlug] = useState(lesson?.slug ?? "");
   const [summary, setSummary] = useState(lesson?.summary ?? "");
@@ -415,6 +426,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
       const result = await setStreamThumbnailFrame({ data: { lessonId: lesson.id, timeSeconds: Math.max(0, Number(thumbnailTime) || 0) } });
       if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl);
       setThumbnailRevision((current) => current + 1);
+      await onChanged();
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
     setSaving(false);
   };
@@ -493,7 +505,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onSav
             {previewUrl && <div className="mt-4 overflow-hidden border border-border bg-black"><div className="flex items-center justify-between bg-background px-3 py-2"><div><span className="block text-xs font-bold">Choose a thumbnail frame</span><span className="font-mono text-[10px] text-muted-foreground">Play or scrub the video, then use the frame you see.</span></div><button type="button" onClick={() => setPreviewUrl("")} aria-label="Close preview"><X className="h-4 w-4" /></button></div><StreamPlayer iframeUrl={previewUrl} title={`${title || "Lesson"} preview`} onTimeChange={(time) => setThumbnailTime(time.toFixed(2))} seekRequest={previewSeek} /><div className="space-y-3 bg-background p-3"><input type="range" min="0" max={Math.max(1, Number(duration) || 1)} step="0.1" value={Math.min(Math.max(0, Number(thumbnailTime) || 0), Math.max(1, Number(duration) || 1))} onChange={(event) => { const time = Number(event.target.value); setThumbnailTime(time.toFixed(2)); setPreviewSeek((current) => ({ time, request: (current?.request ?? 0) + 1 })); }} aria-label="Thumbnail frame timeline" className="w-full accent-lime" /><div className="flex items-center justify-between gap-3"><span className="font-mono text-[11px] font-bold">{formatTimestamp(Number(thumbnailTime) || 0)} / {formatTimestamp(Number(duration) || 0)}</span><Btn variant="ink" disabled={!lesson || !streamUid || saving || streamStatus !== "ready"} onClick={() => void useVideoFrame()}>Use this frame as thumbnail</Btn></div></div></div>}
           </div>
           <div className="border border-border bg-card p-4">
-            <ImageUploadField value={thumbnailUrl} alt={`${title || "Lesson"} thumbnail`} folder={`lesson-thumbnails/${lesson?.id ?? programId}`} bucket="lesson-images" label="Lesson thumbnail" showAlt={false} onChange={(url) => { setThumbnailUrl(url); setThumbnailRevision((current) => current + 1); }} />
+            <ImageUploadField value={thumbnailUrl} alt={`${title || "Lesson"} thumbnail`} folder={`lesson-thumbnails/${lesson?.id ?? programId}`} bucket="lesson-images" label="Lesson thumbnail" showAlt={false} previewVersion={thumbnailRevision} onChange={(url) => { setThumbnailUrl(url); setThumbnailRevision((current) => current + 1); }} />
             <div className="mt-3 flex flex-wrap gap-2">
               {lesson?.stream_thumbnail_url && <Btn onClick={() => { setThumbnailUrl(lesson.stream_thumbnail_url ?? ""); setThumbnailRevision((current) => current + 1); }}>Use Stream default</Btn>}
               {thumbnailUrl && <Btn onClick={() => setThumbnailUrl("")}>Remove thumbnail</Btn>}
