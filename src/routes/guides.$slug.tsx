@@ -1,9 +1,17 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { getPublishedGuide } from "@/lib/guides.functions";
 
 export const Route = createFileRoute("/guides/$slug")({
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: "/recipes/$slug",
+      params: { slug: params.slug },
+      replace: true,
+      statusCode: 301,
+    });
+  },
   loader: async ({ params }) => {
     const guide = await getPublishedGuide({ data: { slug: params.slug } });
     if (!guide) throw notFound();
