@@ -70,6 +70,7 @@ export const updateProgramPrice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) => z.object({
     programId: z.string().uuid(),
+    productId: z.string().trim().max(120).nullable().optional(),
     amount: z.number().positive().max(1_000_000),
     currency: z.string().trim().length(3).transform((value) => value.toUpperCase()),
   }).parse(input))
@@ -82,7 +83,7 @@ export const updateProgramPrice = createServerFn({ method: "POST" })
       .select("id,name,paddle_product_id,paddle_price_id").eq("id", data.programId).maybeSingle();
     if (error || !program) throw new Error(error?.message || "Program not found.");
     const programRow = program as ProgramPriceRow;
-    let productId = programRow.paddle_product_id;
+    let productId = data.productId || programRow.paddle_product_id;
     if (!productId) {
       const product = await request("/products", { method: "POST", body: JSON.stringify({
         name: programRow.name,

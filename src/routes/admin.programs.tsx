@@ -649,7 +649,7 @@ function ProgramDrawer({
             onChange={(value) => update("goals", value)}
           />
           <Field label="Paddle product ID" value={draft.paddle_product_id} onChange={(value) => update("paddle_product_id", value)} />
-          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={({ productId, priceId }) => { update("paddle_product_id", productId); update("paddle_price_id", priceId); }} />}
+          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={({ productId, priceId }) => { update("paddle_product_id", productId); update("paddle_price_id", priceId); void loadPrograms(); }} />}
           <Field
             label="Entitlement key"
             value={draft.entitlement_key}
@@ -804,8 +804,9 @@ function PaddlePricePanel({ programId, productId, priceId, onChanged }: { progra
     if (!Number.isFinite(value) || value <= 0) { setMessage("Enter a price greater than zero."); return; }
     setWorking(true); setMessage(null);
     try {
-      const result = await updateProgramPrice({ data: { programId, amount: value, currency } });
+      const result = await updateProgramPrice({ data: { programId, productId: productId || null, amount: value, currency } });
       onChanged({ productId: result.productId, priceId: result.priceId }); setLivePrice(result.livePrice); setAmount("");
+      setPriceStatus(result.livePrice ? "ready" : "unavailable");
       setMessage(`Paddle product and price saved${result.previousArchived ? "; previous price archived" : ""}.`);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Price update failed."); }
     finally { setWorking(false); }
