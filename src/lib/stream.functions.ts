@@ -4,10 +4,18 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 type CloudflareEnvelope<T> = { success: boolean; result?: T; errors?: { message?: string }[] };
 
+function normalizeCustomerCode(value: string | undefined) {
+  return value
+    ?.trim()
+    .replace(/^https?:\/\//i, "")
+    .replace(/\.cloudflarestream\.com(?:\/.*)?$/i, "")
+    .replace(/^customer-/i, "");
+}
+
 function streamConfig() {
   const accountId = process.env["CLOUDFLARE_ACCOUNT_ID"] ?? process.env["CLOUDFLARE_STREAM_ACCOUNT_ID"];
   const apiToken = process.env["CLOUDFLARE_STREAM_API_TOKEN"];
-  const customerCode = process.env["CLOUDFLARE_STREAM_CUSTOMER_CODE"];
+  const customerCode = normalizeCustomerCode(process.env["CLOUDFLARE_STREAM_CUSTOMER_CODE"]);
   if (!accountId || !apiToken) throw new Error("Cloudflare Stream is not configured on the server.");
   return { accountId, apiToken, customerCode };
 }
