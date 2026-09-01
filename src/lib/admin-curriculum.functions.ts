@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { removeStoredContentImages } from "@/lib/content-images.functions";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 type Module = Database["public"]["Tables"]["program_modules"]["Row"];
@@ -129,7 +130,21 @@ export const deleteAdminLesson = createServerFn({ method: "POST" })
   .validator((input) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { data: lesson, error: lookupError } = await context.supabase
+      .from("lessons")
+      .select("thumbnail_url")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (lookupError) throw new Error(lookupError.message);
+
     const { error } = await context.supabase.from("lessons").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
-    return { ok: true };
+
+    let storageCleanupWarning: string | null = null;
+    try {
+      await removeStoredContentImages(context.supabase, "lesson-images", [lesson?.thumbnail_url]);
+    } catch (cause) {
+      storageCleanupWarning = cause instanceof Error ? cause.message : String(cause);
+    }
+    return { ok: true, storageCleanupWarning };
   });
