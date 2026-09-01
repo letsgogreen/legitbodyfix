@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { FileUp, Plus, Search } from "lucide-react";
+import { FileUp, Plus, Search, Waypoints } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,10 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin/recipes/")({
   head: () => ({
     meta: [
-      { title: "Recipe library — LegitBodyFix Admin" },
+      { title: "Movement content — LegitBodyFix Admin" },
       {
         name: "description",
-        content: "Review imported corrective exercise recipes and publish them one by one.",
+        content: "Manage posture guidance and corrective exercise content from one workspace.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -97,19 +97,32 @@ function AdminRecipes() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
-        title="Recipe library"
-        meta={`${publishedCount} published · ${rows.length - publishedCount} in review`}
+        title="Movement content"
+        meta={`${publishedCount} published · ${rows.length - publishedCount} in review · recipes are the canonical content type`}
         actions={
-          <><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New recipe</Btn><Link
+          <><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New content</Btn><Link
             to="/admin/recipes/import"
             className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-background px-3 py-2 text-xs font-bold"
           >
             <FileUp className="h-3.5 w-3.5" aria-hidden="true" /> Notion import
+          </Link><Link
+            to="/admin/guides"
+            className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-background px-3 py-2 text-xs font-bold"
+          >
+            <Waypoints className="h-3.5 w-3.5" aria-hidden="true" /> Legacy guide links
           </Link></>
         }
       />
 
-      <Panel className="mt-5 flex flex-wrap items-center gap-3 p-4">
+      <Panel className="mt-5 border-l-4 border-l-accent p-4">
+        <p className="text-sm font-bold">One movement-content workflow</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          Create posture guidance and corrective exercises here as recipes. Existing posture-guide
+          records remain available under Legacy guide links until their relationships are migrated.
+        </p>
+      </Panel>
+
+      <Panel className="mt-4 flex flex-wrap items-center gap-3 p-4">
         <label className="relative flex-1 min-w-56">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
@@ -131,7 +144,7 @@ function AdminRecipes() {
         <table className="w-full min-w-[860px] text-sm">
           <thead>
             <tr>
-              <Th>Recipe</Th>
+              <Th>Movement content</Th>
               <Th>Status</Th>
               <Th>Regions</Th>
               <Th>Level</Th>

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, BookOpen, Check, Dumbbell, ExternalLink, Loader2, Map, PanelsTopLeft } from "lucide-react";
+import { ArrowUpRight, BookOpen, Check, Dumbbell, ExternalLink, Loader2, PanelsTopLeft } from "lucide-react";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { bodyRegions } from "@/data/body-regions";
@@ -16,14 +16,8 @@ const sections = [
     path: "/programs",
   },
   {
-    name: "Movement guides",
-    description: "Posture and movement entry points linked to recipes, muscles, and programs.",
-    icon: Map,
-    path: "/guides",
-  },
-  {
-    name: "Corrective recipes",
-    description: "Exercise content, images, dosage, safety notes, and relationship links.",
+    name: "Movement content",
+    description: "Posture guidance, corrective exercises, images, dosage, and relationship links.",
     icon: BookOpen,
     path: "/recipes",
   },
