@@ -267,6 +267,7 @@ function ProgramsView() {
         <ProgramDrawer
           initial={editing}
           onClose={closeEditor}
+          onRefresh={loadPrograms}
           onSaved={async () => {
             closeEditor();
             await loadPrograms();
@@ -318,19 +319,46 @@ function programReadiness(program: ProgramRow) {
   return missing;
 }
 
+function draftToPayload(draft: ProgramDraft) {
+  return {
+    name: draft.name.trim(),
+    slug: draft.slug
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-"),
+    outcome: draft.outcome.trim() || null,
+    whoItsFor: draft.who_its_for.trim() || null,
+    format: draft.format.trim() || null,
+    durationLabel: draft.duration_label.trim() || null,
+    level: draft.level.trim() || null,
+    regions: csv(draft.regions),
+    goals: csv(draft.goals),
+    paddleProductId: draft.paddle_product_id.trim() || null,
+    entitlementKey: draft.entitlement_key.trim() || null,
+    imageUrl: draft.image_url.trim() || null,
+    imageAlt: draft.image_alt.trim() || null,
+    featured: draft.featured,
+    featuredRank: draft.featured_rank ? Number(draft.featured_rank) : null,
+    published: draft.published,
+  };
+}
+
 function ProgramDrawer({
   initial,
   onClose,
+  onRefresh,
   onSaved,
 }: {
   initial: ProgramDraft;
   onClose: () => void;
+  onRefresh: () => Promise<void>;
   onSaved: () => Promise<void>;
 }) {
   const [draft, setDraft] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageMessage, setImageMessage] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<RecipeOption[]>([]);
   const [recipeLinks, setRecipeLinks] = useState<RecipeLink[]>([]);
   const [lessons, setLessons] = useState<LessonSummary[]>([]);
@@ -462,32 +490,33 @@ function ProgramDrawer({
     }
     setSaving(true);
     setError(null);
-    const payload = {
-      name: draft.name.trim(),
-      slug: draft.slug
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9-]+/g, "-"),
-      outcome: draft.outcome.trim() || null,
-      whoItsFor: draft.who_its_for.trim() || null,
-      format: draft.format.trim() || null,
-      durationLabel: draft.duration_label.trim() || null,
-      level: draft.level.trim() || null,
-      regions: csv(draft.regions),
-      goals: csv(draft.goals),
-      paddleProductId: draft.paddle_product_id.trim() || null,
-      entitlementKey: draft.entitlement_key.trim() || null,
-      imageUrl: draft.image_url.trim() || null,
-      imageAlt: draft.image_alt.trim() || null,
-      featured: draft.featured,
-      featuredRank: draft.featured_rank ? Number(draft.featured_rank) : null,
-      published: draft.published,
-    };
     try {
-      await saveAdminProgram({ data: { id: draft.id, ...payload } });
+      await saveAdminProgram({ data: { id: draft.id, ...draftToPayload(draft) } });
       await onSaved();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
+      setSaving(false);
+    }
+  };
+
+  const saveUploadedCover = async (imageUrl: string) => {
+    const nextDraft = { ...draft, image_url: imageUrl };
+    setDraft(nextDraft);
+    setImageMessage(null);
+    if (!nextDraft.id) return;
+    if (!nextDraft.name.trim() || !nextDraft.slug.trim()) {
+      setImageMessage("Cover uploaded. Save the program to keep it on this new draft.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await saveAdminProgram({ data: { id: nextDraft.id, ...draftToPayload(nextDraft) } });
+      await onRefresh();
+      setImageMessage("Cover uploaded and saved to this program.");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
       setSaving(false);
     }
   };
@@ -663,8 +692,12 @@ function ProgramDrawer({
               bucket="program-images"
               label="Program cover image"
               onChange={(value) => update("image_url", value)}
+              onUploaded={(value) => { void saveUploadedCover(value); }}
               onAltChange={(value) => update("image_alt", value)}
             />
+            {imageMessage && (
+              <p className="mt-2 text-xs font-medium text-emerald-700">{imageMessage}</p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3">
             <Toggle
