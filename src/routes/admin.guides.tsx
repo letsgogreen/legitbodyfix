@@ -65,7 +65,7 @@ export const Route = createFileRoute("/admin/guides")({
   },
   head: () => ({
     meta: [
-      { title: "Posture guides — LegitBodyFix Admin" },
+      { title: "Legacy guide links — LegitBodyFix Admin" },
       { name: "robots", content: "noindex" },
     ],
   }),
