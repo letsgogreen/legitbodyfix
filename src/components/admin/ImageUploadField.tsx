@@ -18,6 +18,7 @@ export function ImageUploadField({
   showAlt = true,
   onChange,
   onAltChange,
+  onUploaded,
 }: {
   value: string;
   alt: string;
@@ -27,6 +28,7 @@ export function ImageUploadField({
   showAlt?: boolean;
   onChange: (url: string) => void;
   onAltChange?: (alt: string) => void;
+  onUploaded?: (url: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -52,6 +54,7 @@ export function ImageUploadField({
     try {
       const result = await uploadContentImage({ data: form });
       onChange(result.url);
+      onUploaded?.(result.url);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
       setUploading(false);
