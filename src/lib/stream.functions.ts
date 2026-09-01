@@ -154,7 +154,7 @@ export const setStreamThumbnailFrame = createServerFn({ method: "POST" })
   .validator((input) => z.object({ lessonId: z.string().uuid(), timeSeconds: z.number().min(0) }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    const { data: lesson, error } = await context.supabase.from("lessons").select("stream_uid,duration_seconds").eq("id", data.lessonId).single();
+    const { data: lesson, error } = await context.supabase.from("lessons").select("stream_uid,duration_seconds,thumbnail_url,stream_thumbnail_url").eq("id", data.lessonId).single();
     if (error || !lesson?.stream_uid) throw new Error(error?.message || "This lesson has no Stream video.");
     let duration = lesson.duration_seconds ?? 0;
     if (!duration) {
@@ -163,15 +163,17 @@ export const setStreamThumbnailFrame = createServerFn({ method: "POST" })
     }
     if (!duration) throw new Error("Stream has not reported the video duration yet.");
     const thumbnailTimestampPct = Math.min(1, data.timeSeconds / duration);
-    const video = await cloudflare<{ thumbnail?: string }>(`/${lesson.stream_uid}`, {
+    await cloudflare<{ thumbnail?: string }>(`/${lesson.stream_uid}`, {
       method: "POST",
       body: JSON.stringify({ thumbnailTimestampPct }),
     });
-    const thumbnailUrl = video.thumbnail ?? null;
+    const video = await cloudflare<{ thumbnail?: string }>(`/${lesson.stream_uid}`);
+    const thumbnailUrl = video.thumbnail ?? lesson.stream_thumbnail_url ?? lesson.thumbnail_url ?? null;
     const { error: updateError } = await context.supabase.from("lessons").update({
       thumbnail_url: thumbnailUrl,
       stream_thumbnail_url: thumbnailUrl,
       duration_seconds: Math.max(1, Math.round(duration)),
+      updated_at: new Date().toISOString(),
     }).eq("id", data.lessonId);
     if (updateError) throw new Error(updateError.message);
     return { thumbnailUrl, timeSeconds: Math.round(thumbnailTimestampPct * duration) };

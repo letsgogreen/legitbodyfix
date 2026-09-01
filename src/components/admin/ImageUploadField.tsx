@@ -19,6 +19,7 @@ export function ImageUploadField({
   onChange,
   onAltChange,
   onUploaded,
+  previewVersion,
 }: {
   value: string;
   alt: string;
@@ -29,6 +30,7 @@ export function ImageUploadField({
   onChange: (url: string) => void;
   onAltChange?: (alt: string) => void;
   onUploaded?: (url: string) => void;
+  previewVersion?: string | number;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -94,7 +96,7 @@ export function ImageUploadField({
 
       <div className="grid min-h-44 place-items-center overflow-hidden rounded-sm border border-border bg-white">
         {value ? (
-          <img src={value} alt={alt} className="max-h-64 w-full object-contain p-3" />
+          <img src={cacheBustedImageSrc(value, previewVersion)} alt={alt} className="max-h-64 w-full object-contain p-3" />
         ) : (
           <div className="text-center text-muted-foreground">
             <ImageIcon className="mx-auto h-7 w-7" />
@@ -115,4 +117,10 @@ export function ImageUploadField({
       {error && <p className="rounded-sm border border-destructive/40 bg-destructive/5 p-2 text-xs text-destructive">{error}</p>}
     </div>
   );
+}
+
+function cacheBustedImageSrc(src: string, version?: string | number) {
+  if (!version) return src;
+  const separator = src.includes("?") ? "&" : "?";
+  return `${src}${separator}preview=${encodeURIComponent(String(version))}`;
 }
