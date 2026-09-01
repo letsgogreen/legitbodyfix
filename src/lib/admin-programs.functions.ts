@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { removeStoredContentImages } from "@/lib/content-images.functions";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 
@@ -118,7 +119,24 @@ export const deleteAdminProgram = createServerFn({ method: "POST" })
   .validator((input) => z.object({ programId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const [programResult, lessonResult] = await Promise.all([
+      context.supabase.from("programs").select("image_url").eq("id", data.programId).maybeSingle(),
+      context.supabase.from("lessons").select("thumbnail_url").eq("program_id", data.programId),
+    ]);
+    const lookupError = programResult.error ?? lessonResult.error;
+    if (lookupError) throw new Error(lookupError.message);
+
     const { error } = await context.supabase.from("programs").delete().eq("id", data.programId);
     if (error) throw new Error(error.message);
-    return { ok: true };
+
+    const cleanupErrors: string[] = [];
+    await Promise.all([
+      removeStoredContentImages(context.supabase, "program-images", [programResult.data?.image_url]).catch((cause) => {
+        cleanupErrors.push(cause instanceof Error ? cause.message : String(cause));
+      }),
+      removeStoredContentImages(context.supabase, "lesson-images", (lessonResult.data ?? []).map((lesson) => lesson.thumbnail_url)).catch((cause) => {
+        cleanupErrors.push(cause instanceof Error ? cause.message : String(cause));
+      }),
+    ]);
+    return { ok: true, storageCleanupWarning: cleanupErrors.length ? cleanupErrors.join("; ") : null };
   });

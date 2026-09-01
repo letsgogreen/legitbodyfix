@@ -47,6 +47,34 @@ async function getAdminStorageClient(bucket: ContentImageBucket) {
   return supabaseAdmin;
 }
 
+function contentImagePath(url: string | null | undefined, bucket: ContentImageBucket) {
+  if (!url) return null;
+  try {
+    const pathname = new URL(url).pathname;
+    const marker = `/storage/v1/object/public/${bucket}/`;
+    const markerIndex = pathname.indexOf(marker);
+    if (markerIndex < 0) return null;
+
+    const path = decodeURIComponent(pathname.slice(markerIndex + marker.length));
+    if (!path || path.startsWith("/") || path.split("/").includes("..")) return null;
+    return path;
+  } catch {
+    return null;
+  }
+}
+
+export async function removeStoredContentImages(
+  storageClient: { storage: { from: (bucket: string) => { remove: (paths: string[]) => PromiseLike<{ error: { message: string } | null }> } } },
+  bucket: ContentImageBucket,
+  urls: Array<string | null | undefined>,
+) {
+  const paths = [...new Set(urls.map((url) => contentImagePath(url, bucket)).filter((path): path is string => Boolean(path)))];
+  if (paths.length === 0) return;
+
+  const { error } = await storageClient.storage.from(bucket).remove(paths);
+  if (error) throw new Error(error.message);
+}
+
 function storageSetupMessage(error: Error, bucket: ContentImageBucket) {
   if (/invalid api key|bucket not found|not found/i.test(error.message)) {
     return `Image storage is not ready. Create a public Supabase Storage bucket named ${bucket}, or fix SUPABASE_SERVICE_ROLE_KEY/SUPABASE_SECRET_KEY in Vercel so the app can create it automatically.`;
