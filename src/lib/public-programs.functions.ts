@@ -128,7 +128,13 @@ async function loadProgramDetail(
 
 export const getPublicProgramDetail = createServerFn({ method: "GET" })
   .validator((data: { slug: string }) => data)
-  .handler(async ({ data }) => loadProgramDetail(publicClient(), data.slug, true));
+  .handler(async ({ data }) => {
+    // Curriculum tables intentionally have no anonymous SELECT policy. Read through the
+    // server-only client, while loadProgramDetail still enforces published program/module/lesson
+    // filters and returns only the small set of sales-page metadata declared above.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    return loadProgramDetail(supabaseAdmin as ProgramClient, data.slug, true);
+  });
 
 export const getAdminProgramPreview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
