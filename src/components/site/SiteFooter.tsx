@@ -52,6 +52,11 @@ export function SiteFooter() {
 
         <div className="mt-14 border-t border-ink-foreground/15 pt-6 text-xs text-ink-foreground/50">
           <p>Educational content only. Not a substitute for medical diagnosis or treatment.</p>
+          <nav aria-label="Legal" className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+            <Link to="/terms" className="hover:text-ink-foreground">Terms</Link>
+            <Link to="/privacy" className="hover:text-ink-foreground">Privacy</Link>
+            <Link to="/refund-policy" className="hover:text-ink-foreground">Refund policy</Link>
+          </nav>
           <p className="mt-2">© {new Date().getFullYear()} LegitBodyFix · Movement System</p>
         </div>
       </div>
