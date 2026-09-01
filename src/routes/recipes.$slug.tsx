@@ -3,24 +3,22 @@ import { ArrowLeft } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { getPublishedRecipe, type RecipeMuscleLink } from "@/lib/recipes.functions";
-import { getGuideForRecipe } from "@/lib/guides.functions";
 import { regionNameFor } from "@/lib/notion/regions";
 
 export const Route = createFileRoute("/recipes/$slug")({
   loader: async ({ params }) => {
     const recipe = await getPublishedRecipe({ data: { slug: params.slug } });
     if (!recipe) throw notFound();
-    const guide = await getGuideForRecipe({ data: { recipeSlug: params.slug } });
-    return { ...recipe, guide };
+    return recipe;
   },
   head: ({ params, loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Recipe not found | LegitBodyFix" }] };
     const ogImage = `https://move-system-landing.lovable.app/og/recipe/${params.slug}.png`;
-    const title = `${loaderData.title} — Corrective Exercise Recipe | LegitBodyFix`;
+    const title = `${loaderData.title} — Movement Guide | LegitBodyFix`;
     const description =
       loaderData.summary ??
       loaderData.goal ??
-      `A reviewed corrective exercise recipe for ${loaderData.title.toLowerCase()}.`;
+      `A reviewed movement guide for ${loaderData.title.toLowerCase()}.`;
     return {
       meta: [
         { title },
@@ -36,19 +34,19 @@ export const Route = createFileRoute("/recipes/$slug")({
   },
   errorComponent: () => (
     <Shell>
-      <h1 className="text-3xl font-extrabold uppercase">Recipe unavailable</h1>
+      <h1 className="text-3xl font-extrabold uppercase">Movement content unavailable</h1>
       <p className="mt-3 text-muted-foreground">Please reload the page in a moment.</p>
     </Shell>
   ),
   notFoundComponent: () => (
     <Shell>
-      <h1 className="text-3xl font-extrabold uppercase">Recipe not published</h1>
+      <h1 className="text-3xl font-extrabold uppercase">Movement content not published</h1>
       <p className="mt-3 max-w-md text-muted-foreground">
-        This recipe is still in editorial review. Nothing publishes here until its instructions,
+        This content is still in editorial review. Nothing publishes here until its instructions,
         safety context and muscle links have passed review.
       </p>
       <Link to="/" hash="recipes" className="mt-6 inline-flex text-sm font-bold underline">
-        Back to published recipes
+        Back to movement content
       </Link>
     </Shell>
   ),
@@ -137,24 +135,12 @@ function RecipeDetail() {
               hash="recipes"
               className="inline-flex min-h-11 items-center gap-2 text-sm font-bold"
             >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All recipes
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All movement content
             </Link>
-
-            {recipe.guide ? (
-              <p className="mt-6">
-                <Link
-                  to="/guides/$slug"
-                  params={{ slug: recipe.guide.slug }}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-foreground/20 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.16em]"
-                >
-                  Part of: {recipe.guide.title} Guide
-                </Link>
-              </p>
-            ) : null}
 
             <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
               <div className="min-w-0">
-                <Label>Corrective exercise recipe</Label>
+                <Label>Movement guide</Label>
                 <h1 className="mt-4 text-[2.6rem] font-extrabold uppercase leading-[0.92] sm:text-5xl">
                   {recipe.title}
                 </h1>

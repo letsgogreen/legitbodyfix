@@ -114,7 +114,7 @@ function MuscleDetail() {
           </div>
         </div>
 
-        {(muscle.guides.length > 0 || muscle.recipes.length > 0 || muscle.programs.length > 0) && (
+        {(muscle.recipes.length > 0 || muscle.programs.length > 0) && (
           <section
             className="mt-12 border-t border-border pt-10"
             aria-labelledby="next-steps-title"
@@ -132,39 +132,14 @@ function MuscleDetail() {
                 </h2>
               </div>
               <p className="max-w-2xl text-base leading-7 text-muted-foreground lg:justify-self-end">
-                A single muscle rarely explains a movement by itself. Use the related guides and
-                recipes to see how this anatomy may contribute, then choose a focused program when
+                A single muscle rarely explains a movement by itself. Use the related movement
+                content to see how this anatomy may contribute, then choose a focused program when
                 you want a complete progression.
               </p>
             </div>
 
-            {muscle.guides.length > 0 && (
-              <ConnectionGroup label="Movement guides">
-                {muscle.guides.map((guide) => (
-                  <Link
-                    key={guide.slug}
-                    to="/guides/$slug"
-                    params={{ slug: guide.slug }}
-                    className="group border border-border bg-card p-5 transition-colors hover:bg-secondary"
-                  >
-                    <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                      {guide.role ? `${guide.role} contributor` : "Related movement pattern"}
-                    </p>
-                    <h3 className="mt-3 text-xl font-extrabold">{guide.title}</h3>
-                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
-                      {guide.pattern_summary}
-                    </p>
-                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold">
-                      Understand the pattern
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </Link>
-                ))}
-              </ConnectionGroup>
-            )}
-
             {muscle.recipes.length > 0 && (
-              <ConnectionGroup label="Corrective exercise recipes">
+              <ConnectionGroup label="Movement guides and exercises">
                 {muscle.recipes.map((recipe) => (
                   <Link
                     key={recipe.slug}
@@ -195,7 +170,7 @@ function MuscleDetail() {
                         {recipe.goal ?? recipe.summary}
                       </p>
                       <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold">
-                        Open the recipe
+                        Open movement guide
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </span>
                     </div>
