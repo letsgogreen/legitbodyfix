@@ -309,7 +309,8 @@ function csv(value: string) {
 
 function programReadiness(program: ProgramRow) {
   const missing: string[] = [];
-  if (!program.image_url || !program.image_alt) missing.push("cover");
+  if (!program.image_url) missing.push("cover");
+  if (program.image_url && !program.image_alt) missing.push("alt");
   if (!(program as ProgramRow & { paddle_price_id?: string | null }).paddle_price_id) {
     missing.push("price");
   }
