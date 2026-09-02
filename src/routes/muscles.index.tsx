@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { MuscleCard } from "@/components/site/MuscleCard";
 import { filterMuscleList, groupsOf, warnOnFixtureMismatch } from "@/lib/muscles";
 import { listPublishedMuscles } from "@/lib/muscles.functions";
 
 export const Route = createFileRoute("/muscles/")({
+  beforeLoad: () => {
+    // Only redirect the directory; /muscles/$muscleId remains available.
+    throw redirect({ href: "/knowledge.html?type=muscles", reloadDocument: true });
+  },
   loader: () => listPublishedMuscles(),
   errorComponent: () => (
     <main className="mx-auto max-w-3xl px-5 py-24">
