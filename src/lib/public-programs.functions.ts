@@ -47,7 +47,6 @@ export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async
       .from("lessons")
       .select("program_id,thumbnail_url,stream_thumbnail_url,position")
       .in("program_id", programIds)
-      .eq("published", true)
       .order("position")
     : { data: [], error: null };
   if (lessonsError) throw new Error(lessonsError.message);
@@ -103,16 +102,18 @@ async function loadProgramDetail(
 
     let modulesQuery = client.from("program_modules").select("id,title,position").eq("program_id", row.id);
     let lessonsQuery = client.from("lessons").select("id,module_id,title,summary,duration_seconds,preview_free,thumbnail_url,stream_thumbnail_url,position").eq("program_id", row.id);
+    const coverLessonsQuery = client.from("lessons").select("thumbnail_url,stream_thumbnail_url,position").eq("program_id", row.id).order("position");
     if (publishedOnly) {
       modulesQuery = modulesQuery.eq("published", true);
       lessonsQuery = lessonsQuery.eq("published", true);
     }
 
-    const [{ data: modules, error: modulesError }, { data: lessons, error: lessonsError }] = await Promise.all([
+    const [{ data: modules, error: modulesError }, { data: lessons, error: lessonsError }, { data: coverLessons, error: coverLessonsError }] = await Promise.all([
       modulesQuery.order("position"),
       lessonsQuery.order("position"),
+      coverLessonsQuery,
     ]);
-    if (modulesError || lessonsError) throw new Error(modulesError?.message || lessonsError?.message || "Curriculum could not be loaded.");
+    if (modulesError || lessonsError || coverLessonsError) throw new Error(modulesError?.message || lessonsError?.message || coverLessonsError?.message || "Curriculum could not be loaded.");
     const prices = await fetchPaddlePrices(row.paddle_price_id ? [row.paddle_price_id] : []);
 
     const publicLessons = (lessons ?? []).map((lesson) => ({
@@ -125,7 +126,7 @@ async function loadProgramDetail(
       thumbnailUrl: lesson.thumbnail_url || lesson.stream_thumbnail_url,
       position: lesson.position,
     }));
-    const fallbackThumbnail = publicLessons.find((lesson) => lesson.thumbnailUrl)?.thumbnailUrl ?? null;
+    const fallbackThumbnail = (coverLessons ?? []).map((lesson) => lesson.thumbnail_url || lesson.stream_thumbnail_url).find(Boolean) ?? null;
 
     return {
       id: row.id,
