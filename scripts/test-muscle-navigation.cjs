@@ -51,7 +51,9 @@ for (const name of ['movementTagOrder', 'muscleGroupOrder']) {
 for (const name of ['muscleRegion', 'muscleInRegion', 'muscleFunctionalRoles', 'muscleSectionGroup', 'neckDirectoryGroups', 'orderedMuscleGroups']) {
   vm.runInContext(extract(name), context);
 }
-const regions = ['head-neck', 'shoulder-scapula', 'elbow-forearm', 'wrist-hand', 'thoracic-spine', 'lumbar-spine', 'pelvis-hip', 'knee', 'foot-ankle'];
+const regions = ['head-neck', 'shoulder-arm', 'spine-rib-cage', 'pelvis-hip', 'knee', 'foot-ankle'];
+const html = fs.readFileSync('public/knowledge.html', 'utf8');
+assert.deepEqual([...html.matchAll(/data-muscle-region="([^"]+)"/g)].map(match => match[1]), regions, 'exactly six public region tabs');
 // Visual group overview uses the same membership and click behavior as the tabs.
 context.grid = node();
 context.grid.scrollIntoView = () => {};
@@ -122,7 +124,11 @@ for (const region of regions) {
   console.log(region + ': ' + groups.length + ' groups / ' + covered.size + ' muscles reachable');
 }
 assert.equal(reached.size, published.length, 'every published muscle must be reachable');
-console.log('PASS: all ' + published.length + ' published muscles reachable across 9 regions');
+console.log('PASS: all ' + published.length + ' published muscles reachable across six public regions');
+for (const [parent, children] of [['shoulder-arm', ['shoulder-scapula', 'elbow-forearm', 'wrist-hand']], ['spine-rib-cage', ['thoracic-spine', 'lumbar-spine']]]) {
+  const expected = published.filter(item => children.some(region => context.muscleInRegion(item, region))).map(item => item.id);
+  assert.deepEqual(published.filter(item => context.muscleInRegion(item, parent)).map(item => item.id), expected, parent + ' preserves union without duplicate records');
+}
 
 context.URL = URL;
 context.window = { location: { href: 'https://example.test/knowledge.html?type=muscles&id=soleus' } };

@@ -80,6 +80,20 @@
     knee: { title: "Knee", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Rectus_femoris.png", imageAlt: "Anatomy plate of a major knee extensor and the anterior thigh", credit: "Wikimedia Commons anatomy plate", creditUrl: "https://commons.wikimedia.org/wiki/File:Rectus_femoris.png" },
     "foot-ankle": { title: "Foot & Ankle", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1124_Intrinsic_Muscles_of_the_Foot_a.png", imageAlt: "OpenStax plate of foot and ankle muscles", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1124_Intrinsic_Muscles_of_the_Foot_a.png" }
   };
+  // Six public entry points; keep the original anatomical regions for data compatibility.
+  muscleRegions["head-neck"].title = "Head & Neck";
+  muscleRegions["pelvis-hip"].title = "Hip & Pelvis";
+  muscleRegions["foot-ankle"].title = "Ankle & Foot";
+  muscleRegions["shoulder-arm"] = Object.assign({}, muscleRegions["shoulder-scapula"], { title: "Shoulder & Arm" });
+  muscleRegions["spine-rib-cage"] = Object.assign({}, muscleRegions["thoracic-spine"], { title: "Spine & Rib Cage" });
+  var muscleRegionDescriptions = {
+    "head-neck": "Explore the muscles of the head, neck, and upper back, from superficial layers to the deep cervical groups.",
+    "shoulder-arm": "Explore shoulder and scapular muscles, then the upper arm, forearm, wrist, and hand.",
+    "spine-rib-cage": "Explore the muscles around the spine and rib cage, including the back, abdominal wall, and breathing muscles.",
+    "pelvis-hip": "Explore the hip and pelvic muscles, including the deep hip rotators and pelvic floor.",
+    knee: "Explore the thigh and knee muscle groups involved in bending, straightening, and rotation.",
+    "foot-ankle": "Explore the lower-leg and foot muscle groups, from the calf to the intrinsic muscles of the foot."
+  };
   var muscleRegionSections = [
     { title: "Upper quarter", description: "Cervical, shoulder, arm, forearm, wrist, and hand anatomy.", regions: ["head-neck", "shoulder-scapula", "elbow-forearm", "wrist-hand"] },
     { title: "Trunk", description: "Thoracic, rib, respiratory, abdominal, and lumbar contributors.", regions: ["thoracic-spine", "lumbar-spine"] },
@@ -467,6 +481,8 @@
   }
 
   function muscleInRegion(item, region) {
+    if (region === "shoulder-arm") return ["shoulder-scapula", "elbow-forearm", "wrist-hand"].some(function (part) { return muscleInRegion(item, part); });
+    if (region === "spine-rib-cage") return ["thoracic-spine", "lumbar-spine"].some(function (part) { return muscleInRegion(item, part); });
     if (muscleRegion(item) === region) return true;
     var title = String(item && item.title || "").toLowerCase();
     if (region === "head-neck" && title === "upper trapezius") return true;
@@ -648,7 +664,7 @@
     document.body.classList.toggle("muscle-directory-mode", type === "muscles");
     if (type === "muscles") {
       directoryEyebrow.textContent = "Muscle atlas / 179 references";
-      directoryTitle.textContent = "Explore anatomy by region and function.";
+      directoryTitle.textContent = "Muscle dictionary";
       directorySearchLabel.textContent = "Search muscles, actions, attachments, and relationships";
       search.placeholder = "Try infraspinatus, shoulder external rotation, or origin: scapula";
     } else {
@@ -1602,11 +1618,13 @@
 
   function render() {
     var query = search.value.trim().toLowerCase();
+    document.getElementById("muscleRegionHeading").textContent = activeMuscleRegion === "all" ? "Explore by body region" : muscleRegions[activeMuscleRegion].title;
+    document.getElementById("muscleRegionDescription").textContent = muscleRegionDescriptions[activeMuscleRegion] || "Choose one of six body regions, explore a muscle group, then open an individual muscle. Or search directly by name.";
     updateFunctionOptions();
     positionMuscleDirectoryControls();
     // Movement is an optional filter, never the entry point to the dictionary.
     muscleActionBrowser.hidden = true;
-    document.querySelector(".muscle-tool-selects").hidden = activeMuscleRegion === "all" && !query;
+    document.querySelector(".muscle-tool-selects").hidden = activeMuscleGroup === "all" || Boolean(query);
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
     updateCarePathCounts();
     updateRecipeCounts();
@@ -1674,7 +1692,7 @@
       return;
     }
     status.textContent = activeType === "muscles"
-      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 9 anatomical regions" : " in this anatomical region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
+      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across six body regions" : " in this anatomical region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
       : activeType === "recipes"
         ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
         : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (groupConditions ? ", grouped by condition family" : groupPosture ? ", grouped by body area" : "");
