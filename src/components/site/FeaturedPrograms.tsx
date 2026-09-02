@@ -53,20 +53,19 @@ export function FeaturedPrograms() {
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
         {visiblePrograms.map((program, index) => (
-          <article key={program.id} className="group relative isolate flex min-h-[23rem] overflow-hidden border border-neutral-800 bg-neutral-900 p-5 text-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-[0_7px_0_#c8ff2c]">
+          <article key={program.id} className="group relative isolate flex min-h-[25rem] overflow-hidden bg-neutral-900 p-5 text-white shadow-sm transition duration-200 sm:aspect-square sm:min-h-0">
             {program.imageUrl && <img src={program.imageUrl} alt={program.imageAlt ?? ""} loading="lazy" decoding="async" className="absolute inset-0 -z-20 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" />}
-            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/10 via-black/30 to-black/90" />
+            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/5 via-black/20 to-black/90" />
             <div className="flex w-full flex-col">
               <div className="flex items-start justify-between gap-4">
                 <span className="bg-accent px-3 py-1 font-mono text-[10px] font-bold text-accent-foreground">{program.level?.toUpperCase() || "GUIDED"}</span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/70">Program {String(index + 1).padStart(2, "0")}</span>
+                <Link to="/programs/$programSlug" params={{ programSlug: program.slug }} aria-label={`View ${program.name}`} className="grid size-10 place-items-center rounded-full border border-white/80 text-white transition-colors hover:border-accent hover:bg-accent hover:text-accent-foreground"><ArrowUpRight className="h-4 w-4" /></Link>
               </div>
               <div className="mt-auto">
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-accent">{categoryOf(program)}</p>
-                <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight">{program.name}</h3>
-                <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/80">{program.outcome || "A focused progression built around a clear movement goal."}</p>
-                <p className="mt-3 font-mono text-[11px] text-white/80">{[program.duration, program.format, program.price].filter(Boolean).join(" · ")}</p>
-                <div className="mt-5 border-t border-white/30 pt-4"><Link to="/programs/$programSlug" params={{ programSlug: program.slug }} className="inline-flex min-h-11 w-full items-center justify-between gap-3 bg-accent px-4 text-sm font-bold text-accent-foreground"><span>View program{program.price ? ` — ${program.price}` : ""}</span><ArrowUpRight className="h-4 w-4" /></Link></div>
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-accent">Program {String(index + 1).padStart(2, "0")}</p>
+                <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight sm:text-[1.65rem]">{program.name}</h3>
+                <p className="mt-3 font-mono text-[11px] text-white/90">{[program.duration, program.format, program.price].filter(Boolean).join(" · ")}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]"><span>{categoryOf(program)}</span><Link to="/programs/$programSlug" params={{ programSlug: program.slug }} className="border-b border-accent text-accent transition-colors hover:text-white">View program →</Link></div>
               </div>
             </div>
           </article>
