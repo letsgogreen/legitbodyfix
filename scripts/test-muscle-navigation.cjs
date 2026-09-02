@@ -52,6 +52,30 @@ for (const name of ['muscleRegion', 'muscleInRegion', 'muscleFunctionalRoles', '
   vm.runInContext(extract(name), context);
 }
 const regions = ['head-neck', 'shoulder-scapula', 'elbow-forearm', 'wrist-hand', 'thoracic-spine', 'lumbar-spine', 'pelvis-hip', 'knee', 'foot-ankle'];
+// Visual group overview uses the same membership and click behavior as the tabs.
+context.grid = node();
+context.grid.scrollIntoView = () => {};
+context.document.createElement = node;
+context.muscleGroupFilters.querySelector = () => null;
+vm.runInContext(source.slice(source.indexOf('  var collectiveNeckGroupImages ='), source.indexOf('  var muscleFamilyOrder =')), context);
+context.muscleRegions = {};
+vm.runInContext(extract('renderMuscleGroupCards'), context);
+for (const region of regions) {
+  context.activeMuscleRegion = region;
+  context.activeMuscleGroup = 'all';
+  context.updateMuscleGroupFilters();
+  const expected = context.muscleGroupFilters.children.length - 1;
+  assert.equal(context.renderMuscleGroupCards(), expected, region + ' cards must match group tabs');
+  for (const card of context.grid.children) {
+    const media = card.children[0];
+    assert.ok(media.children[0].src, region + ' group card must have an image');
+    media.children[0].error();
+    assert.equal(media.children.length, 1, 'broken images have a readable fallback');
+    card.click();
+    assert.notEqual(context.activeMuscleGroup, 'all', 'group card selects its members');
+  }
+}
+console.log('PASS: image cards, image fallback, and group selection across all regions');
 const published = payload.muscles.filter(item => item && item.published !== false);
 const reached = new Set();
 for (const region of regions) {

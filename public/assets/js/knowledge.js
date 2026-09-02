@@ -1332,6 +1332,55 @@
     muscleGroupFilterShell.hidden = !buttons.length;
   }
 
+  function renderMuscleGroupCards() {
+    var regionalMuscles = data.muscles.filter(function (item) {
+      return item && item.published !== false && muscleInRegion(item, activeMuscleRegion);
+    });
+    var groupNames = activeMuscleRegion === "head-neck"
+      ? Array.from(new Set(regionalMuscles.flatMap(neckDirectoryGroups)))
+      : orderedMuscleGroups(regionalMuscles);
+    var cards = groupNames.map(function (groupName) {
+      var members = regionalMuscles.filter(function (item) {
+        return activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(groupName) !== -1 : muscleSectionGroup(item) === groupName;
+      });
+      var representative = members.find(function (item) { return item.imageUrl; });
+      var groupImage = collectiveNeckGroupImages[groupName];
+      var reference = groupImage || representative || muscleRegions[activeMuscleRegion];
+      var card = element("button", "knowledge-card has-media muscle-group-card");
+      card.type = "button";
+      var countLabel = members.length + (members.length === 1 ? " muscle" : " muscles");
+      card.setAttribute("aria-label", "Explore " + groupName + ", " + countLabel);
+      var media = element("span", "knowledge-card-media");
+      var image = document.createElement("img");
+      image.src = reference.imageUrl;
+      image.alt = reference.imageAlt || (groupName + " anatomy reference");
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.addEventListener("error", function () {
+        media.replaceChildren(element("span", "muscle-card-image-fallback", "Image unavailable · " + groupName));
+      });
+      media.append(image);
+      card.append(media,
+        element("span", "knowledge-card-type", "Muscle group · " + countLabel),
+        element("h3", "", groupName),
+        element("p", "muscle-group-reference", groupImage ? groupImage.label : representative ? "Representative muscle: " + representative.title : "Regional anatomy reference"),
+        element("span", "knowledge-card-link", "Explore muscles →")
+      );
+      card.addEventListener("click", function () {
+        activeMuscleGroup = groupName;
+        updateFunctionOptions();
+        updateMuscleGroupFilters();
+        render();
+        var selectedTab = muscleGroupFilters.querySelector('[aria-selected="true"]');
+        if (selectedTab) selectedTab.focus({ preventScroll: true });
+        grid.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return card;
+    });
+    grid.replaceChildren.apply(grid, cards);
+    return cards.length;
+  }
+
   function renderNeckDirectory(regionRecords, section, heading) {
     var collectiveIds = new Set();
     var directoryEntries = collectiveNeckGroups.map(function (groupName) {
@@ -1600,10 +1649,10 @@
     }
     if (activeType === "muscles" && activeMuscleGroup === "all" && !query) {
       grid.replaceChildren();
-      grid.hidden = true;
+      grid.hidden = activeMuscleRegion === "all";
       grid.classList.remove("is-grouped");
       grid.setAttribute("aria-busy", "false");
-      status.textContent = activeMuscleRegion === "all" ? "01 / Choose a body region, or search for a muscle by name." : "02 / Choose a muscle group above to see individual muscles. Movement is an optional filter.";
+      status.textContent = activeMuscleRegion === "all" ? "01 / Choose a body region, or search for a muscle by name." : "02 / Choose a muscle group below · " + renderMuscleGroupCards() + " groups. Movement filters apply after choosing a group.";
       return;
     }
     grid.hidden = false;
