@@ -261,7 +261,7 @@
   background: color-mix(in srgb, var(--panel) 68%, transparent);
 }
 
-.muscle-tools[hidden] { display: none; }
+.muscle-tools[hidden], .muscle-action-browser[hidden], .muscle-tool-selects[hidden], .muscle-atlas[hidden] { display: none; }
 
 .muscle-directory-controls {
   flex: 1 1 100%;

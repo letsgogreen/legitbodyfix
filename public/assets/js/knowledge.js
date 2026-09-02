@@ -670,7 +670,7 @@
 
   function positionMuscleDirectoryControls() {
     if (!muscleDirectoryControls) return;
-    var placeBelowDirectory = activeType === "muscles" && activeMuscleRegion === "head-neck";
+    var placeBelowDirectory = false;
     muscleDirectoryControls.hidden = activeType !== "muscles";
     muscleDirectoryControls.classList.toggle("is-below-directory", placeBelowDirectory);
     if (placeBelowDirectory) {
@@ -760,8 +760,8 @@
       muscleSelectionRegion.textContent = activeMuscleRegion === "all" ? "All body areas" : muscleRegions[activeMuscleRegion].title;
     }
     if (muscleSelectionAction) {
-      muscleSelectionAction.textContent = activeMuscleFunction === "all" ? "Choose a movement" : pluralRole(activeMuscleFunction);
-      muscleSelectionAction.classList.toggle("is-selected", activeMuscleFunction !== "all");
+      muscleSelectionAction.textContent = activeMuscleGroup === "all" ? "Choose a muscle group" : activeMuscleGroup;
+      muscleSelectionAction.classList.toggle("is-selected", activeMuscleGroup !== "all");
     }
     muscleActionTitle.textContent = activeMuscleRegion === "all"
       ? "What action are you looking for?"
@@ -1248,14 +1248,18 @@
   }
 
   function updateFunctionOptions() {
-    var availableMuscles = data.muscles.filter(function (item) { return item && item.published !== false; });
+    var availableMuscles = data.muscles.filter(function (item) {
+      return item && item.published !== false &&
+        (activeMuscleRegion === "all" || muscleInRegion(item, activeMuscleRegion)) &&
+        (activeMuscleGroup === "all" || (activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(activeMuscleGroup) !== -1 : muscleSectionGroup(item) === activeMuscleGroup));
+    });
     Array.from(muscleFunction.options).forEach(function (option) {
       if (!option.dataset.baseLabel) option.dataset.baseLabel = option.textContent;
       var count = option.value === "all"
         ? availableMuscles.length
         : availableMuscles.filter(function (item) { return muscleFunctionalRoles(item).indexOf(option.value) !== -1; }).length;
       option.textContent = option.dataset.baseLabel + " (" + count + ")";
-      option.disabled = false;
+      option.disabled = option.value !== "all" && count === 0;
     });
     var selectedOption = muscleFunction.options[muscleFunction.selectedIndex];
     if (selectedOption && selectedOption.disabled) {
@@ -1277,19 +1281,18 @@
   }
 
   function updateMuscleGroupFilters() {
-    if (activeMuscleRegion === "all" || activeMuscleFunction === "all") {
+    if (activeMuscleRegion === "all") {
       activeMuscleGroup = "all";
       muscleGroupFilters.replaceChildren();
       muscleGroupFilterShell.hidden = true;
       return;
     }
     var regionalMuscles = data.muscles.filter(function (item) {
-      return item && item.published !== false && muscleInRegion(item, activeMuscleRegion) && muscleFunctionalRoles(item).indexOf(activeMuscleFunction) !== -1;
+      return item && item.published !== false && muscleInRegion(item, activeMuscleRegion);
     });
     var groupNames = activeMuscleRegion === "head-neck"
-      ? Array.from(new Set(regionalMuscles.map(neckDirectoryGroup)))
+      ? Array.from(new Set(regionalMuscles.flatMap(neckDirectoryGroups)))
       : orderedMuscleGroups(regionalMuscles);
-    if (activeMuscleRegion === "head-neck") groupNames = collectiveNeckGroups.filter(function (groupName) { return groupNames.indexOf(groupName) !== -1; });
     if (activeMuscleGroup !== "all" && groupNames.indexOf(activeMuscleGroup) === -1) activeMuscleGroup = "all";
     var buttons = [];
     var overview = element("button", activeMuscleGroup === "all" ? "is-active" : "");
@@ -1314,6 +1317,7 @@
       button.append(document.createTextNode(groupName + " "), element("span", "", String(count)));
       button.addEventListener("click", function () {
         activeMuscleGroup = groupName;
+        updateFunctionOptions();
         updateMuscleGroupFilters();
         render();
       });
@@ -1540,23 +1544,28 @@
 
   function render() {
     var query = search.value.trim().toLowerCase();
+    updateFunctionOptions();
     positionMuscleDirectoryControls();
+    // Movement is an optional filter, never the entry point to the dictionary.
+    muscleActionBrowser.hidden = true;
+    document.querySelector(".muscle-tool-selects").hidden = activeMuscleRegion === "all" && !query;
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
     updateCarePathCounts();
     updateRecipeCounts();
     renderMovementActions();
     renderAtlas();
+    muscleAtlas.hidden = true;
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
-      if (activeType === "muscles" && activeMuscleRegion !== "all" && !muscleInRegion(record.item, activeMuscleRegion)) return false;
+      if (activeType === "muscles" && activeMuscleRegion !== "all" && !query && !muscleInRegion(record.item, activeMuscleRegion)) return false;
       if (activeType === "muscles" && activeMuscleGroup !== "all" && !query) {
         var matchesActiveGroup = activeMuscleRegion === "head-neck"
           ? neckDirectoryGroups(record.item).indexOf(activeMuscleGroup) !== -1
           : muscleSectionGroup(record.item) === activeMuscleGroup;
         if (!matchesActiveGroup) return false;
       }
-      if (activeType === "muscles" && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
-      if (activeType === "muscles" && activeMuscleVisual !== "all" && muscleVisualType(record.item) !== activeMuscleVisual) return false;
+      if (activeType === "muscles" && !query && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
+      if (activeType === "muscles" && !query && activeMuscleVisual !== "all" && muscleVisualType(record.item) !== activeMuscleVisual) return false;
       if (activeType === "recipes" && activeRecipeRegion !== "all" && (record.item.bodyRegion || "Whole body") !== activeRecipeRegion) return false;
       if ((activeType === "conditions" || activeType === "recipes") && activeCarePath !== "all" && carePath(record.item) !== activeCarePath) return false;
       if (!query) return true;
@@ -1568,8 +1577,8 @@
       var relationshipMatch = record.type === "muscles" && relationshipSearchMatch(record.item, query);
       return fieldMatch || roleMatch || relationshipMatch;
     });
-    var groupMuscles = activeType === "muscles" && muscleSort.value === "body" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query;
-    var groupMovementResults = activeType === "muscles" && activeMuscleFunction !== "all" && activeMuscleVisual === "all" && !query;
+    var groupMuscles = false;
+    var groupMovementResults = false;
     var groupRecipes = activeType === "recipes" && !query;
     var groupConditions = activeType === "conditions" && activeCarePath === "musculoskeletal-condition" && !query;
     var groupPosture = activeType === "conditions" && activeCarePath === "postural-movement" && !query;
@@ -1584,12 +1593,12 @@
       status.textContent = "Choose a collection above, or search across all resources.";
       return;
     }
-    if (activeType === "muscles" && activeMuscleRegion === "all" && activeMuscleFunction === "all" && activeMuscleVisual === "all" && !query) {
+    if (activeType === "muscles" && activeMuscleGroup === "all" && !query) {
       grid.replaceChildren();
       grid.hidden = true;
       grid.classList.remove("is-grouped");
       grid.setAttribute("aria-busy", "false");
-      status.textContent = activeMuscleRegion === "all" ? "Choose a movement action, or narrow the action cards by body region." : "Choose a " + muscleRegions[activeMuscleRegion].title.toLowerCase() + " action above to reveal its muscle families.";
+      status.textContent = activeMuscleRegion === "all" ? "01 / Choose a body region, or search for a muscle by name." : "02 / Choose a muscle group above to see individual muscles. Movement is an optional filter.";
       return;
     }
     grid.hidden = false;
@@ -1643,6 +1652,8 @@
   muscleRegionButtons.forEach(function (button) {
     button.addEventListener("click", function () {
       activeMuscleRegion = button.dataset.muscleRegion;
+      activeMuscleFunction = "all";
+      muscleFunction.value = "all";
       activeMuscleGroup = "all";
       muscleRegionButtons.forEach(function (candidate) { var selected = candidate === button; candidate.classList.toggle("is-active", selected); candidate.setAttribute("aria-pressed", String(selected)); });
       updateFunctionOptions();
@@ -1652,15 +1663,6 @@
   });
   muscleFunction.addEventListener("change", function () {
     activeMuscleFunction = muscleFunction.value;
-    activeMuscleGroup = "all";
-    if (activeMuscleFunction !== "all") {
-      activeMuscleRegion = "all";
-      muscleRegionButtons.forEach(function (candidate) {
-        var selected = candidate.dataset.muscleRegion === "all";
-        candidate.classList.toggle("is-active", selected);
-        candidate.setAttribute("aria-pressed", String(selected));
-      });
-    }
     updateMuscleGroupFilters();
     render();
   });
