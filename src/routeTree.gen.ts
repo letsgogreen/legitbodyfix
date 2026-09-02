@@ -14,8 +14,12 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as MovementCheckRouteImport } from './routes/movement-check'
 import { Route as MusclesRouteImport } from './routes/muscles'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as Ver1RouteImport } from './routes/ver1'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAnatomyPreviewRouteImport } from './routes/admin.anatomy-preview'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminGuidesRouteImport } from './routes/admin.guides'
@@ -68,6 +72,21 @@ const MusclesRoute = MusclesRouteImport.update({
   path: '/muscles',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Ver1Route = Ver1RouteImport.update({
   id: '/ver1',
   path: '/ver1',
@@ -76,6 +95,11 @@ const Ver1Route = Ver1RouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnatomyPreviewRoute = AdminAnatomyPreviewRouteImport.update({
+  id: '/anatomy-preview',
+  path: '/anatomy-preview',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminContentRoute = AdminContentRouteImport.update({
@@ -216,7 +240,11 @@ export interface FileRoutesByFullPath {
   '/library': typeof LibraryRouteWithChildren
   '/movement-check': typeof MovementCheckRoute
   '/muscles': typeof MusclesRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/terms': typeof TermsRoute
   '/ver1': typeof Ver1RouteWithChildren
+  '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -248,6 +276,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/movement-check': typeof MovementCheckRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/terms': typeof TermsRoute
+  '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -283,7 +315,11 @@ export interface FileRoutesById {
   '/library': typeof LibraryRouteWithChildren
   '/movement-check': typeof MovementCheckRoute
   '/muscles': typeof MusclesRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/terms': typeof TermsRoute
   '/ver1': typeof Ver1RouteWithChildren
+  '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -320,7 +356,11 @@ export interface FileRouteTypes {
     | '/library'
     | '/movement-check'
     | '/muscles'
+    | '/privacy'
+    | '/refund-policy'
+    | '/terms'
     | '/ver1'
+    | '/admin/anatomy-preview'
     | '/admin/content'
     | '/admin/customers'
     | '/admin/guides'
@@ -352,6 +392,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/movement-check'
+    | '/privacy'
+    | '/refund-policy'
+    | '/terms'
+    | '/admin/anatomy-preview'
     | '/admin/content'
     | '/admin/customers'
     | '/admin/guides'
@@ -386,7 +430,11 @@ export interface FileRouteTypes {
     | '/library'
     | '/movement-check'
     | '/muscles'
+    | '/privacy'
+    | '/refund-policy'
+    | '/terms'
     | '/ver1'
+    | '/admin/anatomy-preview'
     | '/admin/content'
     | '/admin/customers'
     | '/admin/guides'
@@ -422,6 +470,9 @@ export interface RootRouteChildren {
   LibraryRoute: typeof LibraryRouteWithChildren
   MovementCheckRoute: typeof MovementCheckRoute
   MusclesRoute: typeof MusclesRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  TermsRoute: typeof TermsRoute
   Ver1Route: typeof Ver1RouteWithChildren
   ApiCloudflareStreamWebhookRoute: typeof ApiCloudflareStreamWebhookRoute
   CheckoutCompleteRoute: typeof CheckoutCompleteRoute
@@ -468,6 +519,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MusclesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ver1': {
       id: '/ver1'
       path: '/ver1'
@@ -480,6 +552,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/anatomy-preview': {
+      id: '/admin/anatomy-preview'
+      path: '/anatomy-preview'
+      fullPath: '/admin/anatomy-preview'
+      preLoaderRoute: typeof AdminAnatomyPreviewRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/content': {
@@ -668,6 +747,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAnatomyPreviewRoute: typeof AdminAnatomyPreviewRoute
   AdminContentRoute: typeof AdminContentRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminGuidesRoute: typeof AdminGuidesRoute
@@ -684,6 +764,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnatomyPreviewRoute: AdminAnatomyPreviewRoute,
   AdminContentRoute: AdminContentRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminGuidesRoute: AdminGuidesRoute,
@@ -759,6 +840,9 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryRoute: LibraryRouteWithChildren,
   MovementCheckRoute: MovementCheckRoute,
   MusclesRoute: MusclesRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  TermsRoute: TermsRoute,
   Ver1Route: Ver1RouteWithChildren,
   ApiCloudflareStreamWebhookRoute: ApiCloudflareStreamWebhookRoute,
   CheckoutCompleteRoute: CheckoutCompleteRoute,
