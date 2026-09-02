@@ -1612,6 +1612,10 @@
     else if (groupPosture) renderPostureGroups(records);
     else grid.replaceChildren.apply(grid, records.map(createCard));
     grid.setAttribute("aria-busy", "false");
+    if (activeType === "muscles" && query) {
+      status.textContent = records.length + " muscles matching your search across all regions (filters bypassed).";
+      return;
+    }
     status.textContent = activeType === "muscles"
       ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 9 anatomical regions" : " in this anatomical region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
       : activeType === "recipes"
