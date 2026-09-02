@@ -261,6 +261,7 @@
     var title = String(item && item.title || "").toLowerCase();
     var family = String(item && item.family || "").toLowerCase();
     var groups = [];
+    if (title === "levator scapulae") groups.push("Upper back");
     if (family === "prevertebral muscles" || ["longus colli", "longus capitis", "rectus capitis anterior", "rectus capitis lateralis"].indexOf(title) !== -1) groups.push("Deep neck flexors");
     if (family === "splenius" || title.indexOf("splenius ") === 0) groups.push("Splenius muscles");
     if (title.indexOf("capitis") !== -1) groups.push("Capitis muscles");
