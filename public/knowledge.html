@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="assets/css/knowledge.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/knowledge-detail.css?v=20260817-4" />
   <link rel="stylesheet" href="assets/css/knowledge-related.css?v=20260802-2" />
-  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260903-3" />
+  <link rel="stylesheet" href="assets/css/muscle-dictionary.css?v=20260903-8" />
   <link rel="stylesheet" href="assets/css/public-responsive-fixes.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260814-1" />
   <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260801-1" />
@@ -61,35 +61,16 @@
         </section>
         <div class="muscle-directory-controls" id="muscleDirectoryControls">
         <div class="muscle-path-heading">
-          <div><p class="eyebrow">01 / Choose a body area</p><h3>Start where movement feels limited.</h3></div>
-          <p>Choose a body region, then a muscle group to see individual muscles. Search by name to skip these steps.</p>
+          <div><p class="eyebrow">Start by body region</p><h3 id="muscleRegionHeading">Explore by body region</h3><p id="muscleRegionDescription">Choose one of six body regions, then explore its muscle groups.</p></div>
+          <p class="muscle-region-note">An anatomy reference, not a diagnosis. Explore each muscle’s attachments, actions, and relationships.</p>
         </div>
         <div class="muscle-region-filters" role="group" aria-label="Filter muscles by body region">
-          <button class="is-active muscle-region-all" type="button" data-muscle-region="all" aria-pressed="true">All muscles <span data-region-count="all"></span></button>
-          <div class="muscle-filter-section">
-            <span class="muscle-filter-heading">Upper quarter</span>
-            <div class="muscle-filter-row">
-              <button type="button" data-muscle-region="head-neck" aria-pressed="false">Neck <span data-region-count="head-neck"></span></button>
-              <button type="button" data-muscle-region="shoulder-scapula" aria-pressed="false">Shoulder &amp; Scapula <span data-region-count="shoulder-scapula"></span></button>
-              <button type="button" data-muscle-region="elbow-forearm" aria-pressed="false">Elbow &amp; Forearm <span data-region-count="elbow-forearm"></span></button>
-              <button type="button" data-muscle-region="wrist-hand" aria-pressed="false">Wrist &amp; Hand <span data-region-count="wrist-hand"></span></button>
-            </div>
-          </div>
-          <div class="muscle-filter-section">
-            <span class="muscle-filter-heading">Trunk</span>
-            <div class="muscle-filter-row">
-              <button type="button" data-muscle-region="thoracic-spine" aria-pressed="false">Thoracic Spine <span data-region-count="thoracic-spine"></span></button>
-              <button type="button" data-muscle-region="lumbar-spine" aria-pressed="false">Lumbar Spine <span data-region-count="lumbar-spine"></span></button>
-            </div>
-          </div>
-          <div class="muscle-filter-section">
-            <span class="muscle-filter-heading">Lower quarter</span>
-            <div class="muscle-filter-row">
-              <button type="button" data-muscle-region="pelvis-hip" aria-pressed="false">Pelvis &amp; Hip <span data-region-count="pelvis-hip"></span></button>
-              <button type="button" data-muscle-region="knee" aria-pressed="false">Knee <span data-region-count="knee"></span></button>
-              <button type="button" data-muscle-region="foot-ankle" aria-pressed="false">Foot &amp; Ankle <span data-region-count="foot-ankle"></span></button>
-            </div>
-          </div>
+          <button type="button" data-muscle-region="head-neck" aria-pressed="false">Head &amp; Neck <span data-region-count="head-neck"></span></button>
+          <button type="button" data-muscle-region="shoulder-arm" aria-pressed="false">Shoulder &amp; Arm <span data-region-count="shoulder-arm"></span></button>
+          <button type="button" data-muscle-region="spine-rib-cage" aria-pressed="false">Spine &amp; Rib Cage <span data-region-count="spine-rib-cage"></span></button>
+          <button type="button" data-muscle-region="pelvis-hip" aria-pressed="false">Hip &amp; Pelvis <span data-region-count="pelvis-hip"></span></button>
+          <button type="button" data-muscle-region="knee" aria-pressed="false">Knee <span data-region-count="knee"></span></button>
+          <button type="button" data-muscle-region="foot-ankle" aria-pressed="false">Ankle &amp; Foot <span data-region-count="foot-ankle"></span></button>
         </div>
         <div class="muscle-selection-summary" aria-live="polite">
           <span>Your path</span>
@@ -101,7 +82,8 @@
           <span class="muscle-group-filter-label">02 / Choose a muscle group</span>
           <div class="muscle-group-filters" id="muscleGroupFilters" role="tablist" aria-label="Choose a muscle group"></div>
         </div>
-        <div class="muscle-tool-selects">
+        <button id="muscleFunctionBrowse" class="muscle-function-browse" type="button" aria-expanded="false" aria-controls="muscleFunctionControls" hidden>Find by movement</button>
+        <div class="muscle-tool-selects" id="muscleFunctionControls">
           <label class="muscle-function"><span>Movement · optional filter</span><select id="muscleFunction">
             <option value="all">All functions</option>
             <optgroup label="Neck"><option value="Neck flexor">Neck flexors</option><option value="Neck extensor">Neck extensors</option><option value="Neck lateral flexor">Neck lateral flexors</option><option value="Neck rotator">Neck rotators</option></optgroup>
@@ -159,6 +141,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="index.html"><span>LBF</span><strong>LEGITBODYFIX</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260903-6" defer></script>
+  <script src="assets/js/knowledge.js?v=20260903-8" defer></script>
 </body>
 </html>

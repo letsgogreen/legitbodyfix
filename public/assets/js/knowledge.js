@@ -28,6 +28,8 @@
   var muscleSelectionAction = document.getElementById("muscleSelectionAction");
   var muscleAtlasTitle = document.getElementById("muscleAtlasTitle");
   var muscleFunction = document.getElementById("muscleFunction");
+  var muscleFunctionBrowse = document.getElementById("muscleFunctionBrowse");
+  var muscleFunctionBrowseOpen = false;
   var muscleVisual = document.getElementById("muscleVisual");
   var muscleSort = document.getElementById("muscleSort");
   var muscleReset = document.getElementById("muscleReset");
@@ -79,6 +81,20 @@
     "pelvis-hip": { title: "Pelvis & Hip", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430.png", imageAlt: "Gray's Anatomy plate of pelvic and hip muscles", credit: "Gray's Anatomy, figure 430 · public domain", creditUrl: "https://commons.wikimedia.org/wiki/File:1918_edition_of_Gray%27s_Anatomy_of_the_Human_Body%2C_fig_430.png" },
     knee: { title: "Knee", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Rectus_femoris.png", imageAlt: "Anatomy plate of a major knee extensor and the anterior thigh", credit: "Wikimedia Commons anatomy plate", creditUrl: "https://commons.wikimedia.org/wiki/File:Rectus_femoris.png" },
     "foot-ankle": { title: "Foot & Ankle", imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/1124_Intrinsic_Muscles_of_the_Foot_a.png", imageAlt: "OpenStax plate of foot and ankle muscles", credit: "OpenStax College · CC BY 3.0", creditUrl: "https://commons.wikimedia.org/wiki/File:1124_Intrinsic_Muscles_of_the_Foot_a.png" }
+  };
+  // Six public entry points; keep the original anatomical regions for data compatibility.
+  muscleRegions["head-neck"].title = "Head & Neck";
+  muscleRegions["pelvis-hip"].title = "Hip & Pelvis";
+  muscleRegions["foot-ankle"].title = "Ankle & Foot";
+  muscleRegions["shoulder-arm"] = Object.assign({}, muscleRegions["shoulder-scapula"], { title: "Shoulder & Arm" });
+  muscleRegions["spine-rib-cage"] = Object.assign({}, muscleRegions["thoracic-spine"], { title: "Spine & Rib Cage" });
+  var muscleRegionDescriptions = {
+    "head-neck": "Explore the muscles of the head, neck, and upper back, from superficial layers to the deep cervical groups.",
+    "shoulder-arm": "Explore shoulder and scapular muscles, then the upper arm, forearm, wrist, and hand.",
+    "spine-rib-cage": "Explore the muscles around the spine and rib cage, including the back, abdominal wall, and breathing muscles.",
+    "pelvis-hip": "Explore the hip and pelvic muscles, including the deep hip rotators and pelvic floor.",
+    knee: "Explore the thigh and knee muscle groups involved in bending, straightening, and rotation.",
+    "foot-ankle": "Explore the lower-leg and foot muscle groups, from the calf to the intrinsic muscles of the foot."
   };
   var muscleRegionSections = [
     { title: "Upper quarter", description: "Cervical, shoulder, arm, forearm, wrist, and hand anatomy.", regions: ["head-neck", "shoulder-scapula", "elbow-forearm", "wrist-hand"] },
@@ -467,6 +483,8 @@
   }
 
   function muscleInRegion(item, region) {
+    if (region === "shoulder-arm") return ["shoulder-scapula", "elbow-forearm", "wrist-hand"].some(function (part) { return muscleInRegion(item, part); });
+    if (region === "spine-rib-cage") return ["thoracic-spine", "lumbar-spine"].some(function (part) { return muscleInRegion(item, part); });
     if (muscleRegion(item) === region) return true;
     var title = String(item && item.title || "").toLowerCase();
     if (region === "head-neck" && title === "upper trapezius") return true;
@@ -648,7 +666,7 @@
     document.body.classList.toggle("muscle-directory-mode", type === "muscles");
     if (type === "muscles") {
       directoryEyebrow.textContent = "Muscle atlas / 179 references";
-      directoryTitle.textContent = "Explore anatomy by region and function.";
+      directoryTitle.textContent = "Muscle dictionary";
       directorySearchLabel.textContent = "Search muscles, actions, attachments, and relationships";
       search.placeholder = "Try infraspinatus, shoulder external rotation, or origin: scapula";
     } else {
@@ -764,8 +782,8 @@
       muscleSelectionRegion.textContent = activeMuscleRegion === "all" ? "All body areas" : muscleRegions[activeMuscleRegion].title;
     }
     if (muscleSelectionAction) {
-      muscleSelectionAction.textContent = activeMuscleGroup === "all" ? "Choose a muscle group" : activeMuscleGroup;
-      muscleSelectionAction.classList.toggle("is-selected", activeMuscleGroup !== "all");
+      muscleSelectionAction.textContent = (activeMuscleGroup === "all" ? (activeMuscleFunction === "all" ? "Choose a muscle group" : "All muscle groups") : activeMuscleGroup) + (activeMuscleFunction === "all" ? "" : " → " + pluralRole(activeMuscleFunction));
+      muscleSelectionAction.classList.toggle("is-selected", activeMuscleGroup !== "all" || activeMuscleFunction !== "all");
     }
     muscleActionTitle.textContent = activeMuscleRegion === "all"
       ? "What action are you looking for?"
@@ -1311,6 +1329,8 @@
     overview.append(document.createTextNode("Choose a group "), element("span", "", String(regionalMuscles.length)));
     overview.addEventListener("click", function () {
       activeMuscleGroup = "all";
+      activeMuscleFunction = "all";
+      muscleFunction.value = "all";
       updateMuscleGroupFilters();
       render();
     });
@@ -1600,13 +1620,22 @@
     grid.replaceChildren.apply(grid, sections);
   }
 
+  function shouldShowMuscleGroupOverview(query) {
+    return activeType === "muscles" && activeMuscleGroup === "all" && activeMuscleFunction === "all" && !query;
+  }
+
   function render() {
     var query = search.value.trim().toLowerCase();
+    document.getElementById("muscleRegionHeading").textContent = activeMuscleRegion === "all" ? "Explore by body region" : muscleRegions[activeMuscleRegion].title;
+    document.getElementById("muscleRegionDescription").textContent = muscleRegionDescriptions[activeMuscleRegion] || "Choose one of six body regions, explore a muscle group, then open an individual muscle. Or search directly by name.";
     updateFunctionOptions();
     positionMuscleDirectoryControls();
     // Movement is an optional filter, never the entry point to the dictionary.
     muscleActionBrowser.hidden = true;
-    document.querySelector(".muscle-tool-selects").hidden = activeMuscleRegion === "all" && !query;
+    muscleFunctionBrowse.hidden = activeMuscleRegion === "all" || activeMuscleGroup !== "all" || Boolean(query);
+    muscleFunctionBrowse.setAttribute("aria-expanded", String(muscleFunctionBrowseOpen));
+    muscleFunctionBrowse.textContent = muscleFunctionBrowseOpen ? "Back to muscle groups" : "Find by movement";
+    document.querySelector(".muscle-tool-selects").hidden = (activeMuscleGroup === "all" && !muscleFunctionBrowseOpen) || activeMuscleRegion === "all" || Boolean(query);
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
     updateCarePathCounts();
     updateRecipeCounts();
@@ -1651,12 +1680,13 @@
       status.textContent = "Choose a collection above, or search across all resources.";
       return;
     }
-    if (activeType === "muscles" && activeMuscleGroup === "all" && !query) {
+    if (shouldShowMuscleGroupOverview(query)) {
       grid.replaceChildren();
       grid.hidden = activeMuscleRegion === "all";
       grid.classList.remove("is-grouped");
       grid.setAttribute("aria-busy", "false");
-      status.textContent = activeMuscleRegion === "all" ? "01 / Choose a body region, or search for a muscle by name." : "02 / Choose a muscle group below · " + renderMuscleGroupCards() + " groups. Movement filters apply after choosing a group.";
+      status.textContent = activeMuscleRegion === "all" ? "01 / Choose a body region, or search for a muscle by name." : "02 / Choose a muscle group below · " + renderMuscleGroupCards() + " groups. Or use Find by movement.";
+      if (muscleFunctionBrowseOpen && activeMuscleRegion !== "all") status.textContent = "Choose a movement above to find matching muscles across this body region, or choose a muscle group below.";
       return;
     }
     grid.hidden = false;
@@ -1674,7 +1704,7 @@
       return;
     }
     status.textContent = activeType === "muscles"
-      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across 9 anatomical regions" : " in this anatomical region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
+      ? records.length + (records.length === 1 ? " muscle" : " muscles") + (activeMuscleFunction === "all" ? (activeMuscleRegion === "all" ? " across six body regions" : " in this anatomical region") : " matching " + activeMuscleFunction.toLowerCase()) + (activeMuscleVisual === "focused" ? " with a highlighted anatomy image" : activeMuscleVisual === "regional" ? " using a regional anatomy reference" : "")
       : activeType === "recipes"
         ? records.length + (records.length === 1 ? " correction recipe" : " correction recipes") + (activeCarePath === "all" ? " across both pathways" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (activeRecipeRegion === "all" ? ", grouped by body area" : " for " + activeRecipeRegion.toLowerCase())
         : records.length + (records.length === 1 ? " movement or recovery guide" : " movement and recovery guides") + (activeCarePath === "all" ? "" : " in " + carePaths[activeCarePath].label.toLowerCase()) + (groupConditions ? ", grouped by condition family" : groupPosture ? ", grouped by body area" : "");
@@ -1713,6 +1743,7 @@
   });
   muscleRegionButtons.forEach(function (button) {
     button.addEventListener("click", function () {
+      muscleFunctionBrowseOpen = false;
       activeMuscleRegion = button.dataset.muscleRegion;
       activeMuscleFunction = "all";
       muscleFunction.value = "all";
@@ -1722,6 +1753,17 @@
       updateMuscleGroupFilters();
       render();
     });
+  });
+  muscleFunctionBrowse.addEventListener("click", function () {
+    muscleFunctionBrowseOpen = !muscleFunctionBrowseOpen;
+    if (!muscleFunctionBrowseOpen) {
+      activeMuscleFunction = "all";
+      muscleFunction.value = "all";
+      activeMuscleVisual = "all";
+      muscleVisual.value = "all";
+    }
+    render();
+    if (muscleFunctionBrowseOpen) muscleFunction.focus();
   });
   muscleFunction.addEventListener("change", function () {
     activeMuscleFunction = muscleFunction.value;
@@ -1734,6 +1776,7 @@
   });
   muscleSort.addEventListener("change", render);
   muscleReset.addEventListener("click", function () {
+    muscleFunctionBrowseOpen = false;
     activeMuscleRegion = "all";
     activeMuscleGroup = "all";
     activeMuscleFunction = "all";

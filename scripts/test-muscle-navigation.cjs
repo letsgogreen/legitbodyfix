@@ -41,6 +41,28 @@ assert.equal(context.activeMuscleRegion, 'foot');
 assert.equal(context.activeMuscleGroup, 'Calf');
 assert.equal(context.activeMuscleFunction, 'Plantarflexion');
 console.log('PASS: region-first groups, scoped actions, and selection preservation');
+// Region -> movement works without selecting a group, and closing restores group browsing.
+context.activeType = 'muscles';
+context.activeMuscleGroup = 'all';
+context.activeMuscleFunction = 'all';
+context.muscleFunctionBrowseOpen = false;
+context.muscleVisual = { value: 'all' };
+context.muscleFunction.focus = () => {};
+vm.runInContext(extract('shouldShowMuscleGroupOverview'), context);
+const toggleMovement = source.match(/muscleFunctionBrowse.addEventListener\("click", function \(\) \{([\s\S]*?)\n  \}\);/)[1];
+assert.equal(context.shouldShowMuscleGroupOverview(''), true);
+vm.runInContext(toggleMovement, context);
+assert.equal(context.muscleFunctionBrowseOpen, true);
+context.muscleFunction.value = 'Plantarflexion';
+vm.runInContext(change, context);
+assert.equal(context.activeMuscleGroup, 'all');
+assert.equal(context.activeMuscleRegion, 'foot');
+assert.equal(context.shouldShowMuscleGroupOverview(''), false, 'movement-only selection must render individual results');
+vm.runInContext(toggleMovement, context);
+assert.equal(context.activeMuscleFunction, 'all');
+assert.equal(context.shouldShowMuscleGroupOverview(''), true);
+assert.equal(context.shouldShowMuscleGroupOverview('soleus'), false, 'search must bypass group overview');
+console.log('PASS: region-to-movement selection, group return, and search bypass');
 
 // Audit the complete existing dictionary, not only sample fixtures.
 const payload = JSON.parse(fs.readFileSync('public/assets/data/knowledge-base.json', 'utf8'));
@@ -51,7 +73,9 @@ for (const name of ['movementTagOrder', 'muscleGroupOrder']) {
 for (const name of ['muscleRegion', 'muscleInRegion', 'muscleFunctionalRoles', 'muscleSectionGroup', 'neckDirectoryGroups', 'orderedMuscleGroups']) {
   vm.runInContext(extract(name), context);
 }
-const regions = ['head-neck', 'shoulder-scapula', 'elbow-forearm', 'wrist-hand', 'thoracic-spine', 'lumbar-spine', 'pelvis-hip', 'knee', 'foot-ankle'];
+const regions = ['head-neck', 'shoulder-arm', 'spine-rib-cage', 'pelvis-hip', 'knee', 'foot-ankle'];
+const html = fs.readFileSync('public/knowledge.html', 'utf8');
+assert.deepEqual([...html.matchAll(/data-muscle-region="([^"]+)"/g)].map(match => match[1]), regions, 'exactly six public region tabs');
 // Visual group overview uses the same membership and click behavior as the tabs.
 context.grid = node();
 context.grid.scrollIntoView = () => {};
@@ -122,7 +146,11 @@ for (const region of regions) {
   console.log(region + ': ' + groups.length + ' groups / ' + covered.size + ' muscles reachable');
 }
 assert.equal(reached.size, published.length, 'every published muscle must be reachable');
-console.log('PASS: all ' + published.length + ' published muscles reachable across 9 regions');
+console.log('PASS: all ' + published.length + ' published muscles reachable across six public regions');
+for (const [parent, children] of [['shoulder-arm', ['shoulder-scapula', 'elbow-forearm', 'wrist-hand']], ['spine-rib-cage', ['thoracic-spine', 'lumbar-spine']]]) {
+  const expected = published.filter(item => children.some(region => context.muscleInRegion(item, region))).map(item => item.id);
+  assert.deepEqual(published.filter(item => context.muscleInRegion(item, parent)).map(item => item.id), expected, parent + ' preserves union without duplicate records');
+}
 
 context.URL = URL;
 context.window = { location: { href: 'https://example.test/knowledge.html?type=muscles&id=soleus' } };
