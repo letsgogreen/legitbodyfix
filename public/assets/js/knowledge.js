@@ -832,7 +832,11 @@
   function updateUrl(type, id) {
     var url = new URL(window.location.href);
     if (type && id) { url.searchParams.set("type", type); url.searchParams.set("id", id); }
-    else { url.searchParams.delete("type"); url.searchParams.delete("id"); }
+    else {
+      if (labels[activeType]) url.searchParams.set("type", activeType);
+      else url.searchParams.delete("type");
+      url.searchParams.delete("id");
+    }
     history.pushState({}, "", url.pathname + url.search);
   }
 
