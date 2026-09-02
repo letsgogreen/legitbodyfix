@@ -618,6 +618,12 @@
   .muscle-filter-row button { justify-content: space-between; }
 }
 
+.knowledge-card.muscle-group-card { min-width: 0; }
+.muscle-group-card .knowledge-card-media { height: 240px; flex-shrink: 0; }
+.muscle-group-card .knowledge-card-media img { padding: 12px; }
+.muscle-group-card .muscle-group-reference { font-size: 12px; }
+.muscle-group-card:focus-visible { outline: 3px solid var(--ink); outline-offset: -4px; background: var(--lime); }
+
 .muscle-collective-card:hover,
 .muscle-collective-card:focus-visible { background: var(--lime); }
 
