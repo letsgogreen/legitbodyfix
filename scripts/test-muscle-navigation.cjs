@@ -77,6 +77,12 @@ for (const region of regions) {
 }
 console.log('PASS: image cards, image fallback, and group selection across all regions');
 const published = payload.muscles.filter(item => item && item.published !== false);
+const levator = published.find(item => item.id === 'levator-scapulae');
+assert.ok(context.neckDirectoryGroups(levator).includes('Upper back'));
+assert.ok(context.neckDirectoryGroups(levator).includes('Head and neck'), 'retain existing neck membership');
+assert.ok(context.muscleInRegion(levator, 'shoulder-scapula'), 'retain shoulder access');
+const neckUpperBack = published.filter(item => context.muscleInRegion(item, 'head-neck') && context.neckDirectoryGroups(item).includes('Upper back'));
+assert.equal(neckUpperBack.length, 2, 'upper trapezius and levator scapulae in Neck > Upper back');
 const deepHipMembers = published.filter(item => item.group === 'Deep hip');
 assert.equal(deepHipMembers.length, 6);
 for (const item of deepHipMembers) assert.equal(context.muscleSectionGroup(item), 'Deep hip rotators');
