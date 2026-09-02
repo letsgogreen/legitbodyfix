@@ -199,15 +199,25 @@ function AdminMuscles() {
           const referenceCount = liveReferenceCounts[muscle.id] ?? 0;
 
           return (
-            <Panel key={muscle.id} className="overflow-hidden">
-              <div className="relative grid h-64 place-items-center border-b border-border bg-white p-4">
+            <Panel key={muscle.id} className="min-w-0 overflow-hidden">
+              <div className="border-b border-border bg-card p-4">
+                <h2 className="break-words text-xl font-extrabold tracking-tight">
+                  <Link to="/admin/muscles/$muscleId" params={{ muscleId: muscle.id }} className="hover:underline focus-visible:outline focus-visible:outline-2">
+                    {muscle.title}
+                  </Link>
+                </h2>
+                <p className="mt-2 break-words font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                  {muscle.group} {muscle.family ? `· ${muscle.family}` : ""}
+                </p>
+              </div>
+              <div className="relative grid h-64 min-h-0 place-items-center overflow-hidden border-b border-border bg-white">
                 {muscle.imageUrl ? (
                   <img
                     src={muscle.imageUrl}
                     alt={muscle.imageAlt || ""}
                     loading="lazy"
                     referrerPolicy="no-referrer"
-                    className="h-full w-full object-contain"
+                    className="absolute inset-0 h-full w-full object-contain p-4"
                   />
                 ) : (
                   <div className="grid place-items-center gap-2 text-center text-muted-foreground">
@@ -227,10 +237,6 @@ function AdminMuscles() {
                 )}
               </div>
               <div className="p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                  {muscle.group} {muscle.family ? `· ${muscle.family}` : ""}
-                </p>
-                <h2 className="mt-2 text-xl font-extrabold tracking-tight">{muscle.title}</h2>
                 <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-muted-foreground">
                   {muscle.actions || "No function summary yet."}
                 </p>
