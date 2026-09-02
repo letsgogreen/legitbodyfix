@@ -1260,6 +1260,7 @@
         : availableMuscles.filter(function (item) { return muscleFunctionalRoles(item).indexOf(option.value) !== -1; }).length;
       option.textContent = option.dataset.baseLabel + " (" + count + ")";
       option.disabled = option.value !== "all" && count === 0;
+      option.hidden = option.disabled;
     });
     var selectedOption = muscleFunction.options[muscleFunction.selectedIndex];
     if (selectedOption && selectedOption.disabled) {
@@ -1299,7 +1300,7 @@
     overview.type = "button";
     overview.setAttribute("role", "tab");
     overview.setAttribute("aria-selected", String(activeMuscleGroup === "all"));
-    overview.append(document.createTextNode((activeMuscleRegion === "head-neck" ? "Neck directory " : "All groups ")), element("span", "", String(regionalMuscles.length)));
+    overview.append(document.createTextNode("Choose a group "), element("span", "", String(regionalMuscles.length)));
     overview.addEventListener("click", function () {
       activeMuscleGroup = "all";
       updateMuscleGroupFilters();
