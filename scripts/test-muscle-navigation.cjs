@@ -57,7 +57,7 @@ context.grid = node();
 context.grid.scrollIntoView = () => {};
 context.document.createElement = node;
 context.muscleGroupFilters.querySelector = () => null;
-context.collectiveNeckGroupImages = {};
+vm.runInContext(source.slice(source.indexOf('  var collectiveNeckGroupImages ='), source.indexOf('  var muscleFamilyOrder =')), context);
 context.muscleRegions = {};
 vm.runInContext(extract('renderMuscleGroupCards'), context);
 for (const region of regions) {

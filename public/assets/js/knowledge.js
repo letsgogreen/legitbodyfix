@@ -1348,7 +1348,8 @@
       var reference = groupImage || representative || muscleRegions[activeMuscleRegion];
       var card = element("button", "knowledge-card has-media muscle-group-card");
       card.type = "button";
-      card.setAttribute("aria-label", "Explore " + groupName + ", " + members.length + " muscles");
+      var countLabel = members.length + (members.length === 1 ? " muscle" : " muscles");
+      card.setAttribute("aria-label", "Explore " + groupName + ", " + countLabel);
       var media = element("span", "knowledge-card-media");
       var image = document.createElement("img");
       image.src = reference.imageUrl;
@@ -1360,7 +1361,7 @@
       });
       media.append(image);
       card.append(media,
-        element("span", "knowledge-card-type", "Muscle group · " + members.length + " muscles"),
+        element("span", "knowledge-card-type", "Muscle group · " + countLabel),
         element("h3", "", groupName),
         element("p", "muscle-group-reference", groupImage ? groupImage.label : representative ? "Representative muscle: " + representative.title : "Regional anatomy reference"),
         element("span", "knowledge-card-link", "Explore muscles →")
