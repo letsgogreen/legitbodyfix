@@ -41,3 +41,52 @@ assert.equal(context.activeMuscleRegion, 'foot');
 assert.equal(context.activeMuscleGroup, 'Calf');
 assert.equal(context.activeMuscleFunction, 'Plantarflexion');
 console.log('PASS: region-first groups, scoped actions, and selection preservation');
+
+// Audit the complete existing dictionary, not only sample fixtures.
+const payload = JSON.parse(fs.readFileSync('public/assets/data/knowledge-base.json', 'utf8'));
+context.data = payload;
+for (const name of ['movementTagOrder', 'muscleGroupOrder']) {
+  vm.runInContext(source.match(new RegExp('  var ' + name + ' = \\[([\\s\\S]*?)\\];'))[0], context);
+}
+for (const name of ['muscleRegion', 'muscleInRegion', 'muscleFunctionalRoles', 'muscleSectionGroup', 'neckDirectoryGroups', 'orderedMuscleGroups']) {
+  vm.runInContext(extract(name), context);
+}
+const regions = ['head-neck', 'shoulder-scapula', 'elbow-forearm', 'wrist-hand', 'thoracic-spine', 'lumbar-spine', 'pelvis-hip', 'knee', 'foot-ankle'];
+const published = payload.muscles.filter(item => item && item.published !== false);
+const reached = new Set();
+for (const region of regions) {
+  context.activeMuscleRegion = region;
+  context.activeMuscleGroup = 'all';
+  context.activeMuscleFunction = 'all';
+  context.updateMuscleGroupFilters();
+  const regional = published.filter(item => context.muscleInRegion(item, region));
+  const covered = new Set();
+  const groups = context.muscleGroupFilters.children.slice(1);
+  assert.ok(groups.length, region + ' must have groups');
+  for (const button of groups) {
+    button.click();
+    const members = regional.filter(item => region === 'head-neck'
+      ? context.neckDirectoryGroups(item).includes(context.activeMuscleGroup)
+      : context.muscleSectionGroup(item) === context.activeMuscleGroup);
+    assert.ok(members.length, 'no empty group: ' + context.activeMuscleGroup);
+    members.forEach(item => { covered.add(item.id); reached.add(item.id); });
+  }
+  assert.equal(covered.size, regional.length, region + ' must expose every muscle');
+  console.log(region + ': ' + groups.length + ' groups / ' + covered.size + ' muscles reachable');
+}
+assert.equal(reached.size, published.length, 'every published muscle must be reachable');
+console.log('PASS: all ' + published.length + ' published muscles reachable across 9 regions');
+
+context.URL = URL;
+context.window = { location: { href: 'https://example.test/knowledge.html?type=muscles&id=soleus' } };
+context.labels = { muscles: 'Muscles', conditions: 'Conditions', recipes: 'Recipes' };
+context.activeType = 'muscles';
+let destination;
+context.history = { pushState: (_state, _title, url) => { destination = url; } };
+vm.runInContext(extract('updateUrl'), context);
+context.updateUrl();
+assert.equal(destination, '/knowledge.html?type=muscles', 'returning to list must retain muscle collection');
+context.activeType = 'all';
+context.updateUrl();
+assert.equal(destination, '/knowledge.html', 'overview must clear collection');
+console.log('PASS: detail-to-list URLs preserve collection on refresh');
