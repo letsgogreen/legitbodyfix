@@ -39,6 +39,7 @@ const nav: NavItem[] = [
   { to: "/admin/programs", label: "Programs", icon: Dumbbell },
   { to: "/admin/lessons", label: "Lessons & videos", icon: PlaySquare },
   { to: "/admin/muscles", label: "Muscle library", icon: Activity },
+  { to: "/admin/anatomy-preview", label: "Anatomy × program (preview)", icon: Activity },
   { to: "/admin/recipes", label: "Movement content", icon: NotebookPen },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/orders", label: "Orders & access", icon: Receipt },
