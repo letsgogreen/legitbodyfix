@@ -88,7 +88,7 @@
   var muscleGroupOrder = [
     "Head and neck", "Deep neck flexors", "Splenius muscles", "Capitis muscles", "Cervicis muscles", "Hyoid muscles", "Scalenes", "Suboccipital muscles", "Anterior neck", "Lateral neck", "Shoulder girdle", "Chest", "Upper back", "Shoulder", "Rotator cuff",
     "Upper arm", "Forearm", "Hand", "Thorax", "Posterior thorax", "Abdomen", "Back", "Erector spinae", "Deep back",
-    "Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters",
+    "Pelvic floor",
     "Hip and pelvis", "Deep hip", "Anterior thigh", "Medial thigh", "Posterior thigh",
     "Anterior lower leg", "Lateral lower leg", "Posterior lower leg", "Foot"
   ];
@@ -245,6 +245,8 @@
   }
 
   function muscleSectionGroup(item) {
+    // Navigation umbrella only: preserve the original anatomical subgroup in data/detail.
+    if (["Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters"].indexOf(item && item.group) !== -1) return "Pelvic floor";
     var title = String(item && item.title || "").toLowerCase();
     var family = String(item && item.family || "").toLowerCase();
     if (/rectus capitis posterior|obliquus capitis/.test(title)) return "Suboccipital muscles";
