@@ -77,6 +77,20 @@ for (const region of regions) {
 }
 console.log('PASS: image cards, image fallback, and group selection across all regions');
 const published = payload.muscles.filter(item => item && item.published !== false);
+const pelvicSubgroups = ['Pelvic diaphragm', 'Superficial perineum', 'Deep perineum', 'Pelvic sphincters'];
+const pelvicMembers = published.filter(item => pelvicSubgroups.includes(item.group));
+assert.equal(pelvicMembers.length, 13, 'all four pelvic subgroups must retain their 13 records');
+for (const item of pelvicMembers) {
+  assert.equal(context.muscleSectionGroup(item), 'Pelvic floor');
+  assert.ok(pelvicSubgroups.includes(item.group), 'original detail subgroup must be preserved');
+}
+context.activeMuscleRegion = 'pelvis-hip';
+context.activeMuscleGroup = 'all';
+context.updateMuscleGroupFilters();
+const pelvicGroups = context.orderedMuscleGroups(published.filter(item => context.muscleInRegion(item, 'pelvis-hip')));
+assert.equal(pelvicGroups.filter(name => name === 'Pelvic floor').length, 1);
+assert.equal(pelvicGroups.filter(name => pelvicSubgroups.includes(name)).length, 0);
+console.log('PASS: one Pelvic floor group, 13 muscles, original detail subgroups preserved');
 const reached = new Set();
 for (const region of regions) {
   context.activeMuscleRegion = region;
