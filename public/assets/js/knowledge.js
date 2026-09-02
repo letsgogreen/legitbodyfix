@@ -28,6 +28,8 @@
   var muscleSelectionAction = document.getElementById("muscleSelectionAction");
   var muscleAtlasTitle = document.getElementById("muscleAtlasTitle");
   var muscleFunction = document.getElementById("muscleFunction");
+  var muscleFunctionBrowse = document.getElementById("muscleFunctionBrowse");
+  var muscleFunctionBrowseOpen = false;
   var muscleVisual = document.getElementById("muscleVisual");
   var muscleSort = document.getElementById("muscleSort");
   var muscleReset = document.getElementById("muscleReset");
@@ -780,8 +782,8 @@
       muscleSelectionRegion.textContent = activeMuscleRegion === "all" ? "All body areas" : muscleRegions[activeMuscleRegion].title;
     }
     if (muscleSelectionAction) {
-      muscleSelectionAction.textContent = activeMuscleGroup === "all" ? "Choose a muscle group" : activeMuscleGroup;
-      muscleSelectionAction.classList.toggle("is-selected", activeMuscleGroup !== "all");
+      muscleSelectionAction.textContent = (activeMuscleGroup === "all" ? (activeMuscleFunction === "all" ? "Choose a muscle group" : "All muscle groups") : activeMuscleGroup) + (activeMuscleFunction === "all" ? "" : " → " + pluralRole(activeMuscleFunction));
+      muscleSelectionAction.classList.toggle("is-selected", activeMuscleGroup !== "all" || activeMuscleFunction !== "all");
     }
     muscleActionTitle.textContent = activeMuscleRegion === "all"
       ? "What action are you looking for?"
@@ -1327,6 +1329,8 @@
     overview.append(document.createTextNode("Choose a group "), element("span", "", String(regionalMuscles.length)));
     overview.addEventListener("click", function () {
       activeMuscleGroup = "all";
+      activeMuscleFunction = "all";
+      muscleFunction.value = "all";
       updateMuscleGroupFilters();
       render();
     });
@@ -1616,6 +1620,10 @@
     grid.replaceChildren.apply(grid, sections);
   }
 
+  function shouldShowMuscleGroupOverview(query) {
+    return activeType === "muscles" && activeMuscleGroup === "all" && activeMuscleFunction === "all" && !query;
+  }
+
   function render() {
     var query = search.value.trim().toLowerCase();
     document.getElementById("muscleRegionHeading").textContent = activeMuscleRegion === "all" ? "Explore by body region" : muscleRegions[activeMuscleRegion].title;
@@ -1624,7 +1632,10 @@
     positionMuscleDirectoryControls();
     // Movement is an optional filter, never the entry point to the dictionary.
     muscleActionBrowser.hidden = true;
-    document.querySelector(".muscle-tool-selects").hidden = activeMuscleGroup === "all" || Boolean(query);
+    muscleFunctionBrowse.hidden = activeMuscleRegion === "all" || activeMuscleGroup !== "all" || Boolean(query);
+    muscleFunctionBrowse.setAttribute("aria-expanded", String(muscleFunctionBrowseOpen));
+    muscleFunctionBrowse.textContent = muscleFunctionBrowseOpen ? "Back to muscle groups" : "Find by movement";
+    document.querySelector(".muscle-tool-selects").hidden = (activeMuscleGroup === "all" && !muscleFunctionBrowseOpen) || activeMuscleRegion === "all" || Boolean(query);
     knowledgePaths.hidden = activeType !== "all" || Boolean(query);
     updateCarePathCounts();
     updateRecipeCounts();
@@ -1669,12 +1680,13 @@
       status.textContent = "Choose a collection above, or search across all resources.";
       return;
     }
-    if (activeType === "muscles" && activeMuscleGroup === "all" && !query) {
+    if (shouldShowMuscleGroupOverview(query)) {
       grid.replaceChildren();
       grid.hidden = activeMuscleRegion === "all";
       grid.classList.remove("is-grouped");
       grid.setAttribute("aria-busy", "false");
-      status.textContent = activeMuscleRegion === "all" ? "01 / Choose a body region, or search for a muscle by name." : "02 / Choose a muscle group below · " + renderMuscleGroupCards() + " groups. Movement filters apply after choosing a group.";
+      status.textContent = activeMuscleRegion === "all" ? "01 / Choose a body region, or search for a muscle by name." : "02 / Choose a muscle group below · " + renderMuscleGroupCards() + " groups. Or use Find by movement.";
+      if (muscleFunctionBrowseOpen && activeMuscleRegion !== "all") status.textContent = "Choose a movement above to find matching muscles across this body region, or choose a muscle group below.";
       return;
     }
     grid.hidden = false;
@@ -1731,6 +1743,7 @@
   });
   muscleRegionButtons.forEach(function (button) {
     button.addEventListener("click", function () {
+      muscleFunctionBrowseOpen = false;
       activeMuscleRegion = button.dataset.muscleRegion;
       activeMuscleFunction = "all";
       muscleFunction.value = "all";
@@ -1740,6 +1753,17 @@
       updateMuscleGroupFilters();
       render();
     });
+  });
+  muscleFunctionBrowse.addEventListener("click", function () {
+    muscleFunctionBrowseOpen = !muscleFunctionBrowseOpen;
+    if (!muscleFunctionBrowseOpen) {
+      activeMuscleFunction = "all";
+      muscleFunction.value = "all";
+      activeMuscleVisual = "all";
+      muscleVisual.value = "all";
+    }
+    render();
+    if (muscleFunctionBrowseOpen) muscleFunction.focus();
   });
   muscleFunction.addEventListener("change", function () {
     activeMuscleFunction = muscleFunction.value;
@@ -1752,6 +1776,7 @@
   });
   muscleSort.addEventListener("change", render);
   muscleReset.addEventListener("click", function () {
+    muscleFunctionBrowseOpen = false;
     activeMuscleRegion = "all";
     activeMuscleGroup = "all";
     activeMuscleFunction = "all";

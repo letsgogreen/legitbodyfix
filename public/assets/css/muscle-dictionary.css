@@ -871,6 +871,9 @@ body.knowledge-detail-open .knowledge-cta h2 { font-size: clamp(42px, 5vw, 68px)
   body.knowledge-detail-open .knowledge-cta { padding: 48px 0; }
 }
 /* Public six-region navigation, matching the site's body-region pages. */
+.muscle-function-browse { order: 3; min-height: 44px; padding: 10px 16px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); font-weight: 700; cursor: pointer; }
+.muscle-function-browse[hidden] { display: none; }
+.muscle-function-browse:hover, .muscle-function-browse[aria-expanded="true"] { background: var(--ink); color: var(--paper); }
 body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-size: 24px; letter-spacing: -.035em; }
 body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading { padding-bottom: 20px; border-bottom: 1px solid var(--line); }
 body.muscle-directory-mode .muscle-tools { padding: 36px 0 0; border: 0; background: transparent; }
