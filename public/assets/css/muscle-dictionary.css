@@ -278,6 +278,11 @@
 
 .muscle-directory-controls[hidden] { display: none; }
 
+@media (max-width: 360px) {
+  .knowledge-nav { flex-wrap: wrap; gap: 8px; padding-top: 12px; padding-bottom: 12px; }
+  .knowledge-nav-links { margin-left: auto; }
+}
+
 .muscle-directory-controls.is-below-directory {
   width: 100%;
   margin: 26px 0 0;
