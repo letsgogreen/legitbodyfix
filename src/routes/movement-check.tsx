@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, Dumbbell, Layers3 } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { MuscleCard } from "@/components/site/MuscleCard";
+import { listPublishedMuscles } from "@/lib/muscles.functions";
+import type { Muscle } from "@/lib/muscles";
 import {
   bodyRegions,
   findBodyRegion,
@@ -11,6 +14,7 @@ import {
 type MovementCheckSearch = { region?: string };
 
 export const Route = createFileRoute("/movement-check")({
+  loader: () => listPublishedMuscles(),
   validateSearch: (search): MovementCheckSearch => {
     if (typeof search["region"] === "string") return { region: search["region"] };
     return {};
@@ -75,8 +79,10 @@ function ResourceCard({
 
 function MovementCheck() {
   const { region: regionSlug } = Route.useSearch();
+  const { muscles } = Route.useLoaderData();
   const region = findBodyRegion(regionSlug) || bodyRegions[0];
   if (!region) return null;
+  const regionMuscles = muscles.filter((muscle) => muscleBelongsToRegion(muscle, region.slug)).slice(0, 6);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -140,40 +146,28 @@ function MovementCheck() {
           kind="recipe"
         />
 
-        <section className="border-b border-border bg-ink text-ink-foreground">
+        <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
-            <div className="grid gap-10 lg:grid-cols-[0.33fr_1fr]">
-              <div>
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-2xl">
                 <Layers3 className="h-5 w-5" aria-hidden="true" />
-                <p className="mt-5 font-mono text-xs font-bold uppercase tracking-[0.16em] text-ink-foreground/55">
+                <p className="mt-5 font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
                   Understand the anatomy
                 </p>
-                <h2 className="mt-3 text-3xl font-extrabold uppercase">Key muscle groups</h2>
-                <p className="mt-4 text-sm leading-relaxed text-ink-foreground/65">
-                  Explore likely contributors without reducing a movement problem to one muscle.
+                <h2 className="mt-3 text-3xl font-extrabold uppercase">{region.title} muscle dictionary</h2>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  Explore the anatomy, attachments, actions, and source-linked illustrations for this region.
                 </p>
               </div>
-              <div className="grid gap-px overflow-hidden rounded-sm border border-ink-foreground/25 bg-ink-foreground/25 sm:grid-cols-3">
-                {region.muscleGroups.map((resource) => (
-                  <a
-                    key={resource.title}
-                    href={resource.href}
-                    className="group bg-ink p-5 outline-none transition-colors hover:bg-ink-foreground/10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-lg font-bold">{resource.title}</h3>
-                      <ArrowRight
-                        className="mt-1 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <p className="mt-3 text-sm leading-relaxed text-ink-foreground/60">
-                      {resource.description}
-                    </p>
-                  </a>
-                ))}
-              </div>
+              <Link to="/muscles" className="inline-flex min-h-11 shrink-0 items-center gap-2 bg-ink px-5 py-3 text-sm font-bold text-ink-foreground">Browse all muscles <ArrowRight className="h-4 w-4" /></Link>
             </div>
+            {regionMuscles.length ? (
+              <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {regionMuscles.map((muscle) => <MuscleCard key={muscle.id} muscle={muscle} />)}
+              </div>
+            ) : (
+              <div className="mt-10 border border-border bg-secondary px-5 py-8 text-sm text-muted-foreground">Muscle entries for this region are being prepared.</div>
+            )}
           </div>
         </section>
 
@@ -187,18 +181,33 @@ function MovementCheck() {
                 Browse all muscles and movement relationships.
               </h2>
             </div>
-            <a
-              href="/knowledge.html?type=muscles"
+            <Link
+              to="/muscles"
               className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-sm bg-ink px-6 py-3 text-sm font-bold text-ink-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground"
             >
               Open the muscle atlas <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </a>
+            </Link>
           </div>
         </section>
       </main>
       <SiteFooter />
     </div>
   );
+}
+
+const regionMusclePatterns: Record<string, RegExp> = {
+  "head-neck": /head|neck|cervical|suboccipital|trapezius|scalene|hyoid/i,
+  "shoulder-arm": /shoulder|scap|rotator|deltoid|pectoral|arm|forearm|hand|biceps|triceps/i,
+  "spine-rib-cage": /spine|spinal|back|thoracic|rib|intercostal|diaphragm|abdomen|abdominal|oblique|erector/i,
+  "hip-pelvis": /hip|pelvi|glute|adductor|groin|iliopsoas|thigh/i,
+  knee: /knee|quadriceps|hamstring|patellar|poplite|thigh|gastrocnemius/i,
+  "ankle-foot": /ankle|foot|toe|hallux|calf|lower leg|tibial|fibular|perone|plantar|gastrocnemius|soleus/i,
+};
+
+function muscleBelongsToRegion(muscle: Muscle, regionSlug: string) {
+  const pattern = regionMusclePatterns[regionSlug];
+  if (!pattern) return false;
+  return pattern.test([muscle.bodyMap, muscle.group, muscle.family, muscle.title].filter(Boolean).join(" "));
 }
 
 function ResourceSection({
