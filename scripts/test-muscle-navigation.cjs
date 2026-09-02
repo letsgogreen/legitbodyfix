@@ -77,6 +77,9 @@ for (const region of regions) {
 }
 console.log('PASS: image cards, image fallback, and group selection across all regions');
 const published = payload.muscles.filter(item => item && item.published !== false);
+const deepHipMembers = published.filter(item => item.group === 'Deep hip');
+assert.equal(deepHipMembers.length, 6);
+for (const item of deepHipMembers) assert.equal(context.muscleSectionGroup(item), 'Deep hip rotators');
 const pelvicSubgroups = ['Pelvic diaphragm', 'Superficial perineum', 'Deep perineum', 'Pelvic sphincters'];
 const pelvicMembers = published.filter(item => pelvicSubgroups.includes(item.group));
 assert.equal(pelvicMembers.length, 13, 'all four pelvic subgroups must retain their 13 records');
