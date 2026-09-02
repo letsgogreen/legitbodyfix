@@ -31,7 +31,8 @@ function publicClient() {
 }
 
 export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async (): Promise<PublicProgram[]> => {
-  const { data, error } = await publicClient()
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
     .from("programs")
     .select("id,slug,name,outcome,format,duration_label,level,regions,goals,who_its_for,image_url,image_alt,paddle_price_id,featured_rank")
     .eq("published", true)
@@ -40,6 +41,23 @@ export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async
   if (error) throw new Error(error.message);
 
   const rows = data ?? [];
+  const programIds = rows.map((row) => row.id);
+  const { data: lessons, error: lessonsError } = programIds.length
+    ? await supabaseAdmin
+      .from("lessons")
+      .select("program_id,thumbnail_url,stream_thumbnail_url,position")
+      .in("program_id", programIds)
+      .eq("published", true)
+      .order("position")
+    : { data: [], error: null };
+  if (lessonsError) throw new Error(lessonsError.message);
+  const lessonThumbnailByProgram = new Map<string, string>();
+  for (const lesson of lessons ?? []) {
+    const thumbnail = lesson.thumbnail_url || lesson.stream_thumbnail_url;
+    if (thumbnail && !lessonThumbnailByProgram.has(lesson.program_id)) {
+      lessonThumbnailByProgram.set(lesson.program_id, thumbnail);
+    }
+  }
   const prices = await fetchPaddlePrices(
     rows.map((row) => row.paddle_price_id).filter((id): id is string => Boolean(id)),
   );
@@ -54,8 +72,8 @@ export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async
     regions: row.regions ?? [],
     goals: row.goals ?? [],
     whoItsFor: row.who_its_for,
-    imageUrl: row.image_url,
-    imageAlt: row.image_alt,
+    imageUrl: row.image_url || lessonThumbnailByProgram.get(row.id) || null,
+    imageAlt: row.image_alt || (lessonThumbnailByProgram.has(row.id) ? `${row.name} session thumbnail` : null),
     price: row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
     paddlePriceId: row.paddle_price_id,
   }));
@@ -97,6 +115,18 @@ async function loadProgramDetail(
     if (modulesError || lessonsError) throw new Error(modulesError?.message || lessonsError?.message || "Curriculum could not be loaded.");
     const prices = await fetchPaddlePrices(row.paddle_price_id ? [row.paddle_price_id] : []);
 
+    const publicLessons = (lessons ?? []).map((lesson) => ({
+      id: lesson.id,
+      moduleId: lesson.module_id,
+      title: lesson.title,
+      summary: lesson.summary,
+      durationSeconds: lesson.duration_seconds,
+      previewFree: lesson.preview_free,
+      thumbnailUrl: lesson.thumbnail_url || lesson.stream_thumbnail_url,
+      position: lesson.position,
+    }));
+    const fallbackThumbnail = publicLessons.find((lesson) => lesson.thumbnailUrl)?.thumbnailUrl ?? null;
+
     return {
       id: row.id,
       slug: row.slug,
@@ -108,21 +138,12 @@ async function loadProgramDetail(
       regions: row.regions ?? [],
       goals: row.goals ?? [],
       whoItsFor: row.who_its_for,
-      imageUrl: row.image_url,
-      imageAlt: row.image_alt,
+      imageUrl: row.image_url || fallbackThumbnail,
+      imageAlt: row.image_alt || (fallbackThumbnail ? `${row.name} session thumbnail` : null),
       price: row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
       paddlePriceId: row.paddle_price_id,
       modules: (modules ?? []).map((module) => ({ id: module.id, title: module.title, position: module.position })),
-      lessons: (lessons ?? []).map((lesson) => ({
-        id: lesson.id,
-        moduleId: lesson.module_id,
-        title: lesson.title,
-        summary: lesson.summary,
-        durationSeconds: lesson.duration_seconds,
-        previewFree: lesson.preview_free,
-        thumbnailUrl: lesson.thumbnail_url || lesson.stream_thumbnail_url,
-        position: lesson.position,
-      })),
+      lessons: publicLessons,
     };
 }
 
