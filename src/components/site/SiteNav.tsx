@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 
 const links = [
   { label: "Body regions", href: "/#regions" },
+  { label: "Muscle dictionary", href: "/knowledge.html?type=muscles" },
   { label: "Programs", href: "/#programs" },
   { label: "How it works", href: "/#method" },
 ];
