@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Search, X } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { supabase } from "@/integrations/supabase/client";
+import { LessonGifts } from "@/components/admin/LessonGifts";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["customer_profiles"]["Row"];
@@ -51,6 +52,7 @@ function CustomersView() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
       <PageHead title="Customers" meta={`${profiles.length} real accounts · ${entitlements.filter((item) => item.active).length} active program grants`} />
+      <LessonGifts />
       {error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
       <div className="relative mt-5 max-w-md"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name or email" className="w-full rounded-sm border border-border bg-card py-2 pl-9 pr-3 text-sm" /></div>
       <Panel className="mt-4 overflow-x-auto">

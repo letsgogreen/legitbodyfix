@@ -1,4 +1,5 @@
 import knowledgeBase from "@/data/knowledge-base.json";
+import { directoryConfigSchema, type DirectoryConfig } from "@/lib/muscle-directory-config";
 
 export type Muscle = {
   id: string;
@@ -20,6 +21,7 @@ export type Muscle = {
   imageStatus?: string;
   bodyMap?: string | undefined;
   functionalRoles?: string[] | undefined;
+  directoryConfig?: DirectoryConfig | undefined;
   cardImagePosition?: string | undefined;
   cardImageScale?: number | undefined;
 };
@@ -49,6 +51,7 @@ export type MuscleRow = {
   origin: string | null;
   insertion: string | null;
   functions: string[] | null;
+  directory_config?: unknown;
   description: string | null;
   image_url: string | null;
   image_alt: string | null;
@@ -68,6 +71,7 @@ export type MuscleRow = {
 
 export function muscleFromRow(row: MuscleRow): Muscle {
   const actions = row.description?.trim() || (row.functions ?? []).join(". ");
+  const directoryConfig = directoryConfigSchema.safeParse(row.directory_config);
 
   return {
     id: row.id,
@@ -89,6 +93,7 @@ export function muscleFromRow(row: MuscleRow): Muscle {
     imageStatus: row.image_status ?? (row.image_url ? "pending" : "missing"),
     bodyMap: row.body_map ?? undefined,
     functionalRoles: row.functions ?? undefined,
+    directoryConfig: directoryConfig.success ? directoryConfig.data : undefined,
     cardImagePosition:
       row.crop_x != null || row.crop_y != null
         ? `${row.crop_x ?? 50}% ${row.crop_y ?? 50}%`

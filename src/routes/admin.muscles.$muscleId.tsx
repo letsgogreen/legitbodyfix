@@ -3,6 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink, Save } from "lucide-react";
 import { PageHead, Panel } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { MuscleDirectoryFields } from "@/components/admin/MuscleDirectoryFields";
+import { AUTO_DIRECTORY_CONFIG, directoryConfigSchema } from "@/lib/muscle-directory-config";
 import {
   findFixtureMuscle,
   getMuscleReadiness,
@@ -101,9 +103,12 @@ function MuscleEditor() {
   const [record, setRecord] = useState<EditableMuscle>({ ...fallback, version: 1 });
   const [status, setStatus] = useState("Loading database record…");
   const [saving, setSaving] = useState(false);
+  const [databaseLoaded, setDatabaseLoaded] = useState(false);
   const [relationshipCounts, setRelationshipCounts] = useState({ guides: 0, recipes: 0 });
 
   useEffect(() => {
+    let cancelled = false;
+    setDatabaseLoaded(false);
     const client = getSupabaseClient();
     if (!client) {
       setStatus("Supabase is not configured. Editing is locked.");
@@ -121,17 +126,24 @@ function MuscleEditor() {
         .select("recipe_id", { count: "exact", head: true })
         .eq("muscle_id", fallback.id),
     ]).then(([{ data, error }, guideResult, recipeResult]) => {
+      if (cancelled) return;
       if (error || !data) {
         setStatus("Database record unavailable. Run the verified muscle import first.");
         return;
       }
       setRecord(fromDatabase(data));
+      if (!("directory_config" in data)) {
+        setStatus("Editing locked: apply migration 20260903090000_muscle_directory_config.sql first.");
+        return;
+      }
+      setDatabaseLoaded(true);
       setRelationshipCounts({
         guides: guideResult.count ?? 0,
         recipes: recipeResult.count ?? 0,
       });
       setStatus(`Version ${data.version} loaded from Supabase.`);
     });
+    return () => { cancelled = true; };
   }, [fallback.id]);
 
   function setField<K extends keyof EditableMuscle>(field: K, value: EditableMuscle[K]) {
@@ -141,13 +153,19 @@ function MuscleEditor() {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const client = getSupabaseClient();
-    if (!client) return;
+    if (!client || !databaseLoaded || saving) return;
+    const config = record.directoryConfig ?? AUTO_DIRECTORY_CONFIG;
+    const parsed = directoryConfigSchema.safeParse({ ...config, groups: config.groups === null ? null : [...new Set(config.groups.map(name => name.trim()).filter(Boolean))] });
+    if (!parsed.success) {
+      setStatus("Choose at least one region/group when manual selection is enabled, and use valid movement tags.");
+      return;
+    }
 
     setSaving(true);
     setStatus("Saving…");
     const { data, error } = await client
       .from("muscles")
-      .update(toDatabase(record))
+      .update(toDatabase({ ...record, directoryConfig: parsed.data }))
       .eq("id", record.id)
       .eq("version", record.version)
       .select("*")
@@ -160,10 +178,10 @@ function MuscleEditor() {
     }
 
     setRecord(fromDatabase(data));
-    setStatus(`Saved as version ${data.version}. The previous version is preserved.`);
+    setStatus(`Saved as version ${data.version}. Refresh the public dictionary to see published changes. The previous version is preserved.`);
   }
 
-  const canSave = status.includes("loaded") || status.startsWith("Saved as version");
+  const canSave = databaseLoaded;
   const readiness = getMuscleReadiness(record);
 
   return (
@@ -179,14 +197,13 @@ function MuscleEditor() {
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Library
             </Link>
-            <Link
-              to="/muscles/$muscleId"
-              params={{ muscleId: record.id }}
+            <a
+              href={`/knowledge.html?type=muscles&id=${encodeURIComponent(record.id)}`}
               target="_blank"
               className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-bold"
             >
               Public page <ExternalLink className="h-3.5 w-3.5" />
-            </Link>
+            </a>
             <button
               type="submit"
               disabled={!canSave || saving}
@@ -295,6 +312,7 @@ function MuscleEditor() {
         </Panel>
 
         <Panel className="grid gap-4 p-5 sm:grid-cols-2">
+          <MuscleDirectoryFields value={record.directoryConfig} onChange={value => setField("directoryConfig", value)} />
           <Field label="Muscle name" value={record.title} onChange={(v) => setField("title", v)} />
           <Field
             label="Anatomical group"
@@ -500,5 +518,6 @@ function toDatabase(record: EditableMuscle) {
     review_status: record.reviewStatus ?? "draft",
     image_status: record.imageStatus ?? "pending",
     published: record.published,
+    directory_config: record.directoryConfig ?? AUTO_DIRECTORY_CONFIG,
   };
 }

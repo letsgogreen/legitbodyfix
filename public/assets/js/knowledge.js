@@ -44,6 +44,7 @@
   var activeCarePath = "all";
   var data = { conditions: [], muscles: [], recipes: [] };
   var videos = [];
+  var muscleFeedUnavailable = false;
 
   function normalizedAnatomyName(value) {
     return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -273,7 +274,12 @@
     return String(item && item.group || "Other");
   }
 
+  function muscleDirectoryGroups(item) {
+    return Array.isArray(item && item.directoryConfig && item.directoryConfig.groups) ? item.directoryConfig.groups : [muscleSectionGroup(item)];
+  }
+
   function neckDirectoryGroups(item) {
+    if (Array.isArray(item && item.directoryConfig && item.directoryConfig.groups)) return item.directoryConfig.groups;
     var title = String(item && item.title || "").toLowerCase();
     var family = String(item && item.family || "").toLowerCase();
     var groups = [];
@@ -483,6 +489,7 @@
   }
 
   function muscleInRegion(item, region) {
+    if (Array.isArray(item && item.directoryConfig && item.directoryConfig.regions)) return item.directoryConfig.regions.indexOf(region) !== -1;
     if (region === "shoulder-arm") return ["shoulder-scapula", "elbow-forearm", "wrist-hand"].some(function (part) { return muscleInRegion(item, part); });
     if (region === "spine-rib-cage") return ["thoracic-spine", "lumbar-spine"].some(function (part) { return muscleInRegion(item, part); });
     if (muscleRegion(item) === region) return true;
@@ -507,6 +514,7 @@
 
   function muscleFunctionalRoles(item) {
     if (!item) return [];
+    if (Array.isArray(item.directoryConfig && item.directoryConfig.functions)) return movementTagOrder.filter(function (role) { return item.directoryConfig.functions.indexOf(role) !== -1; });
     if (Array.isArray(item.functionalRoles)) {
       return movementTagOrder.filter(function (role) { return item.functionalRoles.indexOf(role) !== -1; });
     }
@@ -1277,7 +1285,7 @@
     var availableMuscles = data.muscles.filter(function (item) {
       return item && item.published !== false &&
         (activeMuscleRegion === "all" || muscleInRegion(item, activeMuscleRegion)) &&
-        (activeMuscleGroup === "all" || (activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(activeMuscleGroup) !== -1 : muscleSectionGroup(item) === activeMuscleGroup));
+        (activeMuscleGroup === "all" || (activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(activeMuscleGroup) !== -1 : muscleDirectoryGroups(item).indexOf(activeMuscleGroup) !== -1));
     });
     Array.from(muscleFunction.options).forEach(function (option) {
       if (!option.dataset.baseLabel) option.dataset.baseLabel = option.textContent;
@@ -1296,7 +1304,7 @@
   }
 
   function orderedMuscleGroups(items) {
-    var groupNames = Array.from(new Set(items.map(muscleSectionGroup)));
+    var groupNames = Array.from(new Set(items.flatMap(muscleDirectoryGroups)));
     groupNames.sort(function (a, b) {
       var aIndex = muscleGroupOrder.indexOf(a);
       var bIndex = muscleGroupOrder.indexOf(b);
@@ -1337,7 +1345,7 @@
     buttons.push(overview);
     buttons = buttons.concat(groupNames.map(function (groupName) {
       var count = regionalMuscles.filter(function (item) {
-        return activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(groupName) !== -1 : muscleSectionGroup(item) === groupName;
+        return activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(groupName) !== -1 : muscleDirectoryGroups(item).indexOf(groupName) !== -1;
       }).length;
       var button = element("button", activeMuscleGroup === groupName ? "is-active" : "");
       button.type = "button";
@@ -1365,7 +1373,7 @@
       : orderedMuscleGroups(regionalMuscles);
     var cards = groupNames.map(function (groupName) {
       var members = regionalMuscles.filter(function (item) {
-        return activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(groupName) !== -1 : muscleSectionGroup(item) === groupName;
+        return activeMuscleRegion === "head-neck" ? neckDirectoryGroups(item).indexOf(groupName) !== -1 : muscleDirectoryGroups(item).indexOf(groupName) !== -1;
       });
       var representative = members.find(function (item) { return item.imageUrl; });
       var groupImage = collectiveNeckGroupImages[groupName];
@@ -1626,6 +1634,11 @@
 
   function render() {
     var query = search.value.trim().toLowerCase();
+    if (activeType === "muscles" && muscleFeedUnavailable) {
+      grid.replaceChildren(); grid.hidden = true;
+      status.textContent = "The muscle directory is temporarily unavailable. Please try again later.";
+      grid.setAttribute("aria-busy", "false"); return;
+    }
     document.getElementById("muscleRegionHeading").textContent = activeMuscleRegion === "all" ? "Explore by body region" : muscleRegions[activeMuscleRegion].title;
     document.getElementById("muscleRegionDescription").textContent = muscleRegionDescriptions[activeMuscleRegion] || "Choose one of six body regions, explore a muscle group, then open an individual muscle. Or search directly by name.";
     updateFunctionOptions();
@@ -1648,7 +1661,7 @@
       if (activeType === "muscles" && activeMuscleGroup !== "all" && !query) {
         var matchesActiveGroup = activeMuscleRegion === "head-neck"
           ? neckDirectoryGroups(record.item).indexOf(activeMuscleGroup) !== -1
-          : muscleSectionGroup(record.item) === activeMuscleGroup;
+          : muscleDirectoryGroups(record.item).indexOf(activeMuscleGroup) !== -1;
         if (!matchesActiveGroup) return false;
       }
       if (activeType === "muscles" && !query && activeMuscleFunction !== "all" && muscleFunctionalRoles(record.item).indexOf(activeMuscleFunction) === -1) return false;
@@ -1822,12 +1835,16 @@
 
   Promise.all([
     fetch("assets/data/knowledge-base.json", { cache: "no-cache" }),
-    fetch("assets/data/videos.json", { cache: "no-cache" })
+    fetch("assets/data/videos.json", { cache: "no-cache" }),
+    fetch("/api/public/muscle-directory", { cache: "no-store" }).catch(function () { return null; })
   ]).then(function (responses) {
     if (!responses[0].ok || !responses[1].ok) throw new Error("Unable to load public content");
-    return Promise.all([responses[0].json(), responses[1].json()]);
+    return Promise.all([responses[0].json(), responses[1].json(), responses[2] && responses[2].ok ? responses[2].json() : null]);
   }).then(function (payloads) {
       var payload = payloads[0];
+      // No bundled muscle fallback: never resurrect unpublished records.
+      payload.muscles = payloads[2] && Array.isArray(payloads[2].muscles) ? payloads[2].muscles : [];
+      muscleFeedUnavailable = !payloads[2];
       videos = Array.isArray(payloads[1]) ? payloads[1] : [];
       Object.keys(labels).forEach(function (type) { data[type] = Array.isArray(payload[type]) ? payload[type] : []; });
       updateMuscleCounts();

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { GiftedVideos } from "@/components/site/GiftedVideos";
 import type { Database } from "@/integrations/supabase/types";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
@@ -29,6 +30,7 @@ function LibraryIndex() {
     <main className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">My programs</p>
       <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-6xl">Continue where you left off.</h1>
+      <GiftedVideos />
       <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Every program you own appears here. Choose one to view its modules and secure video lessons.</p>
       {loading && <div className="mt-12 flex items-center gap-3 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" />Loading your programs…</div>}
       {error && <p className="mt-10 border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{error}</p>}
