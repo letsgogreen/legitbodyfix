@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2, Lock, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { getStreamPlayback } from "@/lib/stream.functions";
+import { getCustomerAccess } from "@/lib/customer-access";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 type Module = Database["public"]["Tables"]["program_modules"]["Row"];
@@ -24,8 +25,8 @@ function ProgramLibrary() {
 
   useEffect(() => {
     void (async () => {
-      const { data: access } = await supabase.from("entitlements").select("program_id").eq("active", true);
-      const ids = (access ?? []).map((item) => item.program_id);
+      setLoading(true); setProgram(null); setModules([]); setLessons([]); setPlaying(null); setPlaybackUrl(null); setError(null);
+      const { programIds: ids } = await getCustomerAccess();
       if (!ids.length) { setLoading(false); return; }
       const { data: selected, error: programError } = await supabase.from("programs").select("*").eq("slug", programSlug).in("id", ids).maybeSingle();
       if (programError || !selected) { setError(programError?.message || "This program is not in your library."); setLoading(false); return; }
@@ -37,12 +38,12 @@ function ProgramLibrary() {
       if (moduleError || lessonError) setError(moduleError?.message || lessonError?.message || "Could not load this curriculum.");
       else { setModules(moduleRows ?? []); setLessons(lessonRows ?? []); }
       setLoading(false);
-    })();
+    })().catch(() => { setError("Could not load your access. Please try again."); setLoading(false); });
   }, [programSlug]);
 
   const sections = useMemo(() => {
     const grouped = modules.map((module) => ({ module, lessons: lessons.filter((lesson) => lesson.module_id === module.id) }));
-    const unassigned = lessons.filter((lesson) => !lesson.module_id);
+    const unassigned = lessons.filter((lesson) => !lesson.module_id || !modules.some((module) => module.id === lesson.module_id));
     if (unassigned.length) grouped.push({ module: { id: "other", title: "Additional lessons" } as Module, lessons: unassigned });
     return grouped;
   }, [lessons, modules]);

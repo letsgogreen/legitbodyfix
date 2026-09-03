@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { getCustomerAccess } from "@/lib/customer-access";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 
@@ -15,14 +16,12 @@ function LibraryIndex() {
 
   useEffect(() => {
     void (async () => {
-      const { data: access, error: accessError } = await supabase.from("entitlements").select("program_id").eq("active", true);
-      if (accessError) { setError(accessError.message); setLoading(false); return; }
-      const ids = (access ?? []).map((item) => item.program_id);
+      const { programIds: ids } = await getCustomerAccess();
       if (!ids.length) { setLoading(false); return; }
       const { data, error: programError } = await supabase.from("programs").select("*").in("id", ids).order("name");
       if (programError) setError(programError.message); else setPrograms(data ?? []);
       setLoading(false);
-    })();
+    })().catch(() => { setError("Could not load your access. Please try again."); setLoading(false); });
   }, []);
 
   return (
