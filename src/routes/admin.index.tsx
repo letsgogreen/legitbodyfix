@@ -8,6 +8,7 @@ import {
 } from "@/lib/admin-readiness.functions";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { isLessonVideoReady } from "@/lib/lesson-video-readiness";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
@@ -85,7 +86,7 @@ function Dashboard() {
     {
       label: "Lessons",
       value: String(lessons.length),
-      note: `${lessons.filter((l) => l.published).length} published · ${lessons.filter((l) => l.video_path).length} with video`,
+      note: `${lessons.filter((l) => l.published).length} published · ${lessons.filter(isLessonVideoReady).length} ready videos`,
     },
     { label: "Customers", value: String(customers.length), note: "Supabase accounts" },
     {
@@ -202,9 +203,7 @@ function Dashboard() {
             <ul className="divide-y divide-border/70">
               {programs.map((program) => {
                 const curriculum = lessons.filter((lesson) => lesson.program_id === program.id);
-                const readyVideos = curriculum.filter(
-                  (lesson) => lesson.stream_status === "ready",
-                ).length;
+                const readyVideos = curriculum.filter(isLessonVideoReady).length;
                 const hasPrice = Boolean(program.paddle_price_id);
                 return (
                   <li key={program.id} className="flex flex-wrap items-center gap-3 px-4 py-3">

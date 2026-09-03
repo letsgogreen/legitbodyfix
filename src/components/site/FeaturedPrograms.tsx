@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, Loader2, ShoppingBag } from "lucide-react";
 import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
 import { usePaddle } from "@/lib/usePaddle";
-import { supabase } from "@/integrations/supabase/client";
+import { getCustomerAccess } from "@/lib/customer-access";
+import { useCustomerAccess } from "@/lib/useCustomerAccess";
 
 const categories = ["All", "Neck & shoulders", "Ankle & foot", "Hips & balance", "Breathing & recovery"] as const;
 type Category = (typeof categories)[number];
@@ -59,13 +60,13 @@ export function FeaturedPrograms() {
             <div className="flex w-full flex-col">
               <div className="flex items-start justify-between gap-4">
                 <span className="bg-accent px-3 py-1 font-mono text-[10px] font-bold text-accent-foreground">{program.level?.toUpperCase() || "GUIDED"}</span>
-                <Link to="/programs/$programSlug" params={{ programSlug: program.slug }} aria-label={`View ${program.name}`} className="grid size-10 place-items-center rounded-full border border-white/80 text-white transition-colors hover:border-accent hover:bg-accent hover:text-accent-foreground"><ArrowUpRight className="h-4 w-4" /></Link>
+                <Link to="/programs/$programSlug" params={{ programSlug: program.slug }} search={{ preview: undefined }} aria-label={`View ${program.name}`} className="grid size-10 place-items-center rounded-full border border-white/80 text-white transition-colors hover:border-accent hover:bg-accent hover:text-accent-foreground"><ArrowUpRight className="h-4 w-4" /></Link>
               </div>
               <div className="mt-auto">
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-accent">Program {String(index + 1).padStart(2, "0")}</p>
                 <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight sm:text-[1.65rem]">{program.name}</h3>
                 <p className="mt-3 font-mono text-[11px] text-white/90">{[program.duration, program.format, program.price].filter(Boolean).join(" · ")}</p>
-                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]"><span>{categoryOf(program)}</span><Link to="/programs/$programSlug" params={{ programSlug: program.slug }} className="border-b border-accent text-accent transition-colors hover:text-white">View program →</Link></div>
+                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]"><span>{categoryOf(program)}</span><Link to="/programs/$programSlug" params={{ programSlug: program.slug }} search={{ preview: undefined }} className="border-b border-accent text-accent transition-colors hover:text-white">View program →</Link></div>
               </div>
             </div>
           </article>
@@ -77,6 +78,15 @@ export function FeaturedPrograms() {
 }
 
 export function CheckoutButton({ program }: { program: PublicProgram }) {
+  const access = useCustomerAccess(program.id);
+  if (access.loading) return <p role="status" className="text-sm">Checking your access…</p>;
+  if (access.error) return <div><p role="alert" className="text-sm">Could not verify your access. Please open your library before purchasing.</p><Link to="/library" className="underline">Open my library</Link></div>;
+  if (access.owned) return <Link to="/library/$programSlug" params={{ programSlug: program.slug }} className="inline-flex min-h-11 w-full items-center justify-center bg-accent px-4 text-sm font-bold text-accent-foreground">Watch program →</Link>;
+  return <div><PurchaseButton program={program} /><Link to="/library" className="mt-3 inline-block text-sm underline underline-offset-4">Already have access? Sign in / Open my library</Link></div>;
+}
+
+function PurchaseButton({ program }: { program: PublicProgram }) {
+  const navigate = useNavigate();
   const { paddle, loading, error: configurationError } = usePaddle();
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,11 +101,15 @@ export function CheckoutButton({ program }: { program: PublicProgram }) {
     }
     setWorking(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { user, programIds } = await getCustomerAccess();
+      if (programIds.includes(program.id)) {
+        await navigate({ to: "/library/$programSlug", params: { programSlug: program.slug } });
+        return;
+      }
       const email = user?.email;
       paddle.Checkout.open({
         items: [{ priceId: program.paddlePriceId, quantity: 1 }],
-        customer: email ? { email } : undefined,
+        ...(email ? { customer: { email } } : {}),
         customData: {
           program_id: program.id,
           program_slug: program.slug,

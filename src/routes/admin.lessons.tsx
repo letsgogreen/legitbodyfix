@@ -148,9 +148,9 @@ function LessonsView() {
             <button key={program.id} type="button" onClick={() => setProgramId(program.id)} className={`rounded-sm border px-3 py-1.5 text-xs font-bold transition-colors ${program.id === programId ? "border-ink bg-ink text-ink-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"}`}>{program.name}</button>
           ))}</div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/admin/programs" search={{ action: "new" }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Plus className="mr-1.5 h-3.5 w-3.5" /> New program</Link>
-            {programId && <Link to="/admin/programs" search={{ edit: programId }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit selected</Link>}
-            <Link to="/admin/programs" search={{}} className="inline-flex min-h-9 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"><Settings2 className="mr-1.5 h-3.5 w-3.5" /> Manage programs</Link>
+            <Link to="/admin/programs" search={{ action: "new", edit: undefined }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Plus className="mr-1.5 h-3.5 w-3.5" /> New program</Link>
+            {programId && <Link to="/admin/programs" search={{ edit: programId, action: undefined }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit selected</Link>}
+            <Link to="/admin/programs" search={{ action: undefined, edit: undefined }} className="inline-flex min-h-9 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"><Settings2 className="mr-1.5 h-3.5 w-3.5" /> Manage programs</Link>
           </div>
         </div>
       </div>
@@ -567,7 +567,7 @@ function StreamPlayer({ iframeUrl, title, onTimeChange, seekRequest }: { iframeU
       const script = document.createElement("script");
       script.src = "https://embed.cloudflarestream.com/embed/sdk.latest.js";
       script.async = true;
-      script.dataset.cloudflareStreamSdk = "true";
+      script.dataset["cloudflareStreamSdk"] = "true";
       script.addEventListener("load", connect, { once: true });
       document.head.appendChild(script);
     }
