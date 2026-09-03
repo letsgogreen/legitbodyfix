@@ -36,15 +36,21 @@ export function BodyRegionGrid() {
         setMedia(Object.fromEntries(mediaResult.data.map((item) => [item.key, item])));
       }
 
-      setCounts(Object.fromEntries(
-        bodyRegions.map((region) => [
-          region.slug,
-          {
-            recipes: (recipeResult.data ?? []).filter((row) => belongsToRegion(row.regions, region.slug)).length,
-            programs: (programResult.data ?? []).filter((row) => belongsToRegion(row.regions, region.slug)).length,
-          },
-        ]),
-      ));
+      setCounts(
+        Object.fromEntries(
+          bodyRegions.map((region) => [
+            region.slug,
+            {
+              recipes: (recipeResult.data ?? []).filter((row) =>
+                belongsToRegion(row.regions, region.slug),
+              ).length,
+              programs: (programResult.data ?? []).filter((row) =>
+                belongsToRegion(row.regions, region.slug),
+              ).length,
+            },
+          ]),
+        ),
+      );
     });
 
     return () => {
@@ -58,12 +64,13 @@ export function BodyRegionGrid() {
   const activeCounts = counts[activeRegion.slug] ?? { recipes: 0, programs: 0 };
 
   const rows = useMemo(
-    () => bodyRegions.map((region, index) => ({
-      region,
-      index,
-      active: index === activeIndex,
-      counts: counts[region.slug] ?? { recipes: 0, programs: 0 },
-    })),
+    () =>
+      bodyRegions.map((region, index) => ({
+        region,
+        index,
+        active: index === activeIndex,
+        counts: counts[region.slug] ?? { recipes: 0, programs: 0 },
+      })),
     [activeIndex, counts],
   );
 
@@ -72,26 +79,20 @@ export function BodyRegionGrid() {
       <ul className="border-t border-border">
         {rows.map(({ region, index, active, counts: regionCounts }) => (
           <li key={region.slug} className="border-b border-border">
-            {active ? (
-              <Link
-                to="/movement-check"
-                search={{ region: region.slug }}
-                className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 bg-ink px-4 py-6 text-left text-ink-foreground transition-colors sm:px-5"
-              >
-                <RegionRowContent index={index} region={region} counts={regionCounts} active />
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onMouseEnter={() => setActiveIndex(index)}
-                onFocus={() => setActiveIndex(index)}
-                onClick={() => setActiveIndex(index)}
-                aria-pressed={false}
-                className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 bg-background px-4 py-6 text-left transition-colors hover:bg-secondary/60 sm:px-5"
-              >
-                <RegionRowContent index={index} region={region} counts={regionCounts} active={false} />
-              </button>
-            )}
+            <Link
+              to="/movement-check"
+              search={{ region: region.slug }}
+              onMouseEnter={() => setActiveIndex(index)}
+              onFocus={() => setActiveIndex(index)}
+              className={`group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 px-4 py-6 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground sm:px-5 ${active ? "bg-ink text-ink-foreground" : "bg-background hover:bg-secondary/60"}`}
+            >
+              <RegionRowContent
+                index={index}
+                region={region}
+                counts={regionCounts}
+                active={active}
+              />
+            </Link>
           </li>
         ))}
       </ul>
@@ -99,14 +100,25 @@ export function BodyRegionGrid() {
       <aside className="lg:sticky lg:top-28 lg:self-start">
         <div className="overflow-hidden rounded-sm border border-border bg-card">
           <div className="aspect-[4/3] overflow-hidden border-b border-border bg-white">
-            <img src={imageUrl} alt={imageAlt} width={1024} height={768} loading="lazy" className="size-full object-contain p-4" />
+            <img
+              src={imageUrl}
+              alt={imageAlt}
+              width={1024}
+              height={768}
+              loading="lazy"
+              className="size-full object-contain p-4"
+            />
           </div>
           <div className="p-6">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
               Selected · {activeRegion.title}
             </p>
-            <h3 className="mt-3 text-2xl font-extrabold uppercase leading-none">{activeRegion.title}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{activeRegion.intro}</p>
+            <h3 className="mt-3 text-2xl font-extrabold uppercase leading-none">
+              {activeRegion.title}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {activeRegion.intro}
+            </p>
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
               {activeCounts.recipes} recipes · {activeCounts.programs} programs
             </p>
@@ -138,18 +150,25 @@ function RegionRowContent({
 }) {
   return (
     <>
-      <span className={`font-mono text-[11px] tracking-[0.18em] ${active ? "text-accent" : "text-muted-foreground"}`}>
+      <span
+        className={`font-mono text-[11px] tracking-[0.18em] ${active ? "text-accent" : "text-muted-foreground"}`}
+      >
         {String(index + 1).padStart(2, "0")}
       </span>
       <span className="min-w-0">
         <span className="block text-2xl font-extrabold uppercase leading-none sm:text-3xl">
           {region.title}
         </span>
-        <span className={`mt-2 block font-mono text-[10px] uppercase tracking-[0.18em] ${active ? "text-ink-foreground/65" : "text-muted-foreground"}`}>
+        <span
+          className={`mt-2 block font-mono text-[10px] uppercase tracking-[0.18em] ${active ? "text-ink-foreground/65" : "text-muted-foreground"}`}
+        >
           {counts.recipes} recipes · {counts.programs} programs
         </span>
       </span>
-      <ArrowUpRight className={`h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${active ? "text-accent" : "text-muted-foreground"}`} aria-hidden="true" />
+      <ArrowUpRight
+        className={`h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${active ? "text-accent" : "text-muted-foreground"}`}
+        aria-hidden="true"
+      />
     </>
   );
 }

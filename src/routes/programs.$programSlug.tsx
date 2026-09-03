@@ -8,7 +8,7 @@ import { getAdminProgramPreview, getPublicProgramDetail, type PublicProgramDetai
 
 export const Route = createFileRoute("/programs/$programSlug")({
   validateSearch: (search: Record<string, unknown>) => ({
-    preview: search.preview === "admin" ? "admin" as const : undefined,
+    preview: search["preview"] === "admin" ? "admin" as const : undefined,
   }),
   component: ProgramSalesPage,
 });

@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { GiftedVideos } from "@/components/site/GiftedVideos";
 import type { Database } from "@/integrations/supabase/types";
+import { getCustomerAccess } from "@/lib/customer-access";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 
@@ -15,20 +17,19 @@ function LibraryIndex() {
 
   useEffect(() => {
     void (async () => {
-      const { data: access, error: accessError } = await supabase.from("entitlements").select("program_id").eq("active", true);
-      if (accessError) { setError(accessError.message); setLoading(false); return; }
-      const ids = (access ?? []).map((item) => item.program_id);
+      const { programIds: ids } = await getCustomerAccess();
       if (!ids.length) { setLoading(false); return; }
       const { data, error: programError } = await supabase.from("programs").select("*").in("id", ids).order("name");
       if (programError) setError(programError.message); else setPrograms(data ?? []);
       setLoading(false);
-    })();
+    })().catch(() => { setError("Could not load your access. Please try again."); setLoading(false); });
   }, []);
 
   return (
     <main className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">My programs</p>
       <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-6xl">Continue where you left off.</h1>
+      <GiftedVideos />
       <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Every program you own appears here. Choose one to view its modules and secure video lessons.</p>
       {loading && <div className="mt-12 flex items-center gap-3 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" />Loading your programs…</div>}
       {error && <p className="mt-10 border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{error}</p>}

@@ -44,6 +44,7 @@ import { Route as AdminMusclesImportRouteImport } from './routes/admin.muscles.i
 import { Route as AdminRecipesIndexRouteImport } from './routes/admin.recipes.index'
 import { Route as AdminRecipesRecipeIdRouteImport } from './routes/admin.recipes.$recipeId'
 import { Route as AdminRecipesImportRouteImport } from './routes/admin.recipes.import'
+import { Route as ApiPublicMuscleDirectoryRouteImport } from './routes/api.public.muscle-directory'
 import { Route as ApiPublicPaddleWebhookRouteImport } from './routes/api.public.paddle-webhook'
 import { Route as Ver1AdminSplatRouteImport } from './routes/ver1.admin.$'
 
@@ -223,6 +224,12 @@ const AdminRecipesImportRoute = AdminRecipesImportRouteImport.update({
   path: '/recipes/import',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicMuscleDirectoryRoute =
+  ApiPublicMuscleDirectoryRouteImport.update({
+    id: '/api/public/muscle-directory',
+    path: '/api/public/muscle-directory',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaddleWebhookRoute = ApiPublicPaddleWebhookRouteImport.update({
   id: '/api/public/paddle-webhook',
   path: '/api/public/paddle-webhook',
@@ -268,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/public/muscle-directory': typeof ApiPublicMuscleDirectoryRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles/': typeof AdminMusclesIndexRoute
@@ -303,6 +311,7 @@ export interface FileRoutesByTo {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/public/muscle-directory': typeof ApiPublicMuscleDirectoryRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles': typeof AdminMusclesIndexRoute
@@ -343,6 +352,7 @@ export interface FileRoutesById {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/public/muscle-directory': typeof ApiPublicMuscleDirectoryRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles/': typeof AdminMusclesIndexRoute
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/public/muscle-directory'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles/'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/public/muscle-directory'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles'
@@ -458,6 +470,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/public/muscle-directory'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles/'
@@ -479,6 +492,7 @@ export interface RootRouteChildren {
   GuidesSlugRoute: typeof GuidesSlugRoute
   ProgramsProgramSlugRoute: typeof ProgramsProgramSlugRoute
   RecipesSlugRoute: typeof RecipesSlugRoute
+  ApiPublicMuscleDirectoryRoute: typeof ApiPublicMuscleDirectoryRoute
   ApiPublicPaddleWebhookRoute: typeof ApiPublicPaddleWebhookRoute
 }
 
@@ -729,6 +743,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRecipesImportRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/muscle-directory': {
+      id: '/api/public/muscle-directory'
+      path: '/api/public/muscle-directory'
+      fullPath: '/api/public/muscle-directory'
+      preLoaderRoute: typeof ApiPublicMuscleDirectoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/paddle-webhook': {
       id: '/api/public/paddle-webhook'
       path: '/api/public/paddle-webhook'
@@ -849,6 +870,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesSlugRoute: GuidesSlugRoute,
   ProgramsProgramSlugRoute: ProgramsProgramSlugRoute,
   RecipesSlugRoute: RecipesSlugRoute,
+  ApiPublicMuscleDirectoryRoute: ApiPublicMuscleDirectoryRoute,
   ApiPublicPaddleWebhookRoute: ApiPublicPaddleWebhookRoute,
 }
 export const routeTree = rootRouteImport

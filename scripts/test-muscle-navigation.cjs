@@ -22,6 +22,7 @@ const context = {
   muscleFunction: { options: ['all', 'Plantarflexion', 'Toe control', 'Abduction'].map(value => ({ value, textContent: value, dataset: {} })), selectedIndex: 0 },
   muscleInRegion: (item, region) => item.region === region,
   muscleSectionGroup: item => item.group,
+  muscleDirectoryGroups: item => [item.group],
   muscleFunctionalRoles: item => item.roles,
   orderedMuscleGroups: items => [...new Set(items.map(item => item.group))],
   element: node, document: { createTextNode: text => text }, render() {},
@@ -70,7 +71,7 @@ context.data = payload;
 for (const name of ['movementTagOrder', 'muscleGroupOrder']) {
   vm.runInContext(source.match(new RegExp('  var ' + name + ' = \\[([\\s\\S]*?)\\];'))[0], context);
 }
-for (const name of ['muscleRegion', 'muscleInRegion', 'muscleFunctionalRoles', 'muscleSectionGroup', 'neckDirectoryGroups', 'orderedMuscleGroups']) {
+for (const name of ['muscleRegion', 'muscleInRegion', 'muscleFunctionalRoles', 'muscleSectionGroup', 'muscleDirectoryGroups', 'neckDirectoryGroups', 'orderedMuscleGroups']) {
   vm.runInContext(extract(name), context);
 }
 const regions = ['head-neck', 'shoulder-arm', 'spine-rib-cage', 'pelvis-hip', 'knee', 'foot-ankle'];
@@ -101,6 +102,16 @@ for (const region of regions) {
 }
 console.log('PASS: image cards, image fallback, and group selection across all regions');
 const published = payload.muscles.filter(item => item && item.published !== false);
+const manual = { ...published[0], directoryConfig: { regions: ['pelvis-hip'], groups: ['Custom group', 'Pelvic floor'], functions: ['Hip external rotator'] } };
+assert.equal(context.muscleInRegion(manual, 'pelvis-hip'), true);
+assert.equal(context.muscleInRegion(manual, 'shoulder-arm'), false, 'manual regions replace inference');
+assert.equal(JSON.stringify(context.muscleDirectoryGroups(manual)), JSON.stringify(manual.directoryConfig.groups));
+assert.equal(JSON.stringify(context.neckDirectoryGroups(manual)), JSON.stringify(manual.directoryConfig.groups));
+assert.equal(JSON.stringify(context.muscleFunctionalRoles(manual)), '["Hip external rotator"]');
+manual.directoryConfig.functions = [];
+assert.equal(context.muscleFunctionalRoles(manual).length, 0, 'manual empty functions disables inferred actions');
+assert.ok(source.includes('fetch("/api/public/muscle-directory"'));
+assert.ok(source.includes('payload.muscles = payloads[2]'), 'public muscles use live feed, not bundled records');
 const levator = published.find(item => item.id === 'levator-scapulae');
 assert.ok(context.neckDirectoryGroups(levator).includes('Upper back'));
 assert.ok(context.neckDirectoryGroups(levator).includes('Head and neck'), 'retain existing neck membership');

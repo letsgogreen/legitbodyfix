@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+const html = await readFile(new URL('../supabase/templates/magic-link.html', import.meta.url), 'utf8');
+const links = [...html.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
+assert.equal(links.length, 2);
+assert(links.every(link => link === '{{ .ConfirmationURL }}'));
+assert(!/<script|<form|<img|on(click|load)=/i.test(html));
+assert(html.includes('max-width:560px'));
+assert(html.includes('role="presentation"'));
+assert.equal([...html.matchAll(/<table\b/g)].length, [...html.matchAll(/<\/table>/g)].length);
+console.log('PASS: unchanged confirmation links, bounded table layout, no scripts/forms/tracking images.');
+console.log('Received-email rendering and live login are not tested.');

@@ -45,7 +45,7 @@ function LibraryShell() {
           <button type="button" onClick={() => void supabase.auth.signOut()} className="inline-flex shrink-0 items-center gap-2 text-xs font-bold"><LogOut className="h-3.5 w-3.5" />Sign out</button>
         </div>
       </div>
-      <Outlet />
+      <Outlet key={user.id} />
       <SiteFooter />
     </div>
   );
@@ -55,25 +55,61 @@ function LibrarySignIn() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [googlePending, setGooglePending] = useState(false);
+
+  useEffect(() => {
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const query = new URLSearchParams(window.location.search);
+    if (fragment.has("error") || query.has("error")) {
+      setMessage("Sign-in was cancelled or could not be completed. Please try again or use an email link.");
+      window.history.replaceState(window.history.state, "", window.location.pathname);
+    }
+  }, []);
+
+  async function signInWithGoogle() {
+    if (submitting || googlePending) return;
+    setGooglePending(true);
+    setMessage("");
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/library` },
+      });
+      if (error) throw error;
+    } catch {
+      setMessage("Google sign-in is unavailable. Please try again or use an email link.");
+    } finally {
+      setGooglePending(false);
+    }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting || googlePending) return;
     setSubmitting(true);
     setMessage("");
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/library` } });
-    setSubmitting(false);
-    setMessage(error ? error.message : "Check your email for your secure sign-in link.");
+    try {
+      const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${window.location.origin}/library` } });
+      if (error) throw error;
+      setMessage("Check your email for your secure sign-in link.");
+    } catch {
+      setMessage("We could not send a sign-in link. Please wait a moment and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <LibraryMessage>
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Customer access</p>
       <h1 className="text-4xl font-extrabold tracking-tight">Open your library</h1>
-      <p className="max-w-md text-sm leading-6 text-muted-foreground">Use the email attached to your purchase. We will send a secure sign-in link—no password required.</p>
+      <p className="max-w-md text-sm leading-6 text-muted-foreground">Sign in or create an account with Google or an email link. Use the same email as your purchase to access your programs. No password required.</p>
+      <button type="button" onClick={() => void signInWithGoogle()} disabled={submitting || googlePending} className="min-h-12 w-full max-w-md border border-border bg-background px-5 text-sm font-bold disabled:opacity-50">{googlePending ? "Connecting…" : "Continue with Google"}</button>
+      <p className="text-xs text-muted-foreground">or continue with email</p>
       <form onSubmit={submit} className="grid w-full max-w-md gap-3">
         <label className="grid gap-2 text-left font-mono text-[10px] uppercase tracking-[0.14em]">Email<input type="email" required autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="min-h-12 border border-border bg-background px-3 font-sans text-sm normal-case tracking-normal" /></label>
-        <button disabled={submitting} className="min-h-12 bg-ink px-5 text-sm font-bold text-ink-foreground disabled:opacity-50">{submitting ? "Sending…" : "Email me a sign-in link"}</button>
-        {message && <p className="text-sm text-muted-foreground">{message}</p>}
+        <button disabled={submitting || googlePending} className="min-h-12 bg-ink px-5 text-sm font-bold text-ink-foreground disabled:opacity-50">{submitting ? "Sending…" : "Email me a sign-in link"}</button>
+        <p role="status" aria-live="polite" className="text-sm text-muted-foreground">{message}</p>
       </form>
       <Link to="/" className="text-sm font-bold underline underline-offset-4">Return home</Link>
     </LibraryMessage>
