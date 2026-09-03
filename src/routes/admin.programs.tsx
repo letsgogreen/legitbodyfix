@@ -124,7 +124,7 @@ function ProgramsView() {
 
   const closeEditor = () => {
     setEditing(null);
-    if (action || edit) void navigate({ search: {} });
+    if (action || edit) void navigate({ search: { action: undefined, edit: undefined } });
   };
 
   const togglePublished = async (program: ProgramRow) => {
@@ -678,7 +678,7 @@ function ProgramDrawer({
             onChange={(value) => update("goals", value)}
           />
           <Field label="Paddle product ID" value={draft.paddle_product_id} onChange={(value) => update("paddle_product_id", value)} />
-          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={({ productId, priceId }) => { update("paddle_product_id", productId); update("paddle_price_id", priceId); void loadPrograms(); }} />}
+          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={({ productId, priceId }) => { update("paddle_product_id", productId); update("paddle_price_id", priceId); void onRefresh(); }} />}
           <Field
             label="Entitlement key"
             value={draft.entitlement_key}
@@ -692,7 +692,7 @@ function ProgramDrawer({
               bucket="program-images"
               label="Program cover image"
               onChange={(value) => update("image_url", value)}
-              onUploaded={(value) => { void saveUploadedCover(value); }}
+              onUploaded={saveUploadedCover}
               onAltChange={(value) => update("image_alt", value)}
             />
             {imageMessage && (

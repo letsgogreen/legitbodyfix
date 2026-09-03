@@ -59,13 +59,13 @@ export function FeaturedPrograms() {
             <div className="flex w-full flex-col">
               <div className="flex items-start justify-between gap-4">
                 <span className="bg-accent px-3 py-1 font-mono text-[10px] font-bold text-accent-foreground">{program.level?.toUpperCase() || "GUIDED"}</span>
-                <Link to="/programs/$programSlug" params={{ programSlug: program.slug }} aria-label={`View ${program.name}`} className="grid size-10 place-items-center rounded-full border border-white/80 text-white transition-colors hover:border-accent hover:bg-accent hover:text-accent-foreground"><ArrowUpRight className="h-4 w-4" /></Link>
+                <Link to="/programs/$programSlug" params={{ programSlug: program.slug }} search={{ preview: undefined }} aria-label={`View ${program.name}`} className="grid size-10 place-items-center rounded-full border border-white/80 text-white transition-colors hover:border-accent hover:bg-accent hover:text-accent-foreground"><ArrowUpRight className="h-4 w-4" /></Link>
               </div>
               <div className="mt-auto">
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-accent">Program {String(index + 1).padStart(2, "0")}</p>
                 <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight sm:text-[1.65rem]">{program.name}</h3>
                 <p className="mt-3 font-mono text-[11px] text-white/90">{[program.duration, program.format, program.price].filter(Boolean).join(" · ")}</p>
-                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]"><span>{categoryOf(program)}</span><Link to="/programs/$programSlug" params={{ programSlug: program.slug }} className="border-b border-accent text-accent transition-colors hover:text-white">View program →</Link></div>
+                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]"><span>{categoryOf(program)}</span><Link to="/programs/$programSlug" params={{ programSlug: program.slug }} search={{ preview: undefined }} className="border-b border-accent text-accent transition-colors hover:text-white">View program →</Link></div>
               </div>
             </div>
           </article>
@@ -95,7 +95,7 @@ export function CheckoutButton({ program }: { program: PublicProgram }) {
       const email = user?.email;
       paddle.Checkout.open({
         items: [{ priceId: program.paddlePriceId, quantity: 1 }],
-        customer: email ? { email } : undefined,
+        ...(email ? { customer: { email } } : {}),
         customData: {
           program_id: program.id,
           program_slug: program.slug,

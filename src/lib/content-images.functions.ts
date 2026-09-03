@@ -33,9 +33,20 @@ function parseBucket(value: FormDataEntryValue | null): ContentImageBucket {
   return z.enum(CONTENT_IMAGE_BUCKETS).parse(value);
 }
 
+class PrivateImageBucketError extends Error {}
+
+function assertPublicImageBucket(bucket: ContentImageBucket, metadata: { public: boolean } | null) {
+  if (metadata?.public === false) {
+    throw new PrivateImageBucketError(
+      `Image bucket ${bucket} is private, so its images cannot be displayed using public URLs. Review its contents and public-access setting in Supabase Storage before uploading. No bucket permissions were changed.`,
+    );
+  }
+}
+
 async function getAdminStorageClient(bucket: ContentImageBucket) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin.storage.getBucket(bucket);
+  assertPublicImageBucket(bucket, data);
   if (data) return supabaseAdmin;
 
   const { error } = await supabaseAdmin.storage.createBucket(bucket, {
@@ -43,7 +54,11 @@ async function getAdminStorageClient(bucket: ContentImageBucket) {
     fileSizeLimit: MAX_BYTES,
     allowedMimeTypes: [...ACCEPTED],
   });
-  if (error && !/already exists/i.test(error.message)) throw new Error(error.message);
+  if (error) {
+    if (!/already exists/i.test(error.message)) throw new Error(error.message);
+    const { data: existing } = await supabaseAdmin.storage.getBucket(bucket);
+    assertPublicImageBucket(bucket, existing);
+  }
   return supabaseAdmin;
 }
 
@@ -106,10 +121,15 @@ export const uploadContentImage = createServerFn({ method: "POST" })
     try {
       storageClient = await getAdminStorageClient(bucket);
     } catch (cause) {
+      if (cause instanceof PrivateImageBucketError) throw cause;
       // Fall back to the authenticated admin session. This works when the
       // selected bucket and admin RLS policies already exist, even if the
       // service-role env is missing or wrong in production.
       storageClient = context.supabase;
+      // Bucket metadata may be hidden by RLS. If available, reject a known-private
+      // bucket; otherwise preserve the existing authenticated upload fallback.
+      const { data: metadata } = await storageClient.storage.getBucket(bucket);
+      assertPublicImageBucket(bucket, metadata);
     }
 
     const { error } = await storageClient.storage

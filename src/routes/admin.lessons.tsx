@@ -148,9 +148,9 @@ function LessonsView() {
             <button key={program.id} type="button" onClick={() => setProgramId(program.id)} className={`rounded-sm border px-3 py-1.5 text-xs font-bold transition-colors ${program.id === programId ? "border-ink bg-ink text-ink-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"}`}>{program.name}</button>
           ))}</div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/admin/programs" search={{ action: "new" }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Plus className="mr-1.5 h-3.5 w-3.5" /> New program</Link>
-            {programId && <Link to="/admin/programs" search={{ edit: programId }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit selected</Link>}
-            <Link to="/admin/programs" search={{}} className="inline-flex min-h-9 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"><Settings2 className="mr-1.5 h-3.5 w-3.5" /> Manage programs</Link>
+            <Link to="/admin/programs" search={{ action: "new", edit: undefined }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Plus className="mr-1.5 h-3.5 w-3.5" /> New program</Link>
+            {programId && <Link to="/admin/programs" search={{ action: undefined, edit: programId }} className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"><Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit selected</Link>}
+            <Link to="/admin/programs" search={{ action: undefined, edit: undefined }} className="inline-flex min-h-9 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"><Settings2 className="mr-1.5 h-3.5 w-3.5" /> Manage programs</Link>
           </div>
         </div>
       </div>
@@ -329,6 +329,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onCha
   const [streamUid, setStreamUid] = useState(lesson?.stream_uid ?? "");
   const [streamStatus, setStreamStatus] = useState(lesson?.stream_status ?? "not_uploaded");
   const [thumbnailUrl, setThumbnailUrl] = useState(lesson?.thumbnail_url ?? "");
+  const [streamThumbnailUrl, setStreamThumbnailUrl] = useState(lesson?.stream_thumbnail_url ?? "");
   const [published, setPublished] = useState(lesson?.published ?? false);
   const [previewFree, setPreviewFree] = useState(lesson?.preview_free ?? false);
   const [uploading, setUploading] = useState(false);
@@ -355,7 +356,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onCha
         const refreshed = await refreshStreamVideo({ data: { lessonId: lesson.id } });
         if (cancelled) return;
         setStreamStatus(refreshed.status);
-        if (refreshed.thumbnailUrl) setThumbnailUrl(refreshed.thumbnailUrl);
+        if (refreshed.thumbnailUrl) setStreamThumbnailUrl(refreshed.thumbnailUrl);
         if (refreshed.durationSeconds) setDuration(String(refreshed.durationSeconds));
         await onChanged();
       } catch (cause) {
@@ -380,12 +381,13 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onCha
     try {
       const upload = await createStreamTusUpload({ data: { lessonId: lesson.id, fileName: file.name, fileSize: file.size, maxDurationSeconds: 7200 } });
       setStreamUid(upload.uid);
+      setStreamThumbnailUrl("");
       setStreamStatus("uploading");
       await uploadTusFile(upload.uploadURL, file, setUploadProgress);
       setStreamStatus("processing");
       const refreshed = await refreshStreamVideo({ data: { lessonId: lesson.id } });
       setStreamStatus(refreshed.status);
-      if (refreshed.thumbnailUrl) setThumbnailUrl(refreshed.thumbnailUrl);
+      if (refreshed.thumbnailUrl) setStreamThumbnailUrl(refreshed.thumbnailUrl);
       if (refreshed.durationSeconds) setDuration(String(refreshed.durationSeconds));
       await onChanged();
     } catch (cause) {
@@ -427,6 +429,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onCha
     try {
       const result = await setStreamThumbnailFrame({ data: { lessonId: lesson.id, timeSeconds: Math.max(0, Number(thumbnailTime) || 0) } });
       if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl);
+      if (result.thumbnailUrl) setStreamThumbnailUrl(result.thumbnailUrl);
       setThumbnailRevision((current) => current + 1);
       await onChanged();
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
@@ -452,7 +455,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onCha
       const result = await attachStreamVideo({ data: { lessonId: lesson.id, streamUid: video.uid } });
       setStreamUid(video.uid);
       setStreamStatus(result.status);
-      if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl);
+      setStreamThumbnailUrl(result.thumbnailUrl ?? "");
       setShowStreamLibrary(false);
       await onChanged();
     } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
@@ -500,7 +503,7 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onCha
           <label className="block"><Label>Lesson summary</Label><textarea rows={3} value={summary} onChange={(event) => setSummary(event.target.value)} className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm" /></label>
           <div className="border border-border bg-card p-4">
             <Label>Cloudflare Stream video</Label>
-            <div className="mt-2 flex flex-wrap items-center gap-2"><label className={`inline-flex items-center rounded-sm bg-ink px-3 py-2 text-xs font-bold text-ink-foreground ${!lesson || uploading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}><Upload className="mr-1.5 h-4 w-4" />{uploading ? `Uploading ${uploadProgress}%` : "Upload to Stream"}<input type="file" accept="video/mp4,video/webm,video/quicktime" disabled={!lesson || uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadVideo(file); }} className="sr-only" /></label><Btn disabled={!lesson || uploading} onClick={() => void openStreamLibrary()}>Choose existing video</Btn>{lesson && streamUid && streamStatus !== "ready" && <Btn onClick={async () => { try { const result = await refreshStreamVideo({ data: { lessonId: lesson.id } }); setStreamStatus(result.status); if (result.thumbnailUrl) setThumbnailUrl(result.thumbnailUrl); if (result.durationSeconds) setDuration(String(result.durationSeconds)); await onChanged(); } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); } }}>Refresh status</Btn>}</div>
+            <div className="mt-2 flex flex-wrap items-center gap-2"><label className={`inline-flex items-center rounded-sm bg-ink px-3 py-2 text-xs font-bold text-ink-foreground ${!lesson || uploading ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}><Upload className="mr-1.5 h-4 w-4" />{uploading ? `Uploading ${uploadProgress}%` : "Upload to Stream"}<input type="file" accept="video/mp4,video/webm,video/quicktime" disabled={!lesson || uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadVideo(file); }} className="sr-only" /></label><Btn disabled={!lesson || uploading} onClick={() => void openStreamLibrary()}>Choose existing video</Btn>{lesson && streamUid && streamStatus !== "ready" && <Btn onClick={async () => { try { const result = await refreshStreamVideo({ data: { lessonId: lesson.id } }); setStreamStatus(result.status); if (result.thumbnailUrl) setStreamThumbnailUrl(result.thumbnailUrl); if (result.durationSeconds) setDuration(String(result.durationSeconds)); await onChanged(); } catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); } }}>Refresh status</Btn>}</div>
             {uploading && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full bg-accent transition-[width]" style={{ width: `${uploadProgress}%` }} /></div>}
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{streamUid ? `${streamStatus} · ${streamUid}` : lesson ? "No Stream video uploaded" : "Save this lesson to enable upload"}</p>
             {videoPath && <p className="mt-2 break-all font-mono text-[10px] text-muted-foreground">Legacy Storage file retained: {videoPath}</p>}
@@ -508,10 +511,10 @@ function LessonDrawer({ lesson, programId, modules, nextPosition, onClose, onCha
             {previewUrl && <div className="mt-4 overflow-hidden border border-border bg-black"><div className="flex items-center justify-between bg-background px-3 py-2"><div><span className="block text-xs font-bold">Choose a thumbnail frame</span><span className="font-mono text-[10px] text-muted-foreground">Play or scrub the video, then use the frame you see.</span></div><button type="button" onClick={() => setPreviewUrl("")} aria-label="Close preview"><X className="h-4 w-4" /></button></div><StreamPlayer iframeUrl={previewUrl} title={`${title || "Lesson"} preview`} onTimeChange={(time) => setThumbnailTime(time.toFixed(2))} seekRequest={previewSeek} /><div className="space-y-3 bg-background p-3"><input type="range" min="0" max={Math.max(1, Number(duration) || 1)} step="0.1" value={Math.min(Math.max(0, Number(thumbnailTime) || 0), Math.max(1, Number(duration) || 1))} onChange={(event) => { const time = Number(event.target.value); setThumbnailTime(time.toFixed(2)); setPreviewSeek((current) => ({ time, request: (current?.request ?? 0) + 1 })); }} aria-label="Thumbnail frame timeline" className="w-full accent-lime" /><div className="flex items-center justify-between gap-3"><span className="font-mono text-[11px] font-bold">{formatTimestamp(Number(thumbnailTime) || 0)} / {formatTimestamp(Number(duration) || 0)}</span><Btn variant="ink" disabled={!lesson || !streamUid || saving || streamStatus !== "ready"} onClick={() => void useVideoFrame()}>Use this frame as thumbnail</Btn></div></div></div>}
           </div>
           <div className="border border-border bg-card p-4">
-            <ImageUploadField value={thumbnailUrl} alt={`${title || "Lesson"} thumbnail`} folder={`lesson-thumbnails/${lesson?.id ?? programId}`} bucket="lesson-images" label="Lesson thumbnail" showAlt={false} previewVersion={thumbnailRevision} onChange={(url) => { setThumbnailUrl(url); setThumbnailRevision((current) => current + 1); }} />
+            <ImageUploadField value={thumbnailUrl || streamThumbnailUrl} alt={`${title || "Lesson"} thumbnail`} folder={`lesson-thumbnails/${lesson?.id ?? programId}`} bucket="lesson-images" label="Lesson thumbnail" showAlt={false} previewVersion={thumbnailRevision} onChange={(url) => { setThumbnailUrl(url); setThumbnailRevision((current) => current + 1); }} />
             <div className="mt-3 flex flex-wrap gap-2">
-              {lesson?.stream_thumbnail_url && <Btn onClick={() => { setThumbnailUrl(lesson.stream_thumbnail_url ?? ""); setThumbnailRevision((current) => current + 1); }}>Use Stream default</Btn>}
-              {thumbnailUrl && <Btn onClick={() => setThumbnailUrl("")}>Remove thumbnail</Btn>}
+              {streamThumbnailUrl && <Btn onClick={() => { setThumbnailUrl(""); setThumbnailRevision((current) => current + 1); }}>Use Stream default</Btn>}
+              {thumbnailUrl && <Btn onClick={() => setThumbnailUrl("")}>Remove custom thumbnail</Btn>}
             </div>
             {!previewUrl && streamUid && streamStatus === "ready" && <div className="mt-3"><Btn onClick={() => void previewVideo()}>Open visual frame picker</Btn></div>}
             <p className="mt-2 text-[11px] text-muted-foreground">Upload a custom image, paste an HTTPS URL, or choose a frame directly while watching the secure preview. Custom uploads are stored in Supabase Storage.</p>
@@ -567,7 +570,7 @@ function StreamPlayer({ iframeUrl, title, onTimeChange, seekRequest }: { iframeU
       const script = document.createElement("script");
       script.src = "https://embed.cloudflarestream.com/embed/sdk.latest.js";
       script.async = true;
-      script.dataset.cloudflareStreamSdk = "true";
+      script.dataset["cloudflareStreamSdk"] = "true";
       script.addEventListener("load", connect, { once: true });
       document.head.appendChild(script);
     }
