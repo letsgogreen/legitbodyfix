@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, Loader2, ShoppingBag } from "lucide-react";
 import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
 import { usePaddle } from "@/lib/usePaddle";
-import { supabase } from "@/integrations/supabase/client";
+import { getCustomerAccess } from "@/lib/customer-access";
+import { useCustomerAccess } from "@/lib/useCustomerAccess";
 
 const categories = ["All", "Neck & shoulders", "Ankle & foot", "Hips & balance", "Breathing & recovery"] as const;
 type Category = (typeof categories)[number];
@@ -77,6 +78,15 @@ export function FeaturedPrograms() {
 }
 
 export function CheckoutButton({ program }: { program: PublicProgram }) {
+  const access = useCustomerAccess(program.id);
+  if (access.loading) return <p role="status" className="text-sm">Checking your access…</p>;
+  if (access.error) return <div><p role="alert" className="text-sm">Could not verify your access. Please open your library before purchasing.</p><Link to="/library" className="underline">Open my library</Link></div>;
+  if (access.owned) return <Link to="/library/$programSlug" params={{ programSlug: program.slug }} className="inline-flex min-h-11 w-full items-center justify-center bg-accent px-4 text-sm font-bold text-accent-foreground">Watch program →</Link>;
+  return <div><PurchaseButton program={program} /><Link to="/library" className="mt-3 inline-block text-sm underline underline-offset-4">Already have access? Sign in / Open my library</Link></div>;
+}
+
+function PurchaseButton({ program }: { program: PublicProgram }) {
+  const navigate = useNavigate();
   const { paddle, loading, error: configurationError } = usePaddle();
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +101,11 @@ export function CheckoutButton({ program }: { program: PublicProgram }) {
     }
     setWorking(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { user, programIds } = await getCustomerAccess();
+      if (programIds.includes(program.id)) {
+        await navigate({ to: "/library/$programSlug", params: { programSlug: program.slug } });
+        return;
+      }
       const email = user?.email;
       paddle.Checkout.open({
         items: [{ priceId: program.paddlePriceId, quantity: 1 }],

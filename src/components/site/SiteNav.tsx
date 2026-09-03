@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const links = [
   { label: "Body regions", href: "/#regions" },
@@ -11,6 +12,19 @@ const links = [
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    let active = true;
+    let changed = false;
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      changed = true;
+      if (active) setSignedIn(Boolean(session?.user));
+    });
+    void supabase.auth.getUser().then(({ data }) => {
+      if (active && !changed) setSignedIn(Boolean(data.user));
+    }).catch(() => {});
+    return () => { active = false; data.subscription.unsubscribe(); };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur">
@@ -23,6 +37,7 @@ export function SiteNav() {
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
+          <Link to="/library" className="inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">{signedIn ? "My library" : "Sign in / Join"}</Link>
           {links.map((l) => (
             <a
               key={l.label}
@@ -40,6 +55,8 @@ export function SiteNav() {
           </Link>
         </nav>
 
+        <div className="flex items-center gap-3 lg:hidden">
+        <Link to="/library" className="inline-flex min-h-11 items-center text-xs font-bold underline underline-offset-4">{signedIn ? "My library" : "Sign in / Join"}</Link>
         <button
           type="button"
           aria-label={open ? "Close menu" : "Open menu"}
@@ -50,6 +67,7 @@ export function SiteNav() {
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
+        </div>
       </div>
 
       {open && (

@@ -45,7 +45,7 @@ function LibraryShell() {
           <button type="button" onClick={() => void supabase.auth.signOut()} className="inline-flex shrink-0 items-center gap-2 text-xs font-bold"><LogOut className="h-3.5 w-3.5" />Sign out</button>
         </div>
       </div>
-      <Outlet />
+      <Outlet key={user.id} />
       <SiteFooter />
     </div>
   );

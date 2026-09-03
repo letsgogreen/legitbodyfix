@@ -39,7 +39,8 @@ Target confirmed through the signed-in Supabase dashboard:
   A real recipient claim and signed video playback still require verification.
 - No Storage policies, bucket permissions, OAuth credentials, hosted email
   templates, production deployment or main branch were changed.
-- Recent browser-free fixes remain local and uncommitted.
+- Upload/thumbnail/price fixes were deployed to the feature-branch preview at
+  commit `192c329`; Vercel and Cloudflare Pages checks passed. Production is unchanged.
 - Admin save/reload, actual image upload, live gifted playback and email rendering
   are still unverified.
 - Browser check of the preview `/admin/customers` reached the administrator
@@ -47,13 +48,25 @@ Target confirmed through the signed-in Supabase dashboard:
   preview origin. No login email was sent; user sign-in is needed to inspect
   the gift-management UI against the applied database.
 
-## Next release checks (email work excluded)
+## Current user decisions and dashboard correction
+
+- User paused the real gift-recipient test (roadmap step 1) and skipped the
+  upload/thumbnail acceptance test (step 2). Skipped is not verified.
+- Preview administrator login and the gift form loaded successfully; four full
+  sessions appeared in the selector with no existing gift records.
+- Ankle Recovery's secure admin player reached the playing state; its existing
+  thumbnail loaded at 1200 × 600. No lesson or image was changed.
+- Dashboard correction: both overview and per-program counts now use a nonempty
+  Stream UID plus `stream_status = ready`. Legacy `video_path` no longer drives
+  the overview count. This describes stored readiness, not a live playback guarantee.
+
+## Release checks (email work excluded)
 
 1. Run local regression/type/build checks and the separate PostgreSQL gift tests.
 2. Update the feature-branch preview with the local fixes; do not merge main yet.
-3. Sign into that preview as administrator and check gift form loading, upload,
-   save/reload, thumbnail selection and program price refresh.
-4. With an explicitly designated test recipient and lesson, verify gift claim,
-   signed playback and revocation without changing existing paid access.
+3. Upload/save/reload and thumbnail acceptance checks were skipped by the user;
+   do not report them as passed. Program price refresh still needs live verification.
+4. Real gift claim/playback/revocation testing is paused until the user resumes it
+   and designates a recipient and lesson. Preserve existing paid access.
 5. Resolve the public dictionary content gate (9 published of 179 records)
    before approving a production release. Do not bulk publish draft records.

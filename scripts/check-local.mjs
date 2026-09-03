@@ -11,6 +11,8 @@ const checks = [
     "tests/lesson-thumbnail-selection.test.js",
     "tests/image-upload-lifecycle.test.js",
     "tests/content-image-server.test.js",
+    "tests/lesson-video-readiness.test.js",
+    "tests/customer-access-routing.test.js",
   ]],
   ["Muscle navigation", ["scripts/test-muscle-navigation.cjs"]],
   ["Magic-link template", ["scripts/test-magic-link-template.mjs"]],
