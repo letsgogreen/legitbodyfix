@@ -50,6 +50,16 @@ test("site navigation always exposes the customer library entry", () => {
   assert.match(source, /My library/);
 });
 
+test("signed-in site navigation exposes a responsive sign-out control", () => {
+  const navigation = read("src/components/site/SiteNav.tsx");
+  const library = read("src/routes/library.tsx");
+  assert.match(navigation, /supabase\.auth\.signOut\(\)/);
+  assert.match(navigation, /Sign out/);
+  assert.match(navigation, /lg:flex/);
+  assert.match(navigation, /lg:hidden/);
+  assert.doesNotMatch(library, /Signed in as/);
+});
+
 test("checkout verifies current ownership before initializing a purchase", () => {
   const source = read("src/components/site/FeaturedPrograms.tsx");
   const verify = source.indexOf("await getCustomerAccess()");

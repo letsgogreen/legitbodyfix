@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const links = [
@@ -13,6 +13,7 @@ const links = [
 export function SiteNav() {
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   useEffect(() => {
     let active = true;
     let changed = false;
@@ -25,6 +26,17 @@ export function SiteNav() {
     }).catch(() => {});
     return () => { active = false; data.subscription.unsubscribe(); };
   }, []);
+
+  async function signOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setSigningOut(false);
+      return;
+    }
+    window.location.assign("/");
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur">
@@ -53,6 +65,17 @@ export function SiteNav() {
           >
             Take the Free Movement Check
           </Link>
+          {signedIn && (
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              disabled={signingOut}
+              className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-border px-4 py-2.5 text-sm font-bold outline-none hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+            >
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              {signingOut ? "Signing out…" : "Sign out"}
+            </button>
+          )}
         </nav>
 
         <div className="flex items-center gap-3 lg:hidden">
@@ -90,6 +113,17 @@ export function SiteNav() {
             >
               Take the Free Movement Check
             </Link>
+            {signedIn && (
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                disabled={signingOut}
+                className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-border px-4 py-3 text-sm font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+              >
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                {signingOut ? "Signing out…" : "Sign out"}
+              </button>
+            )}
           </nav>
         </div>
       )}
