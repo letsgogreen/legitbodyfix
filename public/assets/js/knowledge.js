@@ -1727,6 +1727,7 @@
   function openFromUrl() {
     var params = new URLSearchParams(window.location.search);
     var type = params.get("type");
+    var path = params.get("path");
     var id = params.get("id");
     var query = params.get("q");
     if (type === "muscles" && !id) {
@@ -1761,7 +1762,7 @@
     }
     if (labels[type] && !id) {
       showDirectory(false);
-      selectType(type);
+      selectType(type, path);
       return;
     }
     if (!labels[type] || !id) { showDirectory(false); return; }

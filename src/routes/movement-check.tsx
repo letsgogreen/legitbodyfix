@@ -88,6 +88,21 @@ function MovementCheck() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
       <main>
+        <nav className="border-b border-border bg-secondary/25" aria-label="Learn sections">
+          <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 py-3 lg:px-8">
+            <Link
+              to="/movement-check"
+              search={regionSlug ? { region: regionSlug } : {}}
+              aria-current="page"
+              className="inline-flex min-h-10 shrink-0 items-center rounded-sm bg-foreground px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide text-background"
+            >
+              Body regions
+            </Link>
+            <a href="/knowledge.html?type=muscles" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Muscle dictionary</a>
+            <a href="/knowledge.html?type=conditions&amp;path=postural-movement" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Posture</a>
+            <a href="/knowledge.html?type=conditions&amp;path=musculoskeletal-condition" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Conditions</a>
+          </div>
+        </nav>
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
             <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
