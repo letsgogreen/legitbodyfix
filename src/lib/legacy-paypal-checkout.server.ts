@@ -1,39 +1,39 @@
 import { captureAndVerifyPayPalOrder, createPayPalOrder, paypalConfig } from "@/lib/paypal.server";
 
-const product = {
-  id: "neck-alignment",
-  programSlug: "neck-shoulder-reset",
-  title: "Neck Alignment — Single Session",
-  amount: 45,
-  amountMinor: 4500,
-  currency: "USD",
-};
+const products = [
+  { id: "neck-alignment", programSlug: "neck-shoulder-reset", title: "Neck & Shoulder Reset", amount: 69 },
+  { id: "ankle-sprain-rehabilitation", programSlug: "ankle-recovery", title: "Ankle Recovery Program", amount: 69 },
+  { id: "shoulder-movement", programSlug: "shoulder-movement", title: "Shoulder Movement Program", amount: 89 },
+  { id: "bunion-hallux-valgus-guide", programSlug: "bunion-hallux-valgus-guide", title: "Bunion / Hallux Valgus Guide", amount: 34 },
+] as const;
 
 export function legacyCheckoutConfig() {
   const config = paypalConfig();
   return {
     clientId: config.clientId,
-    currency: product.currency,
-    catalog: [{ id: product.id, title: product.title, amount: product.amount, currency: product.currency }],
+    currency: "USD",
+    catalog: products.map(({ id, title, amount }) => ({ id, title, amount, currency: "USD" })),
   };
 }
 
-async function programId() {
+async function programId(programSlug: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.from("programs").select("id,published").eq("slug", product.programSlug).maybeSingle();
+  const { data, error } = await supabaseAdmin.from("programs").select("id,published").eq("slug", programSlug).maybeSingle();
   if (error || !data?.published) throw new Error(error?.message || "This program is not available for purchase.");
   return data.id;
 }
 
 export async function createLegacyPayPalOrder(productId: string) {
-  if (productId !== product.id) throw new Error("Unknown product.");
-  return createPayPalOrder(await programId(), product.amountMinor, product.currency);
+  const product = products.find((item) => item.id === productId);
+  if (!product) throw new Error("Unknown product.");
+  return createPayPalOrder(await programId(product.programSlug), product.amount * 100, "USD");
 }
 
 export async function captureLegacyPayPalOrder(orderId: string) {
   const payment = await captureAndVerifyPayPalOrder(orderId);
-  const expectedProgramId = await programId();
-  if (payment.programId !== expectedProgramId || payment.amountMinor !== product.amountMinor || payment.currency !== product.currency.toLowerCase()) {
+  const resolved = await Promise.all(products.map(async (product) => ({ product, programId: await programId(product.programSlug) })));
+  const match = resolved.find((item) => item.programId === payment.programId);
+  if (!match || payment.amountMinor !== match.product.amount * 100 || payment.currency !== "usd") {
     throw new Error("The PayPal payment did not match this product.");
   }
 
