@@ -37,7 +37,7 @@ button, input, select, textarea { font: inherit; }
   top: 0;
   z-index: 20;
 }
-.brand { display: flex; align-items: center; gap: 13px; text-decoration: none; font-weight: 800; text-transform: uppercase; }
+.brand { display: flex; align-items: center; text-decoration: none; font-size: 18px; font-weight: 800; letter-spacing: -.025em; }
 .brand-mark {
   width: 42px;
   height: 42px;
