@@ -6,7 +6,15 @@ var labelElement = document.getElementById("productLabel");
 var nameElement = document.getElementById("productName");
 var priceElement = document.getElementById("productPrice");
 var introElement = document.getElementById("checkoutIntro");
+var backProgramLink = document.getElementById("backProgramLink");
 var BUNDLE_ID = "neck-shoulder-reset";
+
+var SALES_PAGE_IDS = {
+  "neck-alignment": "neck-alignment",
+  "ankle-sprain-rehabilitation": "ankle-sprain-rehabilitation",
+  "shoulder-movement": "shoulder-movement",
+  "bunion-hallux-valgus-guide": "bunion-hallux-valgus-guide"
+};
 
 function canonicalProductId(value) {
   return value === "shoulder-reset" ? "ankle-sprain-rehabilitation" : value;
@@ -50,6 +58,12 @@ function applyProduct(product) {
     introElement.textContent = isBundle
       ? "Get lifetime access to the Full Body Restoration Package. There is no subscription and no recurring charge."
       : "Get lifetime access to \u201c" + sessionTitle + "\u201d. There is no subscription and no recurring charge.";
+  }
+  if (backProgramLink) {
+    var salesPageId = SALES_PAGE_IDS[product.id];
+    backProgramLink.href = salesPageId
+      ? "/video.html?id=" + encodeURIComponent(salesPageId)
+      : "/#programs";
   }
 }
 
