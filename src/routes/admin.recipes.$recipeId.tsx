@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, Plus, Save, X } from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
-import { detectKoreanText } from "@/lib/recipe-import";
+import { deriveRecipeGoal, detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/recipes/$recipeId")({
@@ -105,8 +105,12 @@ function RecipeReview() {
       setStatus(`Could not load this recipe: ${error?.message ?? "not found"}`);
       return;
     }
-    setRecord(data as RecipeRow);
-    setStatus(`Version ${data.version} loaded · review status ${data.review_status}.`);
+    const loadedRecord = data as RecipeRow;
+    const generatedGoal = loadedRecord.goal?.trim() ? null : deriveRecipeGoal(loadedRecord.title);
+    setRecord(generatedGoal ? { ...loadedRecord, goal: generatedGoal } : loadedRecord);
+    setStatus(generatedGoal
+      ? `Version ${data.version} loaded · a suggested goal was generated. Review it, then save or publish.`
+      : `Version ${data.version} loaded · review status ${data.review_status}.`);
 
     const [muscleLinksResult, programLinksResult, guideLinksResult, musclesResult, programsResult, guidesResult] = await Promise.all([
       supabase.from("recipe_muscles").select("role, muscle_id, muscles(name, published)").eq("recipe_id", recipeId),

@@ -82,6 +82,14 @@ export function slugifyRecipe(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Provides a reviewable fallback when legacy imports have no explicit symptom/goal tag. */
+export function deriveRecipeGoal(title: string) {
+  const subject = title.trim().replace(/[.!?]+$/, "").toLowerCase();
+  return subject
+    ? `Explore movement options related to ${subject} with controlled variations, then reassess.`
+    : "Explore a focused movement variation with control, then reassess before progressing.";
+}
+
 function same(a: unknown, b: unknown) {
   if (Array.isArray(a) || Array.isArray(b)) {
     const left = (Array.isArray(a) ? a : []).map(String).sort();
@@ -143,7 +151,7 @@ export function recipeFromNotion(input: {
   if (!input.contraindications)
     issues.push({ level: "error", message: "No contraindications / red flags — cannot publish." });
   if (!symptoms.length)
-    issues.push({ level: "warning", message: "No symptom/goal tags, so goal stays empty." });
+    issues.push({ level: "warning", message: "No symptom/goal tags; a reviewable goal was generated from the title." });
   if (input.progressionLevel && !level)
     issues.push({
       level: "warning",
@@ -175,7 +183,7 @@ export function recipeFromNotion(input: {
     notion_url: input.url,
     title: title || "(untitled)",
     slug: slugifyRecipe(title) || `recipe-${input.pageId.slice(0, 8)}`,
-    goal: symptoms[0] ?? null,
+    goal: symptoms[0] ?? deriveRecipeGoal(title),
     summary: input.assessmentClues,
     instructions: input.instructions,
     regions,
