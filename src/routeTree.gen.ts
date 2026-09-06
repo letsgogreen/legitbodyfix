@@ -44,8 +44,11 @@ import { Route as AdminMusclesImportRouteImport } from './routes/admin.muscles.i
 import { Route as AdminRecipesIndexRouteImport } from './routes/admin.recipes.index'
 import { Route as AdminRecipesRecipeIdRouteImport } from './routes/admin.recipes.$recipeId'
 import { Route as AdminRecipesImportRouteImport } from './routes/admin.recipes.import'
+import { Route as ApiPaypalConfigRouteImport } from './routes/api.paypal.config'
 import { Route as ApiPublicPaddleWebhookRouteImport } from './routes/api.public.paddle-webhook'
 import { Route as Ver1AdminSplatRouteImport } from './routes/ver1.admin.$'
+import { Route as ApiPaypalOrdersCaptureRouteImport } from './routes/api.paypal.orders.capture'
+import { Route as ApiPaypalOrdersCreateRouteImport } from './routes/api.paypal.orders.create'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -223,6 +226,11 @@ const AdminRecipesImportRoute = AdminRecipesImportRouteImport.update({
   path: '/recipes/import',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPaypalConfigRoute = ApiPaypalConfigRouteImport.update({
+  id: '/api/paypal/config',
+  path: '/api/paypal/config',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaddleWebhookRoute = ApiPublicPaddleWebhookRouteImport.update({
   id: '/api/public/paddle-webhook',
   path: '/api/public/paddle-webhook',
@@ -232,6 +240,16 @@ const Ver1AdminSplatRoute = Ver1AdminSplatRouteImport.update({
   id: '/$',
   path: '/$',
   getParentRoute: () => Ver1AdminRoute,
+} as any)
+const ApiPaypalOrdersCaptureRoute = ApiPaypalOrdersCaptureRouteImport.update({
+  id: '/api/paypal/orders/capture',
+  path: '/api/paypal/orders/capture',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPaypalOrdersCreateRoute = ApiPaypalOrdersCreateRouteImport.update({
+  id: '/api/paypal/orders/create',
+  path: '/api/paypal/orders/create',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -268,10 +286,13 @@ export interface FileRoutesByFullPath {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles/': typeof AdminMusclesIndexRoute
   '/admin/recipes/': typeof AdminRecipesIndexRoute
+  '/api/paypal/orders/capture': typeof ApiPaypalOrdersCaptureRoute
+  '/api/paypal/orders/create': typeof ApiPaypalOrdersCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -303,10 +324,13 @@ export interface FileRoutesByTo {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles': typeof AdminMusclesIndexRoute
   '/admin/recipes': typeof AdminRecipesIndexRoute
+  '/api/paypal/orders/capture': typeof ApiPaypalOrdersCaptureRoute
+  '/api/paypal/orders/create': typeof ApiPaypalOrdersCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -343,10 +367,13 @@ export interface FileRoutesById {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
   '/admin/muscles/': typeof AdminMusclesIndexRoute
   '/admin/recipes/': typeof AdminRecipesIndexRoute
+  '/api/paypal/orders/capture': typeof ApiPaypalOrdersCaptureRoute
+  '/api/paypal/orders/create': typeof ApiPaypalOrdersCreateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -384,10 +411,13 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles/'
     | '/admin/recipes/'
+    | '/api/paypal/orders/capture'
+    | '/api/paypal/orders/create'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -419,10 +449,13 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles'
     | '/admin/recipes'
+    | '/api/paypal/orders/capture'
+    | '/api/paypal/orders/create'
   id:
     | '__root__'
     | '/'
@@ -458,10 +491,13 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
     | '/admin/muscles/'
     | '/admin/recipes/'
+    | '/api/paypal/orders/capture'
+    | '/api/paypal/orders/create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -479,7 +515,10 @@ export interface RootRouteChildren {
   GuidesSlugRoute: typeof GuidesSlugRoute
   ProgramsProgramSlugRoute: typeof ProgramsProgramSlugRoute
   RecipesSlugRoute: typeof RecipesSlugRoute
+  ApiPaypalConfigRoute: typeof ApiPaypalConfigRoute
   ApiPublicPaddleWebhookRoute: typeof ApiPublicPaddleWebhookRoute
+  ApiPaypalOrdersCaptureRoute: typeof ApiPaypalOrdersCaptureRoute
+  ApiPaypalOrdersCreateRoute: typeof ApiPaypalOrdersCreateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -729,6 +768,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRecipesImportRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/paypal/config': {
+      id: '/api/paypal/config'
+      path: '/api/paypal/config'
+      fullPath: '/api/paypal/config'
+      preLoaderRoute: typeof ApiPaypalConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/paddle-webhook': {
       id: '/api/public/paddle-webhook'
       path: '/api/public/paddle-webhook'
@@ -742,6 +788,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/ver1/admin/$'
       preLoaderRoute: typeof Ver1AdminSplatRouteImport
       parentRoute: typeof Ver1AdminRoute
+    }
+    '/api/paypal/orders/capture': {
+      id: '/api/paypal/orders/capture'
+      path: '/api/paypal/orders/capture'
+      fullPath: '/api/paypal/orders/capture'
+      preLoaderRoute: typeof ApiPaypalOrdersCaptureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/paypal/orders/create': {
+      id: '/api/paypal/orders/create'
+      path: '/api/paypal/orders/create'
+      fullPath: '/api/paypal/orders/create'
+      preLoaderRoute: typeof ApiPaypalOrdersCreateRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -849,7 +909,10 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesSlugRoute: GuidesSlugRoute,
   ProgramsProgramSlugRoute: ProgramsProgramSlugRoute,
   RecipesSlugRoute: RecipesSlugRoute,
+  ApiPaypalConfigRoute: ApiPaypalConfigRoute,
   ApiPublicPaddleWebhookRoute: ApiPublicPaddleWebhookRoute,
+  ApiPaypalOrdersCaptureRoute: ApiPaypalOrdersCaptureRoute,
+  ApiPaypalOrdersCreateRoute: ApiPaypalOrdersCreateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
