@@ -730,6 +730,7 @@
   }
 
   function renderAtlas() {
+    var publicRegions = ["head-neck", "shoulder-arm", "spine-rib-cage", "pelvis-hip", "knee", "foot-ankle"];
     function createAtlasCard(region) {
       var meta = muscleRegions[region];
       var count = data.muscles.filter(function (item) { return item && item.published !== false && muscleInRegion(item, region); }).length;
@@ -751,18 +752,21 @@
         updateFunctionOptions();
         updateMuscleGroupFilters();
         render();
+        updateUrl();
         grid.scrollIntoView({ behavior: "smooth", block: "start" });
       });
       return card;
     }
     if (activeMuscleRegion === "all") {
-      atlasGrid.replaceChildren();
-      muscleAtlas.hidden = true;
+      muscleAtlas.hidden = activeType !== "muscles";
+      muscleAtlasTitle.textContent = "Explore the anatomy atlas";
+      atlasGrid.classList.add("is-region-overview");
+      atlasGrid.replaceChildren.apply(atlasGrid, publicRegions.map(createAtlasCard));
       return;
     }
-    muscleAtlas.hidden = activeType !== "muscles";
-    muscleAtlasTitle.textContent = muscleRegions[activeMuscleRegion].title + " anatomy reference";
-    atlasGrid.replaceChildren(createAtlasCard(activeMuscleRegion));
+    atlasGrid.classList.remove("is-region-overview");
+    atlasGrid.replaceChildren();
+    muscleAtlas.hidden = true;
   }
 
   function pluralRole(role) {
@@ -804,6 +808,7 @@
           muscleFunction.value = role;
           updateMuscleGroupFilters();
           render();
+          updateUrl();
           grid.scrollIntoView({ behavior: "smooth", block: "start" });
         });
         return button;
@@ -858,6 +863,16 @@
       if (labels[activeType]) url.searchParams.set("type", activeType);
       else url.searchParams.delete("type");
       url.searchParams.delete("id");
+      if (activeType === "muscles") {
+        if (activeMuscleRegion !== "all") url.searchParams.set("region", activeMuscleRegion); else url.searchParams.delete("region");
+        if (activeMuscleGroup !== "all") url.searchParams.set("group", activeMuscleGroup); else url.searchParams.delete("group");
+        if (activeMuscleFunction !== "all") url.searchParams.set("function", activeMuscleFunction); else url.searchParams.delete("function");
+        if (activeMuscleVisual !== "all") url.searchParams.set("visual", activeMuscleVisual); else url.searchParams.delete("visual");
+        if (muscleSort.value !== "body") url.searchParams.set("order", muscleSort.value); else url.searchParams.delete("order");
+      } else {
+        ["region", "group", "function", "visual", "order"].forEach(function (key) { url.searchParams.delete(key); });
+      }
+      if (search.value.trim()) url.searchParams.set("q", search.value.trim().slice(0, 120)); else url.searchParams.delete("q");
     }
     history.pushState({}, "", url.pathname + url.search);
   }
@@ -1641,7 +1656,6 @@
     updateRecipeCounts();
     renderMovementActions();
     renderAtlas();
-    muscleAtlas.hidden = true;
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && !query && !muscleInRegion(record.item, activeMuscleRegion)) return false;
@@ -1715,6 +1729,29 @@
     var type = params.get("type");
     var id = params.get("id");
     var query = params.get("q");
+    if (type === "muscles" && !id) {
+      var region = params.get("region");
+      activeMuscleRegion = Object.prototype.hasOwnProperty.call(muscleRegions, region) ? region : "all";
+      activeMuscleGroup = params.get("group") || "all";
+      activeMuscleFunction = params.get("function") || "all";
+      activeMuscleVisual = ["focused", "regional"].indexOf(params.get("visual")) !== -1 ? params.get("visual") : "all";
+      muscleFunction.value = activeMuscleFunction;
+      muscleVisual.value = activeMuscleVisual;
+      muscleSort.value = params.get("order") === "alpha" ? "alpha" : "body";
+      muscleRegionButtons.forEach(function (candidate) {
+        var selected = candidate.dataset.muscleRegion === activeMuscleRegion;
+        candidate.classList.toggle("is-active", selected);
+        candidate.setAttribute("aria-pressed", String(selected));
+      });
+      if (query) search.value = query.slice(0, 120);
+      showDirectory(false);
+      selectType(type);
+      updateFunctionOptions();
+      updateMuscleGroupFilters();
+      render();
+      updateUrl();
+      return;
+    }
     if (labels[type] && !id && query) {
       showDirectory(false);
       search.value = query.slice(0, 120);
@@ -1749,9 +1786,11 @@
       muscleFunction.value = "all";
       activeMuscleGroup = "all";
       muscleRegionButtons.forEach(function (candidate) { var selected = candidate === button; candidate.classList.toggle("is-active", selected); candidate.setAttribute("aria-pressed", String(selected)); });
-      updateFunctionOptions();
-      updateMuscleGroupFilters();
-      render();
+        updateFunctionOptions();
+        updateMuscleGroupFilters();
+        render();
+        updateUrl();
+      updateUrl();
     });
   });
   muscleFunctionBrowse.addEventListener("click", function () {
@@ -1769,12 +1808,14 @@
     activeMuscleFunction = muscleFunction.value;
     updateMuscleGroupFilters();
     render();
+    updateUrl();
   });
   muscleVisual.addEventListener("change", function () {
     activeMuscleVisual = muscleVisual.value;
     render();
+    updateUrl();
   });
-  muscleSort.addEventListener("change", render);
+  muscleSort.addEventListener("change", function () { render(); updateUrl(); });
   muscleReset.addEventListener("click", function () {
     muscleFunctionBrowseOpen = false;
     activeMuscleRegion = "all";
@@ -1793,6 +1834,7 @@
     updateFunctionOptions();
     updateMuscleGroupFilters();
     render();
+    updateUrl();
   });
   recipeRegionButtons.forEach(function (button) {
     button.addEventListener("click", function () {
@@ -1816,7 +1858,7 @@
       render();
     });
   });
-  search.addEventListener("input", render);
+  search.addEventListener("input", function () { render(); updateUrl(); });
   document.getElementById("detailBack").addEventListener("click", function () { showDirectory(); });
   window.addEventListener("popstate", openFromUrl);
 
