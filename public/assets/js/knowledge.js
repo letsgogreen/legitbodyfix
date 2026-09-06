@@ -57,7 +57,7 @@
     var namesMuscle = description.indexOf(title) !== -1 || (titleWords.length > 0 && titleWords.every(function (word) {
       return description.indexOf(word) !== -1;
     }));
-    var describesFocusedReference = /highlight|focus|depict|render|color coding|identif|anatomical illustration|anatomy plate|line illustration/.test(description);
+    var describesFocusedReference = /highlight|focus|isolate|target(?:ed)? color|depict|render|color coding|identif|anatomical illustration|anatomy plate|line illustration/.test(description);
     return Boolean(title) && namesMuscle && describesFocusedReference;
   }
 
