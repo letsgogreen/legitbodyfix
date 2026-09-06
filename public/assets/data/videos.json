@@ -35,14 +35,14 @@
     "videoUrl": "",
     "thumbnailUrl": "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/thumbnails/2026-07/1785162514945-a92a560beb9397100d6dfc71-neck.png",
     "published": true,
-    "price": 45
+    "price": 69
   },
   {
     "id": "ankle-sprain-rehabilitation",
     "legacyIds": [
       "shoulder-reset"
     ],
-    "programId": "neck-shoulder-reset",
+    "programId": "ankle-recovery",
     "level": "INTERMEDIATE",
     "moduleNumber": 2,
     "title": "Ankle Sprain Rehabilitation",
@@ -75,7 +75,7 @@
     "videoUrl": "",
     "thumbnailUrl": "https://pub-5fe73d4ab1934bd99b41f77568617c00.r2.dev/thumbnails/2026-07/1785530416111-28bf1c484c1f7bb75f197f9a-ankle-sprain.jpg",
     "published": true,
-    "price": 14
+    "price": 69
   },
   {
     "id": "pelvic-balance",
@@ -218,5 +218,59 @@
     "thumbnailUrl": "",
     "published": true,
     "price": 8
+  },
+  {
+    "id": "shoulder-movement",
+    "programId": "shoulder-movement",
+    "level": "INTERMEDIATE",
+    "moduleNumber": 7,
+    "title": "Shoulder Movement Program",
+    "homepageCategory": "Neck & shoulders",
+    "description": "A complete guided session for shoulder positioning, control, and overhead capacity.",
+    "landingEyebrow": "Complete shoulder session",
+    "landingHeadline": "Build stronger, more confident shoulder movement.",
+    "landingSummary": "Follow one complete session that combines inhibition, activation, and integration to improve shoulder control and comfortable overhead movement.",
+    "landingBenefit1": "Restore comfortable shoulder range and positioning.",
+    "landingBenefit2": "Activate the muscles that support scapular control.",
+    "landingBenefit3": "Integrate that control into stronger overhead movement.",
+    "landingAudience": "For people who want a structured shoulder session instead of disconnected mobility drills.",
+    "landingReassurance": "One payment gives you ongoing access to the complete guided session.",
+    "relatedMuscleGroupIds": ["trapezius", "rotator-cuff", "superficial-neck"],
+    "relatedMuscleIds": ["upper-trapezius", "lower-trapezius", "infraspinatus", "levator-scapulae"],
+    "durationMinutes": 12,
+    "equipment": "Guided",
+    "streamVideoId": "",
+    "streamReady": false,
+    "videoUrl": "",
+    "thumbnailUrl": "https://choyenazxmlcnnyayozy.supabase.co/storage/v1/object/public/lesson-images/lesson-thumbnails/20023081-1e45-4dfc-b599-252c8a6d7d38/1788317206775-anterior-dislocation.jpg",
+    "published": true,
+    "price": 89
+  },
+  {
+    "id": "bunion-hallux-valgus-guide",
+    "programId": "bunion-hallux-valgus-guide",
+    "level": "ALL LEVELS",
+    "moduleNumber": 8,
+    "title": "Bunion / Hallux Valgus Guide",
+    "homepageCategory": "Ankle & foot",
+    "description": "A complete guided session for big-toe mobility, foot control, and more comfortable loading.",
+    "landingEyebrow": "Complete foot session",
+    "landingHeadline": "Restore control from the big toe upward.",
+    "landingSummary": "Use one complete session combining inhibition, activation, and integration to improve big-toe movement, foot control, and practical loading strategies.",
+    "landingBenefit1": "Improve comfortable big-toe mobility.",
+    "landingBenefit2": "Activate the intrinsic muscles that support foot control.",
+    "landingBenefit3": "Integrate better toe control into standing and walking.",
+    "landingAudience": "For people who want practical movement guidance for bunion or hallux valgus management.",
+    "landingReassurance": "One payment gives you ongoing access to the complete guided session.",
+    "relatedMuscleGroupIds": ["intrinsic-foot", "posterior-lower-leg", "anterior-lower-leg"],
+    "relatedMuscleIds": ["abductor-hallucis", "flexor-hallucis-brevis", "tibialis-posterior"],
+    "durationMinutes": 12,
+    "equipment": "Guided",
+    "streamVideoId": "",
+    "streamReady": false,
+    "videoUrl": "",
+    "thumbnailUrl": "https://choyenazxmlcnnyayozy.supabase.co/storage/v1/object/public/lesson-images/lesson-thumbnails/8709982d-6de3-4e0c-90e2-8fc7509430be/1788318488411-what-is-hallux-valgus.webp",
+    "published": true,
+    "price": 34
   }
 ]
