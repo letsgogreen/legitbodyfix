@@ -14,10 +14,10 @@ export function SiteFooter() {
             <ul className="mt-4 space-y-3 text-sm text-ink-foreground/70">
               <li>
                 <a
-                  href="/#regions"
+                  href="/movement-check"
                   className="rounded-sm hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  Body regions
+                  Learn by body region
                 </a>
               </li>
               <li>
