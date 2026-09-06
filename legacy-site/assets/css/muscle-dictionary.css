@@ -6,7 +6,7 @@
 
 .knowledge-card-media {
   position: relative;
-  height: 108px;
+  height: clamp(210px, 18vw, 260px);
   margin: -22px -22px 18px;
   display: block;
   overflow: hidden;
@@ -47,7 +47,7 @@
   display: block;
   object-fit: contain;
   object-position: center;
-  padding: 8px;
+  padding: 4px;
   background: #fff;
 }
 
@@ -696,7 +696,7 @@
   .movement-family .knowledge-card-media { height: 164px; }
   .muscle-region-grid > .knowledge-card .knowledge-card-media { height: 164px; }
   .knowledge-card-media {
-    height: 120px;
+    height: 210px;
   }
   .muscle-collective-card .knowledge-card-media {
     height: 164px;
