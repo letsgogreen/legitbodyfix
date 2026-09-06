@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, Loader2, ShoppingBag } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, Loader2 } from "lucide-react";
 import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
-import { usePaddle } from "@/lib/usePaddle";
-import { getCustomerAccess } from "@/lib/customer-access";
 import { useCustomerAccess } from "@/lib/useCustomerAccess";
+import { captureProgramPayPalOrder, createProgramPayPalOrder, getPayPalClientConfig } from "@/lib/paypal.functions";
 
 const categories = ["All", "Neck & shoulders", "Ankle & foot", "Hips & balance", "Breathing & recovery"] as const;
 type Category = (typeof categories)[number];
@@ -86,51 +85,68 @@ export function CheckoutButton({ program }: { program: PublicProgram }) {
 }
 
 function PurchaseButton({ program }: { program: PublicProgram }) {
-  const navigate = useNavigate();
-  const { paddle, loading, error: configurationError } = usePaddle();
-  const [working, setWorking] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rendered = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!program.paddlePriceId) return <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/70">Coming soon</span>;
-
-  async function openCheckout() {
-    setError(null);
-    if (!paddle || !program.paddlePriceId) {
-      setError("Checkout is still loading. Try again in a moment.");
-      return;
-    }
-    setWorking(true);
-    try {
-      const { user, programIds } = await getCustomerAccess();
-      if (programIds.includes(program.id)) {
-        await navigate({ to: "/library/$programSlug", params: { programSlug: program.slug } });
-        return;
+  useEffect(() => {
+    let active = true;
+    async function mountPayPal() {
+      try {
+        const config = await getPayPalClientConfig();
+        await loadPayPalSdk(config.clientId);
+        if (!active || !containerRef.current || rendered.current || !window.paypal) return;
+        rendered.current = true;
+        await window.paypal.Buttons({
+          style: { layout: "vertical", color: "gold", shape: "rect", label: "pay" },
+          createOrder: async () => (await createProgramPayPalOrder({ data: { programId: program.id } })).orderId,
+          onApprove: async ({ orderID }) => {
+            setError(null);
+            await captureProgramPayPalOrder({ data: { orderId: orderID } });
+            window.location.assign("/library?purchase=complete");
+          },
+          onCancel: () => setError("Checkout was cancelled. No payment was taken."),
+          onError: () => setError("PayPal checkout could not be completed. Please try again."),
+        }).render(containerRef.current);
+      } catch (cause) {
+        if (active) setError(cause instanceof Error ? cause.message : "PayPal checkout is unavailable.");
       }
-      const email = user?.email;
-      paddle.Checkout.open({
-        items: [{ priceId: program.paddlePriceId, quantity: 1 }],
-        ...(email ? { customer: { email } } : {}),
-        customData: {
-          program_id: program.id,
-          program_slug: program.slug,
-        },
-        settings: { successUrl: `${window.location.origin}/checkout/complete`, allowLogout: false },
-      });
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Checkout could not be opened.");
-    } finally {
-      setWorking(false);
     }
-  }
+    void mountPayPal();
+    return () => { active = false; };
+  }, [program.id]);
 
   return (
     <div>
-      <button type="button" disabled={!paddle || working} onClick={() => void openCheckout()} className="inline-flex min-h-11 w-full items-center justify-between gap-3 bg-accent px-4 text-sm font-bold text-accent-foreground disabled:cursor-wait disabled:opacity-60">
-        <span className="inline-flex items-center gap-2"><ShoppingBag className="h-4 w-4" />{working ? "Opening checkout…" : loading ? "Loading checkout…" : configurationError ? "Checkout unavailable" : `Get instant access${program.price ? ` — ${program.price}` : ""}`}</span>
-        <ArrowUpRight className="h-4 w-4" />
-      </button>
-      {configurationError && <p className="mt-2 text-xs text-white/70">{configurationError}</p>}
+      <div ref={containerRef} className="min-h-11" aria-label={`Buy ${program.name} with PayPal`} />
       {error && <p className="mt-2 text-xs text-red-200">{error}</p>}
     </div>
   );
+}
+
+type PayPalButtons = {
+  Buttons: (options: {
+    style: Record<string, string>;
+    createOrder: () => Promise<string>;
+    onApprove: (data: { orderID: string }) => Promise<void>;
+    onCancel: () => void;
+    onError: () => void;
+  }) => { render: (element: HTMLElement) => Promise<void> };
+};
+
+declare global { interface Window { paypal?: PayPalButtons } }
+
+let paypalSdkPromise: Promise<void> | null = null;
+function loadPayPalSdk(clientId: string) {
+  if (window.paypal) return Promise.resolve();
+  if (paypalSdkPromise) return paypalSdkPromise;
+  paypalSdkPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&components=buttons`;
+    script.async = true;
+    script.onload = () => window.paypal ? resolve() : reject(new Error("PayPal SDK did not initialize."));
+    script.onerror = () => reject(new Error("PayPal SDK could not be loaded."));
+    document.head.appendChild(script);
+  });
+  return paypalSdkPromise;
 }
