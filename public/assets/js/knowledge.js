@@ -730,6 +730,7 @@
   }
 
   function renderAtlas() {
+    var publicRegions = ["head-neck", "shoulder-arm", "spine-rib-cage", "pelvis-hip", "knee", "foot-ankle"];
     function createAtlasCard(region) {
       var meta = muscleRegions[region];
       var count = data.muscles.filter(function (item) { return item && item.published !== false && muscleInRegion(item, region); }).length;
@@ -757,13 +758,15 @@
       return card;
     }
     if (activeMuscleRegion === "all") {
-      atlasGrid.replaceChildren();
-      muscleAtlas.hidden = true;
+      muscleAtlas.hidden = activeType !== "muscles";
+      muscleAtlasTitle.textContent = "Explore the anatomy atlas";
+      atlasGrid.classList.add("is-region-overview");
+      atlasGrid.replaceChildren.apply(atlasGrid, publicRegions.map(createAtlasCard));
       return;
     }
-    muscleAtlas.hidden = activeType !== "muscles";
-    muscleAtlasTitle.textContent = muscleRegions[activeMuscleRegion].title + " anatomy reference";
-    atlasGrid.replaceChildren(createAtlasCard(activeMuscleRegion));
+    atlasGrid.classList.remove("is-region-overview");
+    atlasGrid.replaceChildren();
+    muscleAtlas.hidden = true;
   }
 
   function pluralRole(role) {
@@ -1653,7 +1656,6 @@
     updateRecipeCounts();
     renderMovementActions();
     renderAtlas();
-    muscleAtlas.hidden = true;
     var records = allItems().filter(function (record) {
       if (activeType !== "all" && record.type !== activeType) return false;
       if (activeType === "muscles" && activeMuscleRegion !== "all" && !query && !muscleInRegion(record.item, activeMuscleRegion)) return false;
