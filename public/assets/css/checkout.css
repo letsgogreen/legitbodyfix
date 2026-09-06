@@ -5,7 +5,7 @@ a { color:inherit; }
 .topbar { border-bottom:1px solid var(--line); }
 .topbar-inner, .checkout { width:min(980px,calc(100% - 48px)); margin:0 auto; }
 .topbar-inner { min-height:76px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
-.brand { font:400 22px/1 var(--display); letter-spacing:-.05em; text-decoration:none; }
+.brand { font:800 18px/1 var(--body); letter-spacing:-.025em; text-decoration:none; }
 .back { color:var(--soft-ink); font-size:14px; font-weight:700; text-underline-offset:4px; }
 .checkout { padding:88px 0; display:grid; grid-template-columns:1fr minmax(340px,440px); gap:72px; align-items:start; }
 .eyebrow { margin:0 0 16px; color:#39766e; font:500 11px/1 var(--mono); letter-spacing:.14em; }
