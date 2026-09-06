@@ -4,13 +4,15 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { getCustomerAccess } from "@/lib/customer-access";
+import { getPublicPrograms } from "@/lib/public-programs.functions";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
+type LibraryProgram = Program & { fallbackImageUrl: string | null };
 
 export const Route = createFileRoute("/library/")({ component: LibraryIndex });
 
 function LibraryIndex() {
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const [programs, setPrograms] = useState<LibraryProgram[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,8 +20,13 @@ function LibraryIndex() {
     void (async () => {
       const { programIds: ids } = await getCustomerAccess();
       if (!ids.length) { setLoading(false); return; }
-      const { data, error: programError } = await supabase.from("programs").select("*").in("id", ids).order("name");
-      if (programError) setError(programError.message); else setPrograms(data ?? []);
+      const [{ data, error: programError }, publicPrograms] = await Promise.all([
+        supabase.from("programs").select("*").in("id", ids).order("name"),
+        getPublicPrograms(),
+      ]);
+      const fallbackByProgram = new Map(publicPrograms.map((program) => [program.id, program.fallbackImageUrl]));
+      if (programError) setError(programError.message);
+      else setPrograms((data ?? []).map((program) => ({ ...program, fallbackImageUrl: fallbackByProgram.get(program.id) ?? null })));
       setLoading(false);
     })().catch(() => { setError("Could not load your access. Please try again."); setLoading(false); });
   }, []);
@@ -32,7 +39,30 @@ function LibraryIndex() {
       {loading && <div className="mt-12 flex items-center gap-3 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" />Loading your programs…</div>}
       {error && <p className="mt-10 border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{error}</p>}
       {!loading && !error && !programs.length && <section className="mt-12 border border-border bg-card p-7"><h2 className="text-2xl font-extrabold">No programs yet</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Purchases linked to this email will appear here automatically. If you recently purchased, contact support with your receipt.</p><Link to="/" hash="programs" className="mt-5 inline-flex items-center gap-2 text-sm font-bold">Browse programs <ArrowRight className="h-4 w-4" /></Link></section>}
-      <div className="mt-12 grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">{programs.map((program) => <Link key={program.id} to="/library/$programSlug" params={{ programSlug: program.slug }} className="group bg-card p-6 transition-colors hover:bg-secondary"><div className="aspect-[16/9] overflow-hidden bg-secondary">{program.image_url ? <img src={program.image_url} alt={program.image_alt ?? ""} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" /> : <div className="grid h-full place-items-center font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">LegitBodyFix program</div>}</div><p className="mt-5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{program.duration_label || program.format || "On-demand program"}</p><h2 className="mt-2 text-2xl font-extrabold tracking-tight">{program.name}</h2><p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">{program.outcome}</p><span className="mt-6 inline-flex items-center gap-2 text-sm font-bold">Open program <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span></Link>)}</div>
+      <div className="mt-12 grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">{programs.map((program) => <Link key={program.id} to="/library/$programSlug" params={{ programSlug: program.slug }} className="group bg-card p-6 transition-colors hover:bg-secondary"><ProgramArtwork program={program} /><p className="mt-5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{program.duration_label || program.format || "On-demand program"}</p><h2 className="mt-2 text-2xl font-extrabold tracking-tight">{program.name}</h2><p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">{program.outcome}</p><span className="mt-6 inline-flex items-center gap-2 text-sm font-bold">Open program <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span></Link>)}</div>
     </main>
+  );
+}
+
+function ProgramArtwork({ program }: { program: LibraryProgram }) {
+  const sources = [...new Set([program.image_url, program.fallbackImageUrl].filter((value): value is string => Boolean(value)))];
+  const [sourceIndex, setSourceIndex] = useState(0);
+  const source = sources[sourceIndex];
+
+  return (
+    <div className="aspect-[16/9] overflow-hidden bg-secondary">
+      {source ? (
+        <img
+          src={source}
+          alt={program.image_alt || `${program.name} session thumbnail`}
+          loading="lazy"
+          decoding="async"
+          onError={() => setSourceIndex((index) => index + 1)}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+        />
+      ) : (
+        <div className="grid h-full place-items-center font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">LegitBodyFix program</div>
+      )}
+    </div>
   );
 }

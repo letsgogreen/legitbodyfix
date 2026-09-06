@@ -16,6 +16,7 @@ export type PublicProgram = {
   goals: string[];
   whoItsFor: string | null;
   imageUrl: string | null;
+  fallbackImageUrl: string | null;
   imageAlt: string | null;
   price: string | null;
   paddlePriceId: string | null;
@@ -72,6 +73,7 @@ export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async
     goals: row.goals ?? [],
     whoItsFor: row.who_its_for,
     imageUrl: row.image_url || lessonThumbnailByProgram.get(row.id) || null,
+    fallbackImageUrl: lessonThumbnailByProgram.get(row.id) || null,
     imageAlt: row.image_alt || (lessonThumbnailByProgram.has(row.id) ? `${row.name} session thumbnail` : null),
     price: row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
     paddlePriceId: row.paddle_price_id,
@@ -140,6 +142,7 @@ async function loadProgramDetail(
       goals: row.goals ?? [],
       whoItsFor: row.who_its_for,
       imageUrl: row.image_url || fallbackThumbnail,
+      fallbackImageUrl: fallbackThumbnail,
       imageAlt: row.image_alt || (fallbackThumbnail ? `${row.name} session thumbnail` : null),
       price: row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
       paddlePriceId: row.paddle_price_id,
