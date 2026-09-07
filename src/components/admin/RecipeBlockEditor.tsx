@@ -178,8 +178,16 @@ export function RecipeBlockEditor({
   }
 
   return (
-    <div className="min-w-0 space-y-2 overflow-x-hidden">
-      <div className="rounded-sm border border-border bg-secondary/40 p-3">
+    <div className="min-w-0 space-y-2 overflow-x-hidden rounded-sm border border-border bg-card p-3 sm:p-5">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            Blog editor
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Click into the article and write. Use + to add another section.
+          </p>
+        </div>
         <InsertMenu onInsert={(type) => insert(value.length, type)} />
       </div>
       <InsertMenu compact onInsert={(type) => insert(0, type)} />
@@ -193,10 +201,12 @@ export function RecipeBlockEditor({
               onDrop={() => drop(index)}
               onFocusCapture={() => setSelectedId(block.id)}
               onClick={() => setSelectedId(block.id)}
-              className={`min-w-0 overflow-hidden rounded-sm border-2 bg-background transition ${selected ? "border-foreground shadow-[4px_4px_0_var(--color-accent)]" : blockIssues.length ? "border-destructive/60" : "border-border"}`}
+              className={`group relative min-w-0 overflow-hidden rounded-sm border bg-background transition ${selected ? "border-foreground shadow-[3px_3px_0_var(--color-accent)]" : blockIssues.length ? "border-destructive/60" : "border-transparent hover:border-border"}`}
               aria-label={`${block.type} block ${index + 1}`}
             >
-              <div className="flex flex-wrap items-center gap-1 border-b border-border bg-secondary/50 px-2 py-1.5">
+              <div
+                className={`absolute right-2 top-2 z-10 flex flex-wrap items-center gap-1 rounded-sm border border-border bg-background/95 px-1 py-0.5 shadow-sm transition ${selected ? "opacity-100" : "pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"}`}
+              >
                 <span
                   draggable
                   onDragStart={() => {
@@ -207,7 +217,7 @@ export function RecipeBlockEditor({
                 >
                   <GripVertical className="h-4 w-4 text-muted-foreground" />
                 </span>
-                <span className="ml-1 flex-1 font-mono text-[9px] uppercase tracking-[0.14em]">
+                <span className="ml-1 font-mono text-[9px] uppercase tracking-[0.14em]">
                   {index + 1} · {block.type}
                 </span>
                 <button
@@ -245,7 +255,7 @@ export function RecipeBlockEditor({
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
-              <div className="min-w-0 p-3 sm:p-4 [&_input]:max-w-full [&_textarea]:max-w-full">
+              <div className="min-w-0 px-3 py-4 sm:px-5 sm:py-5 [&_input]:max-w-full [&_textarea]:max-w-full">
                 {block.type === "heading" && (
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <select
@@ -263,7 +273,7 @@ export function RecipeBlockEditor({
                       value={block.text}
                       onChange={(event) => update(index, { text: event.target.value })}
                       placeholder="Heading text"
-                      className="min-h-11 flex-1 rounded-sm border border-border px-3"
+                      className={`${block.level === 2 ? "text-3xl" : "text-xl"} min-h-12 flex-1 border-0 bg-transparent px-1 font-bold tracking-tight outline-none placeholder:text-muted-foreground/50`}
                     />
                   </div>
                 )}
@@ -271,9 +281,9 @@ export function RecipeBlockEditor({
                   <textarea
                     value={block.text}
                     onChange={(event) => update(index, { text: event.target.value })}
-                    rows={6}
-                    placeholder="Write a paragraph… Markdown links are supported."
-                    className="w-full rounded-sm border border-border px-3 py-2 text-sm leading-6"
+                    rows={4}
+                    placeholder="Start writing… Markdown links are supported."
+                    className="w-full resize-y border-0 bg-transparent px-1 py-1 text-base leading-7 outline-none placeholder:text-muted-foreground/50"
                   />
                 )}
                 {block.type === "toggle" && (
@@ -282,14 +292,14 @@ export function RecipeBlockEditor({
                       value={block.title}
                       onChange={(event) => update(index, { title: event.target.value })}
                       placeholder="Toggle title"
-                      className="min-h-11 w-full rounded-sm border border-border px-3 font-bold"
+                      className="min-h-11 w-full border-0 bg-transparent px-1 text-lg font-bold outline-none placeholder:text-muted-foreground/50"
                     />
                     <textarea
                       value={block.text}
                       onChange={(event) => update(index, { text: event.target.value })}
                       rows={5}
                       placeholder="Collapsed content…"
-                      className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+                      className="w-full border-l-2 border-border bg-transparent px-4 py-2 text-sm leading-6 outline-none"
                     />
                   </div>
                 )}
@@ -311,7 +321,7 @@ export function RecipeBlockEditor({
                       onChange={(event) => update(index, { items: event.target.value.split("\n") })}
                       rows={5}
                       placeholder="One item per line"
-                      className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+                      className="w-full border-0 bg-transparent px-1 py-2 text-base leading-7 outline-none"
                     />
                   </div>
                 )}
