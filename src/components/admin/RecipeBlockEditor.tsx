@@ -68,12 +68,47 @@ function InsertMenu({
   compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    requestAnimationFrame(() => menuRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [open]);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
+      return;
+    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const direction = event.key === "ArrowDown" ? 1 : -1;
+    const nextIndex = (index + direction + choices.length) % choices.length;
+    setActiveIndex(nextIndex);
+    menuRef.current?.querySelectorAll<HTMLButtonElement>("button")[nextIndex]?.focus();
+  }
+
   return (
-    <div className={`relative flex ${compact ? "group/insert h-5 justify-center" : "flex-wrap gap-2"}`}>
+    <div ref={rootRef} className={`relative flex ${compact ? "group/insert h-5 justify-center" : "flex-wrap gap-2"}`}>
       <button
+        ref={triggerRef}
         type="button"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          setActiveIndex(0);
+          setOpen((value) => !value);
+        }}
         aria-expanded={open}
+        aria-haspopup="menu"
         className={
           compact
             ? "absolute top-1/2 z-10 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border border-border bg-background text-muted-foreground opacity-0 shadow-sm transition hover:border-foreground hover:text-foreground focus-visible:opacity-100 group-hover/insert:opacity-100"
@@ -85,19 +120,26 @@ function InsertMenu({
       </button>
       {open ? (
         <div
+          ref={menuRef}
+          role="menu"
+          aria-label="Choose a block type"
           className={`${compact ? "absolute left-1/2 top-5 z-20 w-72 -translate-x-1/2 shadow-xl" : "w-full"} grid grid-cols-2 gap-1 rounded-sm border border-border bg-card p-2 sm:grid-cols-3`}
         >
-          {choices.map(([type, label, Icon]) => (
+          {choices.map(([type, label, Icon], index) => (
             <button
               key={type}
               type="button"
+              role="menuitem"
+              tabIndex={index === activeIndex ? 0 : -1}
               onClick={() => {
                 onInsert(type);
                 setOpen(false);
               }}
-              className="inline-flex min-h-9 items-center gap-2 rounded-sm px-2 text-left text-xs font-semibold hover:bg-secondary"
+              onFocus={() => setActiveIndex(index)}
+              onKeyDown={(event) => handleKeyDown(event, index)}
+              className="inline-flex min-h-9 items-center gap-2 rounded-sm px-2 text-left text-xs font-semibold hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-3.5 w-3.5" aria-hidden="true" />
               {label}
             </button>
           ))}
@@ -183,12 +225,22 @@ export function RecipeBlockEditor({
       ),
     );
   }
+  function focusEditor(id: string) {
+    requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLElement>(
+          `#recipe-block-${id} [data-block-content] input, #recipe-block-${id} [data-block-content] textarea, #recipe-block-${id} [data-block-content] select`,
+        )
+        ?.focus();
+    });
+  }
   function insert(index: number, type: BlockType) {
     const next = [...value];
     const block = makeBlock(type);
     next.splice(index, 0, block);
     onChange(next);
     setSelectedId(block.id);
+    focusEditor(block.id);
   }
   function replace(index: number, type: BlockType) {
     const current = value[index];
@@ -197,13 +249,7 @@ export function RecipeBlockEditor({
     onChange(value.map((candidate, candidateIndex) => (candidateIndex === index ? block : candidate)));
     setSelectedId(block.id);
     setSlashIndex(null);
-    requestAnimationFrame(() => {
-      document
-        .querySelector<HTMLElement>(
-          `#recipe-block-${block.id} [data-block-content] input, #recipe-block-${block.id} [data-block-content] textarea, #recipe-block-${block.id} [data-block-content] select`,
-        )
-        ?.focus();
-    });
+    focusEditor(block.id);
   }
   function handleSlashMenuKeyDown(
     event: KeyboardEvent<HTMLButtonElement>,
@@ -236,6 +282,7 @@ export function RecipeBlockEditor({
     next.splice(index + 1, 0, clone);
     onChange(next);
     setSelectedId(clone.id);
+    focusEditor(clone.id);
   }
   function remove(index: number) {
     const block = value[index];
