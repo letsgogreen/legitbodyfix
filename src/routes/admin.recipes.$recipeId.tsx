@@ -489,7 +489,48 @@ function RecipeReview() {
       )}
 
       <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.75fr)]">
-        <Panel className="grid self-start gap-4 p-5">
+        <Panel className="flex self-start flex-col gap-4 p-5">
+          <div className="order-first border-b border-border pb-6">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                  Article content
+                </p>
+                <h2 className="mt-1 text-2xl font-bold tracking-tight">Write the article</h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Write directly below. Add titles, paragraphs, lists, toggles, images, and videos
+                  wherever you need them.
+                </p>
+              </div>
+              <span className="rounded-full border border-border px-3 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+                {record.content_blocks.length} blocks
+              </span>
+            </div>
+            {legacyPreview.length ? (
+              <div className="mb-5 rounded-sm border border-accent bg-accent/10 p-4">
+                <p className="text-sm font-bold">Imported article ready to edit</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  The existing article is open below. It remains unchanged in the database until you
+                  edit or save it.
+                </p>
+              </div>
+            ) : null}
+            <RecipeBlockEditor
+              value={record.content_blocks}
+              recipeId={record.id}
+              issues={blockIssues}
+              onChange={(blocks) => setField("content_blocks", blocks)}
+            />
+          </div>
+
+          <div className="pt-2">
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+              Publishing settings
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Search, safety, and classification information shown around the article.
+            </p>
+          </div>
           <label className="block">
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
               Title
@@ -533,33 +574,6 @@ function RecipeReview() {
               />
             </label>
           ))}
-
-          <div className="border-t border-border pt-5">
-            <div className="mb-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                Article content
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Add, remove, and reorder titles, paragraphs, toggles, images, YouTube videos, and
-                dividers.
-              </p>
-            </div>
-            {legacyPreview.length ? (
-              <div className="mb-5 rounded-sm border border-accent bg-accent/10 p-4">
-                <p className="text-sm font-bold">Imported article ready to edit</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  The existing article is open in the editor below. It remains unchanged in the
-                  database until you edit or save it.
-                </p>
-              </div>
-            ) : null}
-            <RecipeBlockEditor
-              value={record.content_blocks}
-              recipeId={record.id}
-              issues={blockIssues}
-              onChange={(blocks) => setField("content_blocks", blocks)}
-            />
-          </div>
         </Panel>
 
         <div className="space-y-4">
