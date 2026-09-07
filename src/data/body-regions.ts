@@ -78,6 +78,13 @@ export const bodyRegions: BodyRegion[] = [
       "Connect shoulder motion with scapular control, thoracic contribution, and the demands of reaching or loading.",
     programs: [
       {
+        title: "Shoulder Movement Program",
+        description: "A complete guided session for shoulder positioning, scapular control, and overhead capacity.",
+        href: "/video.html?id=shoulder-movement",
+        meta: "Complete session · Intermediate · $89",
+        available: true,
+      },
+      {
         title: "Neck Alignment",
         description: "Includes neck and shoulder-position work that supports upper-body movement.",
         href: "/video.html?id=neck-alignment",
