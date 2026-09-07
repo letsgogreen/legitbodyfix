@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type TextareaHTMLAttributes } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type TextareaHTMLAttributes,
+} from "react";
 import {
   AlertCircle,
   ChevronDown,
@@ -144,9 +151,11 @@ export function RecipeBlockEditor({
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [slashIndex, setSlashIndex] = useState<number | null>(null);
+  const [slashChoiceIndex, setSlashChoiceIndex] = useState(0);
   const [deleted, setDeleted] = useState<{ block: RecipeContentBlock; index: number } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragIndex = useRef<number | null>(null);
+  const slashMenuRef = useRef<HTMLDivElement>(null);
   const headings = useMemo(
     () => value.filter((block): block is Extract<RecipeContentBlock, { type: "heading" }> => block.type === "heading" && Boolean(block.text.trim())),
     [value],
@@ -158,6 +167,14 @@ export function RecipeBlockEditor({
     },
     [],
   );
+  useEffect(() => {
+    if (slashIndex === null) return;
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!slashMenuRef.current?.contains(event.target as Node)) setSlashIndex(null);
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [slashIndex]);
 
   function update(index: number, patch: Partial<RecipeContentBlock>) {
     onChange(
@@ -180,6 +197,31 @@ export function RecipeBlockEditor({
     onChange(value.map((candidate, candidateIndex) => (candidateIndex === index ? block : candidate)));
     setSelectedId(block.id);
     setSlashIndex(null);
+    requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLElement>(
+          `#recipe-block-${block.id} [data-block-content] input, #recipe-block-${block.id} [data-block-content] textarea, #recipe-block-${block.id} [data-block-content] select`,
+        )
+        ?.focus();
+    });
+  }
+  function handleSlashMenuKeyDown(
+    event: KeyboardEvent<HTMLButtonElement>,
+    choiceIndex: number,
+    blockIndex: number,
+  ) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setSlashIndex(null);
+      document.getElementById(`recipe-paragraph-${value[blockIndex]?.id}`)?.focus();
+      return;
+    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const direction = event.key === "ArrowDown" ? 1 : -1;
+    const nextIndex = (choiceIndex + direction + choices.length) % choices.length;
+    setSlashChoiceIndex(nextIndex);
+    slashMenuRef.current?.querySelectorAll<HTMLButtonElement>("button")[nextIndex]?.focus();
   }
   function move(index: number, direction: -1 | 1) {
     const target = index + direction;
@@ -336,7 +378,7 @@ export function RecipeBlockEditor({
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
-              <div className="min-w-0 px-3 py-3 sm:px-5 sm:py-4 [&_input]:max-w-full [&_textarea]:max-w-full">
+              <div data-block-content className="min-w-0 px-3 py-3 sm:px-5 sm:py-4 [&_input]:max-w-full [&_textarea]:max-w-full">
                 {block.type === "heading" && (
                   <div className="flex flex-col gap-2">
                     <select
@@ -361,6 +403,7 @@ export function RecipeBlockEditor({
                 {block.type === "paragraph" && (
                   <div className="relative">
                     <AutoTextarea
+                      id={`recipe-paragraph-${block.id}`}
                       value={block.text}
                       onChange={(event) => {
                         update(index, { text: event.target.value });
@@ -369,7 +412,11 @@ export function RecipeBlockEditor({
                       onKeyDown={(event) => {
                         if (event.key === "/" && !block.text) {
                           event.preventDefault();
+                          setSlashChoiceIndex(0);
                           setSlashIndex(index);
+                          requestAnimationFrame(() =>
+                            slashMenuRef.current?.querySelector<HTMLButtonElement>("button")?.focus(),
+                          );
                         }
                         if (event.key === "Escape") setSlashIndex(null);
                       }}
@@ -378,12 +425,23 @@ export function RecipeBlockEditor({
                       className="w-full resize-none overflow-hidden border-0 bg-transparent px-1 py-1 text-base leading-7 outline-none placeholder:text-muted-foreground/50"
                     />
                     {slashIndex === index ? (
-                      <div className="relative z-30 mt-2 grid grid-cols-2 gap-1 rounded-sm border border-border bg-card p-2 shadow-xl sm:grid-cols-3">
-                        {choices.map(([type, label, Icon]) => (
+                      <div
+                        ref={slashMenuRef}
+                        role="menu"
+                        aria-label="Choose a block type"
+                        className="relative z-30 mt-2 grid grid-cols-2 gap-1 rounded-sm border border-border bg-card p-2 shadow-xl sm:grid-cols-3"
+                      >
+                        {choices.map(([type, label, Icon], choiceIndex) => (
                           <button
                             key={type}
                             type="button"
+                            role="menuitem"
+                            tabIndex={choiceIndex === slashChoiceIndex ? 0 : -1}
                             onClick={() => replace(index, type)}
+                            onFocus={() => setSlashChoiceIndex(choiceIndex)}
+                            onKeyDown={(event) =>
+                              handleSlashMenuKeyDown(event, choiceIndex, index)
+                            }
                             className="inline-flex min-h-10 items-center gap-2 rounded-sm px-2 text-left text-xs font-semibold hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
                           >
                             <Icon className="h-3.5 w-3.5" aria-hidden="true" />
