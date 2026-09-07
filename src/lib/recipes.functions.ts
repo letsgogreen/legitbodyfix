@@ -16,7 +16,7 @@ export type RecipeMuscleLink = {
 };
 
 const RECIPE_COLUMNS =
-  "id,slug,title,goal,summary,instructions,regions,movement_functions,symptoms_goals,progression_level,dosage,session_minutes,assessment_clues,safety_notes,evidence,equipment,image_url,image_alt,last_reviewed_at";
+  "id,slug,title,goal,summary,instructions,content_blocks,regions,movement_functions,symptoms_goals,progression_level,dosage,session_minutes,assessment_clues,safety_notes,evidence,equipment,image_url,image_alt,last_reviewed_at";
 
 /** Published recipes only — the anon RLS policy enforces this server-side as well. */
 export const getPublishedRecipe = createServerFn({ method: "GET" })

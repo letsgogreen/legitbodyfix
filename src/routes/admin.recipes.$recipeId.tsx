@@ -3,7 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, Plus, Save, X } from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { RecipeBlockEditor } from "@/components/admin/RecipeBlockEditor";
 import { deriveRecipeGoal, detectKoreanText, isTagOnlyRecipeGoal } from "@/lib/recipe-import";
+import { blocksFromLegacyInstructions, blocksToPlainText, type RecipeContentBlock } from "@/lib/recipe-blocks";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/recipes/$recipeId")({
@@ -27,6 +29,7 @@ type RecipeRow = {
   goal: string | null;
   summary: string | null;
   instructions: string | null;
+  content_blocks: RecipeContentBlock[];
   safety_notes: string | null;
   assessment_clues: string | null;
   dosage: string | null;
@@ -55,7 +58,6 @@ type GuideLink = { guide_id: string; position: number | null; guides: { slug: st
 const EDITABLE = [
   ["goal", "Goal"],
   ["summary", "Summary"],
-  ["instructions", "Instructions"],
   ["safety_notes", "Safety notes"],
   ["assessment_clues", "Assessment clues"],
   ["dosage", "Dosage"],
@@ -67,7 +69,7 @@ function publishBlockers(record: RecipeRow) {
   const missing: string[] = [];
   if (!record.title?.trim()) missing.push("title");
   if (!record.goal?.trim()) missing.push("goal");
-  if (!record.instructions?.trim()) missing.push("instructions");
+  if (!blocksToPlainText(record.content_blocks).trim() && !record.instructions?.trim()) missing.push("article content");
   if (!record.safety_notes?.trim()) missing.push("safety notes");
   if (!record.regions.length) missing.push("at least one region");
 
@@ -106,10 +108,14 @@ function RecipeReview() {
       return;
     }
     const loadedRecord = data as RecipeRow;
-    const generatedGoal = !loadedRecord.goal?.trim() || isTagOnlyRecipeGoal(loadedRecord.goal, loadedRecord.symptoms_goals)
-      ? deriveRecipeGoal(loadedRecord.title)
+    const contentBlocks = Array.isArray(loadedRecord.content_blocks) && loadedRecord.content_blocks.length
+      ? loadedRecord.content_blocks
+      : blocksFromLegacyInstructions(loadedRecord.instructions);
+    const normalizedRecord = { ...loadedRecord, content_blocks: contentBlocks };
+    const generatedGoal = !normalizedRecord.goal?.trim() || isTagOnlyRecipeGoal(normalizedRecord.goal, normalizedRecord.symptoms_goals)
+      ? deriveRecipeGoal(normalizedRecord.title)
       : null;
-    setRecord(generatedGoal ? { ...loadedRecord, goal: generatedGoal } : loadedRecord);
+    setRecord(generatedGoal ? { ...normalizedRecord, goal: generatedGoal } : normalizedRecord);
     setStatus(generatedGoal
       ? `Version ${data.version} loaded · the imported symptom tag in Goal was replaced with a suggested editorial goal. Review it, then save or publish.`
       : `Version ${data.version} loaded · review status ${data.review_status}.`);
@@ -181,7 +187,8 @@ function RecipeReview() {
       title: record.title,
       goal: record.goal,
       summary: record.summary,
-      instructions: record.instructions,
+      content_blocks: record.content_blocks,
+      instructions: blocksToPlainText(record.content_blocks) || record.instructions,
       safety_notes: record.safety_notes,
       assessment_clues: record.assessment_clues,
       dosage: record.dosage,
@@ -208,7 +215,7 @@ function RecipeReview() {
       setStatus(`Save failed: ${error?.message ?? "unknown error"}`);
       return;
     }
-    setRecord(data as RecipeRow);
+    setRecord({ ...(data as RecipeRow), content_blocks: Array.isArray(data.content_blocks) ? data.content_blocks as RecipeContentBlock[] : [] });
     setStatus(
       publish === true
         ? `Published as version ${data.version}. The public page is live.`
@@ -339,11 +346,19 @@ function RecipeReview() {
               <textarea
                 value={record[field] ?? ""}
                 onChange={(event) => setField(field, event.target.value)}
-                rows={field === "instructions" ? 10 : 3}
+                rows={3}
                 className="mt-1 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm"
               />
             </label>
           ))}
+
+          <div className="border-t border-border pt-5">
+            <div className="mb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Article content</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Add, remove, and reorder titles, paragraphs, toggles, images, YouTube videos, and dividers.</p>
+            </div>
+            <RecipeBlockEditor value={record.content_blocks} recipeId={record.id} onChange={(blocks) => setField("content_blocks", blocks)} />
+          </div>
         </Panel>
 
         <div className="space-y-4">

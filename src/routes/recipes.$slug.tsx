@@ -2,8 +2,10 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 import { getPublishedRecipe, type RecipeMuscleLink } from "@/lib/recipes.functions";
 import { regionNameFor } from "@/lib/notion/regions";
+import { blocksFromLegacyInstructions, type RecipeContentBlock } from "@/lib/recipe-blocks";
 
 export const Route = createFileRoute("/recipes/$slug")({
   loader: async ({ params }) => {
@@ -117,6 +119,9 @@ function TextBlock({ value }: { value: string | null }) {
 
 function RecipeDetail() {
   const recipe = Route.useLoaderData();
+  const contentBlocks = Array.isArray(recipe.content_blocks) && recipe.content_blocks.length
+    ? recipe.content_blocks as RecipeContentBlock[]
+    : blocksFromLegacyInstructions(recipe.instructions);
   const meta = [
     recipe.progression_level ? recipe.progression_level.replace(/_/g, " ") : null,
     recipe.session_minutes ? `${recipe.session_minutes} min` : null,
@@ -193,8 +198,7 @@ function RecipeDetail() {
         <section className="border-b border-border">
           <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:px-8 lg:py-20">
             <div className="min-w-0">
-              <h2 className="text-2xl font-extrabold uppercase">Instructions</h2>
-              <TextBlock value={recipe.instructions} />
+              <RecipeBlockContent blocks={contentBlocks} />
 
               {recipe.assessment_clues ? (
                 <div className="mt-10">
