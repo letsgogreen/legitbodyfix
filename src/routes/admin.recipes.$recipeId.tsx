@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, Plus, Save, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, Eye, Plus, Save, X } from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RecipeBlockEditor } from "@/components/admin/RecipeBlockEditor";
@@ -106,6 +106,54 @@ function publishBlockers(record: RecipeRow) {
     blockers.push(`Korean text suspected in: ${korean.join(", ")} — translate before publishing.`);
   blockers.push(...validateRecipeBlocks(record.content_blocks).map((issue) => issue.message));
   return blockers;
+}
+
+function DraftPreview({
+  blocks,
+  width,
+  onWidthChange,
+}: {
+  blocks: RecipeContentBlock[];
+  width: "desktop" | "mobile";
+  onWidthChange: (width: "desktop" | "mobile") => void;
+}) {
+  return (
+    <>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+            Live draft preview
+          </p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">Unsaved changes appear here.</p>
+        </div>
+        <div className="flex rounded-sm border border-border p-1" aria-label="Preview width">
+          <button
+            type="button"
+            onClick={() => onWidthChange("desktop")}
+            aria-pressed={width === "desktop"}
+            className={`px-2 py-1 text-[10px] font-bold ${width === "desktop" ? "bg-foreground text-background" : ""}`}
+          >
+            Desktop
+          </button>
+          <button
+            type="button"
+            onClick={() => onWidthChange("mobile")}
+            aria-pressed={width === "mobile"}
+            className={`px-2 py-1 text-[10px] font-bold ${width === "mobile" ? "bg-foreground text-background" : ""}`}
+          >
+            Mobile
+          </button>
+        </div>
+      </div>
+      <div className="max-h-[38rem] overflow-y-auto bg-secondary/30 p-3">
+        <div
+          className={`mx-auto bg-background p-4 transition-all ${width === "mobile" ? "max-w-[390px]" : "max-w-full"}`}
+        >
+          <RecipeBlockContent blocks={blocks} compact />
+        </div>
+      </div>
+    </>
+  );
 }
 
 function RecipeReview() {
@@ -548,6 +596,23 @@ function RecipeReview() {
                 </label>
               </div>
             </div>
+            <details className="mb-3 border border-border bg-secondary/15 xl:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-xs font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <span className="inline-flex items-center gap-2">
+                  <Eye className="h-3.5 w-3.5" aria-hidden="true" /> Preview article
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+                  Open
+                </span>
+              </summary>
+              <div className="border-t border-border p-3">
+                <DraftPreview
+                  blocks={previewBlocks}
+                  width={previewWidth}
+                  onWidthChange={setPreviewWidth}
+                />
+              </div>
+            </details>
             <RecipeBlockEditor
               value={record.content_blocks}
               recipeId={record.id}
@@ -622,40 +687,12 @@ function RecipeReview() {
         </Panel>
 
         <div className="space-y-4">
-          <Panel className="p-4 xl:sticky xl:top-4 xl:z-10">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                  Live draft preview
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Unsaved changes appear here immediately.
-                </p>
-              </div>
-              <div className="flex rounded-sm border border-border p-1">
-                <button
-                  type="button"
-                  onClick={() => setPreviewWidth("desktop")}
-                  className={`px-2 py-1 text-[10px] font-bold ${previewWidth === "desktop" ? "bg-foreground text-background" : ""}`}
-                >
-                  Desktop
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewWidth("mobile")}
-                  className={`px-2 py-1 text-[10px] font-bold ${previewWidth === "mobile" ? "bg-foreground text-background" : ""}`}
-                >
-                  Mobile
-                </button>
-              </div>
-            </div>
-            <div className="max-h-[38rem] overflow-y-auto bg-secondary/30 p-3">
-              <div
-                className={`mx-auto bg-background p-4 transition-all ${previewWidth === "mobile" ? "max-w-[390px]" : "max-w-full"}`}
-              >
-                <RecipeBlockContent blocks={previewBlocks} compact />
-              </div>
-            </div>
+          <Panel className="hidden p-4 xl:sticky xl:top-4 xl:z-10 xl:block">
+            <DraftPreview
+              blocks={previewBlocks}
+              width={previewWidth}
+              onWidthChange={setPreviewWidth}
+            />
           </Panel>
           <Panel className="p-4">
             <ImageUploadField
