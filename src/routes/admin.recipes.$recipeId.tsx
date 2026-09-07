@@ -144,13 +144,19 @@ function RecipeReview() {
       draft?.data && typeof draft.data === "object" ? (draft.data as Partial<RecipeRow>) : null;
     const loadedRecord = draftData ? { ...databaseRecord, ...draftData } : databaseRecord;
     const contentBlocks = parseRecipeBlocks(loadedRecord.content_blocks);
+    const embeddedLegacyBlocks =
+      contentBlocks.length === 1 &&
+      contentBlocks[0]?.type === "paragraph" &&
+      /(?:^|\n)#{1,3}\s|\{toggle=|<\/?(?:details|summary)>/i.test(contentBlocks[0].text)
+        ? blocksFromLegacyInstructions(contentBlocks[0].text)
+        : [];
     const legacyBlocks = contentBlocks.length
-      ? []
+      ? embeddedLegacyBlocks
       : blocksFromLegacyInstructions(loadedRecord.instructions);
     setLegacyPreview(legacyBlocks);
     const normalizedRecord = {
       ...loadedRecord,
-      content_blocks: contentBlocks.length ? contentBlocks : legacyBlocks,
+      content_blocks: legacyBlocks.length ? legacyBlocks : contentBlocks,
     };
     const generatedGoal =
       !normalizedRecord.goal?.trim() ||
@@ -516,12 +522,6 @@ function RecipeReview() {
               </div>
             ) : null}
             <div className="mb-7 border-y border-border py-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                Article essentials
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                These fields appear around the article and remain available to search and publish validation.
-              </p>
               <div className="mt-5 space-y-5">
                 <label className="block">
                   <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Title</span>
@@ -575,7 +575,7 @@ function RecipeReview() {
               ([field, label]) => (
                 <label
                   key={field}
-                  className={`block rounded-sm border p-5 ${field === "safety_notes" ? "border-foreground bg-secondary/35" : field === "dosage" ? "border-accent bg-accent/10" : "border-border bg-background"}`}
+                  className={`block border-t px-1 py-6 ${field === "safety_notes" ? "border-foreground" : field === "dosage" ? "border-accent" : "border-border"}`}
                 >
                   <span className="text-lg font-extrabold tracking-tight">{label}</span>
                   <span className="mt-1 block text-xs leading-5 text-muted-foreground">

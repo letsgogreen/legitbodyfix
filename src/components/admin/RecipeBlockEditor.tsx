@@ -218,15 +218,11 @@ export function RecipeBlockEditor({
   }
 
   return (
-    <div className="min-w-0 overflow-x-hidden rounded-sm border border-border bg-card p-3 sm:p-5">
+    <div className="min-w-0 overflow-x-hidden bg-transparent py-3">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            Blog editor
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Click into the article and write. Use + to add another section.
-          </p>
+          <p className="text-sm font-bold">Article body</p>
+          <p className="mt-1 text-xs text-muted-foreground">Click into the document and write.</p>
         </div>
         <InsertMenu onInsert={(type) => insert(value.length, type)} />
       </div>
