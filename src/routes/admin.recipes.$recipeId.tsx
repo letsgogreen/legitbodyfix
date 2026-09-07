@@ -77,9 +77,9 @@ type GuideLink = {
 const EDITABLE = [
   ["goal", "Goal"],
   ["summary", "Summary"],
-  ["safety_notes", "Safety notes"],
   ["assessment_clues", "Assessment clues"],
   ["dosage", "Dosage"],
+  ["safety_notes", "Safety notes"],
   ["evidence", "Evidence"],
 ] as const;
 
@@ -515,6 +515,45 @@ function RecipeReview() {
                 </p>
               </div>
             ) : null}
+            <div className="mb-7 border-y border-border py-6">
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                Article essentials
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                These fields appear around the article and remain available to search and publish validation.
+              </p>
+              <div className="mt-5 space-y-5">
+                <label className="block">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Title</span>
+                  <input
+                    value={record.title}
+                    onChange={(event) => setField("title", event.target.value)}
+                    placeholder="Article title"
+                    className="mt-1 w-full border-0 border-b border-border bg-transparent px-0 py-2 text-3xl font-extrabold tracking-tight outline-none focus:border-foreground"
+                  />
+                </label>
+                <label className="block">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Goal</span>
+                  <textarea
+                    value={record.goal ?? ""}
+                    onChange={(event) => setField("goal", event.target.value)}
+                    rows={2}
+                    placeholder="What should the reader understand or explore?"
+                    className="mt-1 w-full resize-y border-0 bg-transparent px-0 py-2 text-lg leading-7 outline-none placeholder:text-muted-foreground/50"
+                  />
+                </label>
+                <label className="block">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Summary</span>
+                  <textarea
+                    value={record.summary ?? ""}
+                    onChange={(event) => setField("summary", event.target.value)}
+                    rows={3}
+                    placeholder="Introduce the topic in a short paragraph."
+                    className="mt-1 w-full resize-y border-0 bg-transparent px-0 py-2 text-base leading-7 outline-none placeholder:text-muted-foreground/50"
+                  />
+                </label>
+              </div>
+            </div>
             <RecipeBlockEditor
               value={record.content_blocks}
               recipeId={record.id}
@@ -523,25 +562,14 @@ function RecipeReview() {
             />
           </div>
 
-          <div className="pt-2">
+          <div className="border-t border-border pt-6">
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              Publishing settings
+              Supporting sections
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Search, safety, and classification information shown around the article.
+              Complete the practical guidance that appears after and alongside the article.
             </p>
           </div>
-          <label className="block">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              Title
-            </span>
-            <input
-              value={record.title}
-              onChange={(event) => setField("title", event.target.value)}
-              className="mt-1 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm"
-            />
-          </label>
-
           <label className="block">
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
               Regions (comma separated)
@@ -561,7 +589,7 @@ function RecipeReview() {
             />
           </label>
 
-          {EDITABLE.map(([field, label]) => (
+          {EDITABLE.filter(([field]) => field !== "goal" && field !== "summary").map(([field, label]) => (
             <label key={field} className="block">
               <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                 {label}
