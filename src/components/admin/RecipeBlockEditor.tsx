@@ -257,14 +257,14 @@ export function RecipeBlockEditor({
               </div>
               <div className="min-w-0 px-3 py-4 sm:px-5 sm:py-5 [&_input]:max-w-full [&_textarea]:max-w-full">
                 {block.type === "heading" && (
-                  <div className="flex flex-col gap-2 sm:flex-row">
+                  <div className="flex flex-col gap-2">
                     <select
                       aria-label="Heading level"
                       value={block.level}
                       onChange={(event) =>
                         update(index, { level: Number(event.target.value) as 2 | 3 })
                       }
-                      className="rounded-sm border border-border px-2 text-xs"
+                      className="w-fit rounded-sm border border-border px-2 py-1 text-xs"
                     >
                       <option value={2}>Title</option>
                       <option value={3}>Subheading</option>

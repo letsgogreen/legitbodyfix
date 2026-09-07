@@ -488,7 +488,7 @@ function RecipeReview() {
         </Panel>
       )}
 
-      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.7fr)]">
+      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.75fr)]">
         <Panel className="grid self-start gap-4 p-5">
           <label className="block">
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
@@ -563,7 +563,7 @@ function RecipeReview() {
         </Panel>
 
         <div className="space-y-4">
-          <Panel className="p-4 lg:sticky lg:top-4 lg:z-10">
+          <Panel className="p-4 xl:sticky xl:top-4 xl:z-10">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
