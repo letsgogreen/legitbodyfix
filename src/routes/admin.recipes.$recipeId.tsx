@@ -570,38 +570,61 @@ function RecipeReview() {
               Complete the practical guidance that appears after and alongside the article.
             </p>
           </div>
-          <label className="block">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              Regions (comma separated)
-            </span>
-            <input
-              value={record.regions.join(", ")}
-              onChange={(event) =>
-                setField(
-                  "regions",
-                  event.target.value
-                    .split(",")
-                    .map((value) => value.trim())
-                    .filter(Boolean),
-                )
-              }
-              className="mt-1 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm"
-            />
-          </label>
+          <div className="space-y-3">
+            {EDITABLE.filter(([field]) => field !== "goal" && field !== "summary").map(
+              ([field, label]) => (
+                <label
+                  key={field}
+                  className={`block rounded-sm border p-5 ${field === "safety_notes" ? "border-foreground bg-secondary/35" : field === "dosage" ? "border-accent bg-accent/10" : "border-border bg-background"}`}
+                >
+                  <span className="text-lg font-extrabold tracking-tight">{label}</span>
+                  <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                    {field === "assessment_clues"
+                      ? "What the reader can observe or reassess."
+                      : field === "dosage"
+                        ? "Suggested volume, duration, and stopping points."
+                        : field === "safety_notes"
+                          ? "Important precautions shown prominently on the public page."
+                          : "Sources and supporting references."}
+                  </span>
+                  <textarea
+                    value={record[field] ?? ""}
+                    onChange={(event) => setField(field, event.target.value)}
+                    rows={3}
+                    placeholder={`Write ${label.toLowerCase()}…`}
+                    className="mt-3 w-full resize-y border-0 bg-transparent px-0 py-1 text-base leading-7 outline-none placeholder:text-muted-foreground/45"
+                  />
+                </label>
+              ),
+            )}
+          </div>
 
-          {EDITABLE.filter(([field]) => field !== "goal" && field !== "summary").map(([field, label]) => (
-            <label key={field} className="block">
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                {label}
+          <details className="group rounded-sm border border-border bg-secondary/20">
+            <summary className="cursor-pointer list-none px-4 py-3 text-xs font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              Classification settings
+              <span className="float-right font-mono text-[10px] font-normal text-muted-foreground group-open:hidden">
+                {record.regions.length} regions
               </span>
-              <textarea
-                value={record[field] ?? ""}
-                onChange={(event) => setField(field, event.target.value)}
-                rows={3}
-                className="mt-1 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm"
+            </summary>
+            <label className="block border-t border-border p-4">
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                Regions (comma separated)
+              </span>
+              <input
+                value={record.regions.join(", ")}
+                onChange={(event) =>
+                  setField(
+                    "regions",
+                    event.target.value
+                      .split(",")
+                      .map((value) => value.trim())
+                      .filter(Boolean),
+                  )
+                }
+                className="mt-2 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm"
               />
             </label>
-          ))}
+          </details>
         </Panel>
 
         <div className="space-y-4">
