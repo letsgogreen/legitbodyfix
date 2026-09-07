@@ -59,10 +59,10 @@ export function SiteNav() {
             </a>
           ))}
           <Link
-            to="/movement-check"
+            to="/start"
             className="inline-flex min-h-11 items-center rounded-sm bg-accent px-4 py-2.5 text-sm font-bold text-accent-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            Take the Free Movement Check
+            Find my starting point
           </Link>
           {signedIn && (
             <button
@@ -106,11 +106,11 @@ export function SiteNav() {
               </a>
             ))}
             <Link
-              to="/movement-check"
+              to="/start"
               onClick={() => setOpen(false)}
               className="mt-5 inline-flex min-h-11 items-center justify-center rounded-sm bg-accent px-4 py-3.5 text-center text-sm font-bold text-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              Take the Free Movement Check
+              Find my starting point
             </Link>
             {signedIn && (
               <button

@@ -6,13 +6,13 @@ const steps = [
   },
   {
     number: "02",
-    title: "Check your starting point",
-    description: "Use clear movement guidance without pretending to diagnose yourself.",
+    title: "Choose your approach",
+    description: "Explore free learning resources or look for a guided program.",
   },
   {
     number: "03",
-    title: "Follow your program",
-    description: "Work through a focused progression and connect it back to real movement.",
+    title: "Take your next step",
+    description: "Read a relevant guide or review a program, then return to your library anytime.",
   },
 ];
 

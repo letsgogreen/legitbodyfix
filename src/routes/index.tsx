@@ -29,7 +29,7 @@ export const Route = createFileRoute("/")({
 const differentiators = [
   {
     icon: ScanSearch,
-    title: "Start with a check",
+    title: "Choose a starting point",
     description: "Find a useful starting point instead of collecting another random routine.",
   },
   {
@@ -56,21 +56,21 @@ function PhaseOneHomepage() {
           <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-[1220px] items-center gap-12 px-6 py-[54px] lg:grid-cols-2 lg:gap-16 lg:py-[60px]">
             <div className="min-w-0">
               <p className="inline-block bg-accent px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-accent-foreground">
-                Movement guidance for those who want better
+                Understand your movement. Find your next step.
               </p>
               <h1 className="original-hero-title mt-[26px] max-w-[620px] text-[clamp(3.5rem,5.6vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.065em]">
                 <span className="block">Move</span>
                 <span className="block">better.</span>
-                <span className="original-outline block">Hurt</span>
-                <span className="original-outline block">less.</span>
+                <span className="original-outline block">Start</span>
+                <span className="original-outline block">here.</span>
               </h1>
               <p className="mt-6 max-w-[550px] text-lg leading-[1.65] text-muted-foreground">
-                Follow clear corrective exercise sessions that help you understand your body,
-                rebuild weak links, and move with confidence again.
+                Choose an area you want to work on. Explore free movement resources,
+                or find a guided program to follow at your own pace.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/movement-check"
+                  to="/start"
                   className="inline-flex min-h-11 items-center justify-center rounded-sm bg-accent px-6 py-3.5 text-center text-sm font-bold text-accent-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Find my starting point
@@ -183,11 +183,10 @@ function PhaseOneHomepage() {
               Not sure where to begin?
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base text-accent-foreground/75 sm:text-lg">
-              Start with the body region or movement that feels most relevant. The full guided check
-              is coming soon.
+              Choose an area and how you prefer to learn. We will show you where to go next.
             </p>
             <Link
-              to="/movement-check"
+              to="/start"
               className="mt-9 inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-8 py-3.5 text-sm font-bold text-ink-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-accent"
             >
               Find my starting point <ArrowRight className="h-4 w-4" aria-hidden="true" />

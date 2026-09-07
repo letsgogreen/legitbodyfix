@@ -42,7 +42,7 @@ export function SiteFooter() {
           <div>
             <p className="font-mono text-xs tracking-widest text-accent">START</p>
             <Link
-              to="/movement-check"
+              to="/start"
               className="mt-4 inline-flex min-h-11 items-center rounded-sm bg-accent px-4 py-3 text-sm font-bold text-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-ink-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
             >
               Find my starting point

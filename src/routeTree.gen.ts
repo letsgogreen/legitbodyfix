@@ -16,6 +16,7 @@ import { Route as MovementCheckRouteImport } from './routes/movement-check'
 import { Route as MusclesRouteImport } from './routes/muscles'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as StartRouteImport } from './routes/start'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as Ver1RouteImport } from './routes/ver1'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -84,6 +85,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const RefundPolicyRoute = RefundPolicyRouteImport.update({
   id: '/refund-policy',
   path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartRoute = StartRouteImport.update({
+  id: '/start',
+  path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -266,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/muscles': typeof MusclesRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/start': typeof StartRoute
   '/terms': typeof TermsRoute
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
@@ -306,6 +313,7 @@ export interface FileRoutesByTo {
   '/movement-check': typeof MovementCheckRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/start': typeof StartRoute
   '/terms': typeof TermsRoute
   '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
   '/admin/content': typeof AdminContentRoute
@@ -349,6 +357,7 @@ export interface FileRoutesById {
   '/muscles': typeof MusclesRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
+  '/start': typeof StartRoute
   '/terms': typeof TermsRoute
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
@@ -394,6 +403,7 @@ export interface FileRouteTypes {
     | '/muscles'
     | '/privacy'
     | '/refund-policy'
+    | '/start'
     | '/terms'
     | '/ver1'
     | '/admin/anatomy-preview'
@@ -434,6 +444,7 @@ export interface FileRouteTypes {
     | '/movement-check'
     | '/privacy'
     | '/refund-policy'
+    | '/start'
     | '/terms'
     | '/admin/anatomy-preview'
     | '/admin/content'
@@ -476,6 +487,7 @@ export interface FileRouteTypes {
     | '/muscles'
     | '/privacy'
     | '/refund-policy'
+    | '/start'
     | '/terms'
     | '/ver1'
     | '/admin/anatomy-preview'
@@ -520,6 +532,7 @@ export interface RootRouteChildren {
   MusclesRoute: typeof MusclesRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
+  StartRoute: typeof StartRoute
   TermsRoute: typeof TermsRoute
   Ver1Route: typeof Ver1RouteWithChildren
   ApiCloudflareStreamWebhookRoute: typeof ApiCloudflareStreamWebhookRoute
@@ -583,6 +596,13 @@ declare module '@tanstack/react-router' {
       path: '/refund-policy'
       fullPath: '/refund-policy'
       preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start': {
+      id: '/start'
+      path: '/start'
+      fullPath: '/start'
+      preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -922,6 +942,7 @@ const rootRouteChildren: RootRouteChildren = {
   MusclesRoute: MusclesRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
+  StartRoute: StartRoute,
   TermsRoute: TermsRoute,
   Ver1Route: Ver1RouteWithChildren,
   ApiCloudflareStreamWebhookRoute: ApiCloudflareStreamWebhookRoute,
