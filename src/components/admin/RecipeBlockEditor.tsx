@@ -143,6 +143,7 @@ export function RecipeBlockEditor({
   onChange: (blocks: RecipeContentBlock[]) => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [slashIndex, setSlashIndex] = useState<number | null>(null);
   const [deleted, setDeleted] = useState<{ block: RecipeContentBlock; index: number } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragIndex = useRef<number | null>(null);
@@ -171,6 +172,14 @@ export function RecipeBlockEditor({
     next.splice(index, 0, block);
     onChange(next);
     setSelectedId(block.id);
+  }
+  function replace(index: number, type: BlockType) {
+    const current = value[index];
+    if (!current) return;
+    const block = { ...makeBlock(type), id: current.id } as RecipeContentBlock;
+    onChange(value.map((candidate, candidateIndex) => (candidateIndex === index ? block : candidate)));
+    setSelectedId(block.id);
+    setSlashIndex(null);
   }
   function move(index: number, direction: -1 | 1) {
     const target = index + direction;
@@ -350,12 +359,40 @@ export function RecipeBlockEditor({
                   </div>
                 )}
                 {block.type === "paragraph" && (
-                  <AutoTextarea
-                    value={block.text}
-                    onChange={(event) => update(index, { text: event.target.value })}
-                    placeholder="Type something or press / for commands. Markdown links are supported."
-                    className="w-full resize-none overflow-hidden border-0 bg-transparent px-1 py-1 text-base leading-7 outline-none placeholder:text-muted-foreground/50"
-                  />
+                  <div className="relative">
+                    <AutoTextarea
+                      value={block.text}
+                      onChange={(event) => {
+                        update(index, { text: event.target.value });
+                        if (event.target.value !== "") setSlashIndex(null);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "/" && !block.text) {
+                          event.preventDefault();
+                          setSlashIndex(index);
+                        }
+                        if (event.key === "Escape") setSlashIndex(null);
+                      }}
+                      placeholder="Type something or press / for commands. Markdown links are supported."
+                      aria-expanded={slashIndex === index}
+                      className="w-full resize-none overflow-hidden border-0 bg-transparent px-1 py-1 text-base leading-7 outline-none placeholder:text-muted-foreground/50"
+                    />
+                    {slashIndex === index ? (
+                      <div className="relative z-30 mt-2 grid grid-cols-2 gap-1 rounded-sm border border-border bg-card p-2 shadow-xl sm:grid-cols-3">
+                        {choices.map(([type, label, Icon]) => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => replace(index, type)}
+                            className="inline-flex min-h-10 items-center gap-2 rounded-sm px-2 text-left text-xs font-semibold hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
                 )}
                 {block.type === "toggle" && (
                   <div className="space-y-2">
