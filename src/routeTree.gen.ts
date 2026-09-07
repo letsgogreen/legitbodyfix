@@ -35,6 +35,7 @@ import { Route as LibraryAccountRouteImport } from './routes/library.account'
 import { Route as MusclesIndexRouteImport } from './routes/muscles.index'
 import { Route as MusclesMuscleIdRouteImport } from './routes/muscles.$muscleId'
 import { Route as ProgramsProgramSlugRouteImport } from './routes/programs.$programSlug'
+import { Route as RecipesIndexRouteImport } from './routes/recipes.index'
 import { Route as RecipesSlugRouteImport } from './routes/recipes.$slug'
 import { Route as Ver1IndexRouteImport } from './routes/ver1.index'
 import { Route as Ver1AdminRouteImport } from './routes/ver1.admin'
@@ -181,6 +182,11 @@ const ProgramsProgramSlugRoute = ProgramsProgramSlugRouteImport.update({
   path: '/programs/$programSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecipesIndexRoute = RecipesIndexRouteImport.update({
+  id: '/recipes/',
+  path: '/recipes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecipesSlugRoute = RecipesSlugRouteImport.update({
   id: '/recipes/$slug',
   path: '/recipes/$slug',
@@ -281,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/library/': typeof LibraryIndexRoute
   '/muscles/': typeof MusclesIndexRoute
+  '/recipes/': typeof RecipesIndexRoute
   '/ver1/': typeof Ver1IndexRoute
   '/admin/muscles/$muscleId': typeof AdminMusclesMuscleIdRoute
   '/admin/muscles/import': typeof AdminMusclesImportRoute
@@ -319,6 +326,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/library': typeof LibraryIndexRoute
   '/muscles': typeof MusclesIndexRoute
+  '/recipes': typeof RecipesIndexRoute
   '/ver1': typeof Ver1IndexRoute
   '/admin/muscles/$muscleId': typeof AdminMusclesMuscleIdRoute
   '/admin/muscles/import': typeof AdminMusclesImportRoute
@@ -362,6 +370,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/library/': typeof LibraryIndexRoute
   '/muscles/': typeof MusclesIndexRoute
+  '/recipes/': typeof RecipesIndexRoute
   '/ver1/': typeof Ver1IndexRoute
   '/admin/muscles/$muscleId': typeof AdminMusclesMuscleIdRoute
   '/admin/muscles/import': typeof AdminMusclesImportRoute
@@ -406,6 +415,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/library/'
     | '/muscles/'
+    | '/recipes/'
     | '/ver1/'
     | '/admin/muscles/$muscleId'
     | '/admin/muscles/import'
@@ -444,6 +454,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/library'
     | '/muscles'
+    | '/recipes'
     | '/ver1'
     | '/admin/muscles/$muscleId'
     | '/admin/muscles/import'
@@ -486,6 +497,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/library/'
     | '/muscles/'
+    | '/recipes/'
     | '/ver1/'
     | '/admin/muscles/$muscleId'
     | '/admin/muscles/import'
@@ -515,6 +527,7 @@ export interface RootRouteChildren {
   GuidesSlugRoute: typeof GuidesSlugRoute
   ProgramsProgramSlugRoute: typeof ProgramsProgramSlugRoute
   RecipesSlugRoute: typeof RecipesSlugRoute
+  RecipesIndexRoute: typeof RecipesIndexRoute
   ApiPaypalConfigRoute: typeof ApiPaypalConfigRoute
   ApiPublicPaddleWebhookRoute: typeof ApiPublicPaddleWebhookRoute
   ApiPaypalOrdersCaptureRoute: typeof ApiPaypalOrdersCaptureRoute
@@ -703,6 +716,13 @@ declare module '@tanstack/react-router' {
       path: '/programs/$programSlug'
       fullPath: '/programs/$programSlug'
       preLoaderRoute: typeof ProgramsProgramSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recipes/': {
+      id: '/recipes/'
+      path: '/recipes'
+      fullPath: '/recipes/'
+      preLoaderRoute: typeof RecipesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recipes/$slug': {
@@ -909,6 +929,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesSlugRoute: GuidesSlugRoute,
   ProgramsProgramSlugRoute: ProgramsProgramSlugRoute,
   RecipesSlugRoute: RecipesSlugRoute,
+  RecipesIndexRoute: RecipesIndexRoute,
   ApiPaypalConfigRoute: ApiPaypalConfigRoute,
   ApiPublicPaddleWebhookRoute: ApiPublicPaddleWebhookRoute,
   ApiPaypalOrdersCaptureRoute: ApiPaypalOrdersCaptureRoute,
