@@ -144,10 +144,14 @@ function RecipeReview() {
       draft?.data && typeof draft.data === "object" ? (draft.data as Partial<RecipeRow>) : null;
     const loadedRecord = draftData ? { ...databaseRecord, ...draftData } : databaseRecord;
     const contentBlocks = parseRecipeBlocks(loadedRecord.content_blocks);
-    setLegacyPreview(
-      contentBlocks.length ? [] : blocksFromLegacyInstructions(loadedRecord.instructions),
-    );
-    const normalizedRecord = { ...loadedRecord, content_blocks: contentBlocks };
+    const legacyBlocks = contentBlocks.length
+      ? []
+      : blocksFromLegacyInstructions(loadedRecord.instructions);
+    setLegacyPreview(legacyBlocks);
+    const normalizedRecord = {
+      ...loadedRecord,
+      content_blocks: contentBlocks.length ? contentBlocks : legacyBlocks,
+    };
     const generatedGoal =
       !normalizedRecord.goal?.trim() ||
       isTagOnlyRecipeGoal(normalizedRecord.goal, normalizedRecord.symptoms_goals)
@@ -399,7 +403,7 @@ function RecipeReview() {
 
   const blockers = publishBlockers(record);
   const blockIssues = validateRecipeBlocks(record.content_blocks);
-  const previewBlocks = record.content_blocks.length ? record.content_blocks : legacyPreview;
+  const previewBlocks = record.content_blocks;
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
@@ -540,20 +544,13 @@ function RecipeReview() {
                 dividers.
               </p>
             </div>
-            {legacyPreview.length && !record.content_blocks.length ? (
+            {legacyPreview.length ? (
               <div className="mb-5 rounded-sm border border-accent bg-accent/10 p-4">
-                <p className="text-sm font-bold">Legacy instructions conversion preview</p>
+                <p className="text-sm font-bold">Imported article ready to edit</p>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Nothing has been written to content_blocks. Review the preview, then choose “Use
-                  converted blocks” to begin editing.
+                  The existing article is open in the editor below. It remains unchanged in the
+                  database until you edit or save it.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setField("content_blocks", legacyPreview)}
-                  className="mt-3 min-h-10 rounded-sm bg-foreground px-4 text-xs font-bold text-background"
-                >
-                  Use converted blocks
-                </button>
               </div>
             ) : null}
             <RecipeBlockEditor
