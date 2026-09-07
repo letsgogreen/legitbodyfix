@@ -390,6 +390,30 @@ export function RecipeBlockEditor({
                 <span className="ml-1 font-mono text-[9px] uppercase tracking-[0.14em]">
                   {index + 1} · {block.type}
                 </span>
+                {block.type === "heading" ? (
+                  <button
+                    type="button"
+                    onClick={() => update(index, { level: block.level === 2 ? 3 : 2 })}
+                    aria-label={`Change to ${block.level === 2 ? "subheading" : "title"}`}
+                    title={`Current style: ${block.level === 2 ? "Title" : "Subheading"}. Click to switch.`}
+                    className="ml-1 min-w-8 border-l border-border px-2 py-1 font-mono text-[9px] font-bold uppercase"
+                  >
+                    {block.level === 2 ? "H2" : "H3"}
+                  </button>
+                ) : null}
+                {block.type === "list" ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      update(index, { style: block.style === "bullet" ? "numbered" : "bullet" })
+                    }
+                    aria-label={`Change to ${block.style === "bullet" ? "numbered" : "bullet"} list`}
+                    title={`Current style: ${block.style === "bullet" ? "Bullet list" : "Numbered list"}. Click to switch.`}
+                    className="ml-1 min-w-10 border-l border-border px-2 py-1 font-mono text-[9px] font-bold uppercase"
+                  >
+                    {block.style === "bullet" ? "• List" : "1. List"}
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => move(index, -1)}
@@ -430,18 +454,7 @@ export function RecipeBlockEditor({
                 className={`min-w-0 px-3 sm:px-5 [&_input]:max-w-full [&_textarea]:max-w-full ${block.type === "divider" ? "py-1" : "py-3 sm:py-4"}`}
               >
                 {block.type === "heading" && (
-                  <div className="flex flex-col gap-2">
-                    <select
-                      aria-label="Heading level"
-                      value={block.level}
-                      onChange={(event) =>
-                        update(index, { level: Number(event.target.value) as 2 | 3 })
-                      }
-                      className="w-fit rounded-sm border border-border px-2 py-1 text-xs"
-                    >
-                      <option value={2}>Title</option>
-                      <option value={3}>Subheading</option>
-                    </select>
+                  <div>
                     <input
                       value={block.text}
                       onChange={(event) => update(index, { text: event.target.value })}
@@ -520,18 +533,7 @@ export function RecipeBlockEditor({
                 )}
                 {block.type === "list" && (
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <select
-                        aria-label="List style"
-                        value={block.style}
-                        onChange={(event) =>
-                          update(index, { style: event.target.value as "bullet" | "numbered" })
-                        }
-                        className="min-h-8 rounded-sm border border-border bg-background px-2 text-[11px]"
-                      >
-                        <option value="bullet">Bullet list</option>
-                        <option value="numbered">Numbered list</option>
-                      </select>
+                    <div className="flex justify-end">
                       <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
                         Enter adds an item
                       </span>
