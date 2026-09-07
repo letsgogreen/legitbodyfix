@@ -158,6 +158,19 @@ function AutoTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
     element.style.height = `${Math.max(element.scrollHeight, 44)}px`;
   };
   useEffect(resize, [props.value]);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    let width = element.getBoundingClientRect().width;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry && entry.contentRect.width !== width) {
+        width = entry.contentRect.width;
+        resize();
+      }
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
   return <textarea {...props} ref={ref} rows={1} onInput={resize} />;
 }
 
@@ -276,6 +289,18 @@ export function RecipeBlockEditor({
     [next[index], next[target]] = [next[target]!, next[index]!];
     onChange(next);
   }
+  function changeTextStyle(index: number, style: string) {
+    const current = value[index];
+    if (!current || !["paragraph", "heading", "list"].includes(current.type)) return;
+    const text = current.type === "list" ? current.items.join("\n") : "text" in current ? current.text : "";
+    const next: RecipeContentBlock = style === "paragraph"
+      ? { id: current.id, type: "paragraph", text }
+      : style === "heading" || style === "subheading"
+        ? { id: current.id, type: "heading", text, level: style === "heading" ? 2 : 3 }
+        : { id: current.id, type: "list", style: style === "numbered" ? "numbered" : "bullet", items: current.type === "list" ? current.items : text.split("\n") };
+    onChange(value.map((block, position) => position === index ? next : block));
+    focusEditor(current.id);
+  }
   function duplicate(index: number) {
     const clone = { ...structuredClone(value[index]!), id: blockId() };
     const next = [...value];
@@ -318,7 +343,10 @@ export function RecipeBlockEditor({
   return (
     <div className="min-w-0 bg-transparent py-3">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Body</p>
+        <div>
+          <p className="text-sm font-bold">Write your article</p>
+          <p className="mt-1 text-xs text-muted-foreground">Click a block to change its style. Use + between sections to add content.</p>
+        </div>
         <InsertMenu onInsert={(type) => insert(value.length, type)} />
       </div>
       {(headings.length > 0 || warnings.length > 0) && (
@@ -375,7 +403,7 @@ export function RecipeBlockEditor({
               aria-label={`${block.type} block ${index + 1}`}
             >
               <div
-                className={`absolute -top-3 right-2 z-10 flex flex-wrap items-center gap-1 rounded-sm border border-border bg-background/95 px-1 py-0.5 shadow-sm transition ${selected ? "opacity-100" : "pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"}`}
+                className={`z-10 flex max-w-full flex-wrap items-center justify-end gap-1 rounded-sm border border-border bg-background/95 px-1 py-0.5 transition ${selected ? "relative opacity-100" : "absolute right-0 top-0 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"}`}
               >
                 <span
                   draggable
@@ -390,29 +418,22 @@ export function RecipeBlockEditor({
                 <span className="ml-1 font-mono text-[9px] uppercase tracking-[0.14em]">
                   {index + 1} · {block.type}
                 </span>
-                {block.type === "heading" ? (
-                  <button
-                    type="button"
-                    onClick={() => update(index, { level: block.level === 2 ? 3 : 2 })}
-                    aria-label={`Change to ${block.level === 2 ? "subheading" : "title"}`}
-                    title={`Current style: ${block.level === 2 ? "Title" : "Subheading"}. Click to switch.`}
-                    className="ml-1 min-w-8 border-l border-border px-2 py-1 font-mono text-[9px] font-bold uppercase"
-                  >
-                    {block.level === 2 ? "H2" : "H3"}
-                  </button>
-                ) : null}
-                {block.type === "list" ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      update(index, { style: block.style === "bullet" ? "numbered" : "bullet" })
-                    }
-                    aria-label={`Change to ${block.style === "bullet" ? "numbered" : "bullet"} list`}
-                    title={`Current style: ${block.style === "bullet" ? "Bullet list" : "Numbered list"}. Click to switch.`}
-                    className="ml-1 min-w-10 border-l border-border px-2 py-1 font-mono text-[9px] font-bold uppercase"
-                  >
-                    {block.style === "bullet" ? "• List" : "1. List"}
-                  </button>
+                {block.type === "paragraph" || block.type === "heading" || block.type === "list" ? (
+                  <label className="flex items-center gap-2 border-l border-border pl-2 text-xs">
+                    <span className="text-muted-foreground">Style</span>
+                    <select
+                      aria-label={`Text style for block ${index + 1}`}
+                      value={block.type === "heading" ? block.level === 2 ? "heading" : "subheading" : block.type === "list" ? block.style : "paragraph"}
+                      onChange={(event) => changeTextStyle(index, event.target.value)}
+                      className="min-h-9 max-w-32 rounded-sm border border-border bg-background px-2 font-semibold"
+                    >
+                      <option value="paragraph">Paragraph</option>
+                      <option value="heading">Heading</option>
+                      <option value="subheading">Subheading</option>
+                      <option value="bullet">Bullet list</option>
+                      <option value="numbered">Numbered list</option>
+                    </select>
+                  </label>
                 ) : null}
                 <button
                   type="button"
