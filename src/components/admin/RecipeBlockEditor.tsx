@@ -425,7 +425,10 @@ export function RecipeBlockEditor({
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
-              <div data-block-content className="min-w-0 px-3 py-3 sm:px-5 sm:py-4 [&_input]:max-w-full [&_textarea]:max-w-full">
+              <div
+                data-block-content
+                className={`min-w-0 px-3 sm:px-5 [&_input]:max-w-full [&_textarea]:max-w-full ${block.type === "divider" ? "py-1" : "py-3 sm:py-4"}`}
+              >
                 {block.type === "heading" && (
                   <div className="flex flex-col gap-2">
                     <select
@@ -666,7 +669,15 @@ export function RecipeBlockEditor({
                     />
                   </div>
                 )}
-                {block.type === "divider" && <hr className="my-3 border-border" />}
+                {block.type === "divider" && (
+                  <div className="flex items-center gap-3 py-1" aria-label="Section divider">
+                    <span className="h-px flex-1 bg-border" />
+                    <span className={`font-mono text-[8px] uppercase tracking-[0.16em] text-muted-foreground transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"}`}>
+                      Section break
+                    </span>
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+                )}
                 {blockIssues.length ? (
                   <ul className="mt-3 space-y-1 text-xs text-destructive">
                     {blockIssues.map((issue) => (
