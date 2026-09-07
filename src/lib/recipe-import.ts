@@ -90,6 +90,15 @@ export function deriveRecipeGoal(title: string) {
     : "Explore a focused movement variation with control, then reassess before progressing.";
 }
 
+/** Legacy imports sometimes copied the first symptom tag into the editorial goal field. */
+export function isTagOnlyRecipeGoal(goal: string | null | undefined, symptoms: string[]) {
+  const normalizedGoal = goal?.trim().toLowerCase();
+  return Boolean(
+    normalizedGoal &&
+      symptoms.some((symptom) => symptom.trim().toLowerCase() === normalizedGoal),
+  );
+}
+
 function same(a: unknown, b: unknown) {
   if (Array.isArray(a) || Array.isArray(b)) {
     const left = (Array.isArray(a) ? a : []).map(String).sort();
@@ -151,7 +160,7 @@ export function recipeFromNotion(input: {
   if (!input.contraindications)
     issues.push({ level: "error", message: "No contraindications / red flags — cannot publish." });
   if (!symptoms.length)
-    issues.push({ level: "warning", message: "No symptom/goal tags; a reviewable goal was generated from the title." });
+    issues.push({ level: "warning", message: "No symptom/goal tags were supplied." });
   if (input.progressionLevel && !level)
     issues.push({
       level: "warning",
@@ -183,7 +192,7 @@ export function recipeFromNotion(input: {
     notion_url: input.url,
     title: title || "(untitled)",
     slug: slugifyRecipe(title) || `recipe-${input.pageId.slice(0, 8)}`,
-    goal: symptoms[0] ?? deriveRecipeGoal(title),
+    goal: deriveRecipeGoal(title),
     summary: input.assessmentClues,
     instructions: input.instructions,
     regions,
