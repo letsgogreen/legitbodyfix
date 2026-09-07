@@ -99,7 +99,7 @@ function MovementCheck() {
               Body regions
             </Link>
             <a href="/knowledge.html?type=muscles" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Muscle dictionary</a>
-            <a href="/knowledge.html?type=conditions&amp;path=postural-movement" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Posture</a>
+            <Link to="/recipes" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Posture</Link>
             <a href="/knowledge.html?type=conditions&amp;path=musculoskeletal-condition" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Conditions</a>
           </div>
         </nav>
