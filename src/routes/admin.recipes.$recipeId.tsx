@@ -500,12 +500,7 @@ function RecipeReview() {
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                  Article content
-                </p>
-                <h2 className="mt-1 text-2xl font-bold tracking-tight">Write the article</h2>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Write directly below. Add titles, paragraphs, lists, toggles, images, and videos
-                  wherever you need them.
+                  Recipe document
                 </p>
               </div>
               <span className="rounded-full border border-border px-3 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
@@ -521,7 +516,7 @@ function RecipeReview() {
                 </p>
               </div>
             ) : null}
-            <div className="mb-7 border-y border-border py-6">
+            <div className="mb-4 border-y border-border py-5">
               <div className="mt-5 space-y-5">
                 <label className="block">
                   <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Title</span>

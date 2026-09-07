@@ -218,41 +218,46 @@ export function RecipeBlockEditor({
   }
 
   return (
-    <div className="min-w-0 overflow-x-hidden bg-transparent py-3">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-        <div>
-          <p className="text-sm font-bold">Article body</p>
-          <p className="mt-1 text-xs text-muted-foreground">Click into the document and write.</p>
-        </div>
+    <div className="min-w-0 bg-transparent py-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Body</p>
         <InsertMenu onInsert={(type) => insert(value.length, type)} />
       </div>
       {(headings.length > 0 || warnings.length > 0) && (
-        <div className="mb-6 grid gap-3 border-b border-border pb-5 lg:grid-cols-2">
+        <div className="mb-5 flex flex-wrap gap-2 border-b border-border pb-4">
           {headings.length > 0 && (
-            <nav aria-label="Article outline" className="rounded-sm bg-secondary/35 p-3">
-              <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Article outline</p>
-              <ol className="mt-2 space-y-1">
-                {headings.map((heading) => (
-                  <li key={heading.id} className={heading.level === 3 ? "pl-3" : ""}>
-                    <button type="button" onClick={() => focusBlock(heading.id)} className="max-w-full truncate text-left text-xs font-semibold hover:underline">
-                      {heading.text}
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </nav>
+            <details className="relative rounded-sm border border-border bg-background">
+              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                Outline · {headings.length} sections
+              </summary>
+              <nav aria-label="Article outline" className="absolute left-0 top-full z-30 mt-1 w-72 rounded-sm border border-border bg-card p-3 shadow-xl">
+                <ol className="space-y-1">
+                  {headings.map((heading) => (
+                    <li key={heading.id} className={heading.level === 3 ? "pl-3" : ""}>
+                      <button type="button" onClick={() => focusBlock(heading.id)} className="block max-w-full truncate text-left text-xs font-semibold hover:underline">
+                        {heading.text}
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            </details>
           )}
           {warnings.length > 0 && (
-            <aside className="rounded-sm border border-amber-300 bg-amber-50 p-3 text-amber-950">
-              <p className="font-mono text-[9px] uppercase tracking-[0.14em]">Review {warnings.length} content issue{warnings.length === 1 ? "" : "s"}</p>
-              <ul className="mt-2 space-y-1">
-                {warnings.map((warning, index) => (
-                  <li key={`${warning.blockId}-${warning.message}-${index}`}>
-                    <button type="button" onClick={() => focusBlock(warning.blockId)} className="text-left text-xs underline underline-offset-2">{warning.message}</button>
-                  </li>
-                ))}
-              </ul>
-            </aside>
+            <details className="relative rounded-sm border border-amber-300 bg-amber-50 text-amber-950">
+              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-bold outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+                Review · {warnings.length} issue{warnings.length === 1 ? "" : "s"}
+              </summary>
+              <aside className="absolute left-0 top-full z-30 mt-1 w-72 rounded-sm border border-amber-300 bg-amber-50 p-3 shadow-xl">
+                <ul className="space-y-1">
+                  {warnings.map((warning, index) => (
+                    <li key={`${warning.blockId}-${warning.message}-${index}`}>
+                      <button type="button" onClick={() => focusBlock(warning.blockId)} className="text-left text-xs underline underline-offset-2">{warning.message}</button>
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+            </details>
           )}
         </div>
       )}
