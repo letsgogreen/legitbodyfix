@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type TextareaHTMLAttributes } from "react";
 import {
   AlertCircle,
   ChevronDown,
@@ -62,14 +62,14 @@ function InsertMenu({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className={`relative flex ${compact ? "justify-center py-1" : "flex-wrap gap-2"}`}>
+    <div className={`relative flex ${compact ? "group/insert h-5 justify-center" : "flex-wrap gap-2"}`}>
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         className={
           compact
-            ? "grid h-7 w-7 place-items-center rounded-full border border-border bg-background text-muted-foreground hover:border-foreground hover:text-foreground"
+            ? "absolute top-1/2 z-10 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border border-border bg-background text-muted-foreground opacity-0 shadow-sm transition hover:border-foreground hover:text-foreground focus-visible:opacity-100 group-hover/insert:opacity-100"
             : "inline-flex min-h-9 items-center gap-2 rounded-sm bg-foreground px-3 text-xs font-bold text-background"
         }
       >
@@ -78,7 +78,7 @@ function InsertMenu({
       </button>
       {open ? (
         <div
-          className={`${compact ? "absolute left-1/2 top-8 z-20 w-72 -translate-x-1/2 shadow-xl" : "w-full"} grid grid-cols-2 gap-1 rounded-sm border border-border bg-card p-2 sm:grid-cols-3`}
+          className={`${compact ? "absolute left-1/2 top-5 z-20 w-72 -translate-x-1/2 shadow-xl" : "w-full"} grid grid-cols-2 gap-1 rounded-sm border border-border bg-card p-2 sm:grid-cols-3`}
         >
           {choices.map(([type, label, Icon]) => (
             <button
@@ -100,6 +100,37 @@ function InsertMenu({
   );
 }
 
+function AutoTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const resize = () => {
+    const element = ref.current;
+    if (!element) return;
+    element.style.height = "0px";
+    element.style.height = `${Math.max(element.scrollHeight, 44)}px`;
+  };
+  useEffect(resize, [props.value]);
+  return <textarea {...props} ref={ref} rows={1} onInput={resize} />;
+}
+
+function qualityWarnings(blocks: RecipeContentBlock[]) {
+  return blocks.flatMap((block, index) => {
+    const warnings: string[] = [];
+    if (block.type === "list" && block.items.every((item) => /^\*\*step\*\*$/i.test(item.trim())))
+      warnings.push("Placeholder-only list");
+    if ((block.type === "paragraph" || block.type === "heading") && !block.text.trim())
+      warnings.push(`Empty ${block.type}`);
+    if (block.type === "heading") {
+      const followingSection = blocks.slice(index + 1).find((candidate) => candidate.type !== "divider");
+      if (!followingSection || followingSection.type === "heading") warnings.push("Heading has no body");
+    }
+    if (block.type === "divider" && blocks[index + 1]?.type === "divider")
+      warnings.push("Consecutive dividers");
+    const text = "text" in block ? block.text : "";
+    if (/<\/?[a-z][^>]*>|\{toggle=/i.test(text)) warnings.push("Unconverted markup");
+    return warnings.map((message) => ({ blockId: block.id, message }));
+  });
+}
+
 export function RecipeBlockEditor({
   value,
   recipeId,
@@ -115,6 +146,11 @@ export function RecipeBlockEditor({
   const [deleted, setDeleted] = useState<{ block: RecipeContentBlock; index: number } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragIndex = useRef<number | null>(null);
+  const headings = useMemo(
+    () => value.filter((block): block is Extract<RecipeContentBlock, { type: "heading" }> => block.type === "heading" && Boolean(block.text.trim())),
+    [value],
+  );
+  const warnings = useMemo(() => qualityWarnings(value), [value]);
   useEffect(
     () => () => {
       if (undoTimer.current) clearTimeout(undoTimer.current);
@@ -176,9 +212,13 @@ export function RecipeBlockEditor({
     next.splice(index, 0, block);
     onChange(next);
   }
+  function focusBlock(id: string) {
+    setSelectedId(id);
+    document.getElementById(`recipe-block-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   return (
-    <div className="min-w-0 space-y-2 overflow-x-hidden rounded-sm border border-border bg-card p-3 sm:p-5">
+    <div className="min-w-0 overflow-x-hidden rounded-sm border border-border bg-card p-3 sm:p-5">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
@@ -190,6 +230,36 @@ export function RecipeBlockEditor({
         </div>
         <InsertMenu onInsert={(type) => insert(value.length, type)} />
       </div>
+      {(headings.length > 0 || warnings.length > 0) && (
+        <div className="mb-6 grid gap-3 border-b border-border pb-5 lg:grid-cols-2">
+          {headings.length > 0 && (
+            <nav aria-label="Article outline" className="rounded-sm bg-secondary/35 p-3">
+              <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Article outline</p>
+              <ol className="mt-2 space-y-1">
+                {headings.map((heading) => (
+                  <li key={heading.id} className={heading.level === 3 ? "pl-3" : ""}>
+                    <button type="button" onClick={() => focusBlock(heading.id)} className="max-w-full truncate text-left text-xs font-semibold hover:underline">
+                      {heading.text}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )}
+          {warnings.length > 0 && (
+            <aside className="rounded-sm border border-amber-300 bg-amber-50 p-3 text-amber-950">
+              <p className="font-mono text-[9px] uppercase tracking-[0.14em]">Review {warnings.length} content issue{warnings.length === 1 ? "" : "s"}</p>
+              <ul className="mt-2 space-y-1">
+                {warnings.map((warning, index) => (
+                  <li key={`${warning.blockId}-${warning.message}-${index}`}>
+                    <button type="button" onClick={() => focusBlock(warning.blockId)} className="text-left text-xs underline underline-offset-2">{warning.message}</button>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )}
+        </div>
+      )}
       <InsertMenu compact onInsert={(type) => insert(0, type)} />
       {value.map((block, index) => {
         const blockIssues = issues.filter((issue) => issue.blockId === block.id);
@@ -197,15 +267,16 @@ export function RecipeBlockEditor({
         return (
           <div key={block.id}>
             <section
+              id={`recipe-block-${block.id}`}
               onDragOver={(event) => event.preventDefault()}
               onDrop={() => drop(index)}
               onFocusCapture={() => setSelectedId(block.id)}
               onClick={() => setSelectedId(block.id)}
-              className={`group relative min-w-0 overflow-hidden rounded-sm border bg-background transition ${selected ? "border-foreground shadow-[3px_3px_0_var(--color-accent)]" : blockIssues.length ? "border-destructive/60" : "border-transparent hover:border-border"}`}
+              className={`group relative min-w-0 rounded-sm border transition ${selected ? "border-foreground/30 bg-secondary/25" : blockIssues.length ? "border-destructive/60 bg-destructive/5" : "border-transparent bg-transparent hover:border-border hover:bg-secondary/20"}`}
               aria-label={`${block.type} block ${index + 1}`}
             >
               <div
-                className={`absolute right-2 top-2 z-10 flex flex-wrap items-center gap-1 rounded-sm border border-border bg-background/95 px-1 py-0.5 shadow-sm transition ${selected ? "opacity-100" : "pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"}`}
+                className={`absolute -top-3 right-2 z-10 flex flex-wrap items-center gap-1 rounded-sm border border-border bg-background/95 px-1 py-0.5 shadow-sm transition ${selected ? "opacity-100" : "pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"}`}
               >
                 <span
                   draggable
@@ -255,7 +326,7 @@ export function RecipeBlockEditor({
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
-              <div className="min-w-0 px-3 py-4 sm:px-5 sm:py-5 [&_input]:max-w-full [&_textarea]:max-w-full">
+              <div className="min-w-0 px-3 py-3 sm:px-5 sm:py-4 [&_input]:max-w-full [&_textarea]:max-w-full">
                 {block.type === "heading" && (
                   <div className="flex flex-col gap-2">
                     <select
@@ -278,12 +349,11 @@ export function RecipeBlockEditor({
                   </div>
                 )}
                 {block.type === "paragraph" && (
-                  <textarea
+                  <AutoTextarea
                     value={block.text}
                     onChange={(event) => update(index, { text: event.target.value })}
-                    rows={4}
-                    placeholder="Start writing… Markdown links are supported."
-                    className="w-full resize-y border-0 bg-transparent px-1 py-1 text-base leading-7 outline-none placeholder:text-muted-foreground/50"
+                    placeholder="Type something or press / for commands. Markdown links are supported."
+                    className="w-full resize-none overflow-hidden border-0 bg-transparent px-1 py-1 text-base leading-7 outline-none placeholder:text-muted-foreground/50"
                   />
                 )}
                 {block.type === "toggle" && (
@@ -294,12 +364,11 @@ export function RecipeBlockEditor({
                       placeholder="Toggle title"
                       className="min-h-11 w-full border-0 bg-transparent px-1 text-lg font-bold outline-none placeholder:text-muted-foreground/50"
                     />
-                    <textarea
+                    <AutoTextarea
                       value={block.text}
                       onChange={(event) => update(index, { text: event.target.value })}
-                      rows={5}
                       placeholder="Collapsed content…"
-                      className="w-full border-l-2 border-border bg-transparent px-4 py-2 text-sm leading-6 outline-none"
+                      className="w-full resize-none overflow-hidden border-l-2 border-border bg-transparent px-4 py-2 text-sm leading-6 outline-none"
                     />
                   </div>
                 )}
@@ -316,12 +385,11 @@ export function RecipeBlockEditor({
                       <option value="bullet">Bullet list</option>
                       <option value="numbered">Numbered list</option>
                     </select>
-                    <textarea
+                    <AutoTextarea
                       value={block.items.join("\n")}
                       onChange={(event) => update(index, { items: event.target.value.split("\n") })}
-                      rows={5}
                       placeholder="One item per line"
-                      className="w-full border-0 bg-transparent px-1 py-2 text-base leading-7 outline-none"
+                      className="w-full resize-none overflow-hidden border-0 bg-transparent px-1 py-2 text-base leading-7 outline-none"
                     />
                   </div>
                 )}
