@@ -77,11 +77,15 @@ summaryFunctions/summary
 - Hip flexion
 /details
 [Notion image — replace in admin]
+details summaryInsertion & Origin/summary - Origin: ASIS /details
+synced_block_reference url="https://app.notion.com/p/reference" /synced_block_reference
 `);
   const text = blocksToPlainText(blocks);
   assert.match(text, /Tight muscles/);
   assert.match(text, /Functions/);
   assert.match(text, /Hip flexion/);
+  assert.match(text, /Insertion & Origin/);
+  assert.match(text, /Origin: ASIS/);
   assert.doesNotMatch(text, /unknown|app\.notion|details|Notion image/i);
   assert.ok(blocks.some((block) => block.type === "divider"));
 });

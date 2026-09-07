@@ -48,7 +48,20 @@ function cleanLegacyText(value: string) {
 }
 
 function normalizeNotionLegacyLine(value: string) {
-  const line = value.trim();
+  const line = value
+    .replace(/\[Notion image\s*[—-].*?]/gi, "\n")
+    .replace(
+      /(?:unknown|mention-page|synced_block_reference)\b(?:\s+(?:url|alt)=["'][^"']*["'])+\s*\/?/gi,
+      "\n",
+    )
+    .replace(/\/?synced_block_reference\b/gi, "\n")
+    .replace(/\/?details\b/gi, "\n")
+    .replace(/summary\s*(.*?)\s*\/?summary/gi, (_match, title: string) => {
+      const cleanTitle = title.trim();
+      return cleanTitle ? `\n### ${cleanTitle}\n` : "\n";
+    })
+    .replace(/\s*---\s*/g, "\n---\n")
+    .trim();
   if (!line) return "";
   if (/^\[Notion image\s*[—-].*]$/i.test(line)) return "";
   if (/^(?:unknown|synced_block_reference|mention-page)\b.*(?:url|alt)=/i.test(line)) return "";
@@ -65,7 +78,10 @@ function normalizeNotionLegacyLine(value: string) {
 
 export function blocksFromLegacyInstructions(instructions: string | null): RecipeContentBlock[] {
   if (!instructions?.trim()) return [];
-  const lines = cleanLegacyText(instructions).split("\n").map(normalizeNotionLegacyLine);
+  const lines = cleanLegacyText(instructions)
+    .split("\n")
+    .map(normalizeNotionLegacyLine)
+    .flatMap((line) => line.split("\n"));
   const blocks: RecipeContentBlock[] = [];
   let paragraph: string[] = [];
   let list: { style: "bullet" | "numbered"; items: string[] } | null = null;
