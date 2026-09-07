@@ -519,24 +519,79 @@ export function RecipeBlockEditor({
                   </div>
                 )}
                 {block.type === "list" && (
-                  <div className="space-y-2">
-                    <select
-                      aria-label="List style"
-                      value={block.style}
-                      onChange={(event) =>
-                        update(index, { style: event.target.value as "bullet" | "numbered" })
-                      }
-                      className="min-h-10 rounded-sm border border-border px-2 text-xs"
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <select
+                        aria-label="List style"
+                        value={block.style}
+                        onChange={(event) =>
+                          update(index, { style: event.target.value as "bullet" | "numbered" })
+                        }
+                        className="min-h-8 rounded-sm border border-border bg-background px-2 text-[11px]"
+                      >
+                        <option value="bullet">Bullet list</option>
+                        <option value="numbered">Numbered list</option>
+                      </select>
+                      <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+                        Enter adds an item
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      {block.items.map((item, itemIndex) => (
+                        <div key={`${block.id}-${itemIndex}`} className="group/item flex items-start gap-2">
+                          <span
+                            aria-hidden="true"
+                            className="w-6 shrink-0 pt-1.5 text-right text-sm font-bold text-muted-foreground"
+                          >
+                            {block.style === "numbered" ? `${itemIndex + 1}.` : "•"}
+                          </span>
+                          <AutoTextarea
+                            id={`recipe-list-${block.id}-${itemIndex}`}
+                            value={item}
+                            onChange={(event) => {
+                              const items = [...block.items];
+                              items[itemIndex] = event.target.value;
+                              update(index, { items });
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" && !event.shiftKey) {
+                                event.preventDefault();
+                                const cursor = event.currentTarget.selectionStart;
+                                const items = [...block.items];
+                                items.splice(itemIndex, 1, item.slice(0, cursor), item.slice(cursor));
+                                update(index, { items });
+                                requestAnimationFrame(() =>
+                                  document.getElementById(`recipe-list-${block.id}-${itemIndex + 1}`)?.focus(),
+                                );
+                              }
+                              if (event.key === "Backspace" && !item && block.items.length > 1) {
+                                event.preventDefault();
+                                const items = block.items.filter((_, current) => current !== itemIndex);
+                                update(index, { items });
+                                requestAnimationFrame(() =>
+                                  document.getElementById(`recipe-list-${block.id}-${Math.max(0, itemIndex - 1)}`)?.focus(),
+                                );
+                              }
+                            }}
+                            placeholder="List item"
+                            className={`min-h-9 w-full resize-none overflow-hidden border-0 border-b bg-transparent px-1 py-1 text-base leading-7 outline-none focus:border-foreground ${/^\*\*step\*\*$/i.test(item.trim()) ? "border-amber-300 bg-amber-50/60" : "border-transparent"}`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextIndex = block.items.length;
+                        update(index, { items: [...block.items, ""] });
+                        requestAnimationFrame(() =>
+                          document.getElementById(`recipe-list-${block.id}-${nextIndex}`)?.focus(),
+                        );
+                      }}
+                      className="ml-8 inline-flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground hover:text-foreground"
                     >
-                      <option value="bullet">Bullet list</option>
-                      <option value="numbered">Numbered list</option>
-                    </select>
-                    <AutoTextarea
-                      value={block.items.join("\n")}
-                      onChange={(event) => update(index, { items: event.target.value.split("\n") })}
-                      placeholder="One item per line"
-                      className="w-full resize-none overflow-hidden border-0 bg-transparent px-1 py-2 text-base leading-7 outline-none"
-                    />
+                      <Plus className="h-3 w-3" aria-hidden="true" /> Add list item
+                    </button>
                   </div>
                 )}
                 {block.type === "image" && (
