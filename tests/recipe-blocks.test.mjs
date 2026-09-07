@@ -79,6 +79,12 @@ summaryFunctions/summary
 [Notion image — replace in admin]
 details summaryInsertion & Origin/summary - Origin: ASIS /details
 synced_block_reference url="https://app.notion.com/p/reference" /synced_block_reference
+summaryEmpty section/summary
+summaryFunctions/summary
+- Origin:
+- Insertion:
+- Useful action
+Massage ball with [ASMR](/1f7effb29211800aaf32c10cd6f51abc?pvs=25)
 `);
   const text = blocksToPlainText(blocks);
   assert.match(text, /Tight muscles/);
@@ -86,6 +92,10 @@ synced_block_reference url="https://app.notion.com/p/reference" /synced_block_re
   assert.match(text, /Hip flexion/);
   assert.match(text, /Insertion & Origin/);
   assert.match(text, /Origin: ASIS/);
+  assert.match(text, /Functions/);
+  assert.match(text, /Useful action/);
+  assert.match(text, /Massage ball with ASMR/);
+  assert.doesNotMatch(text, /Empty section|Origin:\s*$|Insertion:\s*$|pvs=25/im);
   assert.doesNotMatch(text, /unknown|app\.notion|details|Notion image/i);
   assert.ok(blocks.some((block) => block.type === "divider"));
 });

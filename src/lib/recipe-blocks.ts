@@ -44,7 +44,46 @@ function cleanLegacyText(value: string) {
     .replace(/&amp;/gi, "&")
     .replace(/&lt;/gi, "<")
     .replace(/&gt;/gi, ">")
+    .replace(/\[([^\]]+)]\(\/[0-9a-f]{20,}[^)]*\)/gi, "$1")
+    .replace(
+      /I understand you want different pages[\s\S]*?These methods will maintain separate lists for different pages while staying within Notion's built-in capabilities\.?/gi,
+      "",
+    )
     .replace(/\r\n?/g, "\n");
+}
+
+function cleanLegacyBlocks(blocks: RecipeContentBlock[]) {
+  const meaningful = blocks.flatMap((block) => {
+    if (block.type === "paragraph" && /^(?:\s*-\s*)+$/.test(block.text)) return [];
+    if (block.type === "list") {
+      const items = block.items.filter((item) => !/^(?:origin|insertion)\s*:\s*$/i.test(item));
+      return items.length ? [{ ...block, items }] : [];
+    }
+    if (block.type === "heading" && block.text.toLowerCase() === "functions") {
+      return [{ ...block, text: "Functions" }];
+    }
+    return [block];
+  });
+
+  return meaningful.filter((block, index) => {
+    if (block.type === "divider") {
+      const previous = meaningful[index - 1];
+      const next = meaningful[index + 1];
+      return (
+        index > 0 &&
+        Boolean(next && next.type !== "divider") &&
+        (previous?.type === "heading" || next?.type !== "heading")
+      );
+    }
+    if (block.type !== "heading") return true;
+    if (meaningful[index + 1]?.type === "divider") return true;
+    for (let cursor = index + 1; cursor < meaningful.length; cursor += 1) {
+      const candidate = meaningful[cursor]!;
+      if (candidate.type === "heading") return false;
+      if (candidate.type !== "divider") return true;
+    }
+    return false;
+  });
 }
 
 function normalizeNotionLegacyLine(value: string) {
@@ -153,7 +192,7 @@ export function blocksFromLegacyInstructions(instructions: string | null): Recip
   flushParagraph();
   flushList();
   flushToggle();
-  return blocks;
+  return cleanLegacyBlocks(blocks);
 }
 
 export function normalizeRecipeBlocks(value: unknown): RecipeContentBlock[] {
