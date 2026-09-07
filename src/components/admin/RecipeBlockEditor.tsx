@@ -455,11 +455,12 @@ export function RecipeBlockEditor({
               >
                 {block.type === "heading" && (
                   <div>
-                    <input
+                    <AutoTextarea
                       value={block.text}
                       onChange={(event) => update(index, { text: event.target.value })}
                       placeholder="Heading text"
-                      className={`${block.level === 2 ? "text-3xl" : "text-xl"} min-h-12 flex-1 border-0 bg-transparent px-1 font-bold tracking-tight outline-none placeholder:text-muted-foreground/50`}
+                      rows={1}
+                      className={`${block.level === 2 ? "text-3xl" : "text-xl"} min-h-12 w-full resize-none overflow-hidden border-0 bg-transparent px-1 py-1 font-bold tracking-tight outline-none placeholder:text-muted-foreground/50`}
                     />
                   </div>
                 )}
