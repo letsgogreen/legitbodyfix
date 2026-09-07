@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, Plus, Save, X } from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
-import { deriveRecipeGoal, detectKoreanText } from "@/lib/recipe-import";
+import { deriveRecipeGoal, detectKoreanText, isTagOnlyRecipeGoal } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/recipes/$recipeId")({
@@ -106,10 +106,12 @@ function RecipeReview() {
       return;
     }
     const loadedRecord = data as RecipeRow;
-    const generatedGoal = loadedRecord.goal?.trim() ? null : deriveRecipeGoal(loadedRecord.title);
+    const generatedGoal = !loadedRecord.goal?.trim() || isTagOnlyRecipeGoal(loadedRecord.goal, loadedRecord.symptoms_goals)
+      ? deriveRecipeGoal(loadedRecord.title)
+      : null;
     setRecord(generatedGoal ? { ...loadedRecord, goal: generatedGoal } : loadedRecord);
     setStatus(generatedGoal
-      ? `Version ${data.version} loaded · a suggested goal was generated. Review it, then save or publish.`
+      ? `Version ${data.version} loaded · the imported symptom tag in Goal was replaced with a suggested editorial goal. Review it, then save or publish.`
       : `Version ${data.version} loaded · review status ${data.review_status}.`);
 
     const [muscleLinksResult, programLinksResult, guideLinksResult, musclesResult, programsResult, guidesResult] = await Promise.all([
