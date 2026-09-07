@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 import { getPublishedRecipe, type RecipeMuscleLink } from "@/lib/recipes.functions";
 import { regionNameFor } from "@/lib/notion/regions";
-import { blocksFromLegacyInstructions, type RecipeContentBlock } from "@/lib/recipe-blocks";
+import { blocksFromLegacyInstructions, normalizeRecipeBlocks } from "@/lib/recipe-blocks";
 
 export const Route = createFileRoute("/recipes/$slug")({
   loader: async ({ params }) => {
@@ -119,8 +119,9 @@ function TextBlock({ value }: { value: string | null }) {
 
 function RecipeDetail() {
   const recipe = Route.useLoaderData();
-  const contentBlocks = Array.isArray(recipe.content_blocks) && recipe.content_blocks.length
-    ? recipe.content_blocks as RecipeContentBlock[]
+  const storedBlocks = normalizeRecipeBlocks(recipe.content_blocks);
+  const contentBlocks = storedBlocks.length
+    ? storedBlocks
     : blocksFromLegacyInstructions(recipe.instructions);
   const meta = [
     recipe.progression_level ? recipe.progression_level.replace(/_/g, " ") : null,
