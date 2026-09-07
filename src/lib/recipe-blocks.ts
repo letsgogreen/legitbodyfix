@@ -47,9 +47,25 @@ function cleanLegacyText(value: string) {
     .replace(/\r\n?/g, "\n");
 }
 
+function normalizeNotionLegacyLine(value: string) {
+  const line = value.trim();
+  if (!line) return "";
+  if (/^\[Notion image\s*[—-].*]$/i.test(line)) return "";
+  if (/^(?:unknown|synced_block_reference|mention-page)\b.*(?:url|alt)=/i.test(line)) return "";
+  if (/^url=["']https:\/\/app\.notion\.com\//i.test(line)) return "";
+  if (/^(?:\/?details\s*)+$/i.test(line) || /^\/?synced_block_reference$/i.test(line)) return "";
+  const summary = line.match(/^summary\s*(.*?)\s*\/?summary$/i);
+  if (summary) {
+    const title = summary[1]?.trim() ?? "";
+    if (!title || /^(?:mention-page|unknown)\b.*url=/i.test(title)) return "";
+    return `### ${title}`;
+  }
+  return line;
+}
+
 export function blocksFromLegacyInstructions(instructions: string | null): RecipeContentBlock[] {
   if (!instructions?.trim()) return [];
-  const lines = cleanLegacyText(instructions).split("\n");
+  const lines = cleanLegacyText(instructions).split("\n").map(normalizeNotionLegacyLine);
   const blocks: RecipeContentBlock[] = [];
   let paragraph: string[] = [];
   let list: { style: "bullet" | "numbered"; items: string[] } | null = null;
@@ -94,6 +110,13 @@ export function blocksFromLegacyInstructions(instructions: string | null): Recip
         flushParagraph();
         flushList();
       }
+      continue;
+    }
+    if (/^-{3,}$/.test(line)) {
+      flushParagraph();
+      flushList();
+      flushToggle();
+      add({ type: "divider" });
       continue;
     }
     const listItem = line.match(/^([-*+] |\d+[.)]\s+)(.+)$/);

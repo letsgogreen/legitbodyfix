@@ -7,17 +7,21 @@ import {
   youtubeEmbedUrl,
 } from "@/lib/recipe-blocks";
 
-const LINK_PATTERN = /\[([^\]]+)]\((https?:\/\/[^\s)]+)\)/g;
+const INLINE_MARKDOWN_PATTERN = /\[([^\]]+)]\((https?:\/\/[^\s)]+)\)|\*\*([^*]+)\*\*/g;
 
 function RichText({ value }: { value: string }) {
   const parts: ReactNode[] = [];
   let cursor = 0;
-  for (const match of value.matchAll(LINK_PATTERN)) {
+  for (const match of value.matchAll(INLINE_MARKDOWN_PATTERN)) {
     const index = match.index ?? 0;
     if (index > cursor) parts.push(value.slice(cursor, index));
     const href = match[2] ?? "";
     parts.push(
-      isAllowedHttpUrl(href) ? (
+      match[3] ? (
+        <strong key={`${index}-strong`} className="font-bold text-foreground">
+          {match[3]}
+        </strong>
+      ) : isAllowedHttpUrl(href) ? (
         <a
           key={`${index}-${href}`}
           href={href}

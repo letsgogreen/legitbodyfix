@@ -66,3 +66,22 @@ test("plain text fallback includes meaningful block content", () => {
     { blockId: "y", message: "Enter a valid YouTube URL." },
   ]);
 });
+
+test("Notion export control tokens are hidden while useful section labels remain", () => {
+  const blocks = blocksFromLegacyInstructions(`
+## Tight muscles
+---
+unknown url="https://app.notion.com/p/example" alt="button"/
+details
+summaryFunctions/summary
+- Hip flexion
+/details
+[Notion image — replace in admin]
+`);
+  const text = blocksToPlainText(blocks);
+  assert.match(text, /Tight muscles/);
+  assert.match(text, /Functions/);
+  assert.match(text, /Hip flexion/);
+  assert.doesNotMatch(text, /unknown|app\.notion|details|Notion image/i);
+  assert.ok(blocks.some((block) => block.type === "divider"));
+});
