@@ -185,41 +185,6 @@
     "price": 16
   },
   {
-    "id": "breathing-fundamentals",
-    "programId": "neck-shoulder-reset",
-    "level": "FOUNDATIONAL",
-    "moduleNumber": 6,
-    "title": "Breathing Fundamentals",
-    "homepageCategory": "Breathing & recovery",
-    "description": "Use guided breathing to support alignment, recovery, and control.",
-    "landingEyebrow": "Guided breathing session",
-    "landingHeadline": "Use your breath to support alignment and recovery.",
-    "landingSummary": "Breathing changes how the ribcage, trunk, and nervous system organize movement. This guided session gives you a calm, practical foundation for better control and recovery.",
-    "landingBenefit1": "Develop more controlled, intentional breathing mechanics.",
-    "landingBenefit2": "Improve awareness of ribcage and trunk movement.",
-    "landingBenefit3": "Create a repeatable recovery practice for movement days and rest days.",
-    "landingAudience": "For beginners, tense breathers, or anyone who wants a simple way to support alignment and recovery.",
-    "landingReassurance": "A guided practice you can revisit anytime with protected, one-time-purchase access.",
-    "relatedMuscleGroupIds": [
-      "thorax",
-      "abdomen"
-    ],
-    "relatedMuscleIds": [
-      "diaphragm",
-      "external-intercostals",
-      "internal-intercostals",
-      "transversus-abdominis"
-    ],
-    "durationMinutes": 8,
-    "equipment": "Guided",
-    "streamVideoId": "",
-    "streamReady": false,
-    "videoUrl": "",
-    "thumbnailUrl": "",
-    "published": true,
-    "price": 8
-  },
-  {
     "id": "shoulder-movement",
     "programId": "shoulder-movement",
     "level": "INTERMEDIATE",

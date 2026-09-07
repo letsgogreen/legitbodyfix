@@ -125,15 +125,7 @@ export const bodyRegions: BodyRegion[] = [
     imageAlt: "Posterior anatomical illustration of the muscles supporting the spine",
     intro:
       "Begin with breathing mechanics and comfortable trunk movement before adding speed, range, or load.",
-    programs: [
-      {
-        title: "Breathing Fundamentals",
-        description: "Guided breathing for rib-cage movement, alignment, and recovery.",
-        href: "/video.html?id=breathing-fundamentals",
-        meta: "8 min · Foundational",
-        available: false,
-      },
-    ],
+    programs: [],
     recipes: [
       {
         title: "Ribcage breathing reset",
