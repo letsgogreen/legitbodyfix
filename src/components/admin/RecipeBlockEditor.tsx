@@ -328,7 +328,7 @@ export function RecipeBlockEditor({
               <summary className="cursor-pointer list-none px-3 py-2 text-xs font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 Outline · {headings.length} sections
               </summary>
-              <nav aria-label="Article outline" className="absolute left-0 top-full z-30 mt-1 w-72 rounded-sm border border-border bg-card p-3 shadow-xl">
+              <nav aria-label="Article outline" className="fixed inset-x-4 top-24 z-50 max-h-[70vh] overflow-y-auto rounded-sm border border-border bg-card p-3 shadow-xl sm:absolute sm:inset-x-auto sm:left-0 sm:top-full sm:mt-1 sm:w-72">
                 <ol className="space-y-1">
                   {headings.map((heading) => (
                     <li key={heading.id} className={heading.level === 3 ? "pl-3" : ""}>
@@ -346,7 +346,7 @@ export function RecipeBlockEditor({
               <summary className="cursor-pointer list-none px-3 py-2 text-xs font-bold outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
                 Review · {warnings.length} issue{warnings.length === 1 ? "" : "s"}
               </summary>
-              <aside className="absolute left-0 top-full z-30 mt-1 w-72 rounded-sm border border-amber-300 bg-amber-50 p-3 shadow-xl">
+              <aside className="fixed inset-x-4 top-24 z-50 max-h-[70vh] overflow-y-auto rounded-sm border border-amber-300 bg-amber-50 p-3 shadow-xl sm:absolute sm:inset-x-auto sm:left-0 sm:top-full sm:mt-1 sm:w-72">
                 <ul className="space-y-1">
                   {warnings.map((warning, index) => (
                     <li key={`${warning.blockId}-${warning.message}-${index}`}>

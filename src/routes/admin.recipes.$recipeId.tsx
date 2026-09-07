@@ -495,9 +495,9 @@ function RecipeReview() {
       )}
 
       <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.75fr)]">
-        <Panel className="flex self-start flex-col gap-4 p-5">
-          <div className="order-first border-b border-border pb-6">
-            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <Panel className="flex self-start flex-col gap-4 p-4 sm:p-5">
+          <div className="order-first border-b border-border pb-5">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                   Recipe document
@@ -508,43 +508,42 @@ function RecipeReview() {
               </span>
             </div>
             {legacyPreview.length ? (
-              <div className="mb-5 rounded-sm border border-accent bg-accent/10 p-4">
-                <p className="text-sm font-bold">Imported article ready to edit</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  The existing article is open below. It remains unchanged in the database until you
-                  edit or save it.
+              <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 rounded-sm border border-accent/70 bg-accent/10 px-3 py-2">
+                <p className="text-xs font-bold">Imported article ready to edit</p>
+                <p className="text-[11px] leading-4 text-muted-foreground">
+                  Nothing changes in the database until you edit or save it.
                 </p>
               </div>
             ) : null}
-            <div className="mb-4 border-y border-border py-5">
-              <div className="mt-5 space-y-5">
-                <label className="block">
+            <div className="mb-2 border-y border-border py-2">
+              <div className="space-y-1">
+                <label className="block border-b border-border py-2">
                   <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Title</span>
                   <input
                     value={record.title}
                     onChange={(event) => setField("title", event.target.value)}
                     placeholder="Article title"
-                    className="mt-1 w-full border-0 border-b border-border bg-transparent px-0 py-2 text-3xl font-extrabold tracking-tight outline-none focus:border-foreground"
+                    className="mt-0.5 w-full border-0 bg-transparent px-0 py-1 text-2xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/45"
                   />
                 </label>
-                <label className="block">
+                <label className="block border-b border-border py-2">
                   <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Goal</span>
                   <textarea
                     value={record.goal ?? ""}
                     onChange={(event) => setField("goal", event.target.value)}
-                    rows={2}
+                    rows={1}
                     placeholder="What should the reader understand or explore?"
-                    className="mt-1 w-full resize-y border-0 bg-transparent px-0 py-2 text-lg leading-7 outline-none placeholder:text-muted-foreground/50"
+                    className="mt-0.5 min-h-9 w-full resize-y border-0 bg-transparent px-0 py-1 text-base leading-6 outline-none placeholder:text-muted-foreground/50"
                   />
                 </label>
-                <label className="block">
+                <label className="block py-2">
                   <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Summary</span>
                   <textarea
                     value={record.summary ?? ""}
                     onChange={(event) => setField("summary", event.target.value)}
-                    rows={3}
+                    rows={2}
                     placeholder="Introduce the topic in a short paragraph."
-                    className="mt-1 w-full resize-y border-0 bg-transparent px-0 py-2 text-base leading-7 outline-none placeholder:text-muted-foreground/50"
+                    className="mt-0.5 min-h-12 w-full resize-y border-0 bg-transparent px-0 py-1 text-sm leading-6 outline-none placeholder:text-muted-foreground/50"
                   />
                 </label>
               </div>
