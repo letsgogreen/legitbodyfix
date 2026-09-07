@@ -484,8 +484,8 @@ function RecipeReview() {
         </Panel>
       )}
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.7fr)]">
-        <Panel className="grid gap-4 p-5">
+      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.7fr)]">
+        <Panel className="grid self-start gap-4 p-5">
           <label className="block">
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
               Title
