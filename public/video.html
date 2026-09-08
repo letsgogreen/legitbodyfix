@@ -8,14 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/video-sales.css?v=20260907-1" />
+  <link rel="stylesheet" href="assets/css/video-sales.css?v=20260909-2" />
   <script src="assets/js/video-sales.js?v=20260909-1" defer></script>
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="/" aria-label="LegitBodyFix home">LegitBodyFix</a>
     <nav aria-label="Primary navigation">
-      <a href="/#programs">All sessions</a>
+      <a href="/movement-check">Learn</a>
+      <a href="/#programs">Programs</a>
+      <a href="/#method">How it works</a>
       <a class="nav-button" href="/library">My library <span aria-hidden="true">↗</span></a>
     </nav>
   </header>
@@ -24,15 +26,15 @@
     <section class="loading-state" id="loadingState" aria-live="polite">Preparing session details…</section>
     <section class="unavailable-state" id="unavailableState" hidden>
       <p class="eyebrow">Session unavailable</p>
-      <h1>This movement page is not ready yet.</h1>
-      <p>The session may still be in preparation. Browse the currently available programs instead.</p>
+      <h1>We couldn’t load this program.</h1>
+      <p>The program or its current price is unavailable. Refresh to try again, or browse the available programs. No payment has been taken on this page.</p>
       <a class="button button-dark" href="/#programs">Browse sessions</a>
     </section>
 
     <article id="salesPage" hidden>
       <section class="hero">
         <div class="hero-copy">
-          <a class="back-link" href="index.html#library-preview"><span aria-hidden="true">←</span> All movement sessions</a>
+          <a class="back-link" href="/#programs"><span aria-hidden="true">←</span> All programs</a>
           <div class="session-status"><span></span> Available now · On-demand</div>
           <p class="eyebrow" id="landingEyebrow"></p>
           <h1 id="landingHeadline"></h1>
@@ -107,9 +109,9 @@
         <div class="section-heading included-heading">
           <div>
             <p class="eyebrow">Included with purchase</p>
-            <h2>Everything you need to begin.</h2>
+            <h2>What your purchase includes.</h2>
           </div>
-          <p>A focused learning experience designed to help you move from understanding to consistent practice.</p>
+          <p>A one-time purchase of the program shown on this page. Access is through your personal library, not a subscription to the entire catalog.</p>
         </div>
         <div class="included-grid">
           <article><span>01 / WATCH</span><h3>Full guided session</h3><p>Follow a clear sequence instead of piecing together disconnected exercises.</p></article>
@@ -176,6 +178,9 @@
           <h2>Know before you buy.</h2>
         </div>
         <div class="faq-list">
+          <details><summary>Does this include every program?</summary><p>No. Your purchase is for the program shown on this page. Other programs are purchased separately; the public articles and anatomy dictionary remain free to explore.</p></details>
+          <details><summary>Where do I find my purchase?</summary><p>Open <a href="/library">My library</a> and use the email from checkout to access your purchased program.</p></details>
+          <details><summary>Where can I review the purchase terms?</summary><p>Read the <a href="/policies.html#terms">purchase terms</a> and <a href="/policies.html#refunds">refund policy</a> before completing checkout.</p></details>
           <details open><summary>Is this a subscription?</summary><p>No. This is a one-time purchase for the session or program shown on this page.</p></details>
           <details><summary>Can I watch it more than once?</summary><p>Yes. You can return to your purchased content through your personal library while your access remains active.</p></details>
           <details><summary>Can I download or share the video?</summary><p>No. The lesson uses protected streaming and is licensed for the purchaser’s personal use.</p></details>
