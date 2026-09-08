@@ -101,7 +101,7 @@ function MovementCheck() {
             <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
               START BY BODY REGION
             </p>
-            <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.55fr)] lg:items-center">
+            <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.55fr)] lg:items-start">
               <div>
                 <h1 className="text-4xl font-extrabold uppercase leading-[0.95] sm:text-6xl">
                   {region.title}

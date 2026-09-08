@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Understand common movement patterns, choose the right next step, and find the LegitBodyFix program that fits your goal." />
-  <title>Movement Guides — LegitBodyFix</title>
+  <title>Muscle Dictionary — LegitBodyFix</title>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet" />
   <script>
     var conditionParams = new URLSearchParams(window.location.search);
     if (conditionParams.get("type") === "muscles") document.documentElement.setAttribute("data-muscle-loading", "true");
@@ -33,6 +34,14 @@
   <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260814-1" />
   <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260907-2" />
   <style>
+    :root { --body: 'Archivo', sans-serif; --mono: 'JetBrains Mono', monospace; }
+    body { background: #f7f5ef; font-family: var(--body); }
+    .knowledge-header { background: #f7f5ef; }
+    .knowledge-nav { min-height: 76px; max-width: 1280px; width: 100%; padding: 16px 32px; }
+    .knowledge-nav-links { font-weight: 500; gap: 32px; }
+    .knowledge-nav-links .nav-button { background: #d7fb68; color: #111; border: 0; min-height: 44px; font-family: var(--body); }
+    .dictionary-mobile-menu { display: none; }
+    body.muscle-directory-mode .muscle-path-heading h3 { font-size: 24px; margin: 12px 0 16px; }
     .learn-sections { border-bottom: 1px solid #d8d6d0; background: #f2f1ec; }
     .learn-sections > div { max-width: 1280px; margin: auto; padding: 12px 20px; display: flex; gap: 8px; overflow-x: auto; }
     .learn-sections a { display: inline-flex; align-items: center; min-height: 44px; flex-shrink: 0; padding: 8px 16px; border: 1px solid #d8d6d0; border-radius: 2px; background: #fffefa; color: #111; font: 700 11px var(--mono); letter-spacing: .025em; text-transform: uppercase; text-decoration: none; }
@@ -44,6 +53,16 @@
     body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-size: 36px; font-weight: 800; line-height: .95; text-transform: uppercase; margin-top: 16px; }
     @media (min-width: 640px) { body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-size: 60px; } }
     @media (min-width: 1024px) { .learn-sections > div { padding-inline: 32px; } body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-directory { padding: 80px 32px; } }
+    @media (max-width: 1023px) {
+      .knowledge-nav { padding: 16px 20px; flex-wrap: nowrap; }
+      .knowledge-nav .knowledge-nav-links { display: none; }
+      .dictionary-mobile-menu { display: block; }
+      .dictionary-mobile-menu summary { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #d8d6d0; cursor: pointer; list-style: none; }
+      .dictionary-mobile-menu summary::-webkit-details-marker { display: none; }
+      .dictionary-mobile-menu nav { position: absolute; top: 76px; left: 0; right: 0; padding: 16px 20px; background: #f7f5ef; border-bottom: 1px solid #d8d6d0; z-index: 60; }
+      .dictionary-mobile-menu nav a { display: flex; align-items: center; min-height: 44px; padding: 8px 0; }
+      .dictionary-mobile-menu .nav-button { justify-content: center; background: #d7fb68; color: #111; }
+    }
   </style>
 </head>
 <body>
@@ -52,6 +71,7 @@
     <nav class="knowledge-nav shell" aria-label="Primary navigation">
       <a class="knowledge-brand" href="/" aria-label="LegitBodyFix home"><strong>LegitBodyFix</strong></a>
       <div class="knowledge-nav-links"><a href="/movement-check">Learn</a><a href="/#programs">Programs</a><a href="/#method">How it works</a><a href="/library">My library</a><a class="nav-button" href="/start">Find my starting point <span aria-hidden="true">↗</span></a></div>
+      <details class="dictionary-mobile-menu"><summary aria-label="Menu">☰</summary><nav aria-label="Mobile navigation"><a href="/library">My library</a><a href="/movement-check">Learn</a><a href="/#programs">Programs</a><a href="/#method">How it works</a><a class="nav-button" href="/start">Find my starting point</a></nav></details>
     </nav>
   </header>
 
