@@ -65,6 +65,8 @@ export var movementTagOrder = [
   ];
 
 export function muscleSectionGroup(item) {
+    // Directory grouping only; keep the source anatomy and regional membership intact.
+    if (String(item && item.title || "").toLowerCase() === "levator scapulae") return "Upper back";
     if (item && item.group === "Deep hip") return "Deep hip rotators";
     // Navigation umbrella only: preserve the original anatomical subgroup in data/detail.
     if (["Pelvic diaphragm", "Superficial perineum", "Deep perineum", "Pelvic sphincters"].indexOf(item && item.group) !== -1) return "Pelvic floor";

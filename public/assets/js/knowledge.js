@@ -1523,6 +1523,7 @@ import { muscleRegion, muscleInRegion, muscleFunctionalRoles, muscleSectionGroup
       var region = params.get("region");
       activeMuscleRegion = Object.prototype.hasOwnProperty.call(muscleRegions, region) ? region : "all";
       activeMuscleGroup = params.get("group") || "all";
+      if (activeMuscleRegion === "shoulder-arm" && activeMuscleGroup === "Head and neck") activeMuscleGroup = "Upper back";
       activeMuscleFunction = params.get("function") || "all";
       activeMuscleVisual = ["focused", "regional"].indexOf(params.get("visual")) !== -1 ? params.get("visual") : "all";
       muscleFunction.value = activeMuscleFunction;
