@@ -41,6 +41,7 @@ const nav: NavItem[] = [
   { to: "/admin/muscles", label: "Muscle library", icon: Activity },
   { to: "/admin/anatomy-preview", label: "Anatomy × program (preview)", icon: Activity },
   { to: "/admin/recipes", label: "Movement content", icon: NotebookPen },
+  { to: "/admin/conditions", label: "Conditions", icon: NotebookPen },
   { to: "/admin/customers", label: "Customers", icon: Users },
   { to: "/admin/orders", label: "Orders & access", icon: Receipt },
   { to: "/admin/content", label: "Website content", icon: PanelsTopLeft },

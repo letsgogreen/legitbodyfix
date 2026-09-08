@@ -21,6 +21,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as Ver1RouteImport } from './routes/ver1'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAnatomyPreviewRouteImport } from './routes/admin.anatomy-preview'
+import { Route as AdminConditionsRouteImport } from './routes/admin.conditions'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminGuidesRouteImport } from './routes/admin.guides'
@@ -112,6 +113,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminAnatomyPreviewRoute = AdminAnatomyPreviewRouteImport.update({
   id: '/anatomy-preview',
   path: '/anatomy-preview',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminConditionsRoute = AdminConditionsRouteImport.update({
+  id: '/conditions',
+  path: '/conditions',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminContentRoute = AdminContentRouteImport.update({
@@ -288,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
+  '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -330,6 +337,7 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/terms': typeof TermsRoute
   '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
+  '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -377,6 +385,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
+  '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -425,6 +434,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/ver1'
     | '/admin/anatomy-preview'
+    | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
     | '/admin/guides'
@@ -467,6 +477,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/terms'
     | '/admin/anatomy-preview'
+    | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
     | '/admin/guides'
@@ -513,6 +524,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/ver1'
     | '/admin/anatomy-preview'
+    | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
     | '/admin/guides'
@@ -657,6 +669,13 @@ declare module '@tanstack/react-router' {
       path: '/anatomy-preview'
       fullPath: '/admin/anatomy-preview'
       preLoaderRoute: typeof AdminAnatomyPreviewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/conditions': {
+      id: '/admin/conditions'
+      path: '/conditions'
+      fullPath: '/admin/conditions'
+      preLoaderRoute: typeof AdminConditionsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/content': {
@@ -888,6 +907,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAnatomyPreviewRoute: typeof AdminAnatomyPreviewRoute
+  AdminConditionsRoute: typeof AdminConditionsRoute
   AdminContentRoute: typeof AdminContentRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminGuidesRoute: typeof AdminGuidesRoute
@@ -905,6 +925,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnatomyPreviewRoute: AdminAnatomyPreviewRoute,
+  AdminConditionsRoute: AdminConditionsRoute,
   AdminContentRoute: AdminContentRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminGuidesRoute: AdminGuidesRoute,

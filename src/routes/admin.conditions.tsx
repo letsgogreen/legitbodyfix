@@ -1,0 +1,127 @@
+import { useEffect, useRef, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { conditionSchema, conditionIssues, type Condition } from "@/lib/conditions";
+import { saveCondition } from "@/lib/conditions.functions";
+import { RecipeBlockEditor } from "@/components/admin/RecipeBlockEditor";
+import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
+import { validateRecipeBlocks } from "@/lib/recipe-blocks";
+
+export const Route = createFileRoute("/admin/conditions")({
+  head: () => ({ meta: [{ title: "Conditions — Admin" }, { name: "robots", content: "noindex" }] }),
+  component: ConditionsAdmin,
+});
+type Entry = { content: Condition; version: number; published: boolean };
+type Program = { id: string; title: string };
+const fields = [
+  ["title", "Title"], ["conditionCategory", "Category"], ["bodyRegion", "Body region"],
+  ["summary", "Summary"], ["screening", "Screening / safety guidance"], ["joints", "Areas involved"],
+  ["tags", "Common associations"], ["tightMuscles", "Overactive / restricted"],
+  ["weakMuscles", "Underactive"], ["sourceName", "Source name"], ["sourceUrl", "Source URL"],
+] as const;
+function ConditionsAdmin() {
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [draft, setDraft] = useState<Condition | null>(null);
+  const [version, setVersion] = useState(0);
+  const [saved, setSaved] = useState("");
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [status, setStatus] = useState("Loading…");
+  const [ready, setReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const saving = useRef(false);
+  const [preview, setPreview] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const dirty = !!draft && JSON.stringify(draft) !== saved;
+  useEffect(() => {
+    let active = true;
+    setReady(false);
+    void (async () => {
+      const [catalogResponse, videosResponse, drafts, publications] = await Promise.all([
+        fetch("/assets/data/knowledge-base.json"), fetch("/assets/data/videos.json"),
+        (supabase as SupabaseClient).from("condition_drafts").select("slug,data,version"),
+        (supabase as SupabaseClient).from("condition_publications").select("slug,published"),
+      ]);
+      if (drafts.error || publications.error) throw new Error("Conditions database is not ready or access was denied. Apply the Conditions migration and sign in as administrator.");
+      if (!catalogResponse.ok || !videosResponse.ok) throw new Error("Could not load existing content.");
+      const catalog = await catalogResponse.json();
+      const videos = await videosResponse.json();
+      const map = new Map<string, Entry>();
+      for (const raw of catalog.conditions ?? []) {
+        if (raw.pathway !== "musculoskeletal-condition" || !raw.published) continue;
+        const content = conditionSchema.parse(raw);
+        map.set(content.id, { content, version: 0, published: true });
+      }
+      for (const row of drafts.data ?? []) {
+        const content = conditionSchema.parse(row.data);
+        map.set(row.slug, { content, version: row.version, published: map.get(row.slug)?.published ?? false });
+      }
+      for (const row of publications.data ?? []) {
+        const entry = map.get(row.slug);
+        if (entry) entry.published = row.published;
+      }
+      if (!active) return;
+      setEntries([...map.values()]);
+      setPrograms((Array.isArray(videos) ? videos : videos.videos ?? []).filter((item: Program) => item.id && item.title));
+      setReady(true); setStatus("Choose a condition. Drafts stay private until you publish.");
+    })().catch(error => { if (active) setStatus(error instanceof Error ? error.message : String(error)); });
+    return () => { active = false; };
+  }, [attempt]);
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    const intercept = (event: MouseEvent) => {
+      if ((event.target as Element).closest?.("a[href]") && !window.confirm("Leave without saving your changes?")) { event.preventDefault(); event.stopPropagation(); }
+    };
+    window.addEventListener("beforeunload", warn);
+    document.addEventListener("click", intercept, true);
+    return () => { window.removeEventListener("beforeunload", warn); document.removeEventListener("click", intercept, true); };
+  }, [dirty]);
+  function choose(entry: Entry) {
+    if (saving.current || (dirty && !window.confirm("Discard unsaved changes?"))) return;
+    setDraft(entry.content); setVersion(entry.version); setSaved(JSON.stringify(entry.content)); setPreview(false);
+    setStatus(entry.published ? "Published. Saving a draft does not change the public page." : "Unpublished draft.");
+  }
+  async function save(action: "draft" | "publish" | "unpublish") {
+    if (!draft || saving.current) return;
+    if (action === "unpublish" && !window.confirm("Hide this condition from the public site?")) return;
+    saving.current = true; setBusy(true); setStatus("Saving…");
+    const snapshot = draft;
+    try {
+      const result = await saveCondition({ data: { content: snapshot, version, action } });
+      setVersion(result.version); setSaved(JSON.stringify(snapshot));
+      setEntries(current => {
+        const previous = current.find(item => item.content.id === snapshot.id);
+        const entry = { content: snapshot, version: result.version, published: action === "draft" ? previous?.published ?? false : action === "publish" };
+        return [...current.filter(item => item.content.id !== snapshot.id), entry];
+      });
+      setStatus(action === "publish" ? "Published. The public page now uses this version." : action === "unpublish" ? "Unpublished. Your draft is preserved." : "Draft saved. Public content is unchanged.");
+    } catch (error) { setStatus(`Save failed: ${error instanceof Error ? error.message : String(error)}`); }
+    finally { saving.current = false; setBusy(false); }
+  }
+  const issues = draft ? conditionIssues(draft) : [];
+  const selectedPrograms = draft?.relatedVideoIds.split(",").map(id => id.trim()).filter(Boolean) ?? [];
+  return <div className="mx-auto max-w-6xl p-5 sm:p-8">
+    <h1 className="text-3xl font-bold">Conditions</h1>
+    <p className="mt-2 text-muted-foreground">Edit references and connect programs. Prices and customer access are not changed here.</p>
+    <p role="status" className="my-5 border border-border p-4">{status} {dirty ? "Unsaved changes." : ""}</p>
+    {!ready ? <button onClick={() => setAttempt(value => value + 1)} className="border p-3">Retry</button> : <>
+      <label className="block">Condition<select aria-label="Condition" disabled={busy} value={draft?.id ?? ""} onChange={event => { const entry = entries.find(item => item.content.id === event.target.value); if (entry) choose(entry); }} className="my-2 block min-h-12 w-full border bg-background p-3"><option value="">Choose a condition</option>{entries.map(entry => <option key={entry.content.id} value={entry.content.id}>{entry.content.title} · {entry.published ? "Published" : "Draft"}</option>)}</select></label>
+      {draft && <>
+        <div className="sticky top-0 z-20 my-5 flex flex-wrap gap-3 border bg-background p-3">
+          <button disabled={busy} onClick={() => setPreview(value => !value)} className="border px-4 py-3">{preview ? "Edit" : "Preview"}</button>
+          <button disabled={busy} onClick={() => save("draft")} className="border px-4 py-3">Save draft</button>
+          <button disabled={busy || issues.length > 0} onClick={() => save("publish")} className="bg-accent px-4 py-3 font-bold disabled:opacity-40">Publish</button>
+          <button disabled={busy} onClick={() => save("unpublish")} className="border px-4 py-3">Unpublish</button>
+          <a href={`/conditions/${draft.id}`} target="_blank" rel="noopener noreferrer" className="px-4 py-3 underline">Public page ↗</a>
+        </div>
+        {issues.length > 0 && <div role="alert" className="mb-6 border border-amber-500 p-4"><strong>Before publishing</strong><ul>{issues.map((issue, index) => <li key={index}>{issue}</li>)}</ul></div>}
+        {preview ? <article className="mx-auto max-w-3xl space-y-6"><h2 className="text-4xl font-bold">{draft.title}</h2><p>{draft.summary}</p><RecipeBlockContent blocks={draft.content_blocks}/>{fields.slice(4).map(([key, label]) => draft[key] ? <section key={key}><h3 className="font-bold">{label}</h3><p className="whitespace-pre-line">{draft[key]}</p></section> : null)}<h3 className="font-bold">Related programs</h3>{selectedPrograms.map(id => <p key={id}>{programs.find(item => item.id === id)?.title ?? id}</p>)}</article> : <fieldset disabled={busy} className="space-y-6">
+          {fields.map(([key, label]) => <label key={key} className="block font-bold">{label}<textarea value={draft[key]} rows={["summary", "screening"].includes(key) ? 4 : 2} onChange={event => setDraft({ ...draft, [key]: event.target.value })} className="mt-2 block w-full border border-border bg-card p-3 font-normal" /></label>)}
+          <section className="border border-border p-5"><h2 className="text-xl font-bold">Related programs</h2><p className="my-2 text-sm">Select the sales pages to link. This does not grant access or change pricing.</p>{programs.map(program => <label key={program.id} className="flex min-h-11 items-center gap-3"><input type="checkbox" checked={selectedPrograms.includes(program.id)} onChange={event => setDraft({ ...draft, relatedVideoIds: (event.target.checked ? [...selectedPrograms, program.id] : selectedPrograms.filter(id => id !== program.id)).join(",") })}/>{program.title}</label>)}{selectedPrograms.filter(id => !programs.some(program => program.id === id)).map(id => <p key={id}>Existing link: {id}</p>)}</section>
+          <RecipeBlockEditor key={draft.id} recipeId={`condition-${draft.id}`} value={draft.content_blocks} issues={validateRecipeBlocks(draft.content_blocks)} onChange={content_blocks => setDraft({ ...draft, content_blocks })}/>
+        </fieldset>}
+      </>}
+    </>}
+  </div>;
+}

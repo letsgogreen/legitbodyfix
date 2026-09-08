@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { SiteNav } from "./SiteNav";
 import { SiteFooter } from "./SiteFooter";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { mergeConditions, type Condition } from "@/lib/conditions";
+import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 
-type Condition = { id: string; title: string; conditionCategory?: string; bodyRegion?: string; summary?: string; joints?: string; tags?: string; screening?: string; tightMuscles?: string; weakMuscles?: string; sourceName?: string; sourceUrl?: string; relatedVideoIds?: string };
 export function ConditionsPage({ slug }: { slug?: string } = {}) {
   const [items, setItems] = useState<Condition[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -16,9 +19,13 @@ export function ConditionsPage({ slug }: { slug?: string } = {}) {
     setItems(null);
     void fetch("/assets/data/knowledge-base.json", { signal: controller.signal, cache: "no-cache" })
       .then(async (response) => { if (!response.ok) throw new Error("Unavailable"); return response.json(); })
-      .then((data) => {
+      .then(async (data) => {
         if (!Array.isArray(data.conditions)) throw new Error("Invalid catalog");
-        if (active) setItems(data.conditions.filter((item: Record<string, unknown>) => item.published === true && item.pathway === "musculoskeletal-condition" && typeof item.id === "string" && typeof item.title === "string"));
+        const result = await (supabase as SupabaseClient).from("condition_publications").select("slug,data,published").abortSignal(controller.signal);
+        // Only a not-yet-installed migration permits legacy-only mode. Other errors
+        // must not resurrect withdrawn content by silently falling back.
+        if (result.error && !["42P01", "PGRST205"].includes(result.error.code)) throw result.error;
+        if (active) setItems(mergeConditions(data.conditions, result.data ?? []));
       }).catch(() => { if (active) setFailed(true); }).finally(() => clearTimeout(timer));
     return () => { active = false; controller.abort(); clearTimeout(timer); };
   }, [attempt]);
@@ -36,6 +43,7 @@ export function ConditionsPage({ slug }: { slug?: string } = {}) {
       <p className="mt-5 max-w-3xl leading-7 text-muted-foreground">Educational references, not a diagnosis or a personalized treatment plan.</p>
       {failed ? <div role="alert" className="mt-8 border border-border p-6"><p>We couldn’t load the guides.</p><button className="mt-4 min-h-11 bg-accent px-5 font-bold" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div> : !items ? <p role="status" className="mt-8">Loading guides…</p> : slug ? selected ? <article className="mt-10 max-w-3xl space-y-8">
         <p className="text-lg leading-8">{selected.summary}</p>
+        {selected.content_blocks.length > 0 && <RecipeBlockContent blocks={selected.content_blocks} />}
         {([["Areas involved", selected.joints], ["Common associations", selected.tags], ["Movement screen", selected.screening], ["Often overactive or restricted", selected.tightMuscles], ["Often underactive", selected.weakMuscles]] as const).map(([label, value]) => value ? <section key={label} className="border-t border-border pt-6"><h2 className="text-xl font-bold">{label}</h2><p className="mt-3 whitespace-pre-line leading-7 text-muted-foreground">{value}</p></section> : null)}
         {selected.sourceUrl?.startsWith("https://") && <a href={selected.sourceUrl} target="_blank" rel="noopener noreferrer" className="block min-h-11 underline">{selected.sourceName || "Source reference"} ↗</a>}
         {selected.relatedVideoIds?.split(",").filter(Boolean).map((id) => <a key={id} className="inline-flex min-h-12 items-center bg-accent px-5 font-bold" href={`/video.html?id=${encodeURIComponent(id.trim())}`}>View related program →</a>)}
