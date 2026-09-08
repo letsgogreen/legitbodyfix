@@ -92,6 +92,17 @@ Build passed. Browser confirmed the failure/retry interface. Successful live-dat
 
 The local server credential was not a valid key, but the existing publishable key successfully read published programs through RLS. Discovery now uses that public read path and no longer depends on the privileged listing endpoint or Paddle price lookup. Requests are aborted on unmount, retry, or timeout.
 
-Browser verified two real shoulder programs, the shoulder sales-page link, and the real knee-associated Ankle Recovery Program. This supersedes the earlier successful-live-data verification blocker. The source catalog tags Ankle Recovery with both ankle-foot and knee; this association is preserved, not inferred as a clinical recommendation.
+Browser verified two real shoulder programs and the shoulder sales-page link. This supersedes the earlier successful-live-data verification blocker. The source catalog also tags Ankle Recovery with knee, but the owner confirmed this must not appear as a knee program. Discovery now restricts Ankle Recovery to ankle-foot without mutating database records. Browser regression checks confirmed knee falls back to learning resources, including after reload, while ankle and shoulder each retain two programs.
 
 Sales-page inspection found the legacy shoulder page advertises a 12-minute session whereas program metadata says six weeks. Legacy-linked cards therefore omit duration and format and defer product details and pricing to the sales page. Catalog reconciliation remains a separate editorial task. No prices, purchase logic, or database records changed.
+
+## Usability refinement: selection recovery
+
+Feature: let visitors correct a selection without restarting from the homepage.
+Screen structure: results retain their selected-area label, followed by separate Change approach and Change area actions.
+Flow: result → Change area → area selection; result → Change approach → approach selection with the area retained.
+Design: secondary underlined controls with 44px minimum targets and wrapping on narrow screens; the primary resource action remains lime.
+Copy: direct action labels rather than a generic Back button.
+Implementation: URL-backed navigation clears dependent choices when the area is reset. On a step change, keyboard focus moves to the new page heading so assistive technology announces the new context. Initial loading does not steal focus.
+
+Release boundary: this refinement is local until approved for deployment. Existing published content, program prices, authentication, and payment fulfillment remain unchanged. Target audience and conversion goals are hypotheses pending actual user research; no claim of service-wide validation is made.
