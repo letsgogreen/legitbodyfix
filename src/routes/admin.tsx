@@ -2,7 +2,6 @@ import { Outlet, Link, createFileRoute } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Dumbbell,
-  PlaySquare,
   Activity,
   Users,
   Receipt,
@@ -37,9 +36,7 @@ type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean };
 const nav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/programs", label: "Programs", icon: Dumbbell },
-  { to: "/admin/lessons", label: "Lessons & videos", icon: PlaySquare },
   { to: "/admin/muscles", label: "Muscle library", icon: Activity },
-  { to: "/admin/anatomy-preview", label: "Anatomy × program (preview)", icon: Activity },
   { to: "/admin/recipes", label: "Movement content", icon: NotebookPen },
   { to: "/admin/conditions", label: "Conditions", icon: NotebookPen },
   { to: "/admin/customers", label: "Customers", icon: Users },
@@ -60,8 +57,14 @@ function AdminShell() {
             </span>
           </div>
 
-          <nav className="flex flex-1 flex-col gap-0.5 p-2">
-            {nav.map((item) => (
+          <nav aria-label="Admin navigation" className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+            {[
+              { label: "Workspace", paths: ["/admin", "/admin/programs"] },
+              { label: "Content", paths: ["/admin/recipes", "/admin/conditions", "/admin/muscles", "/admin/content"] },
+              { label: "Operations", paths: ["/admin/customers", "/admin/orders"] },
+            ].map((group) => <div key={group.label} className="mb-4">
+              <p className="px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{group.label}</p>
+            {group.paths.map((path) => nav.find((item) => item.to === path)!).map((item) => (
               <Link
                 key={item.to}
                 to={item.to as never}
@@ -70,12 +73,12 @@ function AdminShell() {
                 inactiveProps={{
                   className: "text-muted-foreground hover:bg-secondary hover:text-foreground",
                 }}
-                className="flex items-center gap-2.5 rounded-sm px-3 py-2 text-sm font-medium transition-colors"
+                className="flex min-h-11 items-center gap-2.5 rounded-sm px-3 py-2 text-sm font-medium transition-colors"
               >
                 <item.icon className="h-4 w-4 shrink-0" />
                 {item.label}
               </Link>
-            ))}
+            ))}</div>)}
           </nav>
 
           <div className="border-t border-border p-3">

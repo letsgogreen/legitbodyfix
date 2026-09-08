@@ -62,7 +62,7 @@ function ConditionsAdmin() {
       }
       if (!active) return;
       setEntries([...map.values()]);
-      setPrograms((Array.isArray(videos) ? videos : videos.videos ?? []).filter((item: Program) => item.id && item.title));
+      setPrograms((Array.isArray(videos) ? videos : videos.videos ?? []).filter((item: Program) => item.id && item.title && item.id !== "breathing-fundamentals"));
       setReady(true); setStatus("Choose a condition. Drafts stay private until you publish.");
     })().catch(error => { if (active) setStatus(error instanceof Error ? error.message : String(error)); });
     return () => { active = false; };
@@ -101,25 +101,41 @@ function ConditionsAdmin() {
   }
   const issues = draft ? conditionIssues(draft) : [];
   const selectedPrograms = draft?.relatedVideoIds.split(",").map(id => id.trim()).filter(Boolean) ?? [];
-  return <div className="mx-auto max-w-6xl p-5 sm:p-8">
+  return <div className="mx-auto max-w-7xl p-5 sm:p-8">
     <h1 className="text-3xl font-bold">Conditions</h1>
-    <p className="mt-2 text-muted-foreground">Edit references and connect programs. Prices and customer access are not changed here.</p>
-    <p role="status" className="my-5 border border-border p-4">{status} {dirty ? "Unsaved changes." : ""}</p>
+    <p className="mt-2 text-muted-foreground">Write a guide. Add supporting details when you need them.</p>
+    <p role="status" className="my-4 text-sm text-muted-foreground">{status} {dirty ? "Unsaved changes — save your draft before leaving." : ""}</p>
     {!ready ? <button onClick={() => setAttempt(value => value + 1)} className="border p-3">Retry</button> : <>
       <label className="block">Condition<select aria-label="Condition" disabled={busy} value={draft?.id ?? ""} onChange={event => { const entry = entries.find(item => item.content.id === event.target.value); if (entry) choose(entry); }} className="my-2 block min-h-12 w-full border bg-background p-3"><option value="">Choose a condition</option>{entries.map(entry => <option key={entry.content.id} value={entry.content.id}>{entry.content.title} · {entry.published ? "Published" : "Draft"}</option>)}</select></label>
       {draft && <>
-        <div className="sticky top-0 z-20 my-5 flex flex-wrap gap-3 border bg-background p-3">
+        <div className="my-5 flex flex-wrap items-center gap-3 border-b border-border bg-background pb-5">
           <button disabled={busy} onClick={() => setPreview(value => !value)} className="border px-4 py-3">{preview ? "Edit" : "Preview"}</button>
           <button disabled={busy} onClick={() => save("draft")} className="border px-4 py-3">Save draft</button>
           <button disabled={busy || issues.length > 0} onClick={() => save("publish")} className="bg-accent px-4 py-3 font-bold disabled:opacity-40">Publish</button>
-          <button disabled={busy} onClick={() => save("unpublish")} className="border px-4 py-3">Unpublish</button>
           <a href={`/conditions/${draft.id}`} target="_blank" rel="noopener noreferrer" className="px-4 py-3 underline">Public page ↗</a>
         </div>
         {issues.length > 0 && <div role="alert" className="mb-6 border border-amber-500 p-4"><strong>Before publishing</strong><ul>{issues.map((issue, index) => <li key={index}>{issue}</li>)}</ul></div>}
-        {preview ? <article className="mx-auto max-w-3xl space-y-6"><h2 className="text-4xl font-bold">{draft.title}</h2><p>{draft.summary}</p><RecipeBlockContent blocks={draft.content_blocks}/>{fields.slice(4).map(([key, label]) => draft[key] ? <section key={key}><h3 className="font-bold">{label}</h3><p className="whitespace-pre-line">{draft[key]}</p></section> : null)}<h3 className="font-bold">Related programs</h3>{selectedPrograms.map(id => <p key={id}>{programs.find(item => item.id === id)?.title ?? id}</p>)}</article> : <fieldset disabled={busy} className="space-y-6">
-          {fields.map(([key, label]) => <label key={key} className="block font-bold">{label}<textarea value={draft[key]} rows={["summary", "screening"].includes(key) ? 4 : 2} onChange={event => setDraft({ ...draft, [key]: event.target.value })} className="mt-2 block w-full border border-border bg-card p-3 font-normal" /></label>)}
-          <section className="border border-border p-5"><h2 className="text-xl font-bold">Related programs</h2><p className="my-2 text-sm">Select the sales pages to link. This does not grant access or change pricing.</p>{programs.map(program => <label key={program.id} className="flex min-h-11 items-center gap-3"><input type="checkbox" checked={selectedPrograms.includes(program.id)} onChange={event => setDraft({ ...draft, relatedVideoIds: (event.target.checked ? [...selectedPrograms, program.id] : selectedPrograms.filter(id => id !== program.id)).join(",") })}/>{program.title}</label>)}{selectedPrograms.filter(id => !programs.some(program => program.id === id)).map(id => <p key={id}>Existing link: {id}</p>)}</section>
-          <RecipeBlockEditor key={draft.id} recipeId={`condition-${draft.id}`} value={draft.content_blocks} issues={validateRecipeBlocks(draft.content_blocks)} onChange={content_blocks => setDraft({ ...draft, content_blocks })}/>
+        {preview ? <article className="mx-auto max-w-3xl space-y-6"><h2 className="text-4xl font-bold">{draft.title}</h2><p>{draft.summary}</p><RecipeBlockContent blocks={draft.content_blocks}/>{fields.slice(4).map(([key, label]) => draft[key] ? <section key={key}><h3 className="font-bold">{label}</h3><p className="whitespace-pre-line">{draft[key]}</p></section> : null)}<h3 className="font-bold">Related programs</h3>{selectedPrograms.map(id => <p key={id}>{programs.find(item => item.id === id)?.title ?? id}</p>)}</article> : <fieldset disabled={busy} className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
+          <section aria-label="Write your guide" className="min-w-0 border border-border bg-card p-5 sm:p-8">
+            <label className="block text-xs font-bold text-muted-foreground">TITLE
+              <textarea aria-label="Title" value={draft.title} rows={2} onChange={event => setDraft({ ...draft, title: event.target.value })} className="mt-2 w-full resize-y border-0 bg-transparent text-3xl font-extrabold leading-tight focus:outline-accent" />
+            </label>
+            <label className="mt-4 block text-xs font-bold text-muted-foreground">SHORT INTRODUCTION
+              <textarea aria-label="Summary" value={draft.summary} rows={4} placeholder="What will the reader learn from this guide?" onChange={event => setDraft({ ...draft, summary: event.target.value })} className="mt-2 w-full resize-y border-0 bg-transparent text-base font-normal leading-7 focus:outline-accent" />
+            </label>
+            <div className="mt-6 border-t border-border pt-6">
+              <RecipeBlockEditor key={draft.id} recipeId={`condition-${draft.id}`} value={draft.content_blocks} issues={validateRecipeBlocks(draft.content_blocks)} onChange={content_blocks => setDraft({ ...draft, content_blocks })}/>
+            </div>
+          </section>
+          <aside aria-label="Guide settings" className="min-w-0 space-y-4">
+            <h2 className="text-lg font-bold">Guide settings</h2>
+            <p className="text-sm text-muted-foreground">These details support your article. Existing values are kept unless you edit them.</p>
+            <details open className="border border-border p-4"><summary className="cursor-pointer font-bold">Classification</summary><div className="mt-4 space-y-4">{fields.slice(1,3).map(([key,label]) => <label key={key} className="block text-sm">{label}<input value={draft[key]} onChange={event => setDraft({...draft,[key]:event.target.value})} className="mt-1 min-h-11 w-full border border-border bg-card p-2"/></label>)}</div></details>
+            <details className="border border-border p-4"><summary className="cursor-pointer font-bold">Safety & assessment</summary><p className="mt-3 text-xs text-muted-foreground">Shown with the public article. Review before publishing.</p><div className="mt-4 space-y-4">{fields.slice(4,9).map(([key,label]) => <label key={key} className="block text-sm">{label}<textarea rows={4} value={draft[key]} onChange={event => setDraft({...draft,[key]:event.target.value})} className="mt-1 w-full border border-border bg-card p-2"/></label>)}</div></details>
+            <details className="border border-border p-4"><summary className="cursor-pointer font-bold">Sources</summary><div className="mt-4 space-y-4">{fields.slice(9).map(([key,label]) => <label key={key} className="block text-sm">{label}<input type={key === "sourceUrl" ? "url" : "text"} value={draft[key]} onChange={event => setDraft({...draft,[key]:event.target.value})} className="mt-1 min-h-11 w-full border border-border bg-card p-2"/></label>)}</div></details>
+            <details open className="border border-border p-4"><summary className="cursor-pointer font-bold">Related programs · {selectedPrograms.length}</summary><p className="my-3 text-xs text-muted-foreground">Choose which program links appear after the guide.</p>{programs.map(program => <label key={program.id} className="flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" checked={selectedPrograms.includes(program.id)} onChange={event => setDraft({ ...draft, relatedVideoIds: (event.target.checked ? [...selectedPrograms, program.id] : selectedPrograms.filter(id => id !== program.id)).join(",") })}/>{program.title}</label>)}{selectedPrograms.filter(id => !programs.some(program => program.id === id)).map(id => <div key={id} className="mt-3 border border-amber-500 p-2 text-xs">Unavailable link: {id}<button type="button" className="ml-2 underline" onClick={() => setDraft({...draft,relatedVideoIds:selectedPrograms.filter(value => value !== id).join(",")})}>Remove link</button></div>)}</details>
+            <details className="border border-border p-4"><summary className="cursor-pointer text-sm">Publishing options</summary><p className="my-3 text-xs text-muted-foreground">Hide the public guide without deleting your draft.</p><button disabled={busy} onClick={() => save("unpublish")} className="min-h-11 border px-4">Unpublish guide</button></details>
+          </aside>
         </fieldset>}
       </>}
     </>}

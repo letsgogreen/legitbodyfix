@@ -99,8 +99,8 @@ function Dashboard() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
       <PageHead
-        title="Control room"
-        meta="Live operational overview"
+        title="Your workspace"
+        meta="Write content, build programs, and manage customer access"
         actions={
           <Btn onClick={() => void load()} disabled={loading}>
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -108,6 +108,20 @@ function Dashboard() {
           </Btn>
         }
       />
+      <section aria-label="Start a task" className="my-6 grid gap-3 md:grid-cols-3">
+        <Link to="/admin/recipes" className="border border-border bg-card p-5 transition-colors hover:bg-secondary focus-visible:outline focus-visible:outline-2">
+          <h2 className="text-lg font-bold">Write a movement guide →</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Open your articles and continue editing.</p>
+        </Link>
+        <Link to="/admin/programs" search={{}} className="border border-border bg-card p-5 transition-colors hover:bg-secondary focus-visible:outline focus-visible:outline-2">
+          <h2 className="text-lg font-bold">Build a program →</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Manage details, curriculum, and videos in one place.</p>
+        </Link>
+        <Link to="/admin/conditions" className="border border-border bg-card p-5 transition-colors hover:bg-secondary focus-visible:outline focus-visible:outline-2">
+          <h2 className="text-lg font-bold">Update a condition →</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Edit guidance and choose related programs.</p>
+        </Link>
+      </section>
       {error && (
         <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {error}

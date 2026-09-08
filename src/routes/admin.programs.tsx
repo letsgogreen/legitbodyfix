@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { ProgramCurriculum } from "@/components/admin/ProgramCurriculum";
+import { ProgramAnatomyPreview } from "@/components/admin/ProgramAnatomyPreview";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { deleteAdminProgram, getAdminPrograms, getProgramDeleteImpact, saveAdminProgram, setAdminProgramPublished } from "@/lib/admin-programs.functions";
@@ -71,7 +73,7 @@ const emptyDraft: ProgramDraft = {
 };
 
 export const Route = createFileRoute("/admin/programs")({
-  validateSearch: (search: Record<string, unknown>) => ({ action: search["action"] === "new" ? "new" : undefined, edit: typeof search["edit"] === "string" ? search["edit"] : undefined }),
+  validateSearch: (search: Record<string, unknown>): { action?: "new"; edit?: string; view?: "curriculum" | "anatomy"; program?: string } => ({ action: search["action"] === "new" ? "new" : undefined, edit: typeof search["edit"] === "string" ? search["edit"] : undefined, view: search.view === "curriculum" || search.view === "anatomy" ? search.view : undefined, program: typeof search.program === "string" ? search.program : undefined }),
   head: () => ({
     meta: [
       { title: "Programs — LegitBodyFix Admin" },
@@ -79,8 +81,20 @@ export const Route = createFileRoute("/admin/programs")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: ProgramsView,
+  component: ProgramsWorkspace,
 });
+
+function ProgramsWorkspace() {
+  const { view, program } = Route.useSearch();
+  return <>
+    <nav aria-label="Program workspace" className="flex flex-wrap gap-2 border-b border-border px-5 py-3">
+      <Link to="/admin/programs" search={{}} aria-current={!view ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${!view ? "bg-ink text-ink-foreground" : "border border-border"}`}>Programs & details</Link>
+      <Link to="/admin/programs" search={{ view: "curriculum", program }} aria-current={view === "curriculum" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "curriculum" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Curriculum & videos</Link>
+      <Link to="/admin/programs" search={{ view: "anatomy" }} aria-current={view === "anatomy" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "anatomy" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Anatomy · preview</Link>
+    </nav>
+    {view === "curriculum" ? <ProgramCurriculum key={program ?? "default"} requestedProgramId={program}/> : view === "anatomy" ? <ProgramAnatomyPreview/> : <ProgramsView/>}
+  </>;
+}
 
 function ProgramsView() {
   const { action, edit } = Route.useSearch();
@@ -149,7 +163,7 @@ function ProgramsView() {
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
       <PageHead
         title="Programs"
-        meta={`${programs.length} programs · ${liveCount} published · live Supabase data`}
+        meta={loading ? "Loading your programs…" : error && !programs.length ? "Program data could not be loaded" : `${programs.length} programs · ${liveCount} published`}
         actions={
           <Btn variant="ink" onClick={() => setEditing({ ...emptyDraft })}>
             <Plus className="mr-1.5 h-4 w-4" /> New program
@@ -240,8 +254,8 @@ function ProgramsView() {
                         Sales <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
                       </Link>
                       <Link
-                        to="/admin/lessons"
-                        search={{ program: program.id }}
+                        to="/admin/programs"
+                        search={{ view: "curriculum", program: program.id }}
                         className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"
                       >
                         <FileVideo className="mr-1.5 h-3.5 w-3.5" /> Videos
@@ -251,7 +265,7 @@ function ProgramsView() {
                   </Td>
                 </tr>
               ))}
-              {!programs.length && (
+              {!programs.length && !error && (
                 <tr>
                   <Td colSpan={7} className="py-12 text-center text-muted-foreground">
                     No programs yet. Create the first program to begin.
@@ -583,8 +597,8 @@ function ProgramDrawer({
                 </p>
               </div>
               <Link
-                to="/admin/lessons"
-                search={{ program: draft.id }}
+                to="/admin/programs"
+                search={{ view: "curriculum", program: draft.id }}
                 className="inline-flex min-h-10 shrink-0 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"
               >
                 <FileVideo className="mr-1.5 h-4 w-4" /> Manage
