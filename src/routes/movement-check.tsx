@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, Dumbbell, Layers3 } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { StartingPrograms } from "@/components/site/StartingPrograms";
+import { RegionThumbnail } from "@/components/site/RegionThumbnail";
 import { listRegionMuscleGroups } from "@/lib/region-muscle-groups.functions";
 import { listRegionRecipes } from "@/lib/recipes.functions";
 import {
@@ -114,7 +115,7 @@ function MovementCheck() {
             <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
               START BY BODY REGION
             </p>
-            <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.55fr)] lg:items-end">
+            <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.55fr)] lg:items-center">
               <div>
                 <h1 className="text-4xl font-extrabold uppercase leading-[0.95] sm:text-6xl">
                   {region.title}
@@ -122,11 +123,12 @@ function MovementCheck() {
                 <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
                   {region.intro}
                 </p>
+                <p className="mt-6 max-w-lg border-l-2 border-accent pl-4 text-sm leading-relaxed text-muted-foreground">
+                  This is a starting map, not a diagnosis. Choose the resource that best matches your
+                  current goal and stop if symptoms worsen.
+                </p>
               </div>
-              <p className="max-w-lg border-l-2 border-accent pl-4 text-sm leading-relaxed text-muted-foreground lg:justify-self-end">
-                This is a starting map, not a diagnosis. Choose the resource that best matches your
-                current goal and stop if symptoms worsen.
-              </p>
+              <RegionThumbnail region={region} />
             </div>
 
             <nav className="mt-10 flex flex-wrap gap-2" aria-label="Choose a body region">
