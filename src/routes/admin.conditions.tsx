@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase";
 import { conditionSchema, conditionIssues, type Condition } from "@/lib/conditions";
 import { saveCondition } from "@/lib/conditions.functions";
+import { conditionLoadError } from "@/lib/condition-load-error";
 import { RecipeBlockEditor } from "@/components/admin/RecipeBlockEditor";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 import { validateRecipeBlocks } from "@/lib/recipe-blocks";
@@ -28,6 +28,7 @@ function ConditionsAdmin() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [status, setStatus] = useState("Loading…");
   const [ready, setReady] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const saving = useRef(false);
   const [preview, setPreview] = useState(false);
@@ -36,13 +37,22 @@ function ConditionsAdmin() {
   useEffect(() => {
     let active = true;
     setReady(false);
+    setLoading(true);
+    setStatus("Loading Conditions…");
     void (async () => {
+      // Use the same initialized auth client as AdminAuthGate, rather than
+      // starting a second client with an independently refreshed session.
+      const client = getSupabaseClient();
+      if (!client) throw new Error("Supabase is not configured for this environment.");
       const [catalogResponse, videosResponse, drafts, publications] = await Promise.all([
         fetch("/assets/data/knowledge-base.json"), fetch("/assets/data/videos.json"),
-        (supabase as SupabaseClient).from("condition_drafts").select("slug,data,version"),
-        (supabase as SupabaseClient).from("condition_publications").select("slug,published"),
+        client.from("condition_drafts").select("slug,data,version"),
+        client.from("condition_publications").select("slug,published"),
       ]);
-      if (drafts.error || publications.error) throw new Error("Conditions database is not ready or access was denied. Apply the Conditions migration and sign in as administrator.");
+      const queryError = drafts.error ?? publications.error;
+      if (queryError) {
+        throw new Error(conditionLoadError(drafts.error ? "drafts" : "publications", queryError.code));
+      }
       if (!catalogResponse.ok || !videosResponse.ok) throw new Error("Could not load existing content.");
       const catalog = await catalogResponse.json();
       const videos = await videosResponse.json();
@@ -64,7 +74,8 @@ function ConditionsAdmin() {
       setEntries([...map.values()]);
       setPrograms((Array.isArray(videos) ? videos : videos.videos ?? []).filter((item: Program) => item.id && item.title && item.id !== "breathing-fundamentals"));
       setReady(true); setStatus("Choose a condition. Drafts stay private until you publish.");
-    })().catch(error => { if (active) setStatus(error instanceof Error ? error.message : String(error)); });
+    })().catch(error => { if (active) setStatus(error instanceof Error ? error.message : "Could not load Conditions. Please retry."); })
+      .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [attempt]);
   useEffect(() => {
@@ -105,7 +116,7 @@ function ConditionsAdmin() {
     <h1 className="text-3xl font-bold">Conditions</h1>
     <p className="mt-2 text-muted-foreground">Write a guide. Add supporting details when you need them.</p>
     <p role="status" className="my-4 text-sm text-muted-foreground">{status} {dirty ? "Unsaved changes — save your draft before leaving." : ""}</p>
-    {!ready ? <button onClick={() => setAttempt(value => value + 1)} className="border p-3">Retry</button> : <>
+    {!ready ? <button type="button" disabled={loading} onClick={() => setAttempt(value => value + 1)} className="min-h-11 border p-3 disabled:cursor-wait disabled:opacity-60">{loading ? "Loading…" : "Retry loading Conditions"}</button> : <>
       <label className="block">Condition<select aria-label="Condition" disabled={busy} value={draft?.id ?? ""} onChange={event => { const entry = entries.find(item => item.content.id === event.target.value); if (entry) choose(entry); }} className="my-2 block min-h-12 w-full border bg-background p-3"><option value="">Choose a condition</option>{entries.map(entry => <option key={entry.content.id} value={entry.content.id}>{entry.content.title} · {entry.published ? "Published" : "Draft"}</option>)}</select></label>
       {draft && <>
         <div className="my-5 flex flex-wrap items-center gap-3 border-b border-border bg-background pb-5">
