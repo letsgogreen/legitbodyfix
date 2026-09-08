@@ -2,11 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, Dumbbell, Layers3 } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
-import { MuscleCard } from "@/components/site/MuscleCard";
 import { StartingPrograms } from "@/components/site/StartingPrograms";
-import { listPublishedMuscles } from "@/lib/muscles.functions";
+import { listRegionMuscleGroups } from "@/lib/region-muscle-groups.functions";
 import { listRegionRecipes } from "@/lib/recipes.functions";
-import type { Muscle } from "@/lib/muscles";
 import {
   bodyRegions,
   findBodyRegion,
@@ -18,11 +16,11 @@ type MovementCheckSearch = { region?: string };
 export const Route = createFileRoute("/movement-check")({
   loaderDeps: ({ search }) => ({ region: findBodyRegion(search.region)?.slug ?? "head-neck" }),
   loader: async ({ deps }) => {
-    const [muscleData, recipeData] = await Promise.all([
-      listPublishedMuscles(),
+    const [muscleGroups, recipeData] = await Promise.all([
+      listRegionMuscleGroups({ data: { region: deps.region as "head-neck" | "shoulder-arm" | "spine-rib-cage" | "hip-pelvis" | "knee" | "ankle-foot" } }),
       listRegionRecipes({ data: { region: deps.region as "head-neck" | "shoulder-arm" | "spine-rib-cage" | "hip-pelvis" | "knee" | "ankle-foot" } }),
     ]);
-    return { ...muscleData, recipeData };
+    return { muscleGroups, recipeData };
   },
   validateSearch: (search): MovementCheckSearch => {
     if (typeof search["region"] === "string") return { region: search["region"] };
@@ -88,10 +86,9 @@ function ResourceCard({
 
 function MovementCheck() {
   const { region: regionSlug } = Route.useSearch();
-  const { muscles, recipeData } = Route.useLoaderData();
+  const { muscleGroups, recipeData } = Route.useLoaderData();
   const region = findBodyRegion(regionSlug) || bodyRegions[0];
   if (!region) return null;
-  const regionMuscles = muscles.filter((muscle) => muscleBelongsToRegion(muscle, region.slug)).slice(0, 6);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -195,9 +192,21 @@ function MovementCheck() {
               </div>
               <Link to="/muscles" className="inline-flex min-h-11 shrink-0 items-center gap-2 bg-ink px-5 py-3 text-sm font-bold text-ink-foreground">Browse all muscles <ArrowRight className="h-4 w-4" /></Link>
             </div>
-            {regionMuscles.length ? (
-              <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {regionMuscles.map((muscle) => <MuscleCard key={muscle.id} muscle={muscle} />)}
+            {muscleGroups.length ? (
+              <div className="mt-10 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 xl:grid-cols-3">
+                {muscleGroups.map(group => (
+                  <a key={group.name} href={group.href} className="group flex min-w-0 flex-col bg-card outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground">
+                    <div className="flex aspect-[16/10] items-center justify-center overflow-hidden border-b border-border bg-white">
+                      {group.imageUrl ? <img src={group.imageUrl} alt={group.imageAlt} loading="lazy" decoding="async" className="h-full w-full object-contain p-4 transition-transform group-hover:scale-105" onError={event => { event.currentTarget.style.display = 'none'; }} /> : <span className="text-sm text-muted-foreground">Anatomy reference</span>}
+                    </div>
+                    <div className="flex flex-1 flex-col p-6">
+                      <p className="font-mono text-[10px] uppercase tracking-widest">Muscle group · {group.count} {group.count === 1 ? 'muscle' : 'muscles'}</p>
+                      <h3 className="mt-5 text-xl font-extrabold">{group.name}</h3>
+                      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{group.description}</p>
+                      <span className="mt-auto flex min-h-11 items-center gap-2 pt-5 text-sm font-bold">Explore muscles <ArrowRight className="h-4 w-4" aria-hidden="true" /></span>
+                    </div>
+                  </a>
+                ))}
               </div>
             ) : (
               <div className="mt-10 border border-border bg-secondary px-5 py-8 text-sm text-muted-foreground">Muscle entries for this region are being prepared.</div>
@@ -227,21 +236,6 @@ function MovementCheck() {
       <SiteFooter />
     </div>
   );
-}
-
-const regionMusclePatterns: Record<string, RegExp> = {
-  "head-neck": /head|neck|cervical|suboccipital|trapezius|scalene|hyoid/i,
-  "shoulder-arm": /shoulder|scap|rotator|deltoid|pectoral|arm|forearm|hand|biceps|triceps/i,
-  "spine-rib-cage": /spine|spinal|back|thoracic|rib|intercostal|diaphragm|abdomen|abdominal|oblique|erector/i,
-  "hip-pelvis": /hip|pelvi|glute|adductor|groin|iliopsoas|thigh/i,
-  knee: /knee|quadriceps|hamstring|patellar|poplite|thigh|gastrocnemius/i,
-  "ankle-foot": /ankle|foot|toe|hallux|calf|lower leg|tibial|fibular|perone|plantar|gastrocnemius|soleus/i,
-};
-
-function muscleBelongsToRegion(muscle: Muscle, regionSlug: string) {
-  const pattern = regionMusclePatterns[regionSlug];
-  if (!pattern) return false;
-  return pattern.test([muscle.bodyMap, muscle.group, muscle.family, muscle.title].filter(Boolean).join(" "));
 }
 
 function ResourceSection({
