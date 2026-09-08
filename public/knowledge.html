@@ -54,7 +54,11 @@
     .learn-sections a:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
     body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-filters { display: none; }
     body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-directory { max-width: 1280px; width: 100%; padding: 56px 20px; margin: auto; }
-    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading { gap: 24px; }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 32px; }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading .knowledge-search { width: 100%; max-width: 576px; justify-self: start; }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading .knowledge-search > span { font: 700 14px/1.5 var(--body); text-transform: none; letter-spacing: normal; color: var(--ink); }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading .knowledge-search input { height: 48px; border-color: #d8d6d0; background: #fffefa; }
+    .knowledge-nav-links > a:first-child { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
     body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-family: var(--body); font-size: 36px; font-weight: 800; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; margin-top: 16px; }
     @media (min-width: 640px) { body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-size: 60px; } }
     @media (min-width: 1024px) { .learn-sections > div { padding-inline: 32px; } body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-directory { padding: 80px 32px; } }
@@ -75,7 +79,7 @@
   <header class="knowledge-header">
     <nav class="knowledge-nav shell" aria-label="Primary navigation">
       <a class="knowledge-brand" href="/" aria-label="LegitBodyFix home"><strong>LegitBodyFix</strong></a>
-      <div class="knowledge-nav-links"><a href="/movement-check">Learn</a><a href="/#programs">Programs</a><a href="/#method">How it works</a><a href="/library">My library</a><a class="nav-button" href="/start">Find my starting point <span aria-hidden="true">↗</span></a></div>
+      <div class="knowledge-nav-links"><a href="/library">My library</a><a href="/movement-check">Learn</a><a href="/#programs">Programs</a><a href="/#method">How it works</a><a class="nav-button" href="/start">Find my starting point</a></div>
       <details class="dictionary-mobile-menu"><summary aria-label="Menu">☰</summary><nav aria-label="Mobile navigation"><a href="/library">My library</a><a href="/movement-check">Learn</a><a href="/#programs">Programs</a><a href="/#method">How it works</a><a class="nav-button" href="/start">Find my starting point</a></nav></details>
     </nav>
   </header>
