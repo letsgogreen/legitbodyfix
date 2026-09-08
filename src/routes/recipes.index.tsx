@@ -24,20 +24,13 @@ function PostureRecipes() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
       <main>
-        <nav className="border-b border-border bg-secondary/25" aria-label="Learn sections">
-          <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-5 py-3 lg:px-8">
-            <Link to="/movement-check" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Body regions</Link>
-            <a href="/knowledge.html?type=muscles" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Muscle dictionary</a>
-            <Link to="/recipes" aria-current="page" className="inline-flex min-h-10 shrink-0 items-center rounded-sm bg-foreground px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide text-background">Posture</Link>
-            <a href="/knowledge.html?type=conditions&amp;path=musculoskeletal-condition" className="inline-flex min-h-10 shrink-0 items-center rounded-sm border border-border bg-card px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-wide hover:border-foreground/50">Conditions</a>
-          </div>
-        </nav>
+<LearnNav active="posture" />
 
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Published from Admin · Recipes</p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-extrabold uppercase leading-[0.92] sm:text-6xl">Posture &amp; movement recipes</h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Learn · Posture</p>
+            <h1 className="mt-4 max-w-4xl text-4xl font-extrabold uppercase leading-[0.95] sm:text-6xl">Posture &amp; movement recipes</h1>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Practical starting points for posture, mobility, control, and movement preparation. These resources are educational and are not a diagnosis.
             </p>
           </div>
@@ -80,3 +73,4 @@ function PostureRecipes() {
     </div>
   );
 }
+import { LearnNav } from "@/components/site/LearnNav";

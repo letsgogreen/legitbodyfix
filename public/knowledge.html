@@ -32,6 +32,19 @@
   <link rel="stylesheet" href="assets/css/public-responsive-fixes.css?v=20260801-1" />
   <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260814-1" />
   <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260907-2" />
+  <style>
+    .learn-sections { border-bottom: 1px solid #d8d6d0; background: #f2f1ec; }
+    .learn-sections > div { max-width: 1280px; margin: auto; padding: 12px 20px; display: flex; gap: 8px; overflow-x: auto; }
+    .learn-sections a { display: inline-flex; align-items: center; min-height: 44px; flex-shrink: 0; padding: 8px 16px; border: 1px solid #d8d6d0; border-radius: 2px; background: #fffefa; color: #111; font: 700 11px var(--mono); letter-spacing: .025em; text-transform: uppercase; text-decoration: none; }
+    .learn-sections a[aria-current] { background: #111; color: #faf9f6; border-color: #111; }
+    .learn-sections a:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-filters { display: none; }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-directory { max-width: 1280px; width: 100%; padding: 56px 20px; margin: auto; }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading { gap: 24px; }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-size: 36px; font-weight: 800; line-height: .95; text-transform: uppercase; margin-top: 16px; }
+    @media (min-width: 640px) { body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-size: 60px; } }
+    @media (min-width: 1024px) { .learn-sections > div { padding-inline: 32px; } body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-directory { padding: 80px 32px; } }
+  </style>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -43,6 +56,12 @@
   </header>
 
   <div class="muscle-loading-message shell" role="status" aria-live="polite"><h1>Muscle dictionary</h1><p>Loading anatomy references…</p></div>
+  <nav class="learn-sections" aria-label="Learn sections"><div>
+    <a href="/movement-check">Body regions</a>
+    <a href="/knowledge.html?type=muscles" aria-current="page">Muscle dictionary</a>
+    <a href="/recipes">Posture</a>
+    <a href="/conditions">Conditions</a>
+  </div></nav>
   <main id="main">
     <section class="knowledge-directory shell" aria-labelledby="directoryTitle">
       <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Choose one clear path.</h2></div><label class="knowledge-search"><span>Search posture, conditions, muscles, functions, and relationships</span><input id="knowledgeSearch" type="search" placeholder="Try forward head posture, neck flexors, or synergist: semispinalis capitis" autocomplete="off" /></label></header>

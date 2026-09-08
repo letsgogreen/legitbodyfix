@@ -33,14 +33,12 @@ export function ConditionsPage({ slug }: { slug?: string } = {}) {
   const filtered = items?.filter((item) => [item.title, item.summary, item.bodyRegion, item.tags].join(" ").toLowerCase().includes(query.trim().toLowerCase())) ?? [];
   const categories = [...new Set(filtered.map((item) => item.conditionCategory || "Other guides"))];
   return <div className="min-h-screen bg-background text-foreground"><SiteNav />
-    <nav aria-label="Learn sections" className="border-b border-border"><div className="mx-auto flex max-w-7xl flex-wrap gap-3 px-5 py-4 text-sm">
-      <a href="/movement-check" className="px-3 py-3">Body regions</a><a href="/knowledge.html?type=muscles" className="px-3 py-3">Muscle dictionary</a><a href="/recipes" className="px-3 py-3">Posture</a><a href="/conditions" aria-current="page" className="bg-foreground px-3 py-3 font-bold text-background">Conditions</a>
-    </div></nav>
-    <main className="mx-auto max-w-6xl px-5 py-12 sm:py-16">
+<LearnNav active="conditions" />
+    <main className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
       {slug && <a href="/conditions" className="mb-6 inline-flex min-h-11 items-center text-sm underline">← All conditions</a>}
-      <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Learn · Conditions</p>
-      <h1 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">{slug ? selected?.title || "Condition guide" : "Understand the condition."}</h1>
-      <p className="mt-5 max-w-3xl leading-7 text-muted-foreground">Educational references, not a diagnosis or a personalized treatment plan.</p>
+      <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Learn · Conditions</p>
+      <h1 className="mt-4 max-w-4xl text-4xl font-extrabold uppercase leading-[0.95] sm:text-6xl">{slug ? selected?.title || "Condition guide" : "Understand the condition."}</h1>
+      <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">Educational references, not a diagnosis or a personalized treatment plan.</p>
       {failed ? <div role="alert" className="mt-8 border border-border p-6"><p>We couldn’t load the guides.</p><button className="mt-4 min-h-11 bg-accent px-5 font-bold" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div> : !items ? <p role="status" className="mt-8">Loading guides…</p> : slug ? selected ? <article className="mt-10 max-w-3xl space-y-8">
         <p className="text-lg leading-8">{selected.summary}</p>
         {selected.content_blocks.length > 0 && <RecipeBlockContent blocks={selected.content_blocks} />}
@@ -55,3 +53,4 @@ export function ConditionsPage({ slug }: { slug?: string } = {}) {
       </>}
     </main><SiteFooter /></div>;
 }
+import { LearnNav } from "@/components/site/LearnNav";
