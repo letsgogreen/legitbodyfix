@@ -22,13 +22,12 @@
     .muscle-loading-message { display: none; }
     html[data-muscle-loading] #main { display: none; }
     html[data-muscle-loading] .muscle-loading-message { display: block; width: 100%; max-width: 1280px; margin: auto; padding: 56px 20px; min-height: 65vh; }
-    .muscle-loading-message h1 { font: 800 36px/.95 'Archivo', sans-serif; text-transform: uppercase; margin: 16px 0 24px; }
+    .muscle-loading-message h1 { font: 800 36px/.95 'Archivo', sans-serif; letter-spacing: -.03em; text-transform: uppercase; margin: 16px 0 24px; }
     @media (min-width: 640px) { .muscle-loading-message h1 { font-size: 60px; } }
     @media (min-width: 1024px) { html[data-muscle-loading] .muscle-loading-message { padding: 80px 32px; } }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/knowledge.css?v=20260907-1" />
   <link rel="stylesheet" href="assets/css/knowledge-detail.css?v=20260817-4" />
   <link rel="stylesheet" href="assets/css/knowledge-related.css?v=20260802-2" />
@@ -37,14 +36,17 @@
   <link rel="stylesheet" href="assets/css/movement-guides.css?v=20260814-1" />
   <link rel="stylesheet" href="assets/css/knowledge-organization.css?v=20260907-2" />
   <style>
-    :root { --body: 'Archivo', sans-serif; --mono: 'JetBrains Mono', monospace; }
+    :root { --body: 'Archivo', ui-sans-serif, system-ui, sans-serif; --display: var(--body); --mono: 'JetBrains Mono', ui-monospace, monospace; }
+    .directory-heading h2, .detail-layout h2, .knowledge-cta h2 { font-family: var(--body); font-weight: 800; letter-spacing: -.03em; }
+    .learn-sections a { line-height: 1.5; }
+    .directory-heading .eyebrow { font-size: 12px; font-weight: 700; line-height: 1.5; letter-spacing: .16em; }
     body { background: #f7f5ef; font-family: var(--body); }
     .knowledge-header { background: #f7f5ef; }
     .knowledge-nav { min-height: 76px; max-width: 1280px; width: 100%; padding: 16px 32px; }
     .knowledge-nav-links { font-weight: 500; gap: 32px; }
     .knowledge-nav-links .nav-button { background: #d7fb68; color: #111; border: 0; min-height: 44px; font-family: var(--body); }
     .dictionary-mobile-menu { display: none; }
-    body.muscle-directory-mode .muscle-path-heading h3 { font-size: 24px; margin: 12px 0 16px; }
+    body.muscle-directory-mode .muscle-path-heading h3 { font-family: var(--body); font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -.03em; margin: 12px 0 16px; }
     .learn-sections { border-bottom: 1px solid #d8d6d0; background: #f2f1ec; }
     .learn-sections > div { max-width: 1280px; margin: auto; padding: 12px 20px; display: flex; gap: 8px; overflow-x: auto; }
     .learn-sections a { display: inline-flex; align-items: center; min-height: 44px; flex-shrink: 0; padding: 8px 16px; border: 1px solid #d8d6d0; border-radius: 2px; background: #fffefa; color: #111; font: 700 11px var(--mono); letter-spacing: .025em; text-transform: uppercase; text-decoration: none; }
@@ -53,7 +55,7 @@
     body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-filters { display: none; }
     body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-directory { max-width: 1280px; width: 100%; padding: 56px 20px; margin: auto; }
     body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading { gap: 24px; }
-    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-size: 36px; font-weight: 800; line-height: .95; text-transform: uppercase; margin-top: 16px; }
+    body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-family: var(--body); font-size: 36px; font-weight: 800; line-height: .95; letter-spacing: -.03em; text-transform: uppercase; margin-top: 16px; }
     @media (min-width: 640px) { body.muscle-directory-mode:not(.knowledge-detail-open) .directory-heading h2 { font-size: 60px; } }
     @media (min-width: 1024px) { .learn-sections > div { padding-inline: 32px; } body.muscle-directory-mode:not(.knowledge-detail-open) .knowledge-directory { padding: 80px 32px; } }
     @media (max-width: 1023px) {
