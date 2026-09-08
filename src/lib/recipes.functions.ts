@@ -18,6 +18,27 @@ export type RecipeMuscleLink = {
 const RECIPE_COLUMNS =
   "id,slug,title,goal,summary,instructions,content_blocks,regions,movement_functions,symptoms_goals,progression_level,dosage,session_minutes,assessment_clues,safety_notes,evidence,equipment,image_url,image_alt,last_reviewed_at";
 
+/** Region filtering happens before the limit, unlike the homepage's curated list. */
+export const listRegionRecipes = createServerFn({ method: "GET" })
+  .validator((input) => z.object({ region: z.enum(["head-neck", "shoulder-arm", "spine-rib-cage", "hip-pelvis", "knee", "ankle-foot"]) }).parse(input))
+  .handler(async ({ data: input }) => {
+    try {
+      const regions = input.region === "spine-rib-cage" ? ["spine-rib-cage", "spine-ribs"] : [input.region];
+      const { data, error } = await publicClient().from("recipes")
+        .select("slug,title,summary,goal")
+        .eq("published", true)
+        .overlaps("regions", regions)
+        .order("featured_rank", { ascending: true, nullsFirst: false })
+        .order("title")
+        .limit(24)
+        .abortSignal(AbortSignal.timeout(10000));
+      if (error) return { recipes: [], failed: true };
+      return { recipes: data ?? [], failed: false };
+    } catch {
+      return { recipes: [], failed: true };
+    }
+  });
+
 /** Published recipes only — the anon RLS policy enforces this server-side as well. */
 export const getPublishedRecipe = createServerFn({ method: "GET" })
   .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))

@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { MuscleCard } from "@/components/site/MuscleCard";
 import { StartingPrograms } from "@/components/site/StartingPrograms";
 import { listPublishedMuscles } from "@/lib/muscles.functions";
+import { listRegionRecipes } from "@/lib/recipes.functions";
 import type { Muscle } from "@/lib/muscles";
 import {
   bodyRegions,
@@ -15,7 +16,14 @@ import {
 type MovementCheckSearch = { region?: string };
 
 export const Route = createFileRoute("/movement-check")({
-  loader: () => listPublishedMuscles(),
+  loaderDeps: ({ search }) => ({ region: findBodyRegion(search.region)?.slug ?? "head-neck" }),
+  loader: async ({ deps }) => {
+    const [muscleData, recipeData] = await Promise.all([
+      listPublishedMuscles(),
+      listRegionRecipes({ data: { region: deps.region as "head-neck" | "shoulder-arm" | "spine-rib-cage" | "hip-pelvis" | "knee" | "ankle-foot" } }),
+    ]);
+    return { ...muscleData, recipeData };
+  },
   validateSearch: (search): MovementCheckSearch => {
     if (typeof search["region"] === "string") return { region: search["region"] };
     return {};
@@ -80,7 +88,7 @@ function ResourceCard({
 
 function MovementCheck() {
   const { region: regionSlug } = Route.useSearch();
-  const { muscles } = Route.useLoaderData();
+  const { muscles, recipeData } = Route.useLoaderData();
   const region = findBodyRegion(regionSlug) || bodyRegions[0];
   if (!region) return null;
   const regionMuscles = muscles.filter((muscle) => muscleBelongsToRegion(muscle, region.slug)).slice(0, 6);
@@ -161,11 +169,15 @@ function MovementCheck() {
         <ResourceSection
           icon={BookOpen}
           eyebrow="Try a focused starting point"
-          title="Correction recipes"
-          description="Free, short sequences with dosage, regressions, progressions, and a reassessment."
-          resources={region.recipes}
+          title="Articles & recipes"
+          description="Published learning resources for this area, maintained in our article library."
+          resources={recipeData.recipes.map((recipe) => ({ title: recipe.title, description: recipe.summary || recipe.goal || "Read the full article.", href: `/recipes/${encodeURIComponent(recipe.slug)}`, meta: "Read article" }))}
           kind="recipe"
         />
+        {!recipeData.recipes.length && <div className="mx-auto max-w-7xl px-5 pb-12 lg:px-8" role={recipeData.failed ? "alert" : "status"}>
+          <p className="text-sm text-muted-foreground">{recipeData.failed ? "We couldn’t load articles. Please reload this page to try again." : "No published articles are assigned to this area yet."}</p>
+          <a href="/recipes" className="mt-3 inline-flex min-h-11 items-center text-sm font-bold underline">Browse the article library</a>
+        </div>}
         </div>
 
         <section className="border-b border-border">
