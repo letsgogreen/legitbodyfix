@@ -21,7 +21,10 @@
   <style>
     .muscle-loading-message { display: none; }
     html[data-muscle-loading] #main { display: none; }
-    html[data-muscle-loading] .muscle-loading-message { display: block; padding: 64px 24px; min-height: 50vh; }
+    html[data-muscle-loading] .muscle-loading-message { display: block; width: 100%; max-width: 1280px; margin: auto; padding: 56px 20px; min-height: 65vh; }
+    .muscle-loading-message h1 { font: 800 36px/.95 'Archivo', sans-serif; text-transform: uppercase; margin: 16px 0 24px; }
+    @media (min-width: 640px) { .muscle-loading-message h1 { font-size: 60px; } }
+    @media (min-width: 1024px) { html[data-muscle-loading] .muscle-loading-message { padding: 80px 32px; } }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,13 +78,13 @@
     </nav>
   </header>
 
-  <div class="muscle-loading-message shell" role="status" aria-live="polite"><h1>Muscle dictionary</h1><p>Loading anatomy references…</p></div>
   <nav class="learn-sections" aria-label="Learn sections"><div>
     <a href="/movement-check">Body regions</a>
     <a href="/knowledge.html?type=muscles" aria-current="page">Muscle dictionary</a>
     <a href="/recipes">Posture</a>
     <a href="/conditions">Conditions</a>
   </div></nav>
+  <div class="muscle-loading-message shell" role="status" aria-live="polite"><h1>Muscle dictionary</h1><p>Loading anatomy references…</p></div>
   <main id="main">
     <section class="knowledge-directory shell" aria-labelledby="directoryTitle">
       <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Choose one clear path.</h2></div><label class="knowledge-search"><span>Search posture, conditions, muscles, functions, and relationships</span><input id="knowledgeSearch" type="search" placeholder="Try forward head posture, neck flexors, or synergist: semispinalis capitis" autocomplete="off" /></label></header>

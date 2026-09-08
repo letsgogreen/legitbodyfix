@@ -5,6 +5,12 @@ import vm from 'node:vm';
 
 const html = readFileSync(new URL('../public/knowledge.html', import.meta.url), 'utf8');
 const bootstrap = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+test('loading content stays below navigation so readiness cannot move the tabs', () => {
+  const navigation = html.indexOf('<nav class="learn-sections"');
+  const loading = html.indexOf('<div class="muscle-loading-message');
+  const main = html.indexOf('<main id="main"');
+  assert.ok(navigation >= 0 && navigation < loading && loading < main);
+});
 for (const [query, pending] of [['?type=muscles', true], ['?type=muscles&id=trapezius', true], ['?type=all', false]]) {
   test(`initial view ${query}`, () => {
     const attributes = new Map();
