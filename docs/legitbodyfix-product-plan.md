@@ -60,7 +60,7 @@ Retain the site's warm neutral background, black type, lime primary actions, and
 
 ## Prototype boundary and follow-up
 
-This iteration implements discovery and homepage entry in the real application. Results use the existing region catalog. That catalog is editorial data rather than an automatic query of the latest published programs; keeping it aligned with the live catalog remains necessary.
+This iteration implements discovery and homepage entry in the real application. Program results now use the existing getPublicPrograms server function and published-region metadata. Educational destinations still use the existing region catalog.
 
 Before production launch, verify existing program destinations and availability. A subsequent iteration should consolidate the multiple legacy Learn URLs and static catalog with the current CMS. Do not invent unavailable articles or claim that navigation constitutes a movement assessment.
 
@@ -81,3 +81,9 @@ Success signals to measure later: discovery completion, selected result clicks, 
 - Production build completed. Actual payment transactions and purchase fulfillment were not exercised.
 
 Manual validation is limited to the journeys above; it is not a full audit of every pre-existing article, legacy sales URL, or entitlement.
+
+## Follow-up: live program results
+
+Replaced static program results with published-program queries. Added loading, retry, timeout (15 seconds), empty results, thumbnail fallback, and selected-region context. Delayed responses from abandoned attempts cannot update the displayed results. Current prices are reviewed on the existing sales page because the shared listing API uses Paddle pricing while checkout is PayPal.
+
+Build passed. Browser confirmed the failure/retry interface. Successful live-data rendering remains unverified: the existing local Supabase credential returned HTTP 401 on a read-only published-program query. This is a local credential finding, not evidence of a production outage. No credentials were committed or client-exposed. This follow-up is not deployed.

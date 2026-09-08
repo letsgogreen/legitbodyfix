@@ -3,6 +3,7 @@ import { ArrowRight, ArrowLeft, BookOpen, Dumbbell } from "lucide-react";
 import { bodyRegions, findBodyRegion } from "@/data/body-regions";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { StartingPrograms } from "@/components/site/StartingPrograms";
 
 export const Route = createFileRoute("/start")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -18,7 +19,6 @@ function Start() {
   const navigate = Route.useNavigate();
   const region = findBodyRegion(slug);
   const step = !region ? 1 : !intent ? 2 : 3;
-  const programs = region?.programs.filter((program) => program.available) ?? [];
   const actionClass = "inline-flex min-h-12 items-center justify-center gap-3 rounded-sm bg-accent px-6 py-3 text-sm font-bold text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-4";
   return <div className="min-h-screen bg-background text-foreground">
     <SiteNav />
@@ -43,7 +43,8 @@ function Start() {
           {[{ id: "learn" as const, icon: BookOpen, title: "Learn at my own pace", description: "Explore free articles and anatomy references for this area." }, { id: "program" as const, icon: Dumbbell, title: "Follow a guided program", description: "See available sessions and what each program includes before buying." }].map((choice) => <button type="button" key={choice.id} onClick={() => void navigate({ search: { region: slug, intent: choice.id } })} className="border border-border bg-card p-7 text-left hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4"><choice.icon size={26} /><span className="mt-8 block text-2xl font-bold">{choice.title}</span><span className="mt-3 block leading-7 text-muted-foreground">{choice.description}</span><span className="mt-8 inline-flex items-center gap-2 text-sm font-bold">Choose this approach <ArrowRight size={16} /></span></button>)}
         </div>}
         {step === 3 && region && <div className="mt-9 space-y-4" aria-live="polite">
-          {intent === "program" && programs.length > 0 ? programs.map((program) => <article key={program.href} className="border border-border bg-card p-7 sm:p-9"><p className="text-xs uppercase tracking-widest text-muted-foreground">Guided program</p><h2 className="mt-3 text-2xl font-bold">{program.title}</h2><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{program.description}</p><a href={program.href} className={`${actionClass} mt-7`}>View program details <ArrowRight size={16} /></a></article>) : <article className="border border-border bg-card p-7 sm:p-9"><BookOpen size={28} /><h2 className="mt-5 text-2xl font-bold">{intent === "program" ? "Start with the learning library" : `Explore ${region.title.toLowerCase()}`}</h2><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{intent === "program" ? "There is no guided program listed for this area yet. Explore the available learning resources in the meantime." : "Browse the articles, muscle references, and related resources for your selected area."}</p><a href={`/movement-check?region=${encodeURIComponent(region.slug)}`} className={`${actionClass} mt-7`}>Explore this area <ArrowRight size={16} /></a></article>}
+          <p className="text-sm font-bold">{region.title} · {intent === "program" ? "Guided programs" : "Learn at your own pace"}</p>
+          {intent === "program" ? <StartingPrograms region={region.slug} title={region.title} /> : <article className="border border-border bg-card p-7 sm:p-9"><BookOpen size={28} /><h2 className="mt-5 text-2xl font-bold">{region.title} learning resources</h2><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">Browse the articles, muscle references, and related resources for your selected area.</p><a href={`/movement-check?region=${encodeURIComponent(region.slug)}`} className={`${actionClass} mt-7`}>Explore this area <ArrowRight size={16} /></a></article>}
           <a className="inline-flex min-h-11 items-center gap-2 text-sm underline underline-offset-4" href="/library">Already own a program? Open your library <ArrowRight size={16} /></a>
         </div>}
         {step > 1 && <button type="button" onClick={() => void navigate({ search: { region: step === 3 ? slug : undefined, intent: undefined } })} className="mt-8 inline-flex min-h-11 items-center gap-2 text-sm underline underline-offset-4"><ArrowLeft size={16} />{step === 3 ? "Change approach" : "Change area"}</button>}
