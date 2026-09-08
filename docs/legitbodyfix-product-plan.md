@@ -60,7 +60,7 @@ Retain the site's warm neutral background, black type, lime primary actions, and
 
 ## Prototype boundary and follow-up
 
-This iteration implements discovery and homepage entry in the real application. Program results now use the existing getPublicPrograms server function and published-region metadata. Educational destinations still use the existing region catalog.
+This iteration implements discovery and homepage entry in the real application. Program results now query explicitly published public program metadata through the existing anonymous Supabase client and RLS. Educational destinations still use the existing region catalog.
 
 Before production launch, verify existing program destinations and availability. A subsequent iteration should consolidate the multiple legacy Learn URLs and static catalog with the current CMS. Do not invent unavailable articles or claim that navigation constitutes a movement assessment.
 
@@ -87,3 +87,11 @@ Manual validation is limited to the journeys above; it is not a full audit of ev
 Replaced static program results with published-program queries. Added loading, retry, timeout (15 seconds), empty results, thumbnail fallback, and selected-region context. Delayed responses from abandoned attempts cannot update the displayed results. Current prices are reviewed on the existing sales page because the shared listing API uses Paddle pricing while checkout is PayPal.
 
 Build passed. Browser confirmed the failure/retry interface. Successful live-data rendering remains unverified: the existing local Supabase credential returned HTTP 401 on a read-only published-program query. This is a local credential finding, not evidence of a production outage. No credentials were committed or client-exposed. This follow-up is not deployed.
+
+### Resolved: public catalog access
+
+The local server credential was not a valid key, but the existing publishable key successfully read published programs through RLS. Discovery now uses that public read path and no longer depends on the privileged listing endpoint or Paddle price lookup. Requests are aborted on unmount, retry, or timeout.
+
+Browser verified two real shoulder programs, the shoulder sales-page link, and the real knee-associated Ankle Recovery Program. This supersedes the earlier successful-live-data verification blocker. The source catalog tags Ankle Recovery with both ankle-foot and knee; this association is preserved, not inferred as a clinical recommendation.
+
+Sales-page inspection found the legacy shoulder page advertises a 12-minute session whereas program metadata says six weeks. Legacy-linked cards therefore omit duration and format and defer product details and pricing to the sales page. Catalog reconciliation remains a separate editorial task. No prices, purchase logic, or database records changed.

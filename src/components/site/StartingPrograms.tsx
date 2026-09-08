@@ -1,6 +1,19 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, BookOpen, RefreshCw } from "lucide-react";
-import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
+import { supabase } from "@/integrations/supabase/client";
+
+type StartingProgram = {
+  id: string;
+  slug: string;
+  name: string;
+  outcome: string | null;
+  duration: string | null;
+  level: string | null;
+  format: string | null;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  regions: string[] | null;
+};
 
 const salesPages: Record<string, string> = {
   "neck-shoulder-reset": "neck-alignment",
@@ -10,29 +23,41 @@ const salesPages: Record<string, string> = {
 };
 
 export function StartingPrograms({ region, title }: { region: string; title: string }) {
-  const [programs, setPrograms] = useState<PublicProgram[] | null>(null);
+  const [programs, setPrograms] = useState<StartingProgram[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let active = true;
     let settled = false;
+    const controller = new AbortController();
     setPrograms(null);
     setFailed(false);
     const timeout = setTimeout(() => {
       if (active && !settled) {
         settled = true;
         setFailed(true);
+        controller.abort();
       }
     }, 15000);
-    void getPublicPrograms().then((rows) => {
+    async function load() {
+      const { data, error } = await supabase.from("programs")
+        .select("id,slug,name,outcome,duration:duration_label,level,format,imageUrl:image_url,imageAlt:image_alt,regions")
+        .eq("published", true)
+        .order("featured_rank", { ascending: true, nullsFirst: false })
+        .order("name")
+        .abortSignal(controller.signal);
+      if (error) throw error;
+      return data ?? [];
+    }
+    void load().then((rows) => {
       if (active && !settled) setPrograms(rows);
     }).catch(() => {
       if (active && !settled) setFailed(true);
     }).finally(() => { settled = true; clearTimeout(timeout); });
-    return () => { active = false; clearTimeout(timeout); };
+    return () => { active = false; clearTimeout(timeout); controller.abort(); };
   }, [attempt]);
 
-  const visible = programs?.filter((program) => program.regions.some((value) =>
+  const visible = programs?.filter((program) => (program.regions ?? []).some((value) =>
     value === region || (region === "spine-rib-cage" && value === "spine-ribs"),
   ));
   const learnHref = `/movement-check?region=${encodeURIComponent(region)}`;
@@ -62,7 +87,7 @@ export function StartingPrograms({ region, title }: { region: string; title: str
         <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Guided program</p>
         <h2 className="mt-3 text-2xl font-bold">{program.name}</h2>
         {program.outcome && <p className="mt-3 leading-7 text-muted-foreground">{program.outcome}</p>}
-        <p className="mt-4 text-sm text-muted-foreground">{[program.duration, program.level, program.format].filter(Boolean).join(" · ")}</p>
+        <p className="mt-4 text-sm text-muted-foreground">{(salesPages[program.slug] ? [program.level] : [program.duration, program.level, program.format]).filter(Boolean).join(" · ")}</p>
         <a href={salesPages[program.slug] ? `/video.html?id=${salesPages[program.slug]}` : `/programs/${encodeURIComponent(program.slug)}`} className="mt-6 inline-flex min-h-12 items-center gap-3 bg-accent px-6 text-sm font-bold" aria-label={`View ${program.name} details`}>View program details <ArrowRight size={16} /></a>
         <p className="mt-3 text-xs text-muted-foreground">Review the content and current price on the program page.</p>
       </div>
