@@ -1561,13 +1561,23 @@ import { muscleRegion, muscleInRegion, muscleFunctionalRoles, muscleSectionGroup
     else showDirectory(false);
   }
 
+  function navigateCollection(type, path) {
+    // Keep legacy anatomy browsing, but never reopen retired collection UIs.
+    if (type === "all") { window.location.assign("/movement-check"); return; }
+    if (type === "conditions") {
+      window.location.assign(path === "postural-movement" ? "/recipes" : "/conditions");
+      return;
+    }
+    selectType(type, path);
+  }
+
   filterButtons.forEach(function (button) {
     button.addEventListener("click", function () {
-      selectType(button.dataset.knowledgeFilter, button.dataset.carePathTarget);
+      navigateCollection(button.dataset.knowledgeFilter, button.dataset.carePathTarget);
     });
   });
   Array.from(document.querySelectorAll("[data-knowledge-path]")).forEach(function (button) {
-    button.addEventListener("click", function () { selectType(button.dataset.knowledgePath, button.dataset.carePathTarget); });
+    button.addEventListener("click", function () { navigateCollection(button.dataset.knowledgePath, button.dataset.carePathTarget); });
   });
   muscleRegionButtons.forEach(function (button) {
     button.addEventListener("click", function () {
