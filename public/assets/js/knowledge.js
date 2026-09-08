@@ -1,4 +1,4 @@
-import { muscleRegion, muscleInRegion, muscleFunctionalRoles, muscleSectionGroup, neckDirectoryGroups, orderedMuscleGroups, movementTagOrder, muscleGroupOrder, collectiveNeckGroupImages } from './muscle-directory-data.js';
+import { muscleRegion, muscleInRegion, muscleFunctionalRoles, muscleSectionGroup, neckDirectoryGroups, orderedMuscleGroups, movementTagOrder, muscleGroupOrder, collectiveNeckGroupImages } from './muscle-directory-data.js?v=20260909-3';
 (function () {
   "use strict";
 
