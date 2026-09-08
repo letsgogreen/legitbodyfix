@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, BookOpen, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { matchesDiscoveryRegion } from "@/lib/discovery-program-regions";
 
 type StartingProgram = {
   id: string;
@@ -57,9 +58,7 @@ export function StartingPrograms({ region, title }: { region: string; title: str
     return () => { active = false; clearTimeout(timeout); controller.abort(); };
   }, [attempt]);
 
-  const visible = programs?.filter((program) => (program.regions ?? []).some((value) =>
-    value === region || (region === "spine-rib-cage" && value === "spine-ribs"),
-  ));
+  const visible = programs?.filter((program) => matchesDiscoveryRegion(program, region));
   const learnHref = `/movement-check?region=${encodeURIComponent(region)}`;
   if (failed) return <section role="alert" className="border border-border bg-card p-7">
     <h2 className="text-xl font-bold">We couldn’t load programs right now.</h2>
