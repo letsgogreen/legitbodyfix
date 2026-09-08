@@ -23,7 +23,7 @@ const salesPages: Record<string, string> = {
   "bunion-hallux-valgus-guide": "bunion-hallux-valgus-guide",
 };
 
-export function StartingPrograms({ region, title }: { region: string; title: string }) {
+export function StartingPrograms({ region, title, learnHref: learningDestination }: { region: string; title: string; learnHref?: string }) {
   const [programs, setPrograms] = useState<StartingProgram[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -59,7 +59,7 @@ export function StartingPrograms({ region, title }: { region: string; title: str
   }, [attempt]);
 
   const visible = programs?.filter((program) => matchesDiscoveryRegion(program, region));
-  const learnHref = `/movement-check?region=${encodeURIComponent(region)}`;
+  const learnHref = learningDestination ?? `/movement-check?region=${encodeURIComponent(region)}`;
   if (failed) return <section role="alert" className="border border-border bg-card p-7">
     <h2 className="text-xl font-bold">We couldn’t load programs right now.</h2>
     <p className="mt-3 text-sm leading-6 text-muted-foreground">Try again, or explore the learning resources for {title.toLowerCase()}.</p>

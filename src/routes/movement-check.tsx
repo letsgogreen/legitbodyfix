@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, Dumbbell, Layers3 } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MuscleCard } from "@/components/site/MuscleCard";
+import { StartingPrograms } from "@/components/site/StartingPrograms";
 import { listPublishedMuscles } from "@/lib/muscles.functions";
 import type { Muscle } from "@/lib/muscles";
 import {
@@ -143,15 +144,20 @@ function MovementCheck() {
           </div>
         </section>
 
-        <ResourceSection
-          icon={Dumbbell}
-          eyebrow="Follow a progression"
-          title="Related programs"
-          description="Structured sessions connect individual exercises into a guided sequence."
-          resources={region.programs}
-          kind="program"
-          tinted
-        />
+        <section className="border-b border-border bg-secondary/35">
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-[0.33fr_1fr] lg:px-8 lg:py-20">
+            <div>
+              <Dumbbell className="h-5 w-5" aria-hidden="true" />
+              <p className="mt-5 font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Follow a progression</p>
+              <h2 className="mt-3 text-3xl font-extrabold uppercase">Related programs</h2>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">Explore published programs for this area. Review current details and pricing on each program page.</p>
+            </div>
+            <div className="min-w-0">
+              <StartingPrograms region={region.slug} title={region.title} learnHref="#learning-resources" />
+            </div>
+          </div>
+        </section>
+        <div id="learning-resources" className="scroll-mt-24">
         <ResourceSection
           icon={BookOpen}
           eyebrow="Try a focused starting point"
@@ -160,6 +166,7 @@ function MovementCheck() {
           resources={region.recipes}
           kind="recipe"
         />
+        </div>
 
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
