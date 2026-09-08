@@ -267,16 +267,24 @@
     return;
   }
 
-  fetch("assets/data/videos.json", { cache: "no-cache" })
-    .then(function (response) {
+  Promise.all([
+    fetch("/assets/data/videos.json", { cache: "no-store" }),
+    fetch("/api/paypal/config", { cache: "no-store" })
+  ]).then(function (responses) {
+    return Promise.all(responses.map(function (response) {
       if (!response.ok) throw new Error("Unable to load sessions");
       return response.json();
-    })
-    .then(function (videos) {
+    }));
+  }).then(function (payloads) {
+      var videos = payloads[0];
+      var config = payloads[1];
       if (!Array.isArray(videos)) throw new Error("Invalid session data");
       var video = videos.find(function (item) { return item && item.id === videoId && item.published !== false; });
       if (!video) return showUnavailable();
-      render(video);
+      var product = Array.isArray(config.catalog) && config.catalog.find(function (item) { return item.id === videoId; });
+      // Never advertise a stale JSON price or an item checkout cannot sell.
+      if (!product || product.currency !== "USD" || !isPurchasablePrice(product.amount)) return showUnavailable();
+      render(Object.assign({}, video, { price: product.amount }));
     })
     .catch(showUnavailable);
 })();

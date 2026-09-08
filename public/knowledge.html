@@ -7,6 +7,7 @@
   <title>Movement Guides — LegitBodyFix</title>
   <script>
     var conditionParams = new URLSearchParams(window.location.search);
+    if (conditionParams.get("type") === "muscles") document.documentElement.setAttribute("data-muscle-loading", "true");
     if (conditionParams.get("type") === "conditions") {
       var conditionId = conditionParams.get("id");
       if (!conditionId && conditionParams.get("path") === "musculoskeletal-condition") window.location.replace("/conditions");
@@ -16,6 +17,11 @@
     }
     if (!window.location.search && !window.location.hash) window.location.replace("/movement-check");
   </script>
+  <style>
+    .muscle-loading-message { display: none; }
+    html[data-muscle-loading] #main { display: none; }
+    html[data-muscle-loading] .muscle-loading-message { display: block; padding: 64px 24px; min-height: 50vh; }
+  </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -36,6 +42,7 @@
     </nav>
   </header>
 
+  <div class="muscle-loading-message shell" role="status" aria-live="polite"><h1>Muscle dictionary</h1><p>Loading anatomy references…</p></div>
   <main id="main">
     <section class="knowledge-directory shell" aria-labelledby="directoryTitle">
       <header class="directory-heading"><div><p class="eyebrow">Explore by question</p><h2 id="directoryTitle">Choose one clear path.</h2></div><label class="knowledge-search"><span>Search posture, conditions, muscles, functions, and relationships</span><input id="knowledgeSearch" type="search" placeholder="Try forward head posture, neck flexors, or synergist: semispinalis capitis" autocomplete="off" /></label></header>
@@ -152,6 +159,6 @@
   </main>
 
   <footer class="knowledge-footer shell"><a class="knowledge-brand" href="/" aria-label="LegitBodyFix home"><strong>LegitBodyFix</strong></a><p>Educational movement content, not medical diagnosis or treatment.<br /><a href="policies.html#support">Support</a> · <a href="policies.html#terms">Terms</a> · <a href="policies.html#privacy">Privacy</a></p></footer>
-  <script src="assets/js/knowledge.js?v=20260907-10" defer></script>
+  <script src="assets/js/knowledge.js?v=20260909-1" defer onerror="document.querySelector('.muscle-loading-message').textContent = 'Unable to load the muscle dictionary. Please refresh to try again.'"></script>
 </body>
 </html>

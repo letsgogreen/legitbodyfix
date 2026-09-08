@@ -1881,6 +1881,13 @@
       renderAtlas();
       render();
       openFromUrl();
+      document.documentElement.removeAttribute("data-muscle-loading");
     })
-    .catch(function () { status.textContent = "The movement guides are temporarily unavailable."; status.setAttribute("role", "alert"); grid.setAttribute("aria-busy", "false"); });
+    .catch(function () {
+      if (new URLSearchParams(window.location.search).get("type") === "muscles") selectType("muscles");
+      status.textContent = "The movement guides are temporarily unavailable. Please refresh to try again.";
+      status.setAttribute("role", "alert");
+      grid.setAttribute("aria-busy", "false");
+      document.documentElement.removeAttribute("data-muscle-loading");
+    });
 })();
