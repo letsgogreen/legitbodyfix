@@ -1,74 +1,44 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { bodyRegions } from "@/data/body-regions";
-import { supabase } from "@/integrations/supabase/client";
+import type { HomepageRegionCounts, HomepageRegionData } from "@/lib/homepage.functions";
 
-type MediaOverride = { image_url: string; image_alt: string };
-type RegionCounts = { recipes: number; programs: number };
-
-const regionAliases: Record<string, string[]> = {
-  "spine-rib-cage": ["spine-rib-cage", "spine-ribs"],
-};
-
-function belongsToRegion(regions: string[] | null, slug: string) {
-  const accepted = regionAliases[slug] ?? [slug];
-  return (regions ?? []).some((region) => accepted.includes(region));
-}
-
-export function BodyRegionGrid() {
+export function BodyRegionGrid({
+  initialData,
+  loadFailed = false,
+}: {
+  initialData: HomepageRegionData | null;
+  loadFailed?: boolean;
+}) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [media, setMedia] = useState<Record<string, MediaOverride>>({});
-  const [counts, setCounts] = useState<Record<string, RegionCounts>>({});
+  const media = initialData?.media ?? {};
+  const counts = initialData?.counts ?? {};
   const activeRegion = bodyRegions[activeIndex] ?? bodyRegions[0]!;
-
-  useEffect(() => {
-    let active = true;
-
-    void Promise.all([
-      supabase.from("site_media").select("key,image_url,image_alt").like("key", "body-region:%"),
-      supabase.from("recipes").select("regions").eq("published", true),
-      supabase.from("programs").select("regions").eq("published", true),
-    ]).then(([mediaResult, recipeResult, programResult]) => {
-      if (!active) return;
-
-      if (mediaResult.data) {
-        setMedia(Object.fromEntries(mediaResult.data.map((item) => [item.key, item])));
-      }
-
-      setCounts(Object.fromEntries(
-        bodyRegions.map((region) => [
-          region.slug,
-          {
-            recipes: (recipeResult.data ?? []).filter((row) => belongsToRegion(row.regions, region.slug)).length,
-            programs: (programResult.data ?? []).filter((row) => belongsToRegion(row.regions, region.slug)).length,
-          },
-        ]),
-      ));
-    });
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const activeMedia = media[`body-region:${activeRegion.slug}`];
   const imageUrl = activeMedia?.image_url || activeRegion.imageUrl;
   const imageAlt = activeMedia?.image_alt || activeRegion.imageAlt;
-  const activeCounts = counts[activeRegion.slug] ?? { recipes: 0, programs: 0 };
+  const activeCounts = counts[activeRegion.slug] ?? null;
 
   const rows = useMemo(
     () => bodyRegions.map((region, index) => ({
       region,
       index,
       active: index === activeIndex,
-      counts: counts[region.slug] ?? { recipes: 0, programs: 0 },
+      counts: counts[region.slug] ?? null,
     })),
     [activeIndex, counts],
   );
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,0.7fr)]">
+    <div>
+      {loadFailed && (
+        <p role="status" className="mb-5 border border-border bg-card px-5 py-4 text-sm text-muted-foreground">
+          Resource totals are temporarily unavailable. You can still explore every body region.
+        </p>
+      )}
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,0.7fr)]">
       <ul className="border-t border-border">
         {rows.map(({ region, index, active, counts: regionCounts }) => (
           <li key={region.slug} className="border-b border-border">
@@ -108,7 +78,7 @@ export function BodyRegionGrid() {
             <h3 className="mt-3 text-2xl font-extrabold uppercase leading-none">{activeRegion.title}</h3>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{activeRegion.intro}</p>
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              {activeCounts.recipes} recipes · {activeCounts.programs} programs
+              {formatCounts(activeCounts)}
             </p>
             <Link
               to="/movement-check"
@@ -121,6 +91,7 @@ export function BodyRegionGrid() {
           </div>
         </div>
       </aside>
+      </div>
     </div>
   );
 }
@@ -133,7 +104,7 @@ function RegionRowContent({
 }: {
   index: number;
   region: (typeof bodyRegions)[number];
-  counts: RegionCounts;
+  counts: HomepageRegionCounts | null;
   active: boolean;
 }) {
   return (
@@ -146,10 +117,14 @@ function RegionRowContent({
           {region.title}
         </span>
         <span className={`mt-2 block font-mono text-[10px] uppercase tracking-[0.18em] ${active ? "text-ink-foreground/65" : "text-muted-foreground"}`}>
-          {counts.recipes} recipes · {counts.programs} programs
+          {formatCounts(counts)}
         </span>
       </span>
       <ArrowUpRight className={`h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${active ? "text-accent" : "text-muted-foreground"}`} aria-hidden="true" />
     </>
   );
+}
+
+function formatCounts(counts: HomepageRegionCounts | null) {
+  return counts ? `${counts.recipes} recipes · ${counts.programs} programs` : "Resource totals unavailable";
 }

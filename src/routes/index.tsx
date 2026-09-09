@@ -6,8 +6,23 @@ import { HeroBodyMap } from "@/components/site/HeroBodyMap";
 import { HowItWorks } from "@/components/site/HowItWorks";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
+import { getHomepageRegionData } from "@/lib/homepage.functions";
+import { getPublicPrograms } from "@/lib/public-programs.functions";
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const [regionResult, programResult] = await Promise.allSettled([
+      getHomepageRegionData(),
+      getPublicPrograms(),
+    ]);
+
+    return {
+      regionData: regionResult.status === "fulfilled" ? regionResult.value : null,
+      programs: programResult.status === "fulfilled" ? programResult.value : [],
+      regionLoadFailed: regionResult.status === "rejected",
+      programLoadFailed: programResult.status === "rejected",
+    };
+  },
   head: () => ({
     meta: [
       { title: "LegitBodyFix — Move Better With a Plan" },
@@ -47,16 +62,18 @@ const differentiators = [
 ];
 
 function PhaseOneHomepage() {
+  const { regionData, programs, regionLoadFailed, programLoadFailed } = Route.useLoaderData();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
 
       <main>
         <section className="overflow-hidden border-b border-border">
-          <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-[1220px] items-center gap-12 px-6 py-[54px] lg:grid-cols-2 lg:gap-16 lg:py-[60px]">
+          <div className="mx-auto grid max-w-[1220px] items-center gap-10 px-6 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
             <div className="min-w-0">
               <p className="inline-block bg-accent px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-accent-foreground">
-                Understand your movement. Find your next step.
+                Movement education for everyday life and training
               </p>
               <h1 className="original-hero-title mt-[26px] max-w-[620px] text-[clamp(3.5rem,5.6vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.065em]">
                 <span className="block">Move</span>
@@ -65,8 +82,8 @@ function PhaseOneHomepage() {
                 <span className="original-outline block">here.</span>
               </h1>
               <p className="mt-6 max-w-[550px] text-lg leading-[1.65] text-muted-foreground">
-                Choose an area you want to work on. Explore free movement resources,
-                or find a guided program to follow at your own pace.
+                Stiff after sitting? Unsure where to begin with your movement? Find relevant anatomy
+                and articles, then explore a guided program when you want more structure.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -76,18 +93,77 @@ function PhaseOneHomepage() {
                   Find my starting point
                 </Link>
                 <a
-                  href="#programs"
+                  href="#regions"
                   className="inline-flex min-h-11 items-center justify-center rounded-sm border border-foreground px-6 py-3.5 text-center text-sm font-bold outline-none transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  Browse programs
+                  Explore free resources
                 </a>
               </div>
               <p className="mt-6 font-mono text-xs leading-relaxed text-muted-foreground">
-                Clear guidance · Focused progressions · One-time purchase
+                Free articles & anatomy · Optional paid programs · Learn at your pace
               </p>
+              <Link
+                to="/library"
+                className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm underline underline-offset-4"
+              >
+                Already purchased? Open your library{" "}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
             </div>
             <div className="mx-auto w-full min-w-0">
               <HeroBodyMap />
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="choose-path-title"
+          className="border-b border-border bg-secondary/30"
+        >
+          <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
+            <h2 id="choose-path-title" className="text-2xl font-extrabold">
+              Choose the kind of help you need.
+            </h2>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {[
+                {
+                  label: "01 / FIND YOUR DIRECTION",
+                  title: "Not sure where to start?",
+                  body: "Choose your area and goal to find relevant resources. A starting point, not a diagnosis.",
+                  href: "/start",
+                  action: "Find my starting point",
+                },
+                {
+                  label: "02 / FREE LEARNING",
+                  title: "Understand your movement.",
+                  body: "Browse anatomy, movement articles, and condition guides before deciding what to explore.",
+                  href: "#regions",
+                  action: "Explore by body region",
+                },
+                {
+                  label: "03 / PAID PROGRAMS",
+                  title: "Prefer a guided session?",
+                  body: "Review each program’s focus, contents, and current price before choosing. No subscription.",
+                  href: "#programs",
+                  action: "Compare programs",
+                },
+              ].map((path) => (
+                <a
+                  key={path.href}
+                  href={path.href}
+                  className="group flex min-w-0 flex-col border border-border bg-card p-6 transition-colors hover:border-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+                >
+                  <span className="font-mono text-[10px] tracking-widest text-muted-foreground">
+                    {path.label}
+                  </span>
+                  <h3 className="mt-4 text-xl font-bold">{path.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{path.body}</p>
+                  <span className="mt-auto flex min-h-11 items-center gap-2 pt-6 text-sm font-bold">
+                    {path.action}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                </a>
+              ))}
             </div>
           </div>
         </section>
@@ -109,7 +185,7 @@ function PhaseOneHomepage() {
               </p>
             </div>
             <div className="mt-10">
-              <BodyRegionGrid />
+              <BodyRegionGrid initialData={regionData} loadFailed={regionLoadFailed} />
             </div>
           </div>
         </section>
@@ -119,19 +195,19 @@ function PhaseOneHomepage() {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-                  INSIDE THE LIBRARY
+                  OPTIONAL GUIDED PROGRAMS
                 </p>
                 <h2 className="mt-4 text-3xl font-extrabold uppercase sm:text-5xl">
-                  Short sessions. Serious intent.
+                  Choose a program with a clear focus.
                 </h2>
               </div>
               <p className="max-w-xl text-base leading-relaxed text-muted-foreground lg:justify-self-end">
-                Train by body area, follow a focused session from start to finish, and return
-                whenever your movement needs attention.
+                Compare the focus and contents before you buy. Each program page shows its current
+                price and what is included. Purchased sessions live in your private library.
               </p>
             </div>
             <div className="mt-10">
-              <FeaturedPrograms />
+              <FeaturedPrograms programs={programs} loadFailed={programLoadFailed} />
             </div>
           </div>
         </section>

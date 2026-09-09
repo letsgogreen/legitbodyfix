@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Loader2 } from "lucide-react";
-import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
+import { ArrowUpRight } from "lucide-react";
+import type { PublicProgram } from "@/lib/public-programs.functions";
 import { useCustomerAccess } from "@/lib/useCustomerAccess";
 import { captureProgramPayPalOrder, createProgramPayPalOrder, getPayPalClientConfig } from "@/lib/paypal.functions";
 
@@ -27,28 +27,15 @@ function programSalesHref(program: PublicProgram) {
   return salesPage ? `/video.html?id=${salesPage}` : `/programs/${program.slug}`;
 }
 
-export function FeaturedPrograms() {
-  const [programs, setPrograms] = useState<PublicProgram[]>([]);
+export function FeaturedPrograms({ programs, loadFailed = false }: { programs: PublicProgram[]; loadFailed?: boolean }) {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    void getPublicPrograms()
-      .then((rows) => { if (active) setPrograms(rows); })
-      .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : "Programs could not be loaded."); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, []);
 
   const visiblePrograms = useMemo(
     () => activeCategory === "All" ? programs : programs.filter((program) => categoryOf(program) === activeCategory),
     [activeCategory, programs],
   );
 
-  if (loading) return <div className="flex min-h-64 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading programs…</div>;
-  if (error) return <div className="border border-destructive/40 bg-destructive/5 px-5 py-8 text-sm text-destructive">{error}</div>;
+  if (loadFailed) return <div className="min-h-64 border border-destructive/40 bg-destructive/5 px-5 py-8 text-sm text-destructive">Programs could not be loaded. Please try again shortly.</div>;
   if (!programs.length) return <div className="border border-border bg-card px-6 py-12"><h3 className="text-2xl font-extrabold">Programs are being prepared.</h3><p className="mt-2 text-sm text-muted-foreground">Published programs will appear here automatically.</p></div>;
 
   return (
