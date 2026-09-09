@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useState, type AnchorHTMLAttributes } from "react";
+import { Link as RouterLink } from "@tanstack/react-router";
 import { LogOut, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -9,7 +9,12 @@ const links = [
   { label: "How it works", href: "/#method" },
 ];
 
-export function SiteNav() {
+function NativeLink({ to, search: _search, ...props }: { to: string; search?: { region: undefined; intent: undefined } } & AnchorHTMLAttributes<HTMLAnchorElement>) {
+  return <a href={to} {...props} />;
+}
+
+export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boolean } = {}) {
+  const Link = nativeNavigation ? NativeLink : RouterLink;
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -60,6 +65,7 @@ export function SiteNav() {
           ))}
           <Link
             to="/start"
+            search={{ region: undefined, intent: undefined }}
             className="inline-flex min-h-11 items-center rounded-sm bg-accent px-4 py-2.5 text-sm font-bold text-accent-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Find my starting point
@@ -107,6 +113,7 @@ export function SiteNav() {
             ))}
             <Link
               to="/start"
+              search={{ region: undefined, intent: undefined }}
               onClick={() => setOpen(false)}
               className="mt-5 inline-flex min-h-11 items-center justify-center rounded-sm bg-accent px-4 py-3.5 text-center text-sm font-bold text-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
