@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Dumbbell, Layers3 } from "lucide-react";
+import { ArrowRight, BookOpen, CircleAlert, Dumbbell, Layers3 } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { StartingPrograms } from "@/components/site/StartingPrograms";
 import { RegionThumbnail } from "@/components/site/RegionThumbnail";
+import { LearnNav } from "@/components/site/LearnNav";
 import { listRegionMuscleGroups } from "@/lib/region-muscle-groups.functions";
 import { listRegionRecipes } from "@/lib/recipes.functions";
 import {
@@ -14,18 +15,34 @@ import {
 
 type MovementCheckSearch = { region?: string };
 
+const learnBrowseLinks = [
+  {
+    title: "Posture & movement",
+    description: "Practical articles for mobility, control, and movement preparation.",
+    to: "/recipes" as const,
+    icon: BookOpen,
+  },
+  {
+    title: "Conditions",
+    description: "Educational references for common musculoskeletal conditions and injuries.",
+    to: "/conditions" as const,
+    icon: CircleAlert,
+  },
+];
+
 export const Route = createFileRoute("/movement-check")({
-  loaderDeps: ({ search }) => ({ region: findBodyRegion(search.region)?.slug ?? "head-neck" }),
+  validateSearch: (search): MovementCheckSearch => {
+    if (typeof search["region"] === "string") return { region: search["region"] };
+    return {};
+  },
+  loaderDeps: ({ search }) => ({ region: findBodyRegion(search["region"])?.slug ?? null }),
   loader: async ({ deps }) => {
+    if (!deps.region) return { muscleGroups: [], recipeData: { recipes: [], failed: false } };
     const [muscleGroups, recipeData] = await Promise.all([
       listRegionMuscleGroups({ data: { region: deps.region as "head-neck" | "shoulder-arm" | "spine-rib-cage" | "hip-pelvis" | "knee" | "ankle-foot" } }),
       listRegionRecipes({ data: { region: deps.region as "head-neck" | "shoulder-arm" | "spine-rib-cage" | "hip-pelvis" | "knee" | "ankle-foot" } }),
     ]);
     return { muscleGroups, recipeData };
-  },
-  validateSearch: (search): MovementCheckSearch => {
-    if (typeof search["region"] === "string") return { region: search["region"] };
-    return {};
   },
   head: () => ({
     meta: [
@@ -88,14 +105,14 @@ function ResourceCard({
 function MovementCheck() {
   const { region: regionSlug } = Route.useSearch();
   const { muscleGroups, recipeData } = Route.useLoaderData();
-  const region = findBodyRegion(regionSlug) || bodyRegions[0];
-  if (!region) return null;
+  const region = findBodyRegion(regionSlug);
+  if (!region) return <LearnOverview />;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
       <main>
-<LearnNav active="regions" />
+        <LearnNav active="regions" region={region.slug} />
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
             <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
@@ -165,6 +182,33 @@ function MovementCheck() {
         </div>}
         </div>
 
+        <section className="border-b border-border bg-secondary/35">
+          <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 md:grid-cols-[minmax(0,1fr)_auto] md:items-end lg:px-8 lg:py-16">
+            <div className="max-w-2xl">
+              <CircleAlert className="h-5 w-5" aria-hidden="true" />
+              <p className="mt-5 font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                Understand symptoms and injuries
+              </p>
+              <h2 className="mt-3 text-3xl font-extrabold uppercase">
+                {region.title} condition guides
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                Review educational references related to this area, including common presentations,
+                screening considerations, and signs that may need professional assessment.
+              </p>
+            </div>
+            <Link
+              to="/conditions"
+              search={{ region: region.slug }}
+              preload="intent"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-ink px-6 py-3 text-sm font-bold text-ink-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              Browse related conditions
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -226,6 +270,85 @@ function MovementCheck() {
   );
 }
 
+function LearnOverview() {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
+      <main>
+        <LearnNav active="regions" />
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-7xl px-5 py-10 sm:py-12 lg:px-8">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Learn · Start here</p>
+            <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">
+              <div>
+                <h1 className="max-w-4xl text-4xl font-extrabold uppercase leading-[0.95] sm:text-5xl lg:text-6xl">Explore movement from one clear starting point.</h1>
+                <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">Choose the body area most relevant today. You can then move between articles, conditions, anatomy, and programs without losing that context.</p>
+              </div>
+              <p className="border-l-2 border-accent pl-4 text-sm leading-relaxed text-muted-foreground">This library is educational, not a diagnosis. Choose a comfortable starting point and stop if symptoms worsen.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
+          <div className="mb-6 flex items-end justify-between gap-4 border-b border-border pb-4">
+            <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Browse by body region</p><h2 className="mt-2 text-2xl font-extrabold uppercase">Where do you want to start?</h2></div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">6 regions</span>
+          </div>
+          <div className="grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+            {bodyRegions.map((item, index) => (
+              <Link key={item.slug} to="/movement-check" search={{ region: item.slug }} preload="intent" className="group flex min-h-48 flex-col bg-card p-6 outline-none hover:bg-secondary focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground">
+                <span className="font-mono text-[10px] text-muted-foreground">{String(index + 1).padStart(2, "0")}</span>
+                <h3 className="mt-8 text-2xl font-extrabold uppercase">{item.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                <span className="mt-auto flex items-center justify-between pt-6 text-sm font-bold">Explore this region <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-y border-border bg-secondary/35">
+          <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Already know what you need?</p>
+            <h2 className="mt-2 text-2xl font-extrabold uppercase">Browse by resource type</h2>
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {learnBrowseLinks.map((item) => (
+                <Link
+                  key={item.title}
+                  to={item.to}
+                  search={{ region: undefined }}
+                  preload="intent"
+                  className="group border border-border bg-card p-6 outline-none transition-colors hover:border-foreground focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground"
+                >
+                  <item.icon className="h-5 w-5" aria-hidden="true" />
+                  <h3 className="mt-8 text-xl font-extrabold">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                  <span className="mt-6 flex items-center gap-2 text-sm font-bold">
+                    Browse resources
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                  </span>
+                </Link>
+              ))}
+              <a
+                href="/knowledge.html?type=muscles"
+                className="group border border-border bg-card p-6 outline-none transition-colors hover:border-foreground focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground"
+              >
+                <Layers3 className="h-5 w-5" aria-hidden="true" />
+                <h3 className="mt-8 text-xl font-extrabold">Muscle dictionary</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Explore anatomy, attachments, actions, and movement relationships.</p>
+                <span className="mt-6 flex items-center gap-2 text-sm font-bold">
+                  Browse anatomy
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                </span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+      <SiteFooter />
+    </div>
+  );
+}
+
 function ResourceSection({
   icon: Icon,
   eyebrow,
@@ -265,4 +388,3 @@ function ResourceSection({
     </section>
   );
 }
-import { LearnNav } from "@/components/site/LearnNav";

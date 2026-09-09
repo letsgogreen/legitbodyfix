@@ -94,14 +94,14 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
     };
   });
 
-/** Published recipe cards, newest reviewed first. Used by the homepage curated section. */
+/** Published recipe cards for the complete posture library. */
 export const listPublishedRecipes = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await publicClient()
     .from("recipes")
     .select("slug,title,goal,summary,regions,progression_level,image_url,image_alt")
     .eq("published", true)
     .order("featured_rank", { ascending: true, nullsFirst: false })
-    .limit(12);
+    .limit(100);
 
   if (error) {
     console.error("listPublishedRecipes failed:", error.message);

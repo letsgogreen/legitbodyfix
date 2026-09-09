@@ -1,9 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
+import { LearnNav } from "@/components/site/LearnNav";
+import { LearnRegionFilter } from "@/components/site/LearnRegionFilter";
+import { findBodyRegion } from "@/data/body-regions";
 import { listPublishedRecipes } from "@/lib/recipes.functions";
 
 export const Route = createFileRoute("/recipes/")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    region:
+      typeof search["region"] === "string" && findBodyRegion(search["region"])
+        ? search["region"]
+        : undefined,
+  }),
   loader: () => listPublishedRecipes(),
   head: () => ({
     meta: [
@@ -19,12 +28,22 @@ export const Route = createFileRoute("/recipes/")({
 
 function PostureRecipes() {
   const recipes = Route.useLoaderData();
+  const { region: selectedRegion } = Route.useSearch();
+  const activeRegion = findBodyRegion(selectedRegion);
+  const filteredRecipes = activeRegion
+    ? recipes.filter((recipe) => {
+        const aliases = activeRegion.slug === "spine-rib-cage"
+          ? ["spine-rib-cage", "spine-ribs"]
+          : [activeRegion.slug];
+        return recipe.regions?.some((region: string) => aliases.includes(region));
+      })
+    : recipes;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
       <main>
-<LearnNav active="posture" />
+<LearnNav active="posture" region={activeRegion?.slug} />
 
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
@@ -37,14 +56,16 @@ function PostureRecipes() {
         </section>
 
         <section className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
+          <div className="mb-10"><LearnRegionFilter region={activeRegion?.slug} to="/recipes" noun="recipes" /></div>
+
           <div className="mb-6 flex items-end justify-between gap-4 border-b border-border pb-4">
-            <h2 className="text-2xl font-extrabold uppercase">All published recipes</h2>
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{recipes.length} available</span>
+            <h2 className="text-2xl font-extrabold uppercase">Published recipes</h2>
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{filteredRecipes.length} available</span>
           </div>
 
-          {recipes.length ? (
+          {filteredRecipes.length ? (
             <ul className="grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-              {recipes.map((recipe) => (
+              {filteredRecipes.map((recipe) => (
                 <li key={recipe.slug} className="min-w-0 bg-card">
                   <Link to="/recipes/$slug" params={{ slug: recipe.slug }} className="group flex h-full flex-col outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     {recipe.image_url ? (
@@ -65,7 +86,11 @@ function PostureRecipes() {
               ))}
             </ul>
           ) : (
-            <p className="border border-border bg-card p-6 text-sm text-muted-foreground">No recipes are published yet.</p>
+            <div className="border border-border bg-card p-6">
+              <p className="text-sm font-bold">No published recipes for this region yet.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Try another body region or return to the complete posture library.</p>
+              <Link to="/recipes" search={{ region: undefined }} className="mt-5 inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">View all recipes</Link>
+            </div>
           )}
         </section>
       </main>
@@ -73,4 +98,3 @@ function PostureRecipes() {
     </div>
   );
 }
-import { LearnNav } from "@/components/site/LearnNav";

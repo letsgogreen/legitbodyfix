@@ -13,6 +13,42 @@ function NativeLink({ to, search: _search, preload: _preload, ...props }: { to: 
   return <a href={to} {...props} />;
 }
 
+function LibraryNavLink({
+  nativeNavigation,
+  signedIn,
+  compact = false,
+}: {
+  nativeNavigation: boolean;
+  signedIn: boolean;
+  compact?: boolean;
+}) {
+  const baseClass = `inline-flex min-h-11 items-center font-bold underline-offset-4 ${compact ? "text-xs" : "text-sm"}`;
+  const label = signedIn ? "My library" : "Sign in / Join";
+
+  if (nativeNavigation) {
+    const active = typeof window !== "undefined" && window.location.pathname.startsWith("/library");
+    return (
+      <a
+        href="/library"
+        aria-current={active ? "page" : undefined}
+        className={`${baseClass} ${active ? "underline" : ""}`}
+      >
+        {label}
+      </a>
+    );
+  }
+
+  return (
+    <RouterLink
+      to="/library"
+      activeProps={{ className: "underline", "aria-current": "page" }}
+      className={baseClass}
+    >
+      {label}
+    </RouterLink>
+  );
+}
+
 export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boolean } = {}) {
   const Link = nativeNavigation ? NativeLink : RouterLink;
   const [open, setOpen] = useState(false);
@@ -53,7 +89,7 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          <Link to="/library" className="inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">{signedIn ? "My library" : "Sign in / Join"}</Link>
+          <LibraryNavLink nativeNavigation={nativeNavigation} signedIn={signedIn} />
           {links.map((l) => (
             l.href === "/movement-check" ? <Link
               key={l.label}
@@ -91,7 +127,7 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
         </nav>
 
         <div className="flex items-center gap-3 lg:hidden">
-        <Link to="/library" className="inline-flex min-h-11 items-center text-xs font-bold underline underline-offset-4">{signedIn ? "My library" : "Sign in / Join"}</Link>
+        <LibraryNavLink nativeNavigation={nativeNavigation} signedIn={signedIn} compact />
         <button
           type="button"
           aria-label={open ? "Close menu" : "Open menu"}
