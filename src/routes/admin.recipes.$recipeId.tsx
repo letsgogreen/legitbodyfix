@@ -687,13 +687,6 @@ function RecipeReview() {
         </Panel>
 
         <div className="space-y-4">
-          <Panel className="hidden p-4 xl:sticky xl:top-4 xl:z-10 xl:block">
-            <DraftPreview
-              blocks={previewBlocks}
-              width={previewWidth}
-              onWidthChange={setPreviewWidth}
-            />
-          </Panel>
           <Panel className="p-4">
             <ImageUploadField
               value={record.image_url ?? ""}
@@ -708,6 +701,14 @@ function RecipeReview() {
               Manual replacements are copied to permanent Supabase Storage. The original Notion
               source link remains available below for traceability.
             </p>
+          </Panel>
+
+          <Panel className="hidden p-4 xl:block">
+            <DraftPreview
+              blocks={previewBlocks}
+              width={previewWidth}
+              onWidthChange={setPreviewWidth}
+            />
           </Panel>
 
           <Panel className="overflow-hidden">

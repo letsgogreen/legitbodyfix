@@ -26,6 +26,9 @@ if (!entry) throw new Error('Shared header entry was not emitted');
 for (const [index, root] of roots.entries()) {
   if (index) cpSync(resolve(roots[0], 'assets/shared-header'), resolve(root, 'assets/shared-header'), { recursive: true });
   const path = resolve(root, 'knowledge.html');
-  const html = readFileSync(path, 'utf8').replace(/<script type="module" src="\/assets\/shared-header\/[^"<>]+"><\/script>\s*/g, '');
-  writeFileSync(path, html.replace('</body>', `<script type="module" src="/assets/shared-header/${entry.fileName}"></script>\n</body>`));
+  const html = readFileSync(path, 'utf8').replace(/<script type="module" src="\/assets\/shared-header\/[^"<>]+"[^>]*><\/script>\s*/g, '');
+  // Reserve the shared header's 44px controls + 32px padding + 1px border.
+  const bootstrap = `<style id="shared-header-pending-style">html[data-shared-header-pending] .knowledge-header{height:77px!important;min-height:77px!important;padding:0!important;box-sizing:border-box!important;visibility:hidden!important}</style><script id="shared-header-bootstrap">document.documentElement.setAttribute('data-shared-header-pending','');window.setTimeout(function(){document.documentElement.removeAttribute('data-shared-header-pending')},8000)</script><link rel="modulepreload" href="/assets/shared-header/${entry.fileName}">`;
+  const clean = html.replace(/<style id="shared-header-pending-style">[\s\S]*?<\/style><script id="shared-header-bootstrap">[\s\S]*?<\/script><link rel="modulepreload" href="\/assets\/shared-header\/[^"<>]+">/g, '');
+  writeFileSync(path, clean.replace('</head>', `${bootstrap}</head>`).replace('</body>', `<script type="module" src="/assets/shared-header/${entry.fileName}" onerror="document.documentElement.removeAttribute('data-shared-header-pending')"></script>\n</body>`));
 }

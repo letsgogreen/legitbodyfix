@@ -9,7 +9,7 @@ const links = [
   { label: "How it works", href: "/#method" },
 ];
 
-function NativeLink({ to, search: _search, ...props }: { to: string; search?: { region: undefined; intent: undefined } } & AnchorHTMLAttributes<HTMLAnchorElement>) {
+function NativeLink({ to, search: _search, preload: _preload, ...props }: { to: string; search?: { region?: undefined; intent?: undefined }; preload?: "intent" } & AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a href={to} {...props} />;
 }
 
@@ -55,6 +55,13 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
         <nav className="hidden items-center gap-8 lg:flex">
           <Link to="/library" className="inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">{signedIn ? "My library" : "Sign in / Join"}</Link>
           {links.map((l) => (
+            l.href === "/movement-check" ? <Link
+              key={l.label}
+              to="/movement-check"
+              search={{}}
+              preload="intent"
+              className="rounded-sm text-sm font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >{l.label}</Link> :
             <a
               key={l.label}
               href={l.href}
@@ -102,6 +109,14 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
         <div className="border-t border-border bg-background px-5 pb-6 pt-2 lg:hidden">
           <nav id="mobile-navigation" className="flex flex-col">
             {links.map((l) => (
+              l.href === "/movement-check" ? <Link
+                key={l.label}
+                to="/movement-check"
+                search={{}}
+                preload="intent"
+                onClick={() => setOpen(false)}
+                className="min-h-11 border-b border-border py-4 text-base font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+              >{l.label}</Link> :
               <a
                 key={l.label}
                 href={l.href}

@@ -18,9 +18,13 @@ if (fallback) {
   class HeaderBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
     override state = { failed: false };
     static getDerivedStateFromError() { return { failed: true }; }
-    override componentDidCatch() { host.replaceWith(fallback!); }
+    override componentDidCatch() {
+      document.documentElement.removeAttribute("data-shared-header-pending");
+      host.replaceWith(fallback!);
+    }
     override render() { return this.state.failed ? null : this.props.children; }
   }
   fallback.replaceWith(host);
   flushSync(() => createRoot(mount).render(<HeaderBoundary><SiteNav nativeNavigation /></HeaderBoundary>));
+  document.documentElement.removeAttribute("data-shared-header-pending");
 }
