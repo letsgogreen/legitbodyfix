@@ -6,6 +6,11 @@ import { LearnRegionFilter } from "@/components/site/LearnRegionFilter";
 import { findBodyRegion } from "@/data/body-regions";
 import { listPublishedRecipes } from "@/lib/recipes.functions";
 
+function resolveRecipeImageUrl(imageUrl: string) {
+  if (/^(?:https?:)?\/\//i.test(imageUrl) || imageUrl.startsWith("/")) return imageUrl;
+  return `/${imageUrl.replace(/^\.\//, "")}`;
+}
+
 export const Route = createFileRoute("/recipes/")({
   validateSearch: (search: Record<string, unknown>) => ({
     region:
@@ -69,8 +74,17 @@ function PostureRecipes() {
                 <li key={recipe.slug} className="min-w-0 bg-card">
                   <Link to="/recipes/$slug" params={{ slug: recipe.slug }} className="group flex h-full flex-col outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     {recipe.image_url ? (
-                      <span className="block aspect-[16/10] overflow-hidden border-b border-border bg-secondary">
-                        <img src={recipe.image_url} alt={recipe.image_alt ?? recipe.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" />
+                      <span className="relative block aspect-[16/10] overflow-hidden border-b border-border bg-secondary">
+                        <span className="absolute inset-0 flex items-center justify-center px-6 text-center font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground" aria-hidden="true">
+                          Image in editorial review
+                        </span>
+                        <img
+                          src={resolveRecipeImageUrl(recipe.image_url)}
+                          alt={recipe.image_alt ?? recipe.title}
+                          loading="lazy"
+                          className="relative h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                          onError={(event) => { event.currentTarget.style.display = "none"; }}
+                        />
                       </span>
                     ) : (
                       <span className="flex aspect-[16/10] items-center justify-center border-b border-border bg-secondary px-6 text-center font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground">Image in editorial review</span>

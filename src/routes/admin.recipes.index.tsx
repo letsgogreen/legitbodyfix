@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { FileUp, Plus, Search, Waypoints } from "lucide-react";
+import { FileDown, FileUp, Plus, Search, Waypoints } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,6 +101,11 @@ function AdminRecipes() {
         meta={`${publishedCount} published · ${rows.length - publishedCount} in review · recipes are the canonical content type`}
         actions={
           <><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New content</Btn><Link
+            to="/admin/recipes/scrape"
+            className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-accent px-3 py-2 text-xs font-bold text-accent-foreground"
+          >
+            <FileDown className="h-3.5 w-3.5" aria-hidden="true" /> Collect sources
+          </Link><Link
             to="/admin/recipes/import"
             className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-background px-3 py-2 text-xs font-bold"
           >

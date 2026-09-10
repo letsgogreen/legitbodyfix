@@ -49,6 +49,7 @@ import { Route as AdminMusclesImportRouteImport } from './routes/admin.muscles.i
 import { Route as AdminRecipesIndexRouteImport } from './routes/admin.recipes.index'
 import { Route as AdminRecipesRecipeIdRouteImport } from './routes/admin.recipes.$recipeId'
 import { Route as AdminRecipesImportRouteImport } from './routes/admin.recipes.import'
+import { Route as AdminRecipesScrapeRouteImport } from './routes/admin.recipes.scrape'
 import { Route as ApiPaypalConfigRouteImport } from './routes/api.paypal.config'
 import { Route as ApiPublicPaddleWebhookRouteImport } from './routes/api.public.paddle-webhook'
 import { Route as Ver1AdminSplatRouteImport } from './routes/ver1.admin.$'
@@ -256,6 +257,11 @@ const AdminRecipesImportRoute = AdminRecipesImportRouteImport.update({
   path: '/recipes/import',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminRecipesScrapeRoute = AdminRecipesScrapeRouteImport.update({
+  id: '/recipes/scrape',
+  path: '/recipes/scrape',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiPaypalConfigRoute = ApiPaypalConfigRouteImport.update({
   id: '/api/paypal/config',
   path: '/api/paypal/config',
@@ -321,6 +327,7 @@ export interface FileRoutesByFullPath {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/admin/recipes/scrape': typeof AdminRecipesScrapeRoute
   '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
@@ -364,6 +371,7 @@ export interface FileRoutesByTo {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/admin/recipes/scrape': typeof AdminRecipesScrapeRoute
   '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
@@ -412,6 +420,7 @@ export interface FileRoutesById {
   '/admin/muscles/import': typeof AdminMusclesImportRoute
   '/admin/recipes/$recipeId': typeof AdminRecipesRecipeIdRoute
   '/admin/recipes/import': typeof AdminRecipesImportRoute
+  '/admin/recipes/scrape': typeof AdminRecipesScrapeRoute
   '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
@@ -461,6 +470,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/admin/recipes/scrape'
     | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
@@ -504,6 +514,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/admin/recipes/scrape'
     | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
@@ -551,6 +562,7 @@ export interface FileRouteTypes {
     | '/admin/muscles/import'
     | '/admin/recipes/$recipeId'
     | '/admin/recipes/import'
+    | '/admin/recipes/scrape'
     | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
@@ -867,6 +879,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRecipesImportRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/recipes/scrape': {
+      id: '/admin/recipes/scrape'
+      path: '/recipes/scrape'
+      fullPath: '/admin/recipes/scrape'
+      preLoaderRoute: typeof AdminRecipesScrapeRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/paypal/config': {
       id: '/api/paypal/config'
       path: '/api/paypal/config'
@@ -919,6 +938,7 @@ interface AdminRouteChildren {
   AdminMusclesImportRoute: typeof AdminMusclesImportRoute
   AdminRecipesRecipeIdRoute: typeof AdminRecipesRecipeIdRoute
   AdminRecipesImportRoute: typeof AdminRecipesImportRoute
+  AdminRecipesScrapeRoute: typeof AdminRecipesScrapeRoute
   AdminMusclesIndexRoute: typeof AdminMusclesIndexRoute
   AdminRecipesIndexRoute: typeof AdminRecipesIndexRoute
 }
@@ -937,6 +957,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMusclesImportRoute: AdminMusclesImportRoute,
   AdminRecipesRecipeIdRoute: AdminRecipesRecipeIdRoute,
   AdminRecipesImportRoute: AdminRecipesImportRoute,
+  AdminRecipesScrapeRoute: AdminRecipesScrapeRoute,
   AdminMusclesIndexRoute: AdminMusclesIndexRoute,
   AdminRecipesIndexRoute: AdminRecipesIndexRoute,
 }

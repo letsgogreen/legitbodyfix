@@ -20,3 +20,9 @@ test('posture library fetch is not restricted to a small featured set', () => {
   assert.match(data, /complete posture library/);
   assert.match(data, /\.limit\(100\)/);
 });
+
+test('recipe thumbnails resolve relative admin paths and fail gracefully', () => {
+  assert.match(route, /function resolveRecipeImageUrl/);
+  assert.match(route, /imageUrl\.startsWith\("\/"\)/);
+  assert.match(route, /onError=\{\(event\) => \{ event\.currentTarget\.style\.display = "none"; \}\}/);
+});
