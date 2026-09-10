@@ -36,7 +36,7 @@ const nav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/programs", label: "Programs", icon: Dumbbell },
   { to: "/admin/muscles", label: "Muscle library", icon: Activity },
-  { to: "/admin/recipes", label: "Postures", icon: NotebookPen },
+  { to: "/admin/recipes", label: "Posture & Movement", icon: NotebookPen },
   { to: "/admin/conditions", label: "Conditions", icon: NotebookPen },
   { to: "/admin/customers", label: "Customers & access", icon: Users },
   { to: "/admin/content", label: "Website content", icon: PanelsTopLeft },

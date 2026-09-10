@@ -4,8 +4,8 @@ import test from 'node:test';
 
 const route = readFileSync(new URL('../src/routes/admin.recipes.index.tsx', import.meta.url), 'utf8');
 
-test('postures use a responsive card library with useful editorial signals', () => {
-  assert.match(route, /Posture library/);
+test('posture and movement guides use a responsive card library with useful editorial signals', () => {
+  assert.match(route, /Posture &amp; movement library/);
   assert.match(route, /md:grid-cols-2 xl:grid-cols-3/);
   assert.match(route, /Missing: \{missing\.join/);
   assert.match(route, /Open editor →/);
@@ -18,6 +18,6 @@ test('movement library supports publication and completeness filters', () => {
 });
 
 test('movement counts are not rendered as zero while data is loading', () => {
-  assert.match(route, /loading \? "Loading postures…"/);
+  assert.match(route, /loading \? "Loading posture and movement guides…"/);
   assert.match(route, /loading \? <div className="mt-2 h-4 w-72 animate-pulse/);
 });

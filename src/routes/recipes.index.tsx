@@ -102,7 +102,7 @@ function PostureRecipes() {
           ) : (
             <div className="border border-border bg-card p-6">
               <p className="text-sm font-bold">No published recipes for this region yet.</p>
-              <p className="mt-2 text-sm text-muted-foreground">Try another body region or return to the complete posture library.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Try another body region or return to the complete posture and movement library.</p>
               <Link to="/recipes" search={{ region: undefined }} className="mt-5 inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">View all recipes</Link>
             </div>
           )}

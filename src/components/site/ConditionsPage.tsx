@@ -55,8 +55,8 @@ export function ConditionsPage({ slug, region }: { slug?: string | undefined; re
     <main className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
       {slug && <Link to="/conditions" search={{ region: activeRegion?.slug }} className="mb-6 inline-flex min-h-11 items-center text-sm underline">← All conditions</Link>}
       <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Learn · Conditions</p>
-      <h1 className="mt-4 max-w-4xl text-4xl font-extrabold uppercase leading-[0.95] sm:text-6xl">{slug ? selected?.title || "Condition guide" : "Understand the condition."}</h1>
-      <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">Educational references, not a diagnosis or a personalized treatment plan.</p>
+      <h1 className="mt-4 max-w-4xl text-4xl font-extrabold uppercase leading-[0.95] sm:text-6xl">{slug ? selected?.title || "Condition guide" : "Musculoskeletal Conditions"}</h1>
+      <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">Understand common injuries, symptoms, and musculoskeletal conditions. Educational references, not a diagnosis or personalized treatment plan.</p>
       {failed ? <div role="alert" className="mt-8 border border-border p-6"><p>We couldn’t load the guides.</p><button className="mt-4 min-h-11 bg-accent px-5 font-bold" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div> : !items ? <p role="status" className="mt-8">Loading guides…</p> : slug ? selected ? <article className="mt-10 max-w-3xl space-y-8">
         <p className="text-lg leading-8">{selected.summary}</p>
         {selected.content_blocks.length > 0 && <RecipeBlockContent blocks={selected.content_blocks} />}

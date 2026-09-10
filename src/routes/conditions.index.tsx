@@ -5,7 +5,7 @@ export const Route = createFileRoute("/conditions/")({
   validateSearch: (search: Record<string, unknown>) => ({
     region: typeof search["region"] === "string" && findBodyRegion(search["region"]) ? search["region"] : undefined,
   }),
-  head: () => ({ meta: [{ title: "Conditions | LegitBodyFix" }] }),
+  head: () => ({ meta: [{ title: "Musculoskeletal Conditions | LegitBodyFix" }] }),
   component: ConditionsIndex,
 });
 function ConditionsIndex() {

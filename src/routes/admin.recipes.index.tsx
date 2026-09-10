@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin/recipes/")({
   head: () => ({
     meta: [
-      { title: "Postures — LegitBodyFix Admin" },
+      { title: "Posture & Movement — LegitBodyFix Admin" },
       {
         name: "description",
         content: "Manage posture guidance and corrective exercise content from one workspace.",
@@ -109,8 +109,8 @@ function AdminRecipes() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
-        title="Postures"
-        meta={loading ? "Loading postures…" : `${publishedCount} published · ${rows.length - publishedCount} in review · postures are the canonical content type`}
+        title="Posture & Movement"
+        meta={loading ? "Loading posture and movement guides…" : `${publishedCount} published · ${rows.length - publishedCount} in review · guides are the canonical content type`}
         actions={
           <><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New content</Btn><Link
             to="/admin/recipes/scrape"
@@ -146,9 +146,9 @@ function AdminRecipes() {
         <select value={completion} onChange={(event) => setCompletion(event.target.value as typeof completion)} className="min-h-10 rounded-sm border border-border bg-background px-3 text-xs font-bold"><option value="all">All completeness</option><option value="incomplete">Needs work</option><option value="complete">Complete</option></select>
       </Panel>
 
-      <div className="my-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-bold">Posture library</h2>{loading ? <div className="mt-2 h-4 w-72 animate-pulse bg-secondary" aria-hidden="true" /> : <p className="mt-1 text-sm text-muted-foreground">{rows.length} total · {publishedCount} published · {rows.length - publishedCount} drafts · {incompleteCount} need work</p>}</div>{!loading && <p className="text-sm text-muted-foreground">{visible.length} shown</p>}</div>
+      <div className="my-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-bold">Posture &amp; movement library</h2>{loading ? <div className="mt-2 h-4 w-72 animate-pulse bg-secondary" aria-hidden="true" /> : <p className="mt-1 text-sm text-muted-foreground">{rows.length} total · {publishedCount} published · {rows.length - publishedCount} drafts · {incompleteCount} need work</p>}</div>{!loading && <p className="text-sm text-muted-foreground">{visible.length} shown</p>}</div>
 
-      {loading ? <AdminLoadingState label="Loading postures" rows={6} /> : state ? <Panel className="border-l-4 border-l-destructive p-5 text-sm">{state}</Panel> : visible.length ? (
+      {loading ? <AdminLoadingState label="Loading posture and movement guides" rows={6} /> : state ? <Panel className="border-l-4 border-l-destructive p-5 text-sm">{state}</Panel> : visible.length ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{visible.map((row) => {
           const missing = missingFields(row);
           const korean = koreanFieldsOf(row);
@@ -162,7 +162,7 @@ function AdminRecipes() {
             <p className="mt-auto pt-5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Open editor →</p>
           </Link>;
         })}</div>
-      ) : <div className="border border-dashed border-border px-5 py-14 text-center"><h3 className="font-bold">No matching postures</h3><p className="mt-2 text-sm text-muted-foreground">Try a different search or filter.</p><button type="button" onClick={() => { setQuery(""); setPublication("all"); setCompletion("all"); }} className="mt-4 min-h-11 border border-border px-4 font-bold">Clear filters</button></div>}
+      ) : <div className="border border-dashed border-border px-5 py-14 text-center"><h3 className="font-bold">No matching posture or movement guides</h3><p className="mt-2 text-sm text-muted-foreground">Try a different search or filter.</p><button type="button" onClick={() => { setQuery(""); setPublication("all"); setCompletion("all"); }} className="mt-4 min-h-11 border border-border px-4 font-bold">Clear filters</button></div>}
     </div>
   );
 }

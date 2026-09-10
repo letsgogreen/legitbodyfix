@@ -59,7 +59,7 @@ function RecipeSourceCollector() {
   }
 
   return <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
-    <PageHead title="Collect external sources" meta="Paste up to 20 public HTTPS pages · review first · drafts only" actions={<Link to="/admin/recipes" className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-bold"><ArrowLeft className="h-3.5 w-3.5" /> Postures</Link>} />
+    <PageHead title="Collect external sources" meta="Paste up to 20 public HTTPS pages · review first · drafts only" actions={<Link to="/admin/recipes" className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-bold"><ArrowLeft className="h-3.5 w-3.5" /> Posture &amp; Movement</Link>} />
     <Panel className="mt-5 p-5">
       <label className="text-sm font-bold" htmlFor="source-urls">Source URLs, one per line</label>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">Collects metadata and short excerpts. Original text remains owned by its publisher; verify accuracy and reuse rights before publishing.</p>
