@@ -36,19 +36,19 @@ export const Route = createFileRoute("/recipes/$slug")({
   },
   errorComponent: () => (
     <Shell>
-      <h1 className="text-3xl font-extrabold uppercase">Movement content unavailable</h1>
+      <h1 className="text-3xl font-extrabold uppercase">Posture unavailable</h1>
       <p className="mt-3 text-muted-foreground">Please reload the page in a moment.</p>
     </Shell>
   ),
   notFoundComponent: () => (
     <Shell>
-      <h1 className="text-3xl font-extrabold uppercase">Movement content not published</h1>
+      <h1 className="text-3xl font-extrabold uppercase">Posture not published</h1>
       <p className="mt-3 max-w-md text-muted-foreground">
         This content is still in editorial review. Nothing publishes here until its instructions,
         safety context and muscle links have passed review.
       </p>
       <Link to="/" hash="recipes" className="mt-6 inline-flex text-sm font-bold underline">
-        Back to movement content
+        Back to postures
       </Link>
     </Shell>
   ),
@@ -141,7 +141,7 @@ function RecipeDetail() {
               hash="recipes"
               className="inline-flex min-h-11 items-center gap-2 text-sm font-bold"
             >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All movement content
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All postures
             </Link>
 
             <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">

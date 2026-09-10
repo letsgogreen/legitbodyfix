@@ -12,7 +12,7 @@
 - 15 tests passed: conditions, recipe-blocks, condition-load-error.
 - Production build passed.
 - Reload /admin/conditions: all eight guides loaded.
-- Select Shoulder dislocation recovery: existing text and Shoulder Movement Program link present.
+- Select Shoulder dislocation recovery: existing text and Anterior Humeral Glide Fix link present.
 - Switch to preview: existing guidance and related program displayed.
 - Navigate to Programs and return: Conditions list loaded without an error.
 - Browser verification did not save or publish content.
