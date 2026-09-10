@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
 import { AdminLoadingState, Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { CustomerAccessTabs } from "@/components/admin/CustomerAccessTabs";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -50,7 +51,8 @@ function CustomersView() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
-      <PageHead title="Customers" meta={loading ? "Loading account totals" : `${profiles.length} real accounts · ${entitlements.filter((item) => item.active).length} active program grants`} />
+      <PageHead title="Customers & access" meta={loading ? "Loading account totals" : `${profiles.length} real accounts · ${entitlements.filter((item) => item.active).length} active program grants`} />
+      <CustomerAccessTabs current="customers" />
       {error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
       <div className="relative mt-5 max-w-md"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input disabled={loading || Boolean(error)} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name or email" className="w-full rounded-sm border border-border bg-card py-2 pl-9 pr-3 text-sm disabled:cursor-wait disabled:opacity-50" /></div>
       {loading ? <div className="mt-4"><AdminLoadingState variant="list" label="Loading customers" /></div> : <Panel className="mt-4 overflow-x-auto">

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
-import { PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { AdminLoadingState, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { CustomerAccessTabs } from "@/components/admin/CustomerAccessTabs";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -45,19 +45,18 @@ function OrdersView() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
-      <PageHead title="Orders & access" meta={`${orders.length} records · ${(paidTotal / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} paid`} />
+      <PageHead title="Customers & access" meta={loading ? "Loading order history" : `${orders.length} orders · ${(paidTotal / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} paid`} />
+      <CustomerAccessTabs current="orders" />
       {error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         {["all", "paid", "pending", "refunded", "failed", "disputed"].map((status) => (
           <button key={status} type="button" onClick={() => setFilter(status)} className={`rounded-sm border px-3 py-1.5 text-xs font-bold capitalize ${filter === status ? "border-ink bg-ink text-ink-foreground" : "border-border bg-background text-muted-foreground"}`}>
             {status}
           </button>
         ))}
       </div>
-      <Panel className="mt-4 overflow-x-auto">
-        {loading ? (
-          <div className="flex min-h-44 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading orders…</div>
-        ) : (
+      {loading ? <div className="mt-4"><AdminLoadingState variant="list" label="Loading order history" /></div> : <Panel className="mt-4 overflow-x-auto">
+        {(
           <table className="w-full min-w-[860px] text-sm">
             <thead><tr><Th>Customer</Th><Th>Program</Th><Th>Amount</Th><Th>Status</Th><Th>Purchased</Th><Th>Provider reference</Th></tr></thead>
             <tbody>
@@ -75,7 +74,7 @@ function OrdersView() {
             </tbody>
           </table>
         )}
-      </Panel>
+      </Panel>}
       <p className="mt-3 text-xs leading-5 text-muted-foreground">Paddle notifications create and update new orders. Historical Stripe records remain visible and read-only.</p>
     </div>
   );

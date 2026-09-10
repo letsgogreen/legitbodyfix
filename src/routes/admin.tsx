@@ -4,10 +4,8 @@ import {
   Dumbbell,
   Activity,
   Users,
-  Receipt,
   PanelsTopLeft,
   NotebookPen,
-  Wrench,
   ExternalLink,
   type LucideIcon,
 } from "lucide-react";
@@ -40,10 +38,8 @@ const nav: NavItem[] = [
   { to: "/admin/muscles", label: "Muscle library", icon: Activity },
   { to: "/admin/recipes", label: "Movement content", icon: NotebookPen },
   { to: "/admin/conditions", label: "Conditions", icon: NotebookPen },
-  { to: "/admin/customers", label: "Customers", icon: Users },
-  { to: "/admin/orders", label: "Access & orders", icon: Receipt },
+  { to: "/admin/customers", label: "Customers & access", icon: Users },
   { to: "/admin/content", label: "Website content", icon: PanelsTopLeft },
-  { to: "/admin/tools", label: "Advanced tools", icon: Wrench },
 ];
 
 function AdminShell() {
@@ -63,8 +59,7 @@ function AdminShell() {
             {[
               { label: "Workspace", paths: ["/admin", "/admin/programs"] },
               { label: "Content", paths: ["/admin/recipes", "/admin/conditions", "/admin/muscles", "/admin/content"] },
-              { label: "Operations", paths: ["/admin/customers", "/admin/orders"] },
-              { label: "Advanced", paths: ["/admin/tools"] },
+              { label: "Operations", paths: ["/admin/customers"] },
             ].map((group) => <div key={group.label} className="mb-4">
               <p className="px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{group.label}</p>
             {group.paths.map((path) => nav.find((item) => item.to === path)!).map((item) => (

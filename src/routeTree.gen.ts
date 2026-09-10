@@ -28,7 +28,6 @@ import { Route as AdminGuidesRouteImport } from './routes/admin.guides'
 import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
-import { Route as AdminToolsRouteImport } from './routes/admin.tools'
 import { Route as ApiCloudflareStreamWebhookRouteImport } from './routes/api/cloudflare-stream-webhook'
 import { Route as CheckoutCompleteRouteImport } from './routes/checkout.complete'
 import { Route as ConditionsIndexRouteImport } from './routes/conditions.index'
@@ -150,11 +149,6 @@ const AdminOrdersRoute = AdminOrdersRouteImport.update({
 const AdminProgramsRoute = AdminProgramsRouteImport.update({
   id: '/programs',
   path: '/programs',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminToolsRoute = AdminToolsRouteImport.update({
-  id: '/tools',
-  path: '/tools',
   getParentRoute: () => AdminRoute,
 } as any)
 const ApiCloudflareStreamWebhookRoute =
@@ -313,7 +307,6 @@ export interface FileRoutesByFullPath {
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
-  '/admin/tools': typeof AdminToolsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
@@ -358,7 +351,6 @@ export interface FileRoutesByTo {
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
-  '/admin/tools': typeof AdminToolsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
@@ -408,7 +400,6 @@ export interface FileRoutesById {
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
-  '/admin/tools': typeof AdminToolsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
@@ -459,7 +450,6 @@ export interface FileRouteTypes {
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
-    | '/admin/tools'
     | '/api/cloudflare-stream-webhook'
     | '/checkout/complete'
     | '/conditions/$slug'
@@ -504,7 +494,6 @@ export interface FileRouteTypes {
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
-    | '/admin/tools'
     | '/api/cloudflare-stream-webhook'
     | '/checkout/complete'
     | '/conditions/$slug'
@@ -553,7 +542,6 @@ export interface FileRouteTypes {
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
-    | '/admin/tools'
     | '/api/cloudflare-stream-webhook'
     | '/checkout/complete'
     | '/conditions/$slug'
@@ -742,13 +730,6 @@ declare module '@tanstack/react-router' {
       path: '/programs'
       fullPath: '/admin/programs'
       preLoaderRoute: typeof AdminProgramsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/tools': {
-      id: '/admin/tools'
-      path: '/tools'
-      fullPath: '/admin/tools'
-      preLoaderRoute: typeof AdminToolsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/api/cloudflare-stream-webhook': {
@@ -952,7 +933,6 @@ interface AdminRouteChildren {
   AdminLessonsRoute: typeof AdminLessonsRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProgramsRoute: typeof AdminProgramsRoute
-  AdminToolsRoute: typeof AdminToolsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminMusclesMuscleIdRoute: typeof AdminMusclesMuscleIdRoute
   AdminMusclesImportRoute: typeof AdminMusclesImportRoute
@@ -972,7 +952,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLessonsRoute: AdminLessonsRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProgramsRoute: AdminProgramsRoute,
-  AdminToolsRoute: AdminToolsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminMusclesMuscleIdRoute: AdminMusclesMuscleIdRoute,
   AdminMusclesImportRoute: AdminMusclesImportRoute,

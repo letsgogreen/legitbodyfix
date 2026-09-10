@@ -14,13 +14,11 @@ test("daily content libraries keep import and legacy utilities out of primary ac
   assert.match(movement, /Collect sources/);
 });
 
-test("advanced tools preserves every hidden workflow", () => {
-  const tools = read("admin.tools.tsx");
+test("retired utilities stay out of the visible admin navigation", () => {
+  const shell = read("admin.tsx");
 
-  assert.match(tools, /\/admin\/recipes\/import/);
-  assert.match(tools, /\/admin\/muscles\/import/);
-  assert.match(tools, /\/admin\/guides/);
-  assert.match(tools, /Imports create reviewable drafts/);
+  assert.doesNotMatch(shell, /Advanced tools/);
+  assert.doesNotMatch(shell, /\/admin\/tools/);
 });
 
 test("dashboard hides healthy integration noise and permanent refresh controls", () => {
