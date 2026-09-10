@@ -24,5 +24,13 @@ test('posture library fetch is not restricted to a small featured set', () => {
 test('recipe thumbnails resolve relative admin paths and fail gracefully', () => {
   assert.match(route, /function resolveRecipeImageUrl/);
   assert.match(route, /imageUrl\.startsWith\("\/"\)/);
-  assert.match(route, /onError=\{\(event\) => \{ event\.currentTarget\.style\.display = "none"; \}\}/);
+  assert.match(route, /onError=\{\(\) => setImageFailed\(true\)\}/);
+  assert.match(route, /Visual coming soon/);
+});
+
+test('posture library provides fast in-page search and compact result feedback', () => {
+  assert.match(route, /type="search"/);
+  assert.match(route, /Search this library/);
+  assert.match(route, /normalizedQuery/);
+  assert.match(route, /\{filteredRecipes\.length\} available/);
 });
