@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin/recipes/")({
   head: () => ({
     meta: [
-      { title: "Movement content — LegitBodyFix Admin" },
+      { title: "Postures — LegitBodyFix Admin" },
       {
         name: "description",
         content: "Manage posture guidance and corrective exercise content from one workspace.",
@@ -109,7 +109,7 @@ function AdminRecipes() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
-        title="Movement content"
+        title="Postures"
         meta={loading ? "Loading movement content…" : `${publishedCount} published · ${rows.length - publishedCount} in review · recipes are the canonical content type`}
         actions={
           <><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New content</Btn><Link
@@ -146,7 +146,7 @@ function AdminRecipes() {
         <select value={completion} onChange={(event) => setCompletion(event.target.value as typeof completion)} className="min-h-10 rounded-sm border border-border bg-background px-3 text-xs font-bold"><option value="all">All completeness</option><option value="incomplete">Needs work</option><option value="complete">Complete</option></select>
       </Panel>
 
-      <div className="my-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-bold">Movement content library</h2>{loading ? <div className="mt-2 h-4 w-72 animate-pulse bg-secondary" aria-hidden="true" /> : <p className="mt-1 text-sm text-muted-foreground">{rows.length} total · {publishedCount} published · {rows.length - publishedCount} drafts · {incompleteCount} need work</p>}</div>{!loading && <p className="text-sm text-muted-foreground">{visible.length} shown</p>}</div>
+      <div className="my-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-bold">Posture library</h2>{loading ? <div className="mt-2 h-4 w-72 animate-pulse bg-secondary" aria-hidden="true" /> : <p className="mt-1 text-sm text-muted-foreground">{rows.length} total · {publishedCount} published · {rows.length - publishedCount} drafts · {incompleteCount} need work</p>}</div>{!loading && <p className="text-sm text-muted-foreground">{visible.length} shown</p>}</div>
 
       {loading ? <AdminLoadingState label="Loading movement content" rows={6} /> : state ? <Panel className="border-l-4 border-l-destructive p-5 text-sm">{state}</Panel> : visible.length ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{visible.map((row) => {

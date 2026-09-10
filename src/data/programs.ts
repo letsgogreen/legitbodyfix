@@ -25,7 +25,7 @@ export const programs: Program[] = [
   },
   {
     id: "shoulder-movement",
-    name: "Shoulder Movement Program",
+    name: "Anterior Humeral Glide Fix",
     description: "For developing shoulder positioning, scapular control, and overhead capacity.",
     displayPrice: "$69 launch",
     status: "coming-soon",

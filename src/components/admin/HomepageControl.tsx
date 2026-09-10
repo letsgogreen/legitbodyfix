@@ -16,7 +16,7 @@ const sections = [
     path: "/programs",
   },
   {
-    name: "Movement content",
+    name: "Postures",
     description: "Posture guidance, corrective exercises, images, dosage, and relationship links.",
     icon: BookOpen,
     path: "/recipes",

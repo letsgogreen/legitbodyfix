@@ -33,7 +33,7 @@ export const programs: Program[] = [
   },
   {
     id: "shoulder-movement",
-    title: "Shoulder Movement Program",
+    title: "Anterior Humeral Glide Fix",
     region: "Shoulder & arm",
     price: 69,
     status: "Coming soon",
@@ -93,8 +93,8 @@ export const customers: Customer[] = [
   { id: "c1", name: "Sample Person A", email: "sample.a@example.com", signup: "2026-08-19", owns: ["Neck & Shoulder Reset"] },
   { id: "c2", name: "Sample Person B", email: "sample.b@example.com", signup: "2026-08-17", owns: ["Ankle Recovery Program", "Bunion / Hallux Valgus Guide"] },
   { id: "c3", name: "Test User C", email: "test.c@example.com", signup: "2026-08-15", owns: [] },
-  { id: "c4", name: "Test User D", email: "test.d@example.com", signup: "2026-08-12", owns: ["Shoulder Movement Program"] },
-  { id: "c5", name: "Placeholder E", email: "placeholder.e@example.com", signup: "2026-08-09", owns: ["Neck & Shoulder Reset", "Shoulder Movement Program"] },
+  { id: "c4", name: "Test User D", email: "test.d@example.com", signup: "2026-08-12", owns: ["Anterior Humeral Glide Fix"] },
+  { id: "c5", name: "Placeholder E", email: "placeholder.e@example.com", signup: "2026-08-09", owns: ["Neck & Shoulder Reset", "Anterior Humeral Glide Fix"] },
   { id: "c6", name: "Placeholder F", email: "placeholder.f@example.com", signup: "2026-08-05", owns: ["Bunion / Hallux Valgus Guide"] },
   { id: "c7", name: "Demo Account G", email: "demo.g@example.com", signup: "2026-07-31", owns: [] },
 ];
@@ -113,9 +113,9 @@ export interface Order {
 export const orders: Order[] = [
   { id: "LBF-2041", customer: "Sample Person A", program: "Neck & Shoulder Reset", amount: 59, date: "2026-08-19", status: "Paid" },
   { id: "LBF-2040", customer: "Sample Person B", program: "Bunion / Hallux Valgus Guide", amount: 19, date: "2026-08-18", status: "Paid" },
-  { id: "LBF-2039", customer: "Placeholder E", program: "Shoulder Movement Program", amount: 69, date: "2026-08-16", status: "Refunded" },
+  { id: "LBF-2039", customer: "Placeholder E", program: "Anterior Humeral Glide Fix", amount: 69, date: "2026-08-16", status: "Refunded" },
   { id: "LBF-2038", customer: "Sample Person B", program: "Ankle Recovery Program", amount: 69, date: "2026-08-15", status: "Paid" },
-  { id: "LBF-2037", customer: "Test User D", program: "Shoulder Movement Program", amount: 69, date: "2026-08-12", status: "Paid" },
+  { id: "LBF-2037", customer: "Test User D", program: "Anterior Humeral Glide Fix", amount: 69, date: "2026-08-12", status: "Paid" },
   { id: "LBF-2036", customer: "Placeholder F", program: "Bunion / Hallux Valgus Guide", amount: 19, date: "2026-08-08", status: "Pending" },
   { id: "LBF-2035", customer: "Placeholder E", program: "Neck & Shoulder Reset", amount: 59, date: "2026-08-04", status: "Paid" },
 ];

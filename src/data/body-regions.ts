@@ -78,7 +78,7 @@ export const bodyRegions: BodyRegion[] = [
       "Connect shoulder motion with scapular control, thoracic contribution, and the demands of reaching or loading.",
     programs: [
       {
-        title: "Shoulder Movement Program",
+        title: "Anterior Humeral Glide Fix",
         description: "A complete guided session for shoulder positioning, scapular control, and overhead capacity.",
         href: "/video.html?id=shoulder-movement",
         meta: "Complete session · Intermediate · $89",

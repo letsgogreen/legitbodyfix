@@ -37,7 +37,7 @@ test("the Phase 1 homepage presents an honest region-first program journey", fun
   [
     "Neck & Shoulder Reset",
     "Ankle Recovery Program",
-    "Shoulder Movement Program",
+    "Anterior Humeral Glide Fix",
     "Bunion / Hallux Valgus Guide",
   ].forEach(function (name) {
     assert.match(programs, new RegExp(name.replace(/[\/]/g, "\\/")));

@@ -3,7 +3,7 @@ import { captureAndVerifyPayPalOrder, createPayPalOrder, paypalConfig } from "@/
 const products = [
   { id: "neck-alignment", programSlug: "neck-shoulder-reset", title: "Neck & Shoulder Reset", amount: 69 },
   { id: "ankle-sprain-rehabilitation", programSlug: "ankle-recovery", title: "Ankle Recovery Program", amount: 69 },
-  { id: "shoulder-movement", programSlug: "shoulder-movement", title: "Shoulder Movement Program", amount: 89 },
+  { id: "shoulder-movement", programSlug: "shoulder-movement", title: "Anterior Humeral Glide Fix", amount: 89 },
   { id: "bunion-hallux-valgus-guide", programSlug: "bunion-hallux-valgus-guide", title: "Bunion / Hallux Valgus Guide", amount: 34 },
 ] as const;
 

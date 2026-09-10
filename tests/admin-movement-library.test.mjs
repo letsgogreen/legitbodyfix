@@ -5,7 +5,7 @@ import test from 'node:test';
 const route = readFileSync(new URL('../src/routes/admin.recipes.index.tsx', import.meta.url), 'utf8');
 
 test('movement content uses a responsive card library with useful editorial signals', () => {
-  assert.match(route, /Movement content library/);
+  assert.match(route, /Posture library/);
   assert.match(route, /md:grid-cols-2 xl:grid-cols-3/);
   assert.match(route, /Missing: \{missing\.join/);
   assert.match(route, /Open editor →/);
