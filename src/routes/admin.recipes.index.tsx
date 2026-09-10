@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { FileDown, FileUp, Plus, Search, Waypoints } from "lucide-react";
-import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { AdminLoadingState, Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -26,7 +26,11 @@ type Row = {
   goal: string | null;
   summary: string | null;
   instructions: string | null;
+  assessment_clues: string | null;
+  dosage: string | null;
   safety_notes: string | null;
+  evidence: string | null;
+  image_url: string | null;
   regions: string[];
   progression_level: string | null;
   review_status: string;
@@ -54,34 +58,42 @@ function AdminRecipes() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<Row[]>([]);
   const [query, setQuery] = useState("");
-  const [state, setState] = useState("Loading recipes…");
+  const [publication, setPublication] = useState<"all" | "published" | "draft">("all");
+  const [completion, setCompletion] = useState<"all" | "complete" | "incomplete">("all");
+  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState("");
 
   useEffect(() => {
     void supabase
       .from("recipes")
       .select(
-        "id, title, slug, goal, summary, instructions, safety_notes, regions, progression_level, review_status, published, updated_at",
+        "id, title, slug, goal, summary, instructions, assessment_clues, dosage, safety_notes, evidence, image_url, regions, progression_level, review_status, published, updated_at",
       )
       .order("title")
       .then(({ data, error }) => {
         if (error) {
           setState(`Could not load recipes: ${error.message}`);
+          setLoading(false);
           return;
         }
         setRows((data ?? []) as Row[]);
-        setState(`${data?.length ?? 0} recipe(s) in the database.`);
+        setLoading(false);
       });
   }, []);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter(
-      (row) => row.title.toLowerCase().includes(q) || row.slug.toLowerCase().includes(q),
-    );
-  }, [rows, query]);
+    return rows.filter((row) => {
+      const matchesQuery = !q || row.title.toLowerCase().includes(q) || row.slug.toLowerCase().includes(q) || row.regions.some((region) => region.includes(q));
+      const matchesPublication = publication === "all" || (publication === "published" ? row.published : !row.published);
+      const issueCount = missingFields(row).length + (koreanFieldsOf(row).length ? 1 : 0);
+      const matchesCompletion = completion === "all" || (completion === "complete" ? issueCount === 0 : issueCount > 0);
+      return matchesQuery && matchesPublication && matchesCompletion;
+    });
+  }, [rows, query, publication, completion]);
 
   const publishedCount = rows.filter((row) => row.published).length;
+  const incompleteCount = rows.filter((row) => missingFields(row).length > 0 || koreanFieldsOf(row).length > 0).length;
 
   async function createRecipe() {
     const suffix = Date.now().toString(36);
@@ -98,7 +110,7 @@ function AdminRecipes() {
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
         title="Movement content"
-        meta={`${publishedCount} published · ${rows.length - publishedCount} in review · recipes are the canonical content type`}
+        meta={loading ? "Loading movement content…" : `${publishedCount} published · ${rows.length - publishedCount} in review · recipes are the canonical content type`}
         actions={
           <><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New content</Btn><Link
             to="/admin/recipes/scrape"
@@ -136,71 +148,40 @@ function AdminRecipes() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search title or slug"
+            placeholder="Search title, slug, or body region"
             className="w-full rounded-sm border border-border bg-background py-2 pl-9 pr-3 text-sm"
           />
         </label>
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-          {state}
-        </span>
+        <select value={publication} onChange={(event) => setPublication(event.target.value as typeof publication)} className="min-h-10 rounded-sm border border-border bg-background px-3 text-xs font-bold"><option value="all">All statuses</option><option value="published">Published</option><option value="draft">Drafts</option></select>
+        <select value={completion} onChange={(event) => setCompletion(event.target.value as typeof completion)} className="min-h-10 rounded-sm border border-border bg-background px-3 text-xs font-bold"><option value="all">All completeness</option><option value="incomplete">Needs work</option><option value="complete">Complete</option></select>
       </Panel>
 
-      <Panel className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[860px] text-sm">
-          <thead>
-            <tr>
-              <Th>Movement content</Th>
-              <Th>Status</Th>
-              <Th>Regions</Th>
-              <Th>Level</Th>
-              <Th>Flags</Th>
-              <Th />
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map((row) => {
-              const korean = koreanFieldsOf(row);
-              return (
-                <tr key={row.id}>
-                  <Td>
-                    <span className="font-semibold">{row.title}</span>
-                    <span className="ml-2 font-mono text-[10px] text-muted-foreground">
-                      {row.slug}
-                    </span>
-                  </Td>
-                  <Td>
-                    <Tag tone={row.published ? "accent" : "muted"}>
-                      {row.published ? "published" : row.review_status}
-                    </Tag>
-                  </Td>
-                  <Td className="text-xs">{row.regions.join(" · ") || "—"}</Td>
-                  <Td className="text-xs">{row.progression_level ?? "—"}</Td>
-                  <Td className="text-xs">
-                    {korean.length ? <Tag tone="warn">Korean text</Tag> : "—"}
-                  </Td>
-                  <Td>
-                    <Link
-                      to="/admin/recipes/$recipeId"
-                      params={{ recipeId: row.id }}
-                      className="inline-flex min-h-8 items-center rounded-sm border border-border px-2.5 py-1 text-xs font-bold"
-                    >
-                      Review
-                    </Link>
-                  </Td>
-                </tr>
-              );
-            })}
-            {!visible.length && (
-              <tr>
-                <Td colSpan={6} className="text-xs text-muted-foreground">
-                  No recipes match.
-                </Td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </Panel>
+      <div className="my-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-bold">Movement content library</h2>{loading ? <div className="mt-2 h-4 w-72 animate-pulse bg-secondary" aria-hidden="true" /> : <p className="mt-1 text-sm text-muted-foreground">{rows.length} total · {publishedCount} published · {rows.length - publishedCount} drafts · {incompleteCount} need work</p>}</div>{!loading && <p className="text-sm text-muted-foreground">{visible.length} shown</p>}</div>
+
+      {loading ? <AdminLoadingState label="Loading movement content" rows={6} /> : state ? <Panel className="border-l-4 border-l-destructive p-5 text-sm">{state}</Panel> : visible.length ? (
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{visible.map((row) => {
+          const missing = missingFields(row);
+          const korean = koreanFieldsOf(row);
+          const issueCount = missing.length + (korean.length ? 1 : 0);
+          return <Link key={row.id} to="/admin/recipes/$recipeId" params={{ recipeId: row.id }} className="group flex min-h-52 flex-col border border-border bg-card p-5 transition hover:border-foreground hover:bg-secondary/30 focus-visible:outline focus-visible:outline-2">
+            <div className="flex items-start justify-between gap-3"><Tag tone={row.published ? "accent" : "muted"}>{row.published ? "Published" : "Draft"}</Tag>{issueCount > 0 ? <Tag tone="warn">{issueCount} {issueCount === 1 ? "issue" : "issues"}</Tag> : <Tag tone="accent">Complete</Tag>}</div>
+            <h3 className="mt-5 text-lg font-bold leading-tight group-hover:underline">{row.title}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{row.regions.join(" · ") || "No body region"}{row.progression_level ? ` · ${row.progression_level.replaceAll("_", " ")}` : ""}</p>
+            {missing.length > 0 && <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted-foreground">Missing: {missing.join(", ")}</p>}
+            {korean.length > 0 && <p className="mt-1 text-xs text-destructive">Korean text needs review</p>}
+            <p className="mt-auto pt-5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Open editor →</p>
+          </Link>;
+        })}</div>
+      ) : <div className="border border-dashed border-border px-5 py-14 text-center"><h3 className="font-bold">No matching movement content</h3><p className="mt-2 text-sm text-muted-foreground">Try a different search or filter.</p><button type="button" onClick={() => { setQuery(""); setPublication("all"); setCompletion("all"); }} className="mt-4 min-h-11 border border-border px-4 font-bold">Clear filters</button></div>}
     </div>
   );
+}
+
+function missingFields(row: Row) {
+  return [
+    ["goal", row.goal], ["summary", row.summary], ["instructions", row.instructions],
+    ["assessment", row.assessment_clues], ["dosage", row.dosage], ["safety", row.safety_notes],
+    ["evidence", row.evidence], ["body region", row.regions.length ? "set" : ""],
+  ].filter(([, value]) => !value?.trim()).map(([label]) => label);
 }
 
