@@ -21,8 +21,8 @@ SET
     {"id":"fhp-options-list","type":"list","style":"bullet","items":["Gentle head glide: slide the head straight back a small distance while keeping the eyes level; relax fully between repetitions.","Supported upper-back extension: sit against a chair back or rolled towel and gently open the upper chest without pushing the neck backward.","Easy rotation: turn left and right only through a comfortable range while keeping the jaw relaxed.","Workstation reset: place the primary screen in front of you, make text easy to read, and change position regularly."]},
     {"id":"fhp-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"fhp-retest-text","type":"paragraph","text":"Return to the activity that prompted the check. Keep an option only if movement feels easier, symptoms stay the same or improve, and you can breathe normally."},
-    {"id":"fhp-source-cpg","type":"button","label":"Read the APTA neck pain guideline","url":"https://www.orthopt.org/uploads/content_files/files/Neck%20Pain%20CPG%20-%20Revision%202017.pdf"},
-    {"id":"fhp-source-osha","type":"button","label":"Review OSHA monitor setup guidance","url":"https://www.osha.gov/etools/computer-workstations/components/monitors"}
+    {"id":"fhp-source-cpg","type":"button","label":"Examine neck pain evidence and limitations","url":"https://www.orthopt.org/uploads/content_files/files/Neck%20Pain%20CPG%20-%20Revision%202017.pdf"},
+    {"id":"fhp-source-osha","type":"button","label":"Compare workstation setup options","url":"https://www.osha.gov/etools/computer-workstations/components/monitors"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -50,8 +50,8 @@ SET
     {"id":"rs-options-list","type":"list","style":"bullet","items":["Wall reach: gently reach the arms forward so the shoulder blades glide around the ribs, then return without squeezing hard.","Supported arm slide: slide the forearms up a wall through an easy range while keeping the neck relaxed.","Light row: draw the elbows back with low resistance and finish before the shoulders tip forward or shrug.","Position change: alternate between supported sitting, standing, and short movement breaks instead of holding one posture."]},
     {"id":"rs-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"rs-retest-text","type":"paragraph","text":"Repeat the original reach or light press. A useful option should improve ease, confidence, or range without producing a painful pinch."},
-    {"id":"rs-source-cpg","type":"button","label":"Read the shoulder rehabilitation guideline","url":"https://www.orthopt.org/uploads/content_files/files/Rotator_Cuff_CPG.pdf"},
-    {"id":"rs-source-osha","type":"button","label":"Review OSHA working-position guidance","url":"https://www.osha.gov/etools/computer-workstations/positions"}
+    {"id":"rs-source-cpg","type":"button","label":"Examine shoulder rehabilitation evidence","url":"https://www.orthopt.org/uploads/content_files/files/Rotator_Cuff_CPG.pdf"},
+    {"id":"rs-source-osha","type":"button","label":"Compare working-position options","url":"https://www.osha.gov/etools/computer-workstations/positions"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -78,8 +78,8 @@ SET
     {"id":"apt-options-list","type":"list","style":"bullet","items":["Breathing reset: lie or sit supported and take 3–5 slow breaths, allowing the ribs and abdomen to move without pushing the back into the floor.","Supported hip hinge: send the hips back toward a wall while keeping pressure balanced through the feet.","Bridge: lift the pelvis only as high as you can without pain, cramping, or breath holding.","Split-stance weight shift: shift forward and back gently while keeping both feet grounded and the trunk relaxed."]},
     {"id":"apt-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"apt-retest-text","type":"paragraph","text":"Repeat the original squat, hinge, standing task, or walk. Keep the drill only if it improves comfort, confidence, or movement options."},
-    {"id":"apt-source-who","type":"button","label":"Read the WHO low back pain guideline","url":"https://www.who.int/publications/i/item/9789240081789"},
-    {"id":"apt-source-apta","type":"button","label":"Read the APTA low back pain guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"}
+    {"id":"apt-source-who","type":"button","label":"Examine broad low back pain recommendations","url":"https://www.who.int/publications/i/item/9789240081789"},
+    {"id":"apt-source-apta","type":"button","label":"Examine low back pain evidence and limitations","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,

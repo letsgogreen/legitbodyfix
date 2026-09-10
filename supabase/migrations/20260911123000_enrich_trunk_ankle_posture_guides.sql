@@ -20,8 +20,8 @@ SET
     {"id":"ftl-options-list","type":"list","style":"bullet","items":["Supported squat: hold a rail and lower slowly while keeping pressure comfortable across the feet.","Ankle rock: keep the heel grounded and guide the knee forward through an easy range.","Hip hinge to wall: move the hips toward a wall and return without holding the breath.","Counterbalance squat: hold a light object in front and use only the depth you can control."]},
     {"id":"ftl-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"ftl-retest-text","type":"paragraph","text":"Repeat the original squat at the same depth. Keep the option that improves balance, comfort, or confidence rather than chasing a perfectly vertical torso."},
-    {"id":"ftl-source-lbp","type":"button","label":"Read the APTA low back pain guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"},
-    {"id":"ftl-source-ankle","type":"button","label":"Read the APTA ankle guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
+    {"id":"ftl-source-lbp","type":"button","label":"Examine low back pain evidence and limitations","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"},
+    {"id":"ftl-source-ankle","type":"button","label":"Examine ankle stability evidence","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -49,7 +49,7 @@ SET
     {"id":"hr-options-list","type":"list","style":"bullet","items":["Supported ankle rock: move the knee forward over a comfortable toe line while the heel stays relaxed on the floor.","Slow calf raise: rise evenly, pause, and lower under control through a comfortable range.","Supported squat hold: pause briefly at a depth where the whole foot feels stable.","Depth progression: increase squat depth in small steps only while balance and heel contact remain comfortable."]},
     {"id":"hr-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"hr-retest-text","type":"paragraph","text":"Repeat the starting squat with the same support and depth. Improvement may be steadier balance, a later heel rise, or a more comfortable range—not necessarily a perfectly flat heel at every depth."},
-    {"id":"hr-source","type":"button","label":"Read the APTA ankle stability guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
+    {"id":"hr-source","type":"button","label":"Examine ankle stability evidence","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -77,8 +77,8 @@ SET
     {"id":"ppt-options-list","type":"list","style":"bullet","items":["Seated pelvic exploration: slowly move between a small forward and backward roll, then relax in the middle.","Supported hip hinge: move the hips toward a wall while allowing the spine to stay comfortable.","Bridge: lift only through a range that avoids cramping, pain, or excessive bracing.","Chair-height experiment: adjust seat height or use a cushion and compare ease of sitting and standing."]},
     {"id":"ppt-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"ppt-retest-text","type":"paragraph","text":"Return to the original sitting, squat, or hinge task. Keep the movement option only if it improves comfort, ease, or confidence."},
-    {"id":"ppt-source-who","type":"button","label":"Read the WHO low back pain guideline","url":"https://www.who.int/publications/i/item/9789240081789"},
-    {"id":"ppt-source-apta","type":"button","label":"Read the APTA low back pain guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"}
+    {"id":"ppt-source-who","type":"button","label":"Examine broad low back pain recommendations","url":"https://www.who.int/publications/i/item/9789240081789"},
+    {"id":"ppt-source-apta","type":"button","label":"Examine low back pain evidence and limitations","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,

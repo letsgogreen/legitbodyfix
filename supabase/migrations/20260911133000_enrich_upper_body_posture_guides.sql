@@ -20,8 +20,8 @@ SET
     {"id":"se-options-list","type":"list","style":"bullet","items":["Forearm wall slide: gently slide upward while allowing the shoulder blades to rotate and the neck to stay relaxed.","Supported reach: rest the forearm on a surface and reach forward without holding the breath.","Light carry: hold a light object at the side and walk slowly without deliberately depressing the shoulder.","Easy neck rotation: turn left and right through a comfortable range between reaching sets."]},
     {"id":"se-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"se-retest-text","type":"paragraph","text":"Repeat the original reach or carry. Keep the option if it improves comfort, range, confidence, or neck relaxation."},
-    {"id":"se-source-shoulder","type":"button","label":"Read the shoulder rehabilitation guideline","url":"https://www.orthopt.org/uploads/content_files/files/Rotator_Cuff_CPG.pdf"},
-    {"id":"se-source-neck","type":"button","label":"Read the APTA neck pain guideline","url":"https://www.orthopt.org/uploads/content_files/files/Neck%20Pain%20CPG%20-%20Revision%202017.pdf"}
+    {"id":"se-source-shoulder","type":"button","label":"Examine shoulder rehabilitation evidence","url":"https://www.orthopt.org/uploads/content_files/files/Rotator_Cuff_CPG.pdf"},
+    {"id":"se-source-neck","type":"button","label":"Examine neck pain evidence and limitations","url":"https://www.orthopt.org/uploads/content_files/files/Neck%20Pain%20CPG%20-%20Revision%202017.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -49,8 +49,8 @@ SET
     {"id":"rf-options-list","type":"list","style":"bullet","items":["Supported breathing: rest the arms and take 3–5 quiet breaths into the sides and back of the rib cage.","Wall reach: gently reach the arms forward while allowing the upper back to widen.","Half-kneeling reach: use a supported stance and reach one arm forward or overhead only as far as breathing stays easy.","Hip hinge with exhale: begin the hinge during a relaxed exhale, then return without bracing hard."]},
     {"id":"rf-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"rf-retest-text","type":"paragraph","text":"Return to the original reach, stance, or hinge. Keep the option if breathing stays easier and the task feels more comfortable or controlled."},
-    {"id":"rf-source-who","type":"button","label":"Read the WHO low back pain guideline","url":"https://www.who.int/publications/i/item/9789240081789"},
-    {"id":"rf-source-apta","type":"button","label":"Read the APTA low back pain guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"}
+    {"id":"rf-source-who","type":"button","label":"Examine broad low back pain recommendations","url":"https://www.who.int/publications/i/item/9789240081789"},
+    {"id":"rf-source-apta","type":"button","label":"Examine low back pain evidence and limitations","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -78,7 +78,7 @@ SET
     {"id":"sat-options-list","type":"list","style":"bullet","items":["Wall slide: keep light forearm contact and allow the shoulder blade to move as the arm rises.","Wall push-up plus: perform a small wall push-up, then gently reach the chest away from the wall.","Supported external rotation: rest the elbow on a towel or surface and rotate through a comfortable range.","Light row and release: pull with low resistance, then fully allow the shoulder blade to glide forward again."]},
     {"id":"sat-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"sat-retest-text","type":"paragraph","text":"Repeat the original reach. Keep the option if the arm moves with less effort or discomfort and without a forced shoulder-blade position."},
-    {"id":"sat-source","type":"button","label":"Read the shoulder rehabilitation guideline","url":"https://www.orthopt.org/uploads/content_files/files/Rotator_Cuff_CPG.pdf"}
+    {"id":"sat-source","type":"button","label":"Examine shoulder rehabilitation evidence","url":"https://www.orthopt.org/uploads/content_files/files/Rotator_Cuff_CPG.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,

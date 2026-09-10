@@ -21,7 +21,7 @@ SET
     {"id":"kd-options-list","type":"list","style":"bullet","items":["Box squat: sit back to a stable chair or box, pause lightly, and stand without dropping or bouncing.","Supported split squat: hold a rail and lower only through a comfortable range while sharing pressure across both feet.","Hip hinge practice: move the hips toward a wall and return, keeping the feet grounded.","Tempo squat: lower for three seconds, pause briefly, and stand at a speed you can control."]},
     {"id":"kd-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"kd-retest-text","type":"paragraph","text":"Repeat the original squat or step. A useful option should improve comfort, balance, confidence, or control without creating a new symptom."},
-    {"id":"kd-source","type":"button","label":"Review the APTA patellofemoral pain guideline","url":"https://www.orthopt.org/content/s/patellofemoral-pain-2019"}
+    {"id":"kd-source","type":"button","label":"Examine patellofemoral pain evidence","url":"https://www.orthopt.org/content/s/patellofemoral-pain-2019"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -77,7 +77,7 @@ SET
     {"id":"fto-options-list","type":"list","style":"bullet","items":["Supported ankle rock: with the heel down, move the knee forward over a comfortable toe line and return.","Calf raise: rise through a comfortable pressure path across the forefoot, then lower slowly.","Tripod balance: feel contact under the heel and both sides of the forefoot without gripping the toes.","Stance experiment: test small changes in width and toe angle, keeping the version that improves the task."]},
     {"id":"fto-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"fto-retest-text","type":"paragraph","text":"Repeat the original walk or squat. Keep the option only if it improves comfort, balance, or range without forcing the foot into a rigid position."},
-    {"id":"fto-source","type":"button","label":"Read the APTA ankle stability guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
+    {"id":"fto-source","type":"button","label":"Examine ankle stability evidence","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,

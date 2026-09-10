@@ -20,8 +20,8 @@ SET
     {"id":"aws-options-list","type":"list","style":"bullet","items":["Lateral weight shift: move the pelvis gently over one foot, pause, and return.","Supported march: alternate lifting one foot while keeping the trunk relaxed.","Low step-up: use a rail and step up slowly, then reset between repetitions.","Staggered sit-to-stand: place one foot slightly back and compare each setup without forcing equal effort."]},
     {"id":"aws-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"aws-retest-text","type":"paragraph","text":"Repeat the original squat, step, or walk. Look for improved comfort, confidence, or access to the less-used side rather than exact visual symmetry."},
-    {"id":"aws-source-lbp","type":"button","label":"Read the APTA low back pain guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"},
-    {"id":"aws-source-ankle","type":"button","label":"Read the APTA ankle guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
+    {"id":"aws-source-lbp","type":"button","label":"Examine low back pain evidence and limitations","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0304.pdf"},
+    {"id":"aws-source-ankle","type":"button","label":"Examine ankle stability evidence","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -49,8 +49,8 @@ SET
     {"id":"vk-out-options-list","type":"list","style":"bullet","items":["Tripod balance: feel the heel and both sides of the forefoot while keeping the toes relaxed.","Supported sit-to-stand: rise slowly from a chair using a stance that feels stable.","Lateral weight shift: move over one foot and return while keeping the knee comfortable.","Low step-down: lower slowly from a small step with rail support, then reset."]},
     {"id":"vk-out-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"vk-out-retest-text","type":"paragraph","text":"Repeat the original task. Keep the option if it improves symptoms, balance, or confidence—not simply because the knee looks straighter."},
-    {"id":"vk-out-source-knee","type":"button","label":"Review the APTA patellofemoral pain guideline","url":"https://www.orthopt.org/content/s/patellofemoral-pain-2019"},
-    {"id":"vk-out-source-ankle","type":"button","label":"Read the APTA ankle guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
+    {"id":"vk-out-source-knee","type":"button","label":"Examine patellofemoral pain evidence","url":"https://www.orthopt.org/content/s/patellofemoral-pain-2019"},
+    {"id":"vk-out-source-ankle","type":"button","label":"Examine ankle stability evidence","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,
@@ -78,7 +78,7 @@ SET
     {"id":"fp-options-list","type":"list","style":"bullet","items":["Foot-pressure exploration: shift gently between heel, inner forefoot, and outer forefoot, then find a comfortable middle.","Supported calf raise: rise and lower slowly without gripping the toes.","Single-leg balance with support: use fingertips and allow small natural adjustments at the foot.","Slow step-through: practice transferring weight from one foot to the other before returning to normal walking."]},
     {"id":"fp-retest","type":"heading","level":2,"text":"Reassess"},
     {"id":"fp-retest-text","type":"paragraph","text":"Repeat the original standing, walking, or squat task. Keep the option if it improves comfort, balance, or confidence without trying to freeze the arch."},
-    {"id":"fp-source","type":"button","label":"Read the APTA ankle stability guideline","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
+    {"id":"fp-source","type":"button","label":"Examine ankle stability evidence","url":"https://www.orthopt.org/uploads/content_files/files/jospt.2021.0302.pdf"}
   ]$json$::jsonb,
   instructions = 'Use the structured content blocks for the current guide.',
   review_status = 'published'::public.content_review_status,

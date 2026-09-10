@@ -65,3 +65,11 @@ test('editorial pass retains non-diagnostic framing and safety guidance', () => 
   assert.equal([...migration.matchAll(/safety_notes =/g)].length, 15);
   assert.equal([...migration.matchAll(/review_status = 'published'/g)].length, 15);
 });
+
+test('source calls to action invite examination instead of authority-based trust', () => {
+  const labels = [...migration.matchAll(/"type":"button","label":"([^"]+)"/g)].map((match) => match[1]);
+  assert.ok(labels.length > 0);
+  assert.ok(labels.every((label) => !/^Read the (APTA|WHO)/.test(label)), labels.join('\n'));
+  assert.ok(labels.every((label) => !/^Review (the )?(APTA|WHO|OSHA)/.test(label)), labels.join('\n'));
+  assert.ok(labels.some((label) => /evidence and limitations/i.test(label)));
+});
