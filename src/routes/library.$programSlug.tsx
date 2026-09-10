@@ -51,7 +51,11 @@ function ProgramLibrary() {
   async function play(lesson: Lesson) {
     if (lesson.stream_status !== "ready") return;
     setPlaybackLoading(true); setError(null); setPlaying(lesson); setPlaybackUrl(null);
-    try { const result = await getStreamPlayback({ data: { lessonId: lesson.id } }); setPlaybackUrl(result.iframeUrl); }
+    try {
+      const preferredLanguage = navigator.language.toLowerCase().startsWith("ko") ? "ko" : "en";
+      const result = await getStreamPlayback({ data: { lessonId: lesson.id, preferredLanguage } });
+      setPlaybackUrl(result.iframeUrl);
+    }
     catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); setPlaying(null); }
     setPlaybackLoading(false);
   }
