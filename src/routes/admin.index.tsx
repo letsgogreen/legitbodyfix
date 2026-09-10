@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, Check, ExternalLink, Loader2, RefreshCw } from "lucide-react";
-import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { AlertTriangle, Check, ExternalLink, RefreshCw } from "lucide-react";
+import { AdminLoadingState, Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import {
   getIntegrationReadiness,
   type IntegrationReadiness,
@@ -128,10 +128,7 @@ function Dashboard() {
         </div>
       )}
       {loading && !programs.length ? (
-        <div className="flex min-h-72 items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Loading live workspace…
-        </div>
+        <AdminLoadingState label="Loading live workspace" />
       ) : (
         <>
           {integrations && <IntegrationPanel integrations={integrations} />}

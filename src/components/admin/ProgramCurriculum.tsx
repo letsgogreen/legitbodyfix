@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import { FileVideo, Loader2, Pencil, Play, Plus, Settings2, Trash2, Upload, X } from "lucide-react";
-import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
+import { AdminLoadingState, Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import type { Database } from "@/integrations/supabase/types";
 import { createAdminModule, deleteAdminLesson, deleteAdminModule, getAdminCurriculum, saveAdminLesson, updateAdminModule } from "@/lib/admin-curriculum.functions";
@@ -161,7 +161,7 @@ export function ProgramCurriculum({ requestedProgramId }: { requestedProgramId?:
 
       <div className="mt-5 space-y-5">
         {loading ? (
-          <Panel className="flex min-h-44 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading curriculum…</Panel>
+          <AdminLoadingState variant="list" label="Loading curriculum" />
         ) : (
           <>
             {modules.map((module) => (

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, ArrowUpRight, BookOpen, Plus, X } from "lucide-react";
-import { PageHead } from "@/components/admin/AdminUI";
+import { AdminLoadingState, PageHead } from "@/components/admin/AdminUI";
 import { listPublishedMuscles } from "@/lib/muscles.functions";
 import { getSupabaseClient } from "@/lib/supabase";
 import type { Muscle } from "@/lib/muscles";
@@ -120,9 +120,7 @@ export function ProgramAnatomyPreview() {
         </p>
       </div>
       {loading ? (
-        <p role="status" className="py-12">
-          Loading the existing muscle library…
-        </p>
+        <AdminLoadingState variant="editor" label="Loading the existing muscle library" />
       ) : error ? (
         <p role="alert" className="border border-destructive p-5 text-destructive">
           {error}

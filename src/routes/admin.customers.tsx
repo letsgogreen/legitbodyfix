@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Search, X } from "lucide-react";
-import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { Search, X } from "lucide-react";
+import { AdminLoadingState, Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -50,11 +50,11 @@ function CustomersView() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
-      <PageHead title="Customers" meta={`${profiles.length} real accounts · ${entitlements.filter((item) => item.active).length} active program grants`} />
+      <PageHead title="Customers" meta={loading ? "Loading account totals" : `${profiles.length} real accounts · ${entitlements.filter((item) => item.active).length} active program grants`} />
       {error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
-      <div className="relative mt-5 max-w-md"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name or email" className="w-full rounded-sm border border-border bg-card py-2 pl-9 pr-3 text-sm" /></div>
-      <Panel className="mt-4 overflow-x-auto">
-        {loading ? <div className="flex min-h-44 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading customers…</div> : (
+      <div className="relative mt-5 max-w-md"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input disabled={loading || Boolean(error)} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name or email" className="w-full rounded-sm border border-border bg-card py-2 pl-9 pr-3 text-sm disabled:cursor-wait disabled:opacity-50" /></div>
+      {loading ? <div className="mt-4"><AdminLoadingState variant="list" label="Loading customers" /></div> : <Panel className="mt-4 overflow-x-auto">
+        {(
           <table className="w-full min-w-[720px] text-sm">
             <thead><tr><Th>Customer</Th><Th>Joined</Th><Th>Programs</Th><Th>Status</Th><Th /></tr></thead>
             <tbody>
@@ -66,7 +66,7 @@ function CustomersView() {
             </tbody>
           </table>
         )}
-      </Panel>
+      </Panel>}
       {selected && <AccessDrawer profile={selected} programs={programs} entitlements={entitlements.filter((item) => item.user_id === selected.user_id)} onClose={() => setSelected(null)} onChanged={load} />}
     </div>
   );

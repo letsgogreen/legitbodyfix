@@ -71,6 +71,64 @@ export function Panel({
   );
 }
 
+export function Skeleton({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn("block animate-pulse rounded-sm bg-secondary", className)}
+    />
+  );
+}
+
+export function AdminLoadingState({
+  variant = "dashboard",
+  label = "Loading workspace",
+}: {
+  variant?: "dashboard" | "editor" | "list";
+  label?: string;
+}) {
+  if (variant === "editor") {
+    return (
+      <div role="status" aria-label={label} className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <Panel className="min-h-[34rem] space-y-6 p-5 sm:p-8">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-14 w-4/5" />
+          <Skeleton className="h-4 w-36" />
+          <div className="space-y-3"><Skeleton className="h-5 w-full" /><Skeleton className="h-5 w-11/12" /><Skeleton className="h-5 w-3/4" /></div>
+          <Skeleton className="h-px w-full" />
+          <Skeleton className="h-32 w-full" />
+          <span className="sr-only">{label}…</span>
+        </Panel>
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-32" />
+          {[0, 1, 2].map((item) => <Skeleton key={item} className="h-28 w-full" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "list") {
+    return (
+      <Panel role="status" aria-label={label} className="space-y-3 p-4">
+        {[0, 1, 2, 3, 4].map((item) => <Skeleton key={item} className="h-12 w-full" />)}
+        <span className="sr-only">{label}…</span>
+      </Panel>
+    );
+  }
+
+  return (
+    <div role="status" aria-label={label}>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((item) => <Panel key={item} className="space-y-3 p-4"><Skeleton className="h-3 w-20" /><Skeleton className="h-9 w-28" /><Skeleton className="h-3 w-32" /></Panel>)}
+      </div>
+      <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+        <Skeleton className="h-72 w-full" /><Skeleton className="h-72 w-full" />
+      </div>
+      <span className="sr-only">{label}…</span>
+    </div>
+  );
+}
+
 export function Th({ children, className }: { children?: ReactNode; className?: string }) {
   return (
     <th
