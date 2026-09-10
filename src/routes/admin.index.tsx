@@ -15,6 +15,17 @@ type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 type Customer = Database["public"]["Tables"]["customer_profiles"]["Row"];
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 
+function hasIntegrationBlockers(integrations: IntegrationReadiness) {
+  return !(
+    integrations.supabase &&
+    integrations.paddleCheckout &&
+    integrations.paddleWebhook &&
+    integrations.streamUpload &&
+    integrations.streamPlayback &&
+    integrations.streamWebhook
+  );
+}
+
 export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [{ title: "Dashboard — LegitBodyFix Admin" }, { name: "robots", content: "noindex" }],
@@ -83,11 +94,6 @@ function Dashboard() {
       value: String(programs.length),
       note: `${programs.filter((p) => p.published).length} published`,
     },
-    {
-      label: "Lessons",
-      value: String(lessons.length),
-      note: `${lessons.filter((l) => l.published).length} published · ${lessons.filter(isLessonVideoReady).length} ready videos`,
-    },
     { label: "Customers", value: String(customers.length), note: "Supabase accounts" },
     {
       label: "Paid orders",
@@ -101,12 +107,7 @@ function Dashboard() {
       <PageHead
         title="Your workspace"
         meta="Write content, build programs, and manage customer access"
-        actions={
-          <Btn onClick={() => void load()} disabled={loading}>
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Btn>
-        }
+        actions={error ? <Btn onClick={() => void load()} disabled={loading}><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />Retry</Btn> : undefined}
       />
       <section aria-label="Start a task" className="my-6 grid gap-3 md:grid-cols-3">
         <Link to="/admin/recipes" className="border border-border bg-card p-5 transition-colors hover:bg-secondary focus-visible:outline focus-visible:outline-2">
@@ -131,8 +132,8 @@ function Dashboard() {
         <AdminLoadingState label="Loading live workspace" />
       ) : (
         <>
-          {integrations && <IntegrationPanel integrations={integrations} />}
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {integrations && hasIntegrationBlockers(integrations) && <IntegrationPanel integrations={integrations} />}
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {stats.map((stat) => (
               <Panel key={stat.label} className="p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">

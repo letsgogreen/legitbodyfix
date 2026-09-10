@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { FileDown, FileUp, Plus, Search, Waypoints } from "lucide-react";
+import { FileDown, Plus, Search } from "lucide-react";
 import { AdminLoadingState, Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,16 +117,6 @@ function AdminRecipes() {
             className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-accent px-3 py-2 text-xs font-bold text-accent-foreground"
           >
             <FileDown className="h-3.5 w-3.5" aria-hidden="true" /> Collect sources
-          </Link><Link
-            to="/admin/recipes/import"
-            className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-background px-3 py-2 text-xs font-bold"
-          >
-            <FileUp className="h-3.5 w-3.5" aria-hidden="true" /> Notion import
-          </Link><Link
-            to="/admin/guides"
-            className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-background px-3 py-2 text-xs font-bold"
-          >
-            <Waypoints className="h-3.5 w-3.5" aria-hidden="true" /> Legacy guide links
           </Link></>
         }
       />
@@ -134,8 +124,8 @@ function AdminRecipes() {
       <Panel className="mt-5 border-l-4 border-l-accent p-4">
         <p className="text-sm font-bold">One movement-content workflow</p>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          Create posture guidance and corrective exercises here as recipes. Existing posture-guide
-          records remain available under Legacy guide links until their relationships are migrated.
+          Create posture guidance and corrective exercises here as recipes. Import and migration
+          utilities are kept under Advanced tools so this library stays focused on daily editing.
         </p>
       </Panel>
 

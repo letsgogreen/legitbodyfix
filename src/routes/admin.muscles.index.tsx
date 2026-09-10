@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ExternalLink, FileUp, ImageOff, Search } from "lucide-react";
+import { ExternalLink, ImageOff, Search } from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import {
   filterMuscleList,
@@ -107,12 +107,6 @@ function AdminMuscles() {
         meta={`${all.length} records · ${publishedCount} published · live from database`}
         actions={
           <>
-            <Link
-              to="/admin/muscles/import"
-              className="inline-flex min-h-10 items-center gap-2 rounded-sm bg-ink px-3 py-2 text-xs font-bold text-ink-foreground"
-            >
-              Bulk import <FileUp className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
             <Link
               to="/muscles"
               target="_blank"
