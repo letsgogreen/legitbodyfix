@@ -20,13 +20,18 @@ export type RegionResource = {
 
 export type BodyRegionMedia = { image_url?: string | null; image_alt?: string | null };
 
-const retiredRegionImages = new Set([
-  "/assets/images/postures/knee-valgus-varus.jpg",
-  "assets/images/postures/knee-valgus-varus.jpg",
-]);
+function isRetiredRegionImage(region: BodyRegion, imageUrl: string) {
+  const normalized = imageUrl.toLowerCase();
+  return region.slug === "knee" && (
+    normalized.includes("knee-valgus") ||
+    normalized.includes("knee_valgus") ||
+    normalized.includes("genu-valgum") ||
+    normalized.includes("genu_valgum")
+  );
+}
 
 export function resolveBodyRegionMedia(region: BodyRegion, override?: BodyRegionMedia) {
-  const useOverride = Boolean(override?.image_url && !retiredRegionImages.has(override.image_url));
+  const useOverride = Boolean(override?.image_url && !isRetiredRegionImage(region, override.image_url));
   return {
     imageUrl: useOverride ? override!.image_url! : region.imageUrl,
     imageAlt: useOverride && override?.image_alt ? override.image_alt : region.imageAlt,
