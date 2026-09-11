@@ -203,7 +203,6 @@
     setText("featuredRecipeScreening", text(source.screening,
       "Compare relaxed head position with comfortable neck motion, upper-back support, breathing, and the activity that matters to you."));
     document.getElementById("featuredRecipeLink").href = href;
-    document.getElementById("featuredRecipeTextLink").href = href;
     document.getElementById("featuredRecipe").hidden = false;
   }
 
