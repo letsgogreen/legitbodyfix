@@ -22,6 +22,11 @@ export type PublicProgram = {
   paddlePriceId: string | null;
 };
 
+type PublicProgramRow = Pick<
+  Database["public"]["Tables"]["programs"]["Row"],
+  "id" | "slug" | "name" | "outcome" | "format" | "duration_label" | "level" | "regions" | "goals" | "who_its_for" | "image_url" | "image_alt" | "paddle_price_id" | "featured_rank"
+>;
+
 function publicClient() {
   const url = process.env["SUPABASE_URL"];
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
@@ -32,31 +37,42 @@ function publicClient() {
 }
 
 export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async (): Promise<PublicProgram[]> => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
+  const selectPrograms = (client: ReturnType<typeof publicClient>) => client
     .from("programs")
     .select("id,slug,name,outcome,format,duration_label,level,regions,goals,who_its_for,image_url,image_alt,paddle_price_id,featured_rank")
     .eq("published", true)
     .order("featured_rank", { ascending: true, nullsFirst: false })
     .order("name");
-  if (error) throw new Error(error.message);
 
-  const rows = data ?? [];
-  const programIds = rows.map((row) => row.id);
-  const { data: lessons, error: lessonsError } = programIds.length
-    ? await supabaseAdmin
-      .from("lessons")
-      .select("program_id,thumbnail_url,stream_thumbnail_url,position")
-      .in("program_id", programIds)
-      .order("position")
-    : { data: [], error: null };
-  if (lessonsError) throw new Error(lessonsError.message);
+  let rows: PublicProgramRow[] = [];
   const lessonThumbnailByProgram = new Map<string, string>();
-  for (const lesson of lessons ?? []) {
-    const thumbnail = lesson.thumbnail_url || lesson.stream_thumbnail_url;
-    if (thumbnail && !lessonThumbnailByProgram.has(lesson.program_id)) {
-      lessonThumbnailByProgram.set(lesson.program_id, thumbnail);
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let result = await selectPrograms(supabaseAdmin as ReturnType<typeof publicClient>);
+    if (result.error) result = await selectPrograms(supabaseAdmin as ReturnType<typeof publicClient>);
+    if (result.error) throw new Error(result.error.message);
+    rows = (result.data ?? []) as PublicProgramRow[];
+
+    const programIds = rows.map((row) => row.id);
+    const { data: lessons, error: lessonsError } = programIds.length
+      ? await supabaseAdmin
+        .from("lessons")
+        .select("program_id,thumbnail_url,stream_thumbnail_url,position")
+        .in("program_id", programIds)
+        .order("position")
+      : { data: [], error: null };
+    if (lessonsError) console.error("Program lesson thumbnails unavailable:", lessonsError.message);
+    for (const lesson of lessons ?? []) {
+      const thumbnail = lesson.thumbnail_url || lesson.stream_thumbnail_url;
+      if (thumbnail && !lessonThumbnailByProgram.has(lesson.program_id)) {
+        lessonThumbnailByProgram.set(lesson.program_id, thumbnail);
+      }
     }
+  } catch (primaryError) {
+    console.error("Primary public program query failed; using anonymous fallback:", primaryError);
+    const fallback = await selectPrograms(publicClient());
+    if (fallback.error) throw new Error(fallback.error.message);
+    rows = (fallback.data ?? []) as PublicProgramRow[];
   }
   const prices = await fetchPaddlePrices(
     rows.map((row) => row.paddle_price_id).filter((id): id is string => Boolean(id)),

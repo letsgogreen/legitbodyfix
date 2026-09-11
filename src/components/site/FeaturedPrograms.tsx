@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
-import type { PublicProgram } from "@/lib/public-programs.functions";
+import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
 import { useCustomerAccess } from "@/lib/useCustomerAccess";
 import { captureProgramPayPalOrder, createProgramPayPalOrder, getPayPalClientConfig } from "@/lib/paypal.functions";
 
@@ -29,14 +29,29 @@ function programSalesHref(program: PublicProgram) {
 
 export function FeaturedPrograms({ programs, loadFailed = false }: { programs: PublicProgram[]; loadFailed?: boolean }) {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const [runtimePrograms, setRuntimePrograms] = useState(programs);
+  const [runtimeFailed, setRuntimeFailed] = useState(loadFailed);
+  const [retrying, setRetrying] = useState(false);
 
   const visiblePrograms = useMemo(
-    () => activeCategory === "All" ? programs : programs.filter((program) => categoryOf(program) === activeCategory),
-    [activeCategory, programs],
+    () => activeCategory === "All" ? runtimePrograms : runtimePrograms.filter((program) => categoryOf(program) === activeCategory),
+    [activeCategory, runtimePrograms],
   );
 
-  if (loadFailed) return <div className="min-h-64 border border-destructive/40 bg-destructive/5 px-5 py-8 text-sm text-destructive">Programs could not be loaded. Please try again shortly.</div>;
-  if (!programs.length) return <div className="border border-border bg-card px-6 py-12"><h3 className="text-2xl font-extrabold">Programs are being prepared.</h3><p className="mt-2 text-sm text-muted-foreground">Published programs will appear here automatically.</p></div>;
+  const retry = async () => {
+    setRetrying(true);
+    try {
+      setRuntimePrograms(await getPublicPrograms());
+      setRuntimeFailed(false);
+    } catch {
+      setRuntimeFailed(true);
+    } finally {
+      setRetrying(false);
+    }
+  };
+
+  if (runtimeFailed) return <div className="min-h-64 border border-destructive/40 bg-destructive/5 px-5 py-8 text-sm text-destructive"><p>Programs could not be loaded.</p><button type="button" disabled={retrying} onClick={() => void retry()} className="mt-5 min-h-11 border border-destructive/50 bg-background px-4 font-bold text-foreground disabled:opacity-50">{retrying ? "Trying again…" : "Try again"}</button></div>;
+  if (!runtimePrograms.length) return <div className="border border-border bg-card px-6 py-12"><h3 className="text-2xl font-extrabold">Programs are being prepared.</h3><p className="mt-2 text-sm text-muted-foreground">Published programs will appear here automatically.</p></div>;
 
   return (
     <div>
