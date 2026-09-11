@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, ImageIcon } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
@@ -119,6 +120,7 @@ function TextBlock({ value }: { value: string | null }) {
 
 function RecipeDetail() {
   const recipe = Route.useLoaderData();
+  const [imageFailed, setImageFailed] = useState(false);
   const storedBlocks = normalizeRecipeBlocks(recipe.content_blocks);
   const contentBlocks = storedBlocks.length
     ? storedBlocks
@@ -170,15 +172,28 @@ function RecipeDetail() {
                 ) : null}
               </div>
 
-              {recipe.image_url ? (
+              {recipe.image_url && !imageFailed ? (
                 <figure className="overflow-hidden rounded-sm border border-border bg-secondary">
                   <img
                     src={recipe.image_url}
                     alt={recipe.image_alt ?? recipe.title}
                     className="h-full max-h-[26rem] w-full object-cover"
+                    onError={() => setImageFailed(true)}
                   />
                 </figure>
-              ) : null}
+              ) : (
+                <div
+                  className="grid min-h-56 place-items-center rounded-sm border border-border bg-[linear-gradient(135deg,hsl(var(--secondary))_0%,hsl(var(--background))_100%)] text-muted-foreground"
+                  aria-label="Cover visual unavailable"
+                >
+                  <span className="flex flex-col items-center gap-3">
+                    <ImageIcon className="h-7 w-7 opacity-45" strokeWidth={1.5} aria-hidden="true" />
+                    <span className="font-mono text-[9px] uppercase tracking-[0.18em]">
+                      Guide visual unavailable
+                    </span>
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </section>

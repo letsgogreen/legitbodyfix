@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 import { removeStoredContentImages } from "@/lib/content-images.functions";
@@ -32,7 +33,7 @@ const programInput = z.object({
 });
 
 export const getAdminPrograms = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([attachSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }): Promise<Program[]> => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const { data, error } = await context.supabase
@@ -45,7 +46,7 @@ export const getAdminPrograms = createServerFn({ method: "GET" })
   });
 
 export const saveAdminProgram = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([attachSupabaseAuth, requireSupabaseAuth])
   .validator((input) => programInput.parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
@@ -76,7 +77,7 @@ export const saveAdminProgram = createServerFn({ method: "POST" })
   });
 
 export const setAdminProgramPublished = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([attachSupabaseAuth, requireSupabaseAuth])
   .validator((input) => z.object({
     programId: z.string().uuid(),
     published: z.boolean(),
@@ -94,7 +95,7 @@ export const setAdminProgramPublished = createServerFn({ method: "POST" })
   });
 
 export const getProgramDeleteImpact = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([attachSupabaseAuth, requireSupabaseAuth])
   .validator((input) => z.object({ programId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
@@ -115,7 +116,7 @@ export const getProgramDeleteImpact = createServerFn({ method: "GET" })
   });
 
 export const deleteAdminProgram = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([attachSupabaseAuth, requireSupabaseAuth])
   .validator((input) => z.object({ programId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");

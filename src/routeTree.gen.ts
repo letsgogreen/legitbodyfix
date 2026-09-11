@@ -55,6 +55,7 @@ import { Route as ApiPublicPaddleWebhookRouteImport } from './routes/api.public.
 import { Route as Ver1AdminSplatRouteImport } from './routes/ver1.admin.$'
 import { Route as ApiPaypalOrdersCaptureRouteImport } from './routes/api.paypal.orders.capture'
 import { Route as ApiPaypalOrdersCreateRouteImport } from './routes/api.paypal.orders.create'
+import { Route as ApiPublicRecipeImageRecipeIdFilenameRouteImport } from './routes/api.public.recipe-image.$recipeId.$filename'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -287,6 +288,12 @@ const ApiPaypalOrdersCreateRoute = ApiPaypalOrdersCreateRouteImport.update({
   path: '/api/paypal/orders/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicRecipeImageRecipeIdFilenameRoute =
+  ApiPublicRecipeImageRecipeIdFilenameRouteImport.update({
+    id: '/api/public/recipe-image/$recipeId/$filename',
+    path: '/api/public/recipe-image/$recipeId/$filename',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -335,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/admin/recipes/': typeof AdminRecipesIndexRoute
   '/api/paypal/orders/capture': typeof ApiPaypalOrdersCaptureRoute
   '/api/paypal/orders/create': typeof ApiPaypalOrdersCreateRoute
+  '/api/public/recipe-image/$recipeId/$filename': typeof ApiPublicRecipeImageRecipeIdFilenameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -379,6 +387,7 @@ export interface FileRoutesByTo {
   '/admin/recipes': typeof AdminRecipesIndexRoute
   '/api/paypal/orders/capture': typeof ApiPaypalOrdersCaptureRoute
   '/api/paypal/orders/create': typeof ApiPaypalOrdersCreateRoute
+  '/api/public/recipe-image/$recipeId/$filename': typeof ApiPublicRecipeImageRecipeIdFilenameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -428,6 +437,7 @@ export interface FileRoutesById {
   '/admin/recipes/': typeof AdminRecipesIndexRoute
   '/api/paypal/orders/capture': typeof ApiPaypalOrdersCaptureRoute
   '/api/paypal/orders/create': typeof ApiPaypalOrdersCreateRoute
+  '/api/public/recipe-image/$recipeId/$filename': typeof ApiPublicRecipeImageRecipeIdFilenameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -478,6 +488,7 @@ export interface FileRouteTypes {
     | '/admin/recipes/'
     | '/api/paypal/orders/capture'
     | '/api/paypal/orders/create'
+    | '/api/public/recipe-image/$recipeId/$filename'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -522,6 +533,7 @@ export interface FileRouteTypes {
     | '/admin/recipes'
     | '/api/paypal/orders/capture'
     | '/api/paypal/orders/create'
+    | '/api/public/recipe-image/$recipeId/$filename'
   id:
     | '__root__'
     | '/'
@@ -570,6 +582,7 @@ export interface FileRouteTypes {
     | '/admin/recipes/'
     | '/api/paypal/orders/capture'
     | '/api/paypal/orders/create'
+    | '/api/public/recipe-image/$recipeId/$filename'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -595,6 +608,7 @@ export interface RootRouteChildren {
   ApiPublicPaddleWebhookRoute: typeof ApiPublicPaddleWebhookRoute
   ApiPaypalOrdersCaptureRoute: typeof ApiPaypalOrdersCaptureRoute
   ApiPaypalOrdersCreateRoute: typeof ApiPaypalOrdersCreateRoute
+  ApiPublicRecipeImageRecipeIdFilenameRoute: typeof ApiPublicRecipeImageRecipeIdFilenameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -921,6 +935,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPaypalOrdersCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/recipe-image/$recipeId/$filename': {
+      id: '/api/public/recipe-image/$recipeId/$filename'
+      path: '/api/public/recipe-image/$recipeId/$filename'
+      fullPath: '/api/public/recipe-image/$recipeId/$filename'
+      preLoaderRoute: typeof ApiPublicRecipeImageRecipeIdFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1039,6 +1060,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPaddleWebhookRoute: ApiPublicPaddleWebhookRoute,
   ApiPaypalOrdersCaptureRoute: ApiPaypalOrdersCaptureRoute,
   ApiPaypalOrdersCreateRoute: ApiPaypalOrdersCreateRoute,
+  ApiPublicRecipeImageRecipeIdFilenameRoute:
+    ApiPublicRecipeImageRecipeIdFilenameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
