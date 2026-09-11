@@ -15,7 +15,12 @@ test('trims email and returns to the library on the current origin', async () =>
   const address = await requestEmailLink('  member@example.com  ', 'https://www.legitbodyfix.com', async (input) => { request = input; return { error: null }; });
   assert.equal(address, 'member@example.com');
   assert.equal(request.email, address);
-  assert.equal(request.options.emailRedirectTo, 'https://www.legitbodyfix.com/library');
+  assert.equal(request.options.emailRedirectTo, 'https://www.legitbodyfix.com/library?remember=0');
+});
+test('remembered sign-in is explicit in the redirect', async () => {
+  let request;
+  await requestEmailLink('member@example.com', 'https://www.legitbodyfix.com', async (input) => { request = input; return { error: null }; }, true);
+  assert.equal(request.options.emailRedirectTo, 'https://www.legitbodyfix.com/library?remember=1');
 });
 test('invalid email never sends a request', async () => {
   let calls = 0;

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowUpRight, BookOpen, Check, Dumbbell, ExternalLink, Loader2, PanelsTopLeft } from "lucide-react";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
-import { bodyRegions } from "@/data/body-regions";
+import { bodyRegions, resolveBodyRegionMedia } from "@/data/body-regions";
 import { supabase } from "@/integrations/supabase/client";
 
 type AdminPrefix = "/admin";
@@ -42,7 +42,15 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
         return;
       }
       if (!data) return;
-      setMedia((current) => ({ ...current, ...Object.fromEntries(data.map((item) => [item.key.replace("body-region:", ""), { image_url: item.image_url, image_alt: item.image_alt }])) }));
+      setMedia((current) => ({
+        ...current,
+        ...Object.fromEntries(data.map((item) => {
+          const slug = item.key.replace("body-region:", "");
+          const region = bodyRegions.find((candidate) => candidate.slug === slug);
+          const resolved = region ? resolveBodyRegionMedia(region, item) : { imageUrl: item.image_url, imageAlt: item.image_alt };
+          return [slug, { image_url: resolved.imageUrl, image_alt: resolved.imageAlt }];
+        })),
+      }));
     });
   }, []);
 

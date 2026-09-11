@@ -18,6 +18,21 @@ export type RegionResource = {
   available?: boolean;
 };
 
+export type BodyRegionMedia = { image_url?: string | null; image_alt?: string | null };
+
+const retiredRegionImages = new Set([
+  "/assets/images/postures/knee-valgus-varus.jpg",
+  "assets/images/postures/knee-valgus-varus.jpg",
+]);
+
+export function resolveBodyRegionMedia(region: BodyRegion, override?: BodyRegionMedia) {
+  const useOverride = Boolean(override?.image_url && !retiredRegionImages.has(override.image_url));
+  return {
+    imageUrl: useOverride ? override!.image_url! : region.imageUrl,
+    imageAlt: useOverride && override?.image_alt ? override.image_alt : region.imageAlt,
+  };
+}
+
 export const bodyRegions: BodyRegion[] = [
   {
     slug: "head-neck",
@@ -231,8 +246,8 @@ export const bodyRegions: BodyRegion[] = [
     slug: "knee",
     title: "Knee",
     description: "Explore knee tolerance, single-leg control, and return to loading.",
-    imageUrl: "/assets/images/postures/knee-valgus-varus.jpg",
-    imageAlt: "Movement illustration comparing knee alignment patterns",
+    imageUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/202108%20Anterior%20view%20of%20knee%20joint.svg",
+    imageAlt: "Anterior anatomical illustration of the knee joint",
     intro:
       "Start with comfortable loading and knee control, then consider how the hip, ankle, and foot influence the task.",
     programs: [

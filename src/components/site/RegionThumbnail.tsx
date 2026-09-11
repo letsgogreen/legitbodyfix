@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { bodyRegions } from "@/data/body-regions";
+import { bodyRegions, resolveBodyRegionMedia } from "@/data/body-regions";
 
 /** Uses the same published image overrides as the homepage region picker. */
 export function RegionThumbnail({ region }: { region: (typeof bodyRegions)[number] }) {
@@ -20,7 +20,7 @@ export function RegionThumbnail({ region }: { region: (typeof bodyRegions)[numbe
     };
   }, []);
   const override = media[`body-region:${region.slug}`];
-  const imageUrl = override?.image_url || region.imageUrl;
+  const { imageUrl, imageAlt } = resolveBodyRegionMedia(region, override);
   return (
     <figure className="w-full overflow-hidden border border-border bg-card">
       <div className="flex aspect-[4/3] max-h-80 items-center justify-center overflow-hidden bg-white">
@@ -28,7 +28,7 @@ export function RegionThumbnail({ region }: { region: (typeof bodyRegions)[numbe
           <img
             key={imageUrl}
             src={imageUrl}
-            alt={override?.image_alt || region.imageAlt}
+            alt={imageAlt}
             decoding="async"
             className="h-full w-full object-contain p-4 motion-safe:transition-opacity"
             onError={() => setFailedUrl(imageUrl)}

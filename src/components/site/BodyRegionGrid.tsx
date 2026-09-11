@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useMemo, useState } from "react";
-import { bodyRegions } from "@/data/body-regions";
+import { bodyRegions, resolveBodyRegionMedia } from "@/data/body-regions";
 import type { HomepageRegionCounts, HomepageRegionData } from "@/lib/homepage.functions";
 
 export function BodyRegionGrid({
@@ -17,8 +17,7 @@ export function BodyRegionGrid({
   const activeRegion = bodyRegions[activeIndex] ?? bodyRegions[0]!;
 
   const activeMedia = media[`body-region:${activeRegion.slug}`];
-  const imageUrl = activeMedia?.image_url || activeRegion.imageUrl;
-  const imageAlt = activeMedia?.image_alt || activeRegion.imageAlt;
+  const { imageUrl, imageAlt } = resolveBodyRegionMedia(activeRegion, activeMedia);
   const activeCounts = counts[activeRegion.slug] ?? null;
 
   const rows = useMemo(

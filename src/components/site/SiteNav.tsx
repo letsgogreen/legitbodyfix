@@ -1,6 +1,7 @@
 import { useEffect, useState, type AnchorHTMLAttributes } from "react";
 import { Link as RouterLink } from "@tanstack/react-router";
 import { LogOut, Menu, X } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 const links = [
@@ -52,17 +53,18 @@ function LibraryNavLink({
 export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boolean } = {}) {
   const Link = nativeNavigation ? NativeLink : RouterLink;
   const [open, setOpen] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const signedIn = Boolean(user);
   const [signingOut, setSigningOut] = useState(false);
   useEffect(() => {
     let active = true;
     let changed = false;
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       changed = true;
-      if (active) setSignedIn(Boolean(session?.user));
+      if (active) setUser(session?.user ?? null);
     });
     void supabase.auth.getUser().then(({ data }) => {
-      if (active && !changed) setSignedIn(Boolean(data.user));
+      if (active && !changed) setUser(data.user);
     }).catch(() => {});
     return () => { active = false; data.subscription.unsubscribe(); };
   }, []);
@@ -113,6 +115,7 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
           >
             Find my starting point
           </Link>
+          {user?.email && <span title={user.email} className="max-w-36 truncate text-xs text-muted-foreground">{user.email}</span>}
           {signedIn && (
             <button
               type="button"
@@ -171,7 +174,7 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
               Find my starting point
             </Link>
             {signedIn && (
-              <button
+              <><p className="mt-4 truncate text-xs text-muted-foreground" title={user?.email}>{user?.email}</p><button
                 type="button"
                 onClick={() => void signOut()}
                 disabled={signingOut}
@@ -179,7 +182,7 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
               >
                 <LogOut className="h-4 w-4" aria-hidden="true" />
                 {signingOut ? "Signing out…" : "Sign out"}
-              </button>
+              </button></>
             )}
           </nav>
         </div>

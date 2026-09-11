@@ -26,6 +26,11 @@ function LibraryShell() {
     void supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       setLoading(false);
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("remember")) {
+        url.searchParams.delete("remember");
+        window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+      }
     });
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
@@ -58,6 +63,7 @@ function LibrarySignIn() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [remaining, setRemaining] = useState(0);
+  const [keepSignedIn, setKeepSignedIn] = useState(false);
   const busy = useRef(false);
   const retryAt = useRef(0);
   const sentHeading = useRef<HTMLHeadingElement>(null);
@@ -80,7 +86,7 @@ function LibrarySignIn() {
     setSubmitting(true);
     setMessage("");
     try {
-      const destination = await requestEmailLink(address, window.location.origin, (options) => supabase.auth.signInWithOtp(options));
+      const destination = await requestEmailLink(address, window.location.origin, (options) => supabase.auth.signInWithOtp(options), keepSignedIn);
       retryAt.current = Date.now() + 60_000;
       setRemaining(60);
       setSentTo(destination);
@@ -114,6 +120,7 @@ function LibrarySignIn() {
         <form onSubmit={submit} aria-busy={submitting} className="grid w-full max-w-md gap-3">
           <label className="grid gap-2 text-left font-mono text-[10px] uppercase tracking-[0.14em]">Email address<input type="email" required autoComplete="email" autoCapitalize="none" spellCheck={false} placeholder="you@example.com" disabled={submitting} value={email} onChange={(event) => setEmail(event.target.value)} aria-describedby="email-help" className="min-h-12 border border-border bg-background px-3 font-sans text-base normal-case tracking-normal" /></label>
           <button disabled={submitting || remaining > 0} className="min-h-12 bg-ink px-5 text-sm font-bold text-ink-foreground disabled:opacity-50">{submitting ? "Sending…" : remaining > 0 ? `Try again in ${remaining}s` : "Continue with email"}</button>
+          <label className="flex min-h-11 items-center gap-3 text-left text-sm"><input type="checkbox" checked={keepSignedIn} onChange={(event) => setKeepSignedIn(event.target.checked)} className="h-4 w-4 accent-lime" /><span><strong>Keep me signed in on this device</strong><span className="mt-0.5 block text-xs text-muted-foreground">Leave unchecked on shared devices. Otherwise, closing the browser signs you out.</span></span></label>
           <p id="email-help" className="text-xs leading-5 text-muted-foreground">No password needed. We’ll email you a secure sign-in link.</p>
         </form>
         <p className="w-full max-w-md border-t border-border pt-5 text-xs leading-5 text-muted-foreground">Already purchased? Use the same email you used at checkout to find your programs.</p>
