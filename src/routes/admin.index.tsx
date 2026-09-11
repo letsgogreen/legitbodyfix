@@ -3,10 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, Check, ExternalLink, RefreshCw } from "lucide-react";
 import { AdminLoadingState, Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import {
-  getIntegrationReadiness,
+  getAdminDashboardData,
   type IntegrationReadiness,
 } from "@/lib/admin-readiness.functions";
-import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { isLessonVideoReady } from "@/lib/lesson-video-readiness";
 
@@ -45,32 +44,15 @@ function Dashboard() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const fetchDashboard = () =>
-      Promise.all([
-        supabase
-          .from("programs")
-          .select("*")
-          .order("featured_rank", { ascending: true, nullsFirst: false }),
-        supabase.from("lessons").select("*").order("position"),
-        supabase.from("customer_profiles").select("*").order("created_at", { ascending: false }),
-        supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(8),
-        getIntegrationReadiness(),
-      ]);
-    let results = await fetchDashboard();
-    let firstError = results[0].error ?? results[1].error ?? results[2].error ?? results[3].error;
-    if (firstError?.message.includes("JWT issued at future")) {
-      await new Promise((resolve) => window.setTimeout(resolve, 3_000));
-      results = await fetchDashboard();
-      firstError = results[0].error ?? results[1].error ?? results[2].error ?? results[3].error;
-    }
-    const [programResult, lessonResult, customerResult, orderResult, integrationResult] = results;
-    if (firstError) setError(firstError.message);
-    else {
-      setPrograms(programResult.data ?? []);
-      setLessons(lessonResult.data ?? []);
-      setCustomers(customerResult.data ?? []);
-      setOrders(orderResult.data ?? []);
-      setIntegrations(integrationResult);
+    try {
+      const result = await getAdminDashboardData();
+      setPrograms(result.programs);
+      setLessons(result.lessons);
+      setCustomers(result.customers);
+      setOrders(result.orders);
+      setIntegrations(result.integrations);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
     }
     setLoading(false);
   }, []);
