@@ -189,6 +189,24 @@
     document.getElementById("relatedKnowledge").hidden = false;
   }
 
+  function renderFeaturedRecipe(videoId, payload) {
+    if (videoId !== "neck-alignment") return;
+    var recipes = payload && Array.isArray(payload.recipes) ? payload.recipes : [];
+    var conditions = payload && Array.isArray(payload.conditions) ? payload.conditions : [];
+    var source = recipes.find(function (item) { return item && item.id === "forward-head-posture" && item.published !== false; })
+      || conditions.find(function (item) { return item && item.id === "forward-head-posture" && item.published !== false; });
+    if (!source) return;
+
+    var href = "/recipes/forward-head-posture";
+    setText("featuredRecipeSummary", text(source.summary || source.goal,
+      "Forward head posture is common. Explore whether the position is comfortable, adaptable, and relevant to the task before deciding what to practice."));
+    setText("featuredRecipeScreening", text(source.screening,
+      "Compare relaxed head position with comfortable neck motion, upper-back support, breathing, and the activity that matters to you."));
+    document.getElementById("featuredRecipeLink").href = href;
+    document.getElementById("featuredRecipeTextLink").href = href;
+    document.getElementById("featuredRecipe").hidden = false;
+  }
+
   function loadSalesKnowledge(video) {
     fetch("assets/data/knowledge-base.json", { cache: "no-cache" })
       .then(function (response) {
@@ -197,6 +215,7 @@
       })
       .then(function (payload) {
         renderMusclesThatMatter(video, payload);
+        renderFeaturedRecipe(video.id, payload);
         renderRelatedKnowledge(video.id, payload);
       })
       .catch(function () {
