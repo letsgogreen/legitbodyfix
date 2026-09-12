@@ -581,11 +581,11 @@ function ProgramDrawer({
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-5 lg:px-8 lg:py-7">
       <div className="overflow-hidden border border-border bg-background">
-        <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-5 lg:px-7">
+        <div className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-background/95 px-5 py-4 backdrop-blur lg:px-7">
           <div>
-            <button type="button" onClick={closeSafely} className="mb-4 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground"><ArrowLeft className="h-3.5 w-3.5" /> All programs</button>
+            <button type="button" onClick={closeSafely} className="mb-2 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground"><ArrowLeft className="h-3.5 w-3.5" /> All programs</button>
             <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
               {draft.id ? "Editing program" : "New program"}
             </p>
@@ -593,32 +593,34 @@ function ProgramDrawer({
               {draft.name || "Untitled program"}
             </h2>
           </div>
-          {draft.id && <Link to="/programs/$programSlug" params={{ programSlug: draft.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex min-h-10 items-center border border-border px-3 text-xs font-bold">Open preview <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link>}
+          <div className="flex items-center gap-2">{draft.id && <Link to="/programs/$programSlug" params={{ programSlug: draft.slug }} search={{ preview: "admin" }} target="_blank" className="hidden min-h-10 items-center border border-border px-3 text-xs font-bold sm:inline-flex">Preview <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link>}<Btn variant="ink" disabled={saving || deleting || !isDirty} onClick={() => void save()}>{saving ? "Saving…" : isDirty ? "Save changes" : "Saved"}</Btn></div>
         </div>
-        <nav aria-label="Program editor sections" className="grid grid-cols-2 border-b border-border bg-card lg:grid-cols-4">
+        <div className="grid lg:grid-cols-[220px_minmax(0,1fr)]">
+        <nav aria-label="Program editor sections" className="grid grid-cols-2 border-b border-border bg-card lg:sticky lg:top-[85px] lg:block lg:self-start lg:border-b-0 lg:border-r">
           {programEditorSections.map((item) => (
             <a
               key={item.id}
               href={`#program-${item.id}`}
-              className="min-h-16 border-b border-r border-border px-4 py-3 text-left hover:bg-secondary lg:border-b-0 lg:last:border-r-0"
+              className="block min-h-16 border-b border-r border-border px-4 py-3 text-left transition-colors hover:bg-secondary lg:min-h-0 lg:border-r-0 lg:px-5 lg:py-5"
             >
               <span className="block text-xs font-extrabold">{item.label}</span>
               <span className="mt-1 hidden text-[10px] leading-tight text-muted-foreground sm:block">{item.description}</span>
             </a>
           ))}
         </nav>
-        <div className="space-y-8 px-5 py-6 lg:px-7 lg:py-8" ref={(node) => { if (node && initialAnchor !== "overview") requestAnimationFrame(() => document.getElementById(`program-${initialAnchor}`)?.scrollIntoView({ block: "start" })); }}>
-          <div className="grid grid-cols-[72px_1fr] gap-4 border border-border bg-card p-4">
-            <div className="aspect-square overflow-hidden bg-secondary">
+        <div className="min-w-0">
+        <main className="space-y-6 bg-secondary/20 px-4 py-5 sm:px-6 lg:px-8 lg:py-8" ref={(node) => { if (node && initialAnchor !== "overview") requestAnimationFrame(() => document.getElementById(`program-${initialAnchor}`)?.scrollIntoView({ block: "start" })); }}>
+          <div className="grid grid-cols-[96px_1fr] gap-5 border border-border bg-ink p-5 text-ink-foreground sm:grid-cols-[120px_1fr]">
+            <div className="aspect-square overflow-hidden border border-white/15 bg-white/10">
               {effectiveCover ? <img src={effectiveCover} alt="" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center font-mono text-[9px] uppercase text-muted-foreground">No cover</div>}
             </div>
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2"><Tag tone={draft.published ? "accent" : "muted"}>{draft.published ? "Published" : "Draft"}</Tag>{isDirty && <Tag tone="warn">Unsaved</Tag>}</div>
-              <p className="mt-2 truncate text-sm font-extrabold">{draft.name || "Untitled program"}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{lessons.length} lesson{lessons.length === 1 ? "" : "s"} · {draft.paddle_price_id ? "Price connected" : "No price"} · {effectiveCover ? (draft.image_url ? "Program cover" : "Lesson thumbnail fallback") : "No storefront image"}</p>
+              <div className="flex flex-wrap items-center gap-2"><Tag tone={draft.published ? "accent" : "muted"}>{draft.published ? "Published" : "Draft"}</Tag>{isDirty && <Tag tone="warn">Unsaved changes</Tag>}</div>
+              <p className="mt-3 text-xl font-extrabold sm:text-2xl">{draft.name || "Untitled program"}</p>
+              <p className="mt-2 text-xs text-ink-foreground/65">{lessons.length} lesson{lessons.length === 1 ? "" : "s"} · {draft.paddle_price_id ? "Price connected" : "No price"} · {effectiveCover ? (draft.image_url ? "Custom cover" : "Lesson thumbnail cover") : "No storefront image"}</p>
             </div>
           </div>
-          <section id="program-overview" className="scroll-mt-4 space-y-4"><SectionHeading index="01" title="Overview" description="Shape the first message customers read." /><div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><div className="space-y-4"><Field
+          <section id="program-overview" className="scroll-mt-28 space-y-5 border border-border bg-background p-5 sm:p-7"><SectionHeading index="01" title="Overview" description="Shape the first message customers read." /><div className="grid gap-5 xl:grid-cols-[1.1fr_.9fr]"><div className="space-y-4"><Field
             label="Program name"
             value={draft.name}
             onChange={(value) => update("name", value)}
@@ -635,7 +637,7 @@ function ProgramDrawer({
             onChange={(value) => update("who_its_for", value)}
           />
           </div><aside className="self-start overflow-hidden border border-border bg-card"><div className="bg-ink p-5 text-ink-foreground"><p className="font-mono text-[9px] uppercase tracking-[.16em] text-accent">Customer-facing snapshot</p><h3 className="mt-3 text-2xl font-black leading-tight">{draft.name || "Your program title"}</h3><p className="mt-3 text-sm leading-6 text-ink-foreground/75">{draft.outcome || "The program outcome will appear here."}</p></div><div className="p-5"><p className="font-mono text-[9px] uppercase tracking-[.16em] text-muted-foreground">Who it is for</p><p className="mt-2 text-sm leading-6">{draft.who_its_for || "Describe who will benefit from this program."}</p><p className="mt-5 border-t border-border pt-4 font-mono text-[9px] uppercase tracking-[.14em] text-muted-foreground">/{draft.slug || "program-url"}</p></div></aside></div></section>
-          <section id="program-presentation" className="scroll-mt-4 space-y-4 border-t border-border pt-8"><SectionHeading index="02" title="Presentation" description="Control the cover and storefront details." /><div className="grid grid-cols-2 gap-3">
+          <section id="program-presentation" className="scroll-mt-28 space-y-5 border border-border bg-background p-5 sm:p-7"><SectionHeading index="02" title="Presentation" description="Control the cover and storefront details." /><div className="grid grid-cols-2 gap-3">
             <Field
               label="Format"
               value={draft.format}
@@ -680,7 +682,7 @@ function ProgramDrawer({
             {!draft.image_url && draft.fallback_image_url && <p className="mt-3 border-l-2 border-accent px-3 text-xs leading-5 text-muted-foreground">No dedicated cover is set. The storefront currently uses the first available lesson thumbnail shown above.</p>}
             {imageMessage && <p className="mt-2 text-xs font-medium text-emerald-700">{imageMessage}</p>}
           </div></section>
-          <section id="program-content" className="scroll-mt-4 space-y-5 border-t border-border pt-8"><SectionHeading index="03" title="Content" description="Build the curriculum and connect supporting guidance." />
+          <section id="program-content" className="scroll-mt-28 space-y-5 border border-border bg-background p-5 sm:p-7"><SectionHeading index="03" title="Content" description="Build the curriculum and connect supporting guidance." />
           {draft.id ? <ProgramCurriculum requestedProgramId={draft.id} embedded /> : <div className="border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Save this program first, then add modules, lessons, and videos.</div>}
           {draft.id && (
             <div className="border border-border bg-card p-4">
@@ -692,7 +694,7 @@ function ProgramDrawer({
               <div className="mt-3 space-y-2">{recipeLinks.map((link, index) => { const recipe = recipes.find((item) => item.id === link.recipe_id); return <div key={link.recipe_id} className="flex items-center gap-2 border border-border px-3 py-2"><span className="min-w-0 flex-1 text-xs font-bold">{recipe?.title ?? link.recipe_id}</span><Tag tone={recipe?.published ? "accent" : "muted"}>{recipe?.published ? "live" : "draft"}</Tag>{!recipe?.image_url && <Tag tone="warn">no image</Tag>}<Btn disabled={index === 0} onClick={() => void moveRecipe(index, -1)}><ArrowUp className="h-3 w-3" /></Btn><Btn disabled={index === recipeLinks.length - 1} onClick={() => void moveRecipe(index, 1)}><ArrowDown className="h-3 w-3" /></Btn><Btn onClick={() => void removeRecipe(link.recipe_id)}><Trash2 className="h-3 w-3" /></Btn></div>; })}{!recipeLinks.length && <p className="py-3 text-center text-xs text-muted-foreground">No supporting content linked yet.</p>}</div>
             </div>
           )}</section>
-          <section id="program-commerce" className="scroll-mt-4 space-y-4 border-t border-border pt-8"><SectionHeading index="04" title="Publish" description="Review readiness, pricing, access, and visibility." />
+          <section id="program-commerce" className="scroll-mt-28 space-y-5 border border-border bg-background p-5 sm:p-7"><SectionHeading index="04" title="Publish" description="Review readiness, pricing, access, and visibility." />
           {draft.id && <div className={`border p-4 ${launchBlockers.length ? "border-amber-500/50 bg-amber-50/40" : "border-lime-500/50 bg-lime-50/40"}`}><div className="flex items-start gap-3">{launchBlockers.length ? <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" /> : <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />}<div><p className="text-sm font-extrabold">{launchBlockers.length ? `${launchBlockers.length} readiness suggestions` : "All readiness suggestions complete"}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">These checks are editorial guidance. Review them before publishing.</p></div></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{launchChecks.map((check) => <span key={check.label} className={`inline-flex items-center gap-1.5 text-xs font-bold ${check.ready ? "text-foreground" : "text-amber-800"}`}>{check.ready ? <Check className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}{check.label}</span>)}</div></div>}
           <details className="border border-border bg-card p-4">
             <summary className="cursor-pointer text-sm font-extrabold">Paddle and access settings</summary>
@@ -731,8 +733,8 @@ function ProgramDrawer({
               {saveMessage}
             </p>
           )}
-        </div>
-        <div className="flex items-center justify-between gap-2 border-t border-border px-5 py-4">
+        </main>
+        <div className="sticky bottom-0 z-20 flex items-center justify-between gap-2 border-t border-border bg-background/95 px-5 py-4 backdrop-blur">
           <div>{draft.id && <Btn disabled={saving || deleting} onClick={() => void deleteProgram()}><Trash2 className="mr-1.5 h-4 w-4" />{deleting ? "Checking…" : "Delete program"}</Btn>}</div>
           <div className="flex items-center gap-2"><Btn onClick={closeSafely}>{isDirty ? "Discard" : "Close"}</Btn>
           <Btn variant="ink" disabled={saving || deleting} onClick={() => void save()}>
@@ -740,6 +742,8 @@ function ProgramDrawer({
             {saving ? "Saving…" : "Save program"}
           </Btn>
           </div>
+        </div>
+        </div>
         </div>
       </div>
     </div>
