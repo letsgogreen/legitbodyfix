@@ -240,6 +240,40 @@
     page.hidden = true;
   }
 
+  function arrangeSalesStory(video) {
+    if (!video || video.id !== "neck-alignment") return;
+    page.classList.add("is-neck-sales");
+    var reassurance = page.querySelector(".credibility-bar");
+    var curriculum = page.querySelector(".included-section");
+    var rationale = page.querySelector(".upper-crossed-model");
+    var faq = page.querySelector(".faq-section");
+    var anatomy = document.getElementById("musclesMatter");
+    if (reassurance && curriculum) reassurance.after(curriculum);
+    if (curriculum && rationale) curriculum.after(rationale);
+    if (faq && anatomy) faq.after(anatomy);
+  }
+
+  function setupMobileCheckout() {
+    var mobileCheckout = document.getElementById("mobileCheckout");
+    var heroPurchase = page.querySelector(".purchase-card-hero");
+    if (!mobileCheckout || !heroPurchase) return;
+
+    function updateFallback() {
+      var cardBottom = heroPurchase.getBoundingClientRect().bottom;
+      mobileCheckout.hidden = cardBottom > 0;
+    }
+
+    if ("IntersectionObserver" in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        mobileCheckout.hidden = entries[0].isIntersecting;
+      }, { threshold: 0.05 });
+      observer.observe(heroPurchase);
+    } else {
+      updateFallback();
+      window.addEventListener("scroll", updateFallback, { passive: true });
+    }
+  }
+
   function renderSessionSequence(video) {
     var configuredSteps = Array.isArray(video.curriculum) ? video.curriculum.slice(0, 3).map(function (step, index) {
       return [String(index + 1).padStart(2, "0") + " / " + text(step.phase, "PRACTICE").toUpperCase(), text(step.title, "Build control"), text(step.description, "Follow the guided practice with clear pacing and dosage.")];
@@ -306,10 +340,11 @@
       document.getElementById("previewPlaceholder").hidden = true;
     }
 
+    arrangeSalesStory(video);
     loading.hidden = true;
     unavailable.hidden = true;
     page.hidden = false;
-    document.getElementById("mobileCheckout").hidden = false;
+    setupMobileCheckout();
     loadSalesKnowledge(video);
   }
 

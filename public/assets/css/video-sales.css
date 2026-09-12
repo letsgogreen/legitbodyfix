@@ -199,9 +199,17 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 
 .upper-crossed-model { display: grid; grid-template-columns: minmax(320px, .82fr) minmax(0, 1.18fr); gap: clamp(48px, 7vw, 110px); align-items: center; background: var(--card); }
 .upper-crossed-model[hidden] { display: none; }
-.model-visual { margin: 0; padding: clamp(18px, 2vw, 28px); border: 1px solid var(--ink); background: white; box-shadow: 9px 9px 0 var(--paper-deep); }
-.model-visual img { display: block; width: 100%; height: auto; filter: contrast(1.04); }
-.model-visual p { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font: 500 9px/1.55 "DM Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
+.model-visual { margin: 0; padding: clamp(22px, 2.5vw, 34px); border: 1px solid var(--ink); background: var(--ink); color: white; box-shadow: 9px 9px 0 var(--lime); }
+.model-visual-kicker { margin: 0 0 24px !important; padding: 0 0 16px !important; border-bottom: 1px solid #44443f !important; color: var(--lime) !important; }
+.model-schematic { min-height: 420px; position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 72px 48px; }
+.model-node { position: relative; z-index: 2; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; border: 1px solid #55554f; background: #171715; }
+.model-node span { margin-bottom: auto; color: var(--lime); font: 500 8px "DM Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }
+.model-node strong { font-size: clamp(18px, 1.7vw, 25px); line-height: 1.05; letter-spacing: -.04em; }
+.model-node-c span, .model-node-d span { color: #69c9c6; }
+.model-cross { position: absolute; z-index: 1; inset: 60px 90px; }
+.model-cross i { width: 2px; height: 100%; position: absolute; left: 50%; top: 0; background: var(--lime); transform: rotate(45deg); transform-origin: center; }
+.model-cross i + i { transform: rotate(-45deg); background: #69c9c6; }
+.model-visual > p:last-child { margin: 22px 0 0; padding-top: 16px; border-top: 1px solid #44443f; color: #aaa9a3; font: 500 9px/1.55 "DM Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
 .model-copy > h2 { max-width: 720px; }
 .model-copy > p:not(.eyebrow):not(.model-takeaway) { max-width: 760px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
 .model-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 34px; border: 1px solid var(--ink); }
@@ -282,6 +290,16 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 
 .learning-section { background: var(--card); }
 .muscles-section { background: var(--paper-deep); }
+.anatomy-disclosure { border: 1px solid var(--ink); background: var(--card); }
+.anatomy-disclosure summary { min-height: 150px; padding: clamp(28px, 4vw, 52px); display: flex; align-items: center; justify-content: space-between; gap: 28px; cursor: pointer; list-style: none; }
+.anatomy-disclosure summary::-webkit-details-marker { display: none; }
+.anatomy-disclosure summary span { display: grid; gap: 14px; }
+.anatomy-disclosure summary small { color: var(--teal); font: 500 9px "DM Mono", monospace; letter-spacing: .11em; text-transform: uppercase; }
+.anatomy-disclosure summary strong { font-size: clamp(25px, 3vw, 44px); line-height: 1.05; letter-spacing: -.045em; }
+.anatomy-disclosure summary b { font: 400 34px "DM Mono", monospace; }
+.anatomy-disclosure[open] summary b { transform: rotate(45deg); }
+.anatomy-disclosure-body { padding: 0 clamp(28px, 4vw, 52px) clamp(28px, 4vw, 52px); }
+.anatomy-disclosure-body > p { margin: 0 0 28px; color: var(--muted); font-size: 14px; }
 .muscles-matter-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
 .muscle-matter-card { min-width: 0; display: grid; grid-template-rows: 210px 1fr; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--card); color: inherit; text-decoration: none; transition: transform .18s ease, box-shadow .18s ease; }
 .muscle-matter-card:hover, .muscle-matter-card:focus-visible { position: relative; z-index: 1; outline: 0; box-shadow: 8px 8px 0 var(--lime); transform: translate(-3px, -3px); }
@@ -333,6 +351,11 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .final-purchase small { margin-top: 10px; color: #9e9d97; font-size: 9px; line-height: 1.5; }
 
 .mobile-checkout { display: none; }
+.is-neck-sales .transformation,
+.is-neck-sales .steps-section,
+.is-neck-sales .learning-section { display: none; }
+.is-neck-sales .fit-section { align-items: start; }
+.is-neck-sales .fit-copy { position: static; }
 footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7vw, 106px); display: flex; justify-content: space-between; font: 500 9px "DM Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
 
 @media (max-width: 1080px) {
@@ -378,6 +401,8 @@ footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7v
   .model-groups { grid-template-columns: 1fr; }
   .model-groups article { min-height: 190px; }
   .model-groups article + article { border-left: 0; border-top: 1px solid var(--ink); }
+  .model-schematic { min-height: 350px; gap: 54px 24px; }
+  .model-cross { inset: 70px 65px; }
   .recipe-story { display: block; }
   .recipe-story h2 { margin-bottom: 24px; font-size: clamp(38px, 11vw, 52px); }
   .recipe-story-note { margin-top: 22px; }

@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/video-sales.css?v=20260912-4" />
-  <script src="assets/js/video-sales.js?v=20260912-4" defer></script>
+  <link rel="stylesheet" href="assets/css/video-sales.css?v=20260912-5" />
+  <script src="assets/js/video-sales.js?v=20260912-5" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -106,9 +106,16 @@
       </section>
 
       <section class="upper-crossed-model section-pad" id="upperCrossedModel" hidden>
-        <div class="model-visual">
-          <img src="assets/images/upper-crossed-syndrome.webp" alt="Historical upper crossed syndrome diagram showing muscles described as prone to tightness and weakness" />
-          <p>Historical teaching diagram · shown as a framework, not an individual assessment</p>
+        <div class="model-visual" role="img" aria-label="Upper crossed teaching model connecting commonly dominant neck and chest muscles with deep-neck-flexor and scapular control">
+          <p class="model-visual-kicker">Upper-crossed teaching model</p>
+          <div class="model-schematic" aria-hidden="true">
+            <div class="model-node model-node-a"><span>Often dominant</span><strong>Upper neck<br />&amp; shoulders</strong></div>
+            <div class="model-node model-node-b"><span>Often dominant</span><strong>Chest<br />&amp; anterior shoulder</strong></div>
+            <div class="model-cross"><i></i><i></i></div>
+            <div class="model-node model-node-c"><span>Often under-recruited</span><strong>Deep neck<br />flexors</strong></div>
+            <div class="model-node model-node-d"><span>Often under-recruited</span><strong>Scapular<br />support</strong></div>
+          </div>
+          <p>Conceptual framework · not an individual assessment</p>
         </div>
         <div class="model-copy">
           <p class="eyebrow">The model behind the sequence</p>
@@ -225,14 +232,16 @@
       </section>
 
       <section class="muscles-section section-pad" id="musclesMatter" hidden>
-        <div class="learning-heading">
-          <div>
-            <p class="eyebrow">Anatomy behind the session</p>
-            <h2>The muscles that matter.</h2>
+        <details class="anatomy-disclosure">
+          <summary>
+            <span><small>Anatomy behind the session</small><strong>Explore the muscles used in this sequence.</strong></span>
+            <b aria-hidden="true">+</b>
+          </summary>
+          <div class="anatomy-disclosure-body">
+            <p>Open a muscle group for origin, insertion, and movement actions.</p>
+            <div class="muscles-matter-grid" id="musclesMatterGrid"></div>
           </div>
-          <p>See the key structures this session is designed around, then open any muscle for origin, insertion, and movement actions.</p>
-        </div>
-        <div class="muscles-matter-grid" id="musclesMatterGrid"></div>
+        </details>
       </section>
 
       <section class="learning-section section-pad" id="relatedKnowledge" hidden>
