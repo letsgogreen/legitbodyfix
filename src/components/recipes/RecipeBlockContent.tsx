@@ -201,10 +201,10 @@ export function RecipeBlockContent({
               href={block.url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 rounded-sm bg-foreground px-5 py-3 text-sm font-bold text-background"
+              className="group flex min-h-12 w-full items-center justify-between gap-4 border-b border-border py-3 text-left text-sm font-semibold text-foreground transition-colors hover:border-foreground"
             >
-              {block.label}
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              <span>{block.label}</span>
+              <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" aria-hidden="true" />
             </a>
           ) : null;
         return <hr key={block.id} className="my-10 border-border" />;
