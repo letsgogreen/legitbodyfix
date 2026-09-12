@@ -18,10 +18,10 @@ import { ProgramCurriculum } from "@/components/admin/ProgramCurriculum";
 import { ProgramSalesPageEditor } from "@/components/admin/ProgramSalesPageEditor";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { deleteAdminProgram, getAdminPrograms, getProgramDeleteImpact, saveAdminProgram, setAdminProgramPublished } from "@/lib/admin-programs.functions";
+import { deleteAdminProgram, getAdminPrograms, getProgramDeleteImpact, saveAdminProgram, setAdminProgramPublished, type AdminProgram } from "@/lib/admin-programs.functions";
 import { getProgramPrice, updateProgramPrice } from "@/lib/paddle.functions";
 
-type ProgramRow = Database["public"]["Tables"]["programs"]["Row"];
+type ProgramRow = AdminProgram;
 type RecipeOption = Pick<
   Database["public"]["Tables"]["recipes"]["Row"],
   "id" | "title" | "published" | "image_url"
@@ -324,7 +324,7 @@ function csv(value: string) {
 
 function programReadiness(program: ProgramRow) {
   const missing: string[] = [];
-  if (!program.image_url) missing.push("cover");
+  if (!program.image_url && !program.fallback_image_url) missing.push("cover");
   if (program.image_url && !program.image_alt) missing.push("alt");
   if (!(program as ProgramRow & { paddle_price_id?: string | null }).paddle_price_id) {
     missing.push("price");

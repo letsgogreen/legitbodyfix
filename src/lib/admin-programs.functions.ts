@@ -6,6 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { removeStoredContentImages } from "@/lib/content-images.functions";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
+export type AdminProgram = Program & { fallback_image_url: string | null };
 
 function isAdmin(claims: unknown) {
   const adminClaims = claims as { email?: string; app_metadata?: { is_admin?: boolean } };
@@ -34,7 +35,7 @@ const programInput = z.object({
 
 export const getAdminPrograms = createServerFn({ method: "GET" })
   .middleware([attachSupabaseAuth, requireSupabaseAuth])
-  .handler(async ({ context }): Promise<Program[]> => {
+  .handler(async ({ context }): Promise<AdminProgram[]> => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const { data, error } = await context.supabase
       .from("programs")
@@ -42,7 +43,27 @@ export const getAdminPrograms = createServerFn({ method: "GET" })
       .order("featured_rank", { ascending: true, nullsFirst: false })
       .order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return data ?? [];
+    const programs = data ?? [];
+    const ids = programs.map((program) => program.id);
+    const { data: lessons, error: lessonError } = ids.length
+      ? await context.supabase
+          .from("lessons")
+          .select("program_id,thumbnail_url,stream_thumbnail_url,position")
+          .in("program_id", ids)
+          .order("position")
+      : { data: [], error: null };
+    if (lessonError) throw new Error(lessonError.message);
+    const fallbackByProgram = new Map<string, string>();
+    for (const lesson of lessons ?? []) {
+      const thumbnail = lesson.thumbnail_url || lesson.stream_thumbnail_url;
+      if (thumbnail && !fallbackByProgram.has(lesson.program_id)) {
+        fallbackByProgram.set(lesson.program_id, thumbnail);
+      }
+    }
+    return programs.map((program) => ({
+      ...program,
+      fallback_image_url: fallbackByProgram.get(program.id) ?? null,
+    }));
   });
 
 export const saveAdminProgram = createServerFn({ method: "POST" })
