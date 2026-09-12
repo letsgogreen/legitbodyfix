@@ -201,6 +201,9 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .sales-evidence img { display: block; width: 100%; height: auto; object-fit: contain; }
 .sales-evidence figcaption { margin: 0; padding: 14px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.55; }
 .sales-evidence-neck { max-width: 550px; }
+.sales-evidence-summary { max-width: 560px; background: #22252b; }
+.sales-evidence-summary img { background: #22252b; }
+.sales-evidence-summary figcaption { border-color: #44484f; background: var(--paper); }
 .sales-evidence-model { max-width: 560px; }
 .sales-evidence-model img { filter: contrast(.94); }
 
