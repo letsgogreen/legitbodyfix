@@ -141,11 +141,12 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
         </div>
       </Panel>
 
-      <section id="homepage-copy" className="mt-5 scroll-mt-24">
-        <div className="flex flex-wrap items-end justify-between gap-3">
+      <section id="homepage-copy" className="mt-8 scroll-mt-24">
+        <div className="sticky top-0 z-10 -mx-2 flex flex-wrap items-end justify-between gap-4 border-y border-border bg-background/95 px-2 py-4 backdrop-blur">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Homepage copy</p>
             <h2 className="mt-2 text-2xl font-extrabold tracking-tight">Edit the main visitor journey</h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">Work from top to bottom in the same order visitors experience the page.</p>
           </div>
           <div className="flex items-center gap-3">
             {copySaved && <Tag tone="accent"><Check className="h-3 w-3" /> Saved</Tag>}
@@ -155,32 +156,38 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
             </Btn>
           </div>
         </div>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Edit the live wording without changing the homepage layout. Line breaks in the hero headline are preserved.</p>
-        <div className="mt-4 grid gap-4 xl:grid-cols-3">
-          {homepageCopyGroups.map((group) => (
-            <Panel key={group.title} className="p-4">
-              <h3 className="text-base font-bold">{group.title}</h3>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">{group.description}</p>
-              <div className="mt-5 space-y-4">
+        <div className="mt-5 space-y-4">
+          {homepageCopyGroups.map((group, groupIndex) => (
+            <Panel key={group.title} className="overflow-hidden">
+              <div className="grid gap-4 border-b border-border bg-secondary/40 px-5 py-4 md:grid-cols-[4rem_minmax(0,1fr)_auto] md:items-center">
+                <span className="font-mono text-xl font-bold text-muted-foreground/60">{String(groupIndex + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3 className="text-lg font-extrabold tracking-tight">{group.title}</h3>
+                  <p className="mt-1 text-sm leading-5 text-muted-foreground">{group.description}</p>
+                </div>
+                <Tag>{group.location}</Tag>
+              </div>
+              <div className="grid gap-x-5 gap-y-5 p-5 md:grid-cols-2">
                 {group.fields.map((field) => (
-                  <label key={field.key} className="block">
-                    <span className="mb-1.5 block font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">{field.label}</span>
+                  <label key={field.key} className={field.multiline ? "block md:col-span-2" : "block"}>
+                    <span className="mb-2 block text-xs font-bold text-foreground">{field.label}</span>
                     {field.multiline ? (
                       <textarea
                         value={copy[field.key]}
-                        rows={field.key === "hero_title" ? 4 : 3}
+                        rows={field.key === "hero_title" ? 5 : 4}
                         maxLength={field.key === "hero_summary" || field.key.endsWith("intro") ? 280 : 160}
-                        onChange={(event) => setCopy((current) => ({ ...current, [field.key]: event.target.value }))}
-                        className="w-full resize-y rounded-sm border border-border bg-background px-3 py-2 text-sm leading-6 outline-none focus:border-foreground"
+                        onChange={(event) => { setCopySaved(false); setCopy((current) => ({ ...current, [field.key]: event.target.value })); }}
+                        className="w-full resize-y rounded-sm border border-border bg-background px-4 py-3 text-base leading-7 outline-none transition-shadow focus:border-foreground focus:ring-2 focus:ring-foreground/10"
                       />
                     ) : (
                       <input
                         value={copy[field.key]}
                         maxLength={120}
-                        onChange={(event) => setCopy((current) => ({ ...current, [field.key]: event.target.value }))}
-                        className="min-h-10 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+                        onChange={(event) => { setCopySaved(false); setCopy((current) => ({ ...current, [field.key]: event.target.value })); }}
+                        className="min-h-12 w-full rounded-sm border border-border bg-background px-4 py-3 text-base outline-none transition-shadow focus:border-foreground focus:ring-2 focus:ring-foreground/10"
                       />
                     )}
+                    {field.key === "hero_title" && <span className="mt-1.5 block text-xs text-muted-foreground">Each line break creates a new headline line.</span>}
                   </label>
                 ))}
               </div>

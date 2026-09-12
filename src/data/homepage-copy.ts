@@ -26,11 +26,13 @@ export type HomepageCopy = Record<HomepageCopyKey, string>;
 export const homepageCopyGroups: Array<{
   title: string;
   description: string;
+  location: string;
   fields: Array<{ key: HomepageCopyKey; label: string; multiline?: boolean }>;
 }> = [
   {
     title: "Hero",
     description: "The first message and primary actions visitors see.",
+    location: "Top of page",
     fields: [
       { key: "hero_eyebrow", label: "Eyebrow" },
       { key: "hero_title", label: "Headline", multiline: true },
@@ -40,16 +42,38 @@ export const homepageCopyGroups: Array<{
     ],
   },
   {
-    title: "Homepage sections",
-    description: "Headings and introductions for the main browsing sections.",
+    title: "Choose a path",
+    description: "Introduces the three ways visitors can continue from the hero.",
+    location: "Section 02",
     fields: [
       { key: "paths_heading", label: "Path chooser heading" },
+    ],
+  },
+  {
+    title: "Body regions",
+    description: "Sets up the body-region browser and helps visitors choose a relevant area.",
+    location: "Section 03",
+    fields: [
       { key: "regions_eyebrow", label: "Body regions eyebrow" },
       { key: "regions_heading", label: "Body regions heading" },
       { key: "regions_intro", label: "Body regions introduction", multiline: true },
+    ],
+  },
+  {
+    title: "Programs",
+    description: "Introduces the paid guided-program cards.",
+    location: "Section 04",
+    fields: [
       { key: "programs_eyebrow", label: "Programs eyebrow" },
       { key: "programs_heading", label: "Programs heading" },
       { key: "programs_intro", label: "Programs introduction", multiline: true },
+    ],
+  },
+  {
+    title: "Method & positioning",
+    description: "Explains the process and the value of the LegitBodyFix approach.",
+    location: "Sections 05–06",
+    fields: [
       { key: "method_eyebrow", label: "Method eyebrow" },
       { key: "method_heading", label: "Method heading" },
       { key: "why_eyebrow", label: "Positioning eyebrow" },
@@ -59,6 +83,7 @@ export const homepageCopyGroups: Array<{
   {
     title: "Closing action",
     description: "The final prompt shown before the footer.",
+    location: "End of page",
     fields: [
       { key: "final_heading", label: "Heading" },
       { key: "final_body", label: "Supporting text", multiline: true },
