@@ -15,6 +15,7 @@ import {
 import {
   attachStreamVideo,
   createStreamTusUpload,
+  deleteStreamCaptions,
   generateStreamCaptions,
   getStreamConfigurationStatus,
   getStreamPlayback,
@@ -690,6 +691,20 @@ function LessonDrawer({
     }
   };
 
+  const removeCaptions = async (language: "en" | "ko") => {
+    if (!lesson) return;
+    setCaptionBusy(language);
+    setError(null);
+    try {
+      await deleteStreamCaptions({ data: { lessonId: lesson.id, language } });
+      await refreshCaptions();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setCaptionBusy(null);
+    }
+  };
+
   useEffect(() => {
     if (!lesson || !streamUid || !["uploading", "processing"].includes(streamStatus)) return;
     let cancelled = false;
@@ -1150,6 +1165,14 @@ function LessonDrawer({
                               className="sr-only"
                             />
                           </label>
+                          {caption && (
+                            <Btn
+                              disabled={captionBusy !== null}
+                              onClick={() => void removeCaptions(language)}
+                            >
+                              Remove
+                            </Btn>
+                          )}
                         </div>
                       </div>
                     );

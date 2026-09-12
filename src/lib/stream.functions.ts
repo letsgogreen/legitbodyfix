@@ -67,7 +67,7 @@ async function cloudflare<T>(path: string, init?: RequestInit): Promise<T> {
     },
   );
   const payload = (await response.json()) as CloudflareEnvelope<T>;
-  if (!response.ok || !payload.success || !payload.result) {
+  if (!response.ok || !payload.success || payload.result === undefined) {
     throw new Error(
       payload.errors
         ?.map((error) => error.message)
@@ -495,6 +495,26 @@ export const uploadStreamCaptions = createServerFn({ method: "POST" })
       form,
     );
     return { language: data.language, status: "ready" };
+  });
+
+export const deleteStreamCaptions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) =>
+    z.object({ lessonId: z.string().uuid(), language: captionLanguage }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { data: lesson, error } = await context.supabase
+      .from("lessons")
+      .select("stream_uid")
+      .eq("id", data.lessonId)
+      .single();
+    if (error || !lesson?.stream_uid)
+      throw new Error(error?.message || "This lesson has no Stream video.");
+    await cloudflare<string>(`/${lesson.stream_uid}/captions/${data.language}`, {
+      method: "DELETE",
+    });
+    return { language: data.language };
   });
 
 export const getStreamPlayback = createServerFn({ method: "POST" })
