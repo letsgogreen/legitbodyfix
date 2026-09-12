@@ -228,7 +228,7 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .included-heading { margin-bottom: 64px; display: grid; grid-template-columns: 1.4fr .6fr; gap: 8vw; align-items: end; }
 .included-heading h2 { max-width: 860px; margin-bottom: 0; }
 .included-heading > p { margin: 0 0 8px; color: #b9b8b2 !important; }
-.included-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid #4b4b47; }
+.included-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #4b4b47; }
 .included-grid article { min-height: 305px; padding: clamp(25px, 2.8vw, 42px); display: flex; flex-direction: column; }
 .included-grid article + article { border-left: 1px solid #4b4b47; }
 .included-grid span { color: var(--lime); font: 500 8px "DM Mono", monospace; letter-spacing: .1em; }
@@ -326,7 +326,6 @@ footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7v
   .muscles-matter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .included-grid { grid-template-columns: repeat(2, 1fr); }
   .included-grid article:nth-child(3) { border-left: 0; border-top: 1px solid #4b4b47; }
-  .included-grid article:nth-child(4) { border-top: 1px solid #4b4b47; }
 }
 
 @media (max-width: 700px) {

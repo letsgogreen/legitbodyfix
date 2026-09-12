@@ -232,29 +232,27 @@
   function renderSessionSequence(video) {
     var sequences = {
       "neck-alignment": [
-        ["Observe your starting point", "Check comfortable head position, breathing, and neck motion without forcing a correction."],
-        ["Prepare the upper back", "Use support and gentle thoracic movement to reduce unnecessary neck effort."],
-        ["Practice neck control", "Build comfortable retraction and rotation with deliberate pacing rather than rigid posture holding."],
-        ["Return to the real task", "Recheck sitting, reaching, or screen work and compare comfort and ease of movement."]
+        ["01 / INHIBIT", "Reduce unnecessary tension", "Apply inhibition techniques to muscles that are overactive and contributing to excess neck and shoulder tension."],
+        ["02 / ACTIVATE", "Recruit the deep neck flexors", "Learn to activate the underactive deep neck flexors with control, without letting larger surface muscles take over."],
+        ["03 / INTEGRATE", "Connect neck and scapular control", "Integrate deep-neck-flexor control with lower-trapezius activation to stabilize the scapula, then reassess the full pattern."]
       ],
       "ankle-sprain-rehabilitation": [
-        ["Check current tolerance", "Compare motion, balance, and loading before beginning the progression."],
-        ["Restore comfortable motion", "Use controlled mobility before adding more demanding balance or resistance."],
-        ["Build stability and strength", "Progress through guided balance and resistance work at a manageable level."],
-        ["Recheck weight bearing", "Compare walking and standing confidence before deciding whether to progress."]
+        ["01 / ASSESS", "Check current tolerance", "Compare motion, balance, and loading before beginning the progression."],
+        ["02 / RESTORE", "Restore comfortable motion", "Use controlled mobility before adding more demanding balance or resistance."],
+        ["03 / INTEGRATE", "Build stability and strength", "Progress through guided balance and resistance work, then recheck walking and standing confidence."]
       ]
     };
     var steps = sequences[video.id] || [
-      ["Observe your starting point", "Check the relevant movement and comfort before changing anything."],
-      ["Prepare the movement", "Use guided preparation before the main practice."],
-      ["Build control", "Follow the sequence with clear pacing and dosage."],
-      ["Reassess the task", "Return to the original movement and compare what changed."]
+      ["01 / ASSESS", "Observe your starting point", "Check the relevant movement and comfort before changing anything."],
+      ["02 / PRACTICE", "Build control", "Follow the guided sequence with clear pacing and dosage."],
+      ["03 / INTEGRATE", "Return to the task", "Integrate the new option into the original movement and compare what changed."]
     ];
     steps.forEach(function (step, index) {
-      setText("sessionStep" + (index + 1) + "Title", step[0]);
-      setText("sessionStep" + (index + 1) + "Body", step[1]);
+      setText("sessionStep" + (index + 1) + "Label", step[0]);
+      setText("sessionStep" + (index + 1) + "Title", step[1]);
+      setText("sessionStep" + (index + 1) + "Body", step[2]);
     });
-    setText("sequenceIntro", "A guided " + String(video.durationMinutes) + "-minute progression with a clear beginning, practice phase, and reassessment.");
+    setText("sequenceIntro", "A guided " + String(video.durationMinutes) + "-minute progression from reducing excess tension to activating key muscles and integrating them into coordinated movement.");
   }
 
   function render(video) {
