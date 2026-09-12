@@ -184,7 +184,94 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
                 </div>
                 <Tag>{group.location}</Tag>
               </div>
-              {group.title === "Choose a path" ? (
+              {group.title === "Hero" ? (
+                <div className="grid min-h-[34rem] gap-8 bg-secondary/25 p-6 lg:grid-cols-[1.05fr_0.95fr] lg:p-8">
+                  <div className="flex flex-col justify-center">
+                    <input
+                      aria-label="Hero eyebrow"
+                      value={copy.hero_eyebrow}
+                      maxLength={120}
+                      onChange={(event) => updateCopy("hero_eyebrow", event.target.value)}
+                      className="w-full border-0 border-b border-transparent bg-accent px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] outline-none hover:border-foreground focus:border-foreground"
+                    />
+                    <textarea
+                      aria-label="Hero headline"
+                      value={copy.hero_title}
+                      rows={4}
+                      maxLength={160}
+                      onChange={(event) => updateCopy("hero_title", event.target.value)}
+                      className="mt-6 w-full resize-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-[clamp(2.75rem,6vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.055em] outline-none hover:border-border focus:border-foreground"
+                    />
+                    <textarea
+                      aria-label="Hero summary"
+                      value={copy.hero_summary}
+                      rows={4}
+                      maxLength={280}
+                      onChange={(event) => updateCopy("hero_summary", event.target.value)}
+                      className="mt-5 w-full resize-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-lg leading-7 text-muted-foreground outline-none hover:border-border focus:border-foreground"
+                    />
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <input aria-label="Hero primary button" value={copy.hero_primary_cta} maxLength={60} onChange={(event) => updateCopy("hero_primary_cta", event.target.value)} className="min-h-11 rounded-sm border-0 bg-accent px-5 py-3 text-sm font-bold outline-none ring-1 ring-transparent focus:ring-foreground" />
+                      <input aria-label="Hero secondary button" value={copy.hero_secondary_cta} maxLength={60} onChange={(event) => updateCopy("hero_secondary_cta", event.target.value)} className="min-h-11 rounded-sm border border-foreground bg-background px-5 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-foreground/15" />
+                    </div>
+                  </div>
+                  <div className="hidden min-h-[28rem] place-items-center border border-border bg-card lg:grid">
+                    <div className="max-w-xs text-center">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Homepage visual</p>
+                      <p className="mt-3 text-sm leading-6 text-muted-foreground">The live illustration remains controlled by the homepage layout.</p>
+                    </div>
+                  </div>
+                </div>
+              ) : group.title === "Body regions" || group.title === "Programs" ? (
+                <div className="grid gap-8 bg-secondary/25 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.7fr)] lg:items-end lg:p-8">
+                  <div>
+                    <input
+                      aria-label={`${group.title} eyebrow`}
+                      value={copy[group.title === "Body regions" ? "regions_eyebrow" : "programs_eyebrow"]}
+                      maxLength={80}
+                      onChange={(event) => updateCopy(group.title === "Body regions" ? "regions_eyebrow" : "programs_eyebrow", event.target.value)}
+                      className="w-full border-0 border-b border-transparent bg-transparent px-0 py-1 font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground outline-none hover:border-border focus:border-foreground"
+                    />
+                    <textarea
+                      aria-label={`${group.title} heading`}
+                      value={copy[group.title === "Body regions" ? "regions_heading" : "programs_heading"]}
+                      rows={2}
+                      maxLength={120}
+                      onChange={(event) => updateCopy(group.title === "Body regions" ? "regions_heading" : "programs_heading", event.target.value)}
+                      className="mt-4 w-full resize-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-4xl font-black uppercase leading-[0.95] tracking-tight outline-none hover:border-border focus:border-foreground"
+                    />
+                  </div>
+                  <textarea
+                    aria-label={`${group.title} introduction`}
+                    value={copy[group.title === "Body regions" ? "regions_intro" : "programs_intro"]}
+                    rows={5}
+                    maxLength={280}
+                    onChange={(event) => updateCopy(group.title === "Body regions" ? "regions_intro" : "programs_intro", event.target.value)}
+                    className="w-full resize-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-base leading-7 text-muted-foreground outline-none hover:border-border focus:border-foreground"
+                  />
+                </div>
+              ) : group.title === "Method & positioning" ? (
+                <div className="grid gap-px bg-border md:grid-cols-2">
+                  {[
+                    { name: "How it works", eyebrow: "method_eyebrow" as const, heading: "method_heading" as const, number: "01" },
+                    { name: "Why LegitBodyFix", eyebrow: "why_eyebrow" as const, heading: "why_heading" as const, number: "02" },
+                  ].map((item) => (
+                    <div key={item.name} className="bg-card p-6 lg:p-8">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-2xl font-bold text-muted-foreground/40">{item.number}</span>
+                        <input aria-label={`${item.name} eyebrow`} value={copy[item.eyebrow]} maxLength={80} onChange={(event) => updateCopy(item.eyebrow, event.target.value)} className="min-w-0 flex-1 border-0 border-b border-transparent bg-transparent px-0 py-1 font-mono text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground outline-none hover:border-border focus:border-foreground" />
+                      </div>
+                      <textarea aria-label={`${item.name} heading`} value={copy[item.heading]} rows={3} maxLength={120} onChange={(event) => updateCopy(item.heading, event.target.value)} className="mt-6 w-full resize-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-3xl font-black uppercase leading-tight tracking-tight outline-none hover:border-border focus:border-foreground" />
+                    </div>
+                  ))}
+                </div>
+              ) : group.title === "Closing action" ? (
+                <div className="bg-accent p-8 text-center text-accent-foreground lg:p-12">
+                  <textarea aria-label="Closing heading" value={copy.final_heading} rows={2} maxLength={120} onChange={(event) => updateCopy("final_heading", event.target.value)} className="mx-auto block w-full max-w-3xl resize-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-center text-4xl font-black uppercase leading-none outline-none hover:border-foreground/30 focus:border-foreground" />
+                  <textarea aria-label="Closing supporting text" value={copy.final_body} rows={3} maxLength={200} onChange={(event) => updateCopy("final_body", event.target.value)} className="mx-auto mt-4 block w-full max-w-2xl resize-none border-0 border-b border-transparent bg-transparent px-0 py-2 text-center text-base leading-7 outline-none hover:border-foreground/30 focus:border-foreground" />
+                  <input aria-label="Closing button" value={copy.final_cta} maxLength={60} onChange={(event) => updateCopy("final_cta", event.target.value)} className="mt-6 min-h-11 rounded-sm border-0 bg-ink px-7 py-3 text-center text-sm font-bold text-ink-foreground outline-none focus:ring-2 focus:ring-foreground" />
+                </div>
+              ) : group.title === "Choose a path" ? (
                 <div className="bg-secondary/25 p-5">
                   <label className="block max-w-3xl">
                     <span className="mb-2 block text-xs font-bold text-foreground">Section heading</span>
