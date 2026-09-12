@@ -375,15 +375,6 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .is-neck-sales .model-plan article > span,
 .is-neck-sales .model-plan article:nth-of-type(1) > span { color: var(--teal); }
 .is-neck-sales .model-plan article:nth-of-type(1) small { color: var(--muted); }
-.is-neck-sales .featured-recipe { background: var(--card); }
-.is-neck-sales .recipe-path { border-color: var(--line); box-shadow: none; }
-.is-neck-sales .recipe-observation { min-height: 180px; background: var(--paper-deep); color: var(--ink); }
-.is-neck-sales .recipe-observation span { color: var(--teal); }
-.is-neck-sales .recipe-observation p { color: var(--muted); }
-.is-neck-sales .recipe-explanation { border-color: var(--line); }
-.is-neck-sales .recipe-program-choice { border-left: 1px solid var(--line); background: var(--paper); }
-.is-neck-sales .recipe-program-choice span { color: var(--teal); }
-.is-neck-sales .recipe-safety { border-color: var(--line); }
 .is-neck-sales .section-dark { background: var(--paper); color: var(--ink); }
 .is-neck-sales .section-dark .eyebrow { color: var(--teal); }
 .is-neck-sales .included-heading > p,
@@ -451,7 +442,6 @@ footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7v
   .recipe-observation, .recipe-explanation, .recipe-program-choice, .recipe-safety { grid-column: 1; }
   .recipe-explanation { border-right: 0; border-bottom: 1px solid var(--ink); }
   .recipe-program-choice { grid-template-columns: 1fr; gap: 18px; align-items: start; }
-  .is-neck-sales .recipe-program-choice { border-left: 0; border-top: 1px solid var(--line); }
   .included-grid { grid-template-columns: 1fr; }
   .technique-bridge { margin-top: -20px; margin-bottom: 42px; padding-left: 20px; }
   .included-grid article { min-height: 230px; }
