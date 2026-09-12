@@ -20,6 +20,16 @@ export const setAdminCustomerAccess = createServerFn({ method: "POST" })
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: customer, error: customerError } = await supabaseAdmin
+      .from("customer_profiles")
+      .select("email")
+      .eq("user_id", data.userId)
+      .maybeSingle();
+    if (customerError) throw new Error(customerError.message);
+
+    const buyerEmail = customer?.email?.trim().toLowerCase();
+    if (!buyerEmail) throw new Error("This customer account does not have an email address.");
+
     const { data: current, error: readError } = await supabaseAdmin
       .from("entitlements")
       .select("id,source")
@@ -40,10 +50,13 @@ export const setAdminCustomerAccess = createServerFn({ method: "POST" })
       : supabaseAdmin.from("entitlements").insert({
           user_id: data.userId,
           program_id: data.programId,
+          // buyer_email exists in the deployed entitlement schema for legacy
+          // purchase reconciliation, but is absent from the generated local type.
+          buyer_email: buyerEmail,
           source: "manual",
           active: data.active,
           revoked_at: data.active ? null : new Date().toISOString(),
-        });
+        } as never);
 
     const { error } = await mutation;
     if (error) throw new Error(error.message);
