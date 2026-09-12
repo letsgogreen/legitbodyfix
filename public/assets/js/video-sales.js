@@ -282,6 +282,7 @@
     setText("benefit3", text(video.landingBenefit3, "Return to the practice whenever you need it."));
     setText("audience", text(video.landingAudience, "For people who want a focused, practical approach to better everyday movement."));
     setText("reassurance", text(video.landingReassurance, "One payment gives you protected access through your personal movement library."));
+    document.getElementById("upperCrossedModel").hidden = video.id !== "neck-alignment";
     setText("finalHeadline", video.id === "neck-alignment"
       ? "Put the three-phase method into practice."
       : "Put " + title.toLowerCase() + " into practice.");
