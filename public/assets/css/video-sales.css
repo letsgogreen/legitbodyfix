@@ -197,27 +197,28 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .benefit-grid span { color: var(--teal); font: 500 10px "DM Mono", monospace; }
 .benefit-grid p { margin: 0; font-size: clamp(19px, 1.75vw, 26px); font-weight: 650; line-height: 1.38; letter-spacing: -.025em; }
 
-.upper-crossed-model { display: grid; grid-template-columns: minmax(320px, .82fr) minmax(0, 1.18fr); gap: clamp(48px, 7vw, 110px); align-items: center; background: var(--card); }
+.upper-crossed-model { display: grid; grid-template-columns: minmax(320px, .9fr) minmax(0, 1.1fr); gap: clamp(48px, 6vw, 88px); align-items: start; background: var(--card); }
 .upper-crossed-model[hidden] { display: none; }
 .model-intro { align-self: start; }
-.model-intro h2 { max-width: 620px; margin-bottom: 30px; font-size: clamp(38px, 4vw, 62px); }
-.model-intro > p:not(.eyebrow) { max-width: 620px; margin: 0 0 17px; color: var(--muted); font-size: 16px; line-height: 1.72; }
-.model-rule { margin-top: 34px; padding: 24px; display: grid; gap: 8px; border-left: 4px solid var(--lime); background: var(--paper-deep); }
+.model-intro h2 { max-width: 560px; margin-bottom: 24px; font-size: clamp(36px, 3.4vw, 52px); line-height: .98; }
+.model-intro > p:not(.eyebrow) { max-width: 560px; margin: 0 0 16px; color: var(--muted); font-size: 17px; line-height: 1.7; }
+.model-rule { max-width: 560px; margin-top: 30px; padding: 22px 24px; display: grid; gap: 8px; border-left: 4px solid var(--lime); background: var(--paper-deep); }
 .model-rule strong { font-size: 16px; }
 .model-rule span { color: var(--muted); font-size: 13px; line-height: 1.55; }
-.model-plan { display: grid; gap: 18px; counter-reset: model-phase; }
-.model-plan-label { width: fit-content; margin: 0 0 8px 10%; padding: 9px 13px; background: var(--ink); color: var(--lime); font: 600 9px "DM Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
-.model-plan article { width: 90%; min-height: 205px; padding: clamp(27px, 3vw, 40px) clamp(28px, 3.2vw, 46px) clamp(27px, 3vw, 40px) clamp(76px, 7vw, 104px); position: relative; display: grid; align-content: center; background: var(--paper-deep); counter-increment: model-phase; }
-.model-plan article:nth-of-type(1) { margin-right: auto; background: var(--ink); color: white; }
-.model-plan article:nth-of-type(2) { margin-left: auto; }
-.model-plan article:nth-of-type(3) { margin: 0 auto; background: #e4f1d0; }
-.model-plan article::before { content: "0" counter(model-phase); position: absolute; left: clamp(25px, 3vw, 42px); top: 50%; color: var(--teal); font: 500 clamp(30px, 4vw, 56px)/1 "DM Mono", monospace; transform: translateY(-50%); }
+.model-plan { display: grid; gap: 0; border: 1px solid var(--line); counter-reset: model-phase; }
+.model-plan-label { margin: 0; padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--ink); color: var(--lime); font: 600 10px "DM Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+.model-plan article { width: 100%; min-height: 0; padding: 30px 32px 30px 88px; position: relative; display: grid; align-content: center; border-bottom: 1px solid var(--line); background: var(--paper); counter-increment: model-phase; }
+.model-plan article:last-child { border-bottom: 0; }
+.model-plan article:nth-of-type(1) { background: var(--ink); color: white; }
+.model-plan article:nth-of-type(2) { background: var(--paper); }
+.model-plan article:nth-of-type(3) { background: #e4f1d0; }
+.model-plan article::before { content: "0" counter(model-phase); position: absolute; left: 28px; top: 32px; color: var(--teal); font: 500 28px/1 "DM Mono", monospace; }
 .model-plan article:nth-of-type(1)::before { color: var(--lime); }
 .model-plan article > span { color: var(--teal); font: 600 8px "DM Mono", monospace; letter-spacing: .1em; }
 .model-plan article:nth-of-type(1) > span { color: var(--lime); }
-.model-plan h3 { margin: 17px 0 12px; font-size: clamp(22px, 2vw, 30px); line-height: 1.08; letter-spacing: -.04em; }
-.model-plan p { margin: 0 0 11px; font-size: 14px; line-height: 1.55; }
-.model-plan small { max-width: 650px; color: var(--muted); font-size: 12px; line-height: 1.58; }
+.model-plan h3 { margin: 12px 0 10px; font-size: clamp(22px, 1.8vw, 28px); line-height: 1.12; letter-spacing: -.035em; }
+.model-plan p { margin: 0 0 8px; font-size: 15px; line-height: 1.58; }
+.model-plan small { max-width: 650px; color: var(--muted); font-size: 13px; line-height: 1.58; }
 .model-plan article:nth-of-type(1) small { color: #b9b8b2; }
 
 .featured-recipe { display: grid; gap: clamp(42px, 6vw, 82px); background: var(--paper-deep); }
@@ -399,8 +400,8 @@ footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7v
   .credibility-bar p + p { border-left: 0; border-top: 1px solid var(--line); }
   .benefit-grid li { grid-template-columns: 38px 1fr; }
   .model-plan-label { margin-left: 0; }
-  .model-plan article { width: 100%; min-height: 0; margin: 0 !important; padding: 78px 24px 28px; }
-  .model-plan article::before { left: 24px; top: 25px; transform: none; font-size: 31px; }
+  .model-plan article { width: 100%; min-height: 0; margin: 0 !important; padding: 72px 24px 28px; }
+  .model-plan article::before { left: 24px; top: 26px; transform: none; font-size: 28px; }
   .recipe-story { display: block; }
   .recipe-story h2 { margin-bottom: 24px; font-size: clamp(38px, 11vw, 52px); }
   .recipe-story-note { margin-top: 22px; }
