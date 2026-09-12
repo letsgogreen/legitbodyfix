@@ -65,15 +65,27 @@ export function PageViewTracker() {
     }
 
     const campaign = getCampaign(location.searchStr);
-    void supabase.from("page_views").insert({
-      session_id: getSessionId(),
-      path: location.pathname.slice(0, 500),
-      referrer_host: clean(referrerHost, 255),
-      utm_source: campaign.source,
-      utm_medium: campaign.medium,
-      utm_campaign: campaign.campaign,
-      device_type: deviceType(),
-    });
+    const path = location.pathname.slice(0, 500);
+    void supabase
+      .from("page_views")
+      .insert({
+        session_id: getSessionId(),
+        path,
+        referrer_host: clean(referrerHost, 255),
+        utm_source: campaign.source,
+        utm_medium: campaign.medium,
+        utm_campaign: campaign.campaign,
+        device_type: deviceType(),
+      })
+      .then(({ error }) => {
+        if (!error) return;
+        console.error(JSON.stringify({
+          level: "error",
+          message: "Analytics page-view collection failed",
+          code: error.code,
+          path,
+        }));
+      });
   }, [location.pathname, location.searchStr]);
 
   return null;

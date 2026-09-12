@@ -61,6 +61,12 @@ function AnalyticsPage() {
   }, [views, range]);
 
   const maxDaily = Math.max(1, ...report.daily.map(([, count]) => count));
+  const latestView = views[0]?.created_at;
+  const latestViewAge = latestView ? Date.now() - new Date(latestView).getTime() : null;
+  const collectionActive = latestViewAge !== null && latestViewAge < 86_400_000;
+  const latestViewLabel = latestView
+    ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(latestView))
+    : "No events received";
   const statCards = [
     ["Page views", views.length.toLocaleString(), `Last ${range} days`],
     ["Sessions", report.sessions.size.toLocaleString(), "Approximate browser visits"],
@@ -78,6 +84,13 @@ function AnalyticsPage() {
       </div>
       {error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">Could not load analytics: {error}</div>}
       {loading && !views.length ? <div className="mt-5"><AdminLoadingState /></div> : <>
+        <section className={`mt-5 flex flex-col gap-2 border px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${collectionActive ? "border-accent/70 bg-accent/10" : "border-border bg-card"}`} aria-label="Analytics collection health">
+          <div>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Collection health</p>
+            <p className="mt-1 text-sm font-bold">{collectionActive ? "Receiving page views" : latestView ? "No page views in the last 24 hours" : "Waiting for the first page view"}</p>
+          </div>
+          <p className="text-xs text-muted-foreground">Latest event: <span className="font-medium text-foreground">{latestViewLabel}</span></p>
+        </section>
         <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {statCards.map(([label, value, note]) => <Panel key={label} className="p-4"><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{label}</p><p className="mt-2 text-3xl font-extrabold tracking-tight">{value}</p><p className="mt-1 text-xs text-muted-foreground">{note}</p></Panel>)}
         </section>
