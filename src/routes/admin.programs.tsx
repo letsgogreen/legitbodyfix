@@ -15,7 +15,6 @@ import {
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { ProgramCurriculum } from "@/components/admin/ProgramCurriculum";
-import { ProgramAnatomyPreview } from "@/components/admin/ProgramAnatomyPreview";
 import { ProgramSalesPageEditor } from "@/components/admin/ProgramSalesPageEditor";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -74,7 +73,7 @@ const emptyDraft: ProgramDraft = {
 };
 
 export const Route = createFileRoute("/admin/programs")({
-  validateSearch: (search: Record<string, unknown>): { action?: "new"; edit?: string; view?: "curriculum" | "anatomy" | "sales"; program?: string } => ({ action: search["action"] === "new" ? "new" : undefined, edit: typeof search["edit"] === "string" ? search["edit"] : undefined, view: search.view === "curriculum" || search.view === "anatomy" || search.view === "sales" ? search.view : undefined, program: typeof search.program === "string" ? search.program : undefined }),
+  validateSearch: (search: Record<string, unknown>): { action?: "new"; edit?: string; view?: "curriculum" | "sales"; program?: string } => ({ action: search["action"] === "new" ? "new" : undefined, edit: typeof search["edit"] === "string" ? search["edit"] : undefined, view: search.view === "curriculum" || search.view === "sales" ? search.view : undefined, program: typeof search.program === "string" ? search.program : undefined }),
   head: () => ({
     meta: [
       { title: "Programs — LegitBodyFix Admin" },
@@ -92,9 +91,8 @@ function ProgramsWorkspace() {
       <Link to="/admin/programs" search={{}} aria-current={!view ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${!view ? "bg-ink text-ink-foreground" : "border border-border"}`}>Programs & details</Link>
       <Link to="/admin/programs" search={{ view: "curriculum", program }} aria-current={view === "curriculum" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "curriculum" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Curriculum & videos</Link>
       <Link to="/admin/programs" search={{ view: "sales" }} aria-current={view === "sales" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "sales" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Sales page</Link>
-      <Link to="/admin/programs" search={{ view: "anatomy" }} aria-current={view === "anatomy" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "anatomy" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Anatomy · preview</Link>
     </nav>
-    {view === "curriculum" ? <ProgramCurriculum key={program ?? "default"} requestedProgramId={program}/> : view === "sales" ? <ProgramSalesPageEditor/> : view === "anatomy" ? <ProgramAnatomyPreview/> : <ProgramsView/>}
+    {view === "curriculum" ? <ProgramCurriculum key={program ?? "default"} requestedProgramId={program}/> : view === "sales" ? <ProgramSalesPageEditor/> : <ProgramsView/>}
   </>;
 }
 

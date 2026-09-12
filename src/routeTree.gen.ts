@@ -21,7 +21,6 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as Ver1RouteImport } from './routes/ver1'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
-import { Route as AdminAnatomyPreviewRouteImport } from './routes/admin.anatomy-preview'
 import { Route as AdminConditionsRouteImport } from './routes/admin.conditions'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
@@ -117,11 +116,6 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAnatomyPreviewRoute = AdminAnatomyPreviewRouteImport.update({
-  id: '/anatomy-preview',
-  path: '/anatomy-preview',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminConditionsRoute = AdminConditionsRouteImport.update({
@@ -320,7 +314,6 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
-  '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
   '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
@@ -367,7 +360,6 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/terms': typeof TermsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
-  '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
   '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
@@ -419,7 +411,6 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/ver1': typeof Ver1RouteWithChildren
   '/admin/analytics': typeof AdminAnalyticsRoute
-  '/admin/anatomy-preview': typeof AdminAnatomyPreviewRoute
   '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
@@ -472,7 +463,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/ver1'
     | '/admin/analytics'
-    | '/admin/anatomy-preview'
     | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
@@ -519,7 +509,6 @@ export interface FileRouteTypes {
     | '/start'
     | '/terms'
     | '/admin/analytics'
-    | '/admin/anatomy-preview'
     | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
@@ -570,7 +559,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/ver1'
     | '/admin/analytics'
-    | '/admin/anatomy-preview'
     | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
@@ -721,13 +709,6 @@ declare module '@tanstack/react-router' {
       path: '/analytics'
       fullPath: '/admin/analytics'
       preLoaderRoute: typeof AdminAnalyticsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/anatomy-preview': {
-      id: '/admin/anatomy-preview'
-      path: '/anatomy-preview'
-      fullPath: '/admin/anatomy-preview'
-      preLoaderRoute: typeof AdminAnatomyPreviewRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/conditions': {
@@ -987,7 +968,6 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
-  AdminAnatomyPreviewRoute: typeof AdminAnatomyPreviewRoute
   AdminConditionsRoute: typeof AdminConditionsRoute
   AdminContentRoute: typeof AdminContentRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
@@ -1007,7 +987,6 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
-  AdminAnatomyPreviewRoute: AdminAnatomyPreviewRoute,
   AdminConditionsRoute: AdminConditionsRoute,
   AdminContentRoute: AdminContentRoute,
   AdminCustomersRoute: AdminCustomersRoute,
