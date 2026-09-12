@@ -321,8 +321,8 @@
     setText("audience", text(video.landingAudience, "For people who want a focused, practical approach to better everyday movement."));
     setText("reassurance", text(video.landingReassurance, "One payment gives you protected access through your personal movement library."));
     setText("techniqueEyebrow", text(video.techniqueEyebrow, "Why technique matters"));
-    setText("techniqueHeadline", text(video.techniqueHeadline, "Knowing what to do is one thing. Knowing how to achieve it is another."));
-    setText("techniqueBody", text(video.techniqueBody, "This session teaches a focused technique, then places it inside a clear progression you can follow."));
+    setText("techniqueHeadline", text(video.techniqueHeadline, "Knowing what to do is one thing. Knowing how to make it work in your body is another."));
+    setText("techniqueBody", text(video.techniqueBody, "This session teaches an effective active self-myofascial release (SMR) technique designed to reduce overactivity in targeted muscles. It combines focused pressure on tight areas with controlled movement of the joint and surrounding tissue to help break up adhesions, improve mobility, and prepare your body for the activation and integration work that follows."));
     document.getElementById("upperCrossedModel").hidden = video.id !== "neck-alignment";
     setText("finalHeadline", text(video.finalHeadline, video.id === "neck-alignment"
       ? "Put the three-phase method into practice."
