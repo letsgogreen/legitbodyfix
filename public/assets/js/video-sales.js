@@ -320,10 +320,13 @@
     setText("benefit3", text(video.landingBenefit3, "Return to the practice whenever you need it."));
     setText("audience", text(video.landingAudience, "For people who want a focused, practical approach to better everyday movement."));
     setText("reassurance", text(video.landingReassurance, "One payment gives you protected access through your personal movement library."));
+    setText("techniqueEyebrow", text(video.techniqueEyebrow, "Why technique matters"));
+    setText("techniqueHeadline", text(video.techniqueHeadline, "Knowing what to do is one thing. Knowing how to achieve it is another."));
+    setText("techniqueBody", text(video.techniqueBody, "This session teaches a focused technique, then places it inside a clear progression you can follow."));
     document.getElementById("upperCrossedModel").hidden = video.id !== "neck-alignment";
-    setText("finalHeadline", video.id === "neck-alignment"
+    setText("finalHeadline", text(video.finalHeadline, video.id === "neck-alignment"
       ? "Put the three-phase method into practice."
-      : "Put " + title.toLowerCase() + " into practice.");
+      : "Put " + title.toLowerCase() + " into practice."));
     var displayPrice = hasOwnPrice ? formatPrice(video.price) : "Complete program";
     setText("price", displayPrice);
     setText("finalPrice", displayPrice);
@@ -361,7 +364,8 @@
 
   Promise.all([
     fetch("/assets/data/videos.json", { cache: "no-store" }),
-    fetch("/api/paypal/config", { cache: "no-store" })
+    fetch("/api/paypal/config", { cache: "no-store" }),
+    fetch("/api/public/program-sales/" + encodeURIComponent(videoId), { cache: "no-store" })
   ]).then(function (responses) {
     return Promise.all(responses.map(function (response) {
       if (!response.ok) throw new Error("Unable to load sessions");
@@ -370,13 +374,14 @@
   }).then(function (payloads) {
       var videos = payloads[0];
       var config = payloads[1];
+      var salesContent = payloads[2] && typeof payloads[2] === "object" ? payloads[2] : {};
       if (!Array.isArray(videos)) throw new Error("Invalid session data");
       var video = videos.find(function (item) { return item && item.id === videoId && item.published !== false; });
       if (!video) return showUnavailable();
       var product = Array.isArray(config.catalog) && config.catalog.find(function (item) { return item.id === videoId; });
       // Never advertise a stale JSON price or an item checkout cannot sell.
       if (!product || product.currency !== "USD" || !isPurchasablePrice(product.amount)) return showUnavailable();
-      render(Object.assign({}, video, { price: product.amount }));
+      render(Object.assign({}, video, salesContent, { price: product.amount }));
     })
     .catch(showUnavailable);
 })();

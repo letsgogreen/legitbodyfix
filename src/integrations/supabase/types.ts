@@ -891,6 +891,12 @@ export type Database = {
         }
         Relationships: []
       }
+      program_sales_pages: {
+        Row: { video_id: string; content: Json; updated_at: string }
+        Insert: { video_id: string; content?: Json; updated_at?: string }
+        Update: { video_id?: string; content?: Json; updated_at?: string }
+        Relationships: []
+      }
       site_copy: {
         Row: {
           key: string
