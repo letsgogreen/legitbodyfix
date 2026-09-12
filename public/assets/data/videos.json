@@ -30,10 +30,15 @@
     ],
     "relatedMuscleIds": [
       "upper-trapezius",
-      "sternocleidomastoid",
       "levator-scapulae",
+      "sternocleidomastoid",
+      "pectoralis-major",
+      "pectoralis-minor",
       "longus-colli",
-      "splenius-capitis"
+      "longus-capitis",
+      "lower-trapezius",
+      "middle-trapezius",
+      "serratus-anterior"
     ],
     "durationMinutes": 12,
     "equipment": "Bodyweight",

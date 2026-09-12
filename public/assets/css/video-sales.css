@@ -300,6 +300,7 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .anatomy-disclosure summary span { display: grid; gap: 14px; }
 .anatomy-disclosure summary small { color: var(--teal); font: 500 9px "DM Mono", monospace; letter-spacing: .11em; text-transform: uppercase; }
 .anatomy-disclosure summary strong { font-size: clamp(25px, 3vw, 44px); line-height: 1.05; letter-spacing: -.045em; }
+.anatomy-muscle-list { max-width: 980px; color: var(--muted); font-size: 14px; line-height: 1.7; }
 .anatomy-disclosure summary b { font: 400 34px "DM Mono", monospace; }
 .anatomy-disclosure[open] summary b { transform: rotate(45deg); }
 .anatomy-disclosure-body { padding: 0 clamp(28px, 4vw, 52px) clamp(28px, 4vw, 52px); }

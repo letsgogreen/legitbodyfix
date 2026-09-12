@@ -54,7 +54,7 @@
       .filter(function (id, index, values) {
         return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) && values.indexOf(id) === index;
       })
-      .slice(0, 8);
+      .slice(0, 12);
   }
 
   function relatedMuscleGroupIds(video) {
@@ -124,6 +124,10 @@
       return muscle && groupIds.indexOf(muscleGroupId(muscleGroupLabel(muscle))) === -1;
     });
     if (!groups.length && !muscles.length) return;
+
+    var relatedNames = ids.map(function (id) { return musclesById[id]; }).filter(Boolean)
+      .map(function (muscle) { return text(muscle.title, ""); }).filter(Boolean);
+    setText("musclesMatterNames", relatedNames.join(" · "));
 
     var cards = groups.map(function (group) {
       var representative = group.muscles.find(function (muscle) { return safeImageUrl(muscle.imageUrl); }) || group.muscles[0] || {};
