@@ -32,7 +32,7 @@ type Program = Database["public"]["Tables"]["programs"]["Row"];
 type Module = Database["public"]["Tables"]["program_modules"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 
-export function ProgramCurriculum({ requestedProgramId }: { requestedProgramId?: string }) {
+export function ProgramCurriculum({ requestedProgramId, embedded = false }: { requestedProgramId?: string; embedded?: boolean }) {
   const navigate = useNavigate();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [programId, setProgramId] = useState("");
@@ -170,8 +170,8 @@ export function ProgramCurriculum({ requestedProgramId }: { requestedProgramId?:
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
-      <PageHead
+    <div className={embedded ? "" : "mx-auto max-w-6xl px-5 py-6 lg:px-8"}>
+      {!embedded && <PageHead
         title="Program curriculum"
         meta="Organize modules, add lessons, and manage their videos"
         actions={
@@ -179,7 +179,18 @@ export function ProgramCurriculum({ requestedProgramId }: { requestedProgramId?:
             <Plus className="mr-1.5 h-4 w-4" /> Add lesson
           </Btn>
         }
-      />
+      />}
+
+      {embedded && (
+        <div className="flex flex-wrap items-start justify-between gap-4 border border-border bg-card p-4">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[.16em] text-muted-foreground">Curriculum & videos</p>
+            <p className="mt-2 text-sm font-extrabold">{modules.length} module{modules.length === 1 ? "" : "s"} · {lessons.length} lesson{lessons.length === 1 ? "" : "s"}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Build the customer’s learning sequence and manage secure playback.</p>
+          </div>
+          <Btn variant="ink" disabled={!programId} onClick={() => setEditing("new")}><Plus className="mr-1.5 h-4 w-4" /> Add lesson</Btn>
+        </div>
+      )}
 
       {error && (
         <div
@@ -194,7 +205,7 @@ export function ProgramCurriculum({ requestedProgramId }: { requestedProgramId?:
         </div>
       )}
 
-      {streamConfig && (
+      {streamConfig && !embedded && (
         <Panel className="mt-5 flex flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
             <p className="text-sm font-bold">Cloudflare Stream</p>
@@ -221,7 +232,7 @@ export function ProgramCurriculum({ requestedProgramId }: { requestedProgramId?:
         </Panel>
       )}
 
-      <div className="mt-5 border border-border bg-card p-3">
+      {!embedded && <div className="mt-5 border border-border bg-card p-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             {programs.map((program) => (
@@ -268,7 +279,7 @@ export function ProgramCurriculum({ requestedProgramId }: { requestedProgramId?:
             </Link>
           </div>
         </div>
-      </div>
+      </div>}
 
       {programId && (
         <Panel className="mt-5 p-4">

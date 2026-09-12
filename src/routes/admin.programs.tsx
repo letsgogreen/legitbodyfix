@@ -91,7 +91,6 @@ function ProgramsWorkspace() {
   return <>
     <nav aria-label="Program workspace" className="flex flex-wrap gap-2 border-b border-border px-5 py-3">
       <Link to="/admin/programs" search={{}} aria-current={!view ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${!view ? "bg-ink text-ink-foreground" : "border border-border"}`}>Programs & details</Link>
-      <Link to="/admin/programs" search={{ view: "curriculum", program }} aria-current={view === "curriculum" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "curriculum" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Curriculum & videos</Link>
       <Link to="/admin/programs" search={{ view: "sales" }} aria-current={view === "sales" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "sales" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Sales page</Link>
     </nav>
     {view === "curriculum" ? <ProgramCurriculum key={program ?? "default"} requestedProgramId={program}/> : view === "sales" ? <ProgramSalesPageEditor/> : <ProgramsView/>}
@@ -103,6 +102,7 @@ function ProgramsView() {
   const navigate = useNavigate({ from: "/admin/programs" });
   const [programs, setPrograms] = useState<ProgramRow[]>([]);
   const [editing, setEditing] = useState<ProgramDraft | null>(null);
+  const [editingSection, setEditingSection] = useState<ProgramEditorSection>("overview");
   const [loading, setLoading] = useState(true);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -167,7 +167,7 @@ function ProgramsView() {
         title="Programs"
         meta={loading ? "Loading your programs…" : error && !programs.length ? "Program data could not be loaded" : `${programs.length} programs · ${liveCount} published`}
         actions={
-          <Btn variant="ink" onClick={() => setEditing({ ...emptyDraft })}>
+          <Btn variant="ink" onClick={() => { setEditingSection("overview"); setEditing({ ...emptyDraft }); }}>
             <Plus className="mr-1.5 h-4 w-4" /> New program
           </Btn>
         }
@@ -217,8 +217,8 @@ function ProgramsView() {
                     {missing.length > 0 && <p className="mt-3 text-xs text-amber-800">Needs: {missing.join(", ")}</p>}
                   </div>
                   <div className="flex flex-wrap items-center gap-2 border-t border-border bg-secondary/30 p-3">
-                    <Btn variant="ink" onClick={() => setEditing(rowToDraft(program))}>Edit program</Btn>
-                    <Link to="/admin/programs" search={{ view: "curriculum", program: program.id }} className="inline-flex min-h-9 items-center rounded-sm border border-border bg-background px-3 text-xs font-bold"><FileVideo className="mr-1.5 h-3.5 w-3.5" /> Videos</Link>
+                    <Btn variant="ink" onClick={() => { setEditingSection("overview"); setEditing(rowToDraft(program)); }}>Edit program</Btn>
+                    <Btn onClick={() => { setEditingSection("content"); setEditing(rowToDraft(program)); }}><FileVideo className="mr-1.5 h-3.5 w-3.5" /> Curriculum</Btn>
                     <Link to="/programs/$programSlug" params={{ programSlug: program.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex min-h-9 items-center rounded-sm border border-border bg-background px-3 text-xs font-bold">Preview <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link>
                     <div className="ml-auto">
                       <Btn
@@ -244,6 +244,7 @@ function ProgramsView() {
       {editing && (
         <ProgramDrawer
           initial={editing}
+          initialSection={editingSection}
           onClose={closeEditor}
           onRefresh={loadPrograms}
           onSaved={async () => {
@@ -337,11 +338,13 @@ const programEditorSections: Array<{
 
 function ProgramDrawer({
   initial,
+  initialSection,
   onClose,
   onRefresh,
   onSaved,
 }: {
   initial: ProgramDraft;
+  initialSection?: ProgramEditorSection;
   onClose: () => void;
   onRefresh: () => Promise<void>;
   onSaved: () => Promise<void>;
@@ -357,7 +360,7 @@ function ProgramDrawer({
   const [recipeLinks, setRecipeLinks] = useState<RecipeLink[]>([]);
   const [lessons, setLessons] = useState<LessonSummary[]>([]);
   const [guideCount, setGuideCount] = useState(0);
-  const [section, setSection] = useState<ProgramEditorSection>("overview");
+  const [section, setSection] = useState<ProgramEditorSection>(initialSection ?? "overview");
   const isDirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(baseline), [draft, baseline]);
   const effectiveCover = draft.image_url.trim() || draft.fallback_image_url.trim();
   const closeSafely = () => {
@@ -621,15 +624,7 @@ function ProgramDrawer({
             </div>
           </div>
           {section === "content" && draft.id && (
-            <div className="border border-border bg-secondary/40 p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-bold">Curriculum & videos</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{lessons.length ? `${lessons.length} lessons connected` : "Add the first lesson and video."}</p>
-                </div>
-                <Link to="/admin/programs" search={{ view: "curriculum", program: draft.id }} className="inline-flex min-h-10 shrink-0 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"><FileVideo className="mr-1.5 h-4 w-4" /> Manage</Link>
-              </div>
-            </div>
+            <ProgramCurriculum requestedProgramId={draft.id} embedded />
           )}
           {section === "commerce" && draft.id && (
             <div
