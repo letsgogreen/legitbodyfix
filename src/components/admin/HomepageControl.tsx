@@ -36,6 +36,18 @@ const sections = [
   },
 ] as const;
 
+const pathEditorCards: Array<{
+  number: string;
+  label: HomepageCopyKey;
+  title: HomepageCopyKey;
+  body: HomepageCopyKey;
+  cta: HomepageCopyKey;
+}> = [
+  { number: "01", label: "path_direction_label", title: "path_direction_title", body: "path_direction_body", cta: "path_direction_cta" },
+  { number: "02", label: "path_learning_label", title: "path_learning_title", body: "path_learning_body", cta: "path_learning_cta" },
+  { number: "03", label: "path_programs_label", title: "path_programs_title", body: "path_programs_body", cta: "path_programs_cta" },
+];
+
 export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
   const [media, setMedia] = useState(() => Object.fromEntries(bodyRegions.map((region) => [region.slug, { image_url: region.imageUrl, image_alt: region.imageAlt }])));
   const [saving, setSaving] = useState("");
@@ -106,6 +118,11 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
     else setCopySaved(true);
   }
 
+  function updateCopy(key: HomepageCopyKey, value: string) {
+    setCopySaved(false);
+    setCopy((current) => ({ ...current, [key]: value }));
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
@@ -167,8 +184,63 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
                 </div>
                 <Tag>{group.location}</Tag>
               </div>
-              <div className="grid gap-x-5 gap-y-5 p-5 md:grid-cols-2">
-                {group.fields.map((field) => (
+              {group.title === "Choose a path" ? (
+                <div className="bg-secondary/25 p-5">
+                  <label className="block max-w-3xl">
+                    <span className="mb-2 block text-xs font-bold text-foreground">Section heading</span>
+                    <input
+                      value={copy.paths_heading}
+                      maxLength={120}
+                      onChange={(event) => updateCopy("paths_heading", event.target.value)}
+                      className="min-h-12 w-full rounded-sm border border-border bg-background px-4 py-3 text-xl font-extrabold outline-none transition-shadow focus:border-foreground focus:ring-2 focus:ring-foreground/10"
+                    />
+                  </label>
+                  <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                    {pathEditorCards.map((card) => (
+                      <div key={card.number} className="flex min-h-[22rem] flex-col border border-border bg-card p-5 shadow-sm">
+                        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                          <span className="grid h-6 w-6 place-items-center rounded-full border border-border">{card.number}</span>
+                          <input
+                            aria-label={`Card ${card.number} label`}
+                            value={copy[card.label].replace(/^\d+\s*\/\s*/, "")}
+                            maxLength={60}
+                            onChange={(event) => updateCopy(card.label, `${card.number} / ${event.target.value}`)}
+                            className="min-w-0 flex-1 border-0 border-b border-transparent bg-transparent px-0 py-1 font-mono text-[10px] uppercase tracking-[0.14em] outline-none hover:border-border focus:border-foreground"
+                          />
+                        </div>
+                        <input
+                          aria-label={`Card ${card.number} title`}
+                          value={copy[card.title]}
+                          maxLength={80}
+                          onChange={(event) => updateCopy(card.title, event.target.value)}
+                          className="mt-5 w-full border-0 border-b border-transparent bg-transparent px-0 py-1 text-lg font-extrabold outline-none hover:border-border focus:border-foreground"
+                        />
+                        <textarea
+                          aria-label={`Card ${card.number} description`}
+                          value={copy[card.body]}
+                          rows={4}
+                          maxLength={180}
+                          onChange={(event) => updateCopy(card.body, event.target.value)}
+                          className="mt-3 w-full flex-1 resize-none border-0 border-b border-transparent bg-transparent px-0 py-1 text-sm leading-6 text-muted-foreground outline-none hover:border-border focus:border-foreground"
+                        />
+                        <div className="mt-5 flex items-center gap-2 border-t border-border pt-4">
+                          <input
+                            aria-label={`Card ${card.number} button`}
+                            value={copy[card.cta]}
+                            maxLength={60}
+                            onChange={(event) => updateCopy(card.cta, event.target.value)}
+                            className="min-w-0 flex-1 border-0 border-b border-transparent bg-transparent px-0 py-1 text-sm font-bold outline-none hover:border-border focus:border-foreground"
+                          />
+                          <span aria-hidden className="text-lg">→</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">Edit directly inside each card. Destinations remain fixed to the starting point, body regions, and programs.</p>
+                </div>
+              ) : (
+                <div className="grid gap-x-5 gap-y-5 p-5 md:grid-cols-2">
+                  {group.fields.map((field) => (
                   <label key={field.key} className={field.multiline ? "block md:col-span-2" : "block"}>
                     <span className="mb-2 block text-xs font-bold text-foreground">{field.label}</span>
                     {field.multiline ? (
@@ -176,21 +248,22 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
                         value={copy[field.key]}
                         rows={field.key === "hero_title" ? 5 : 4}
                         maxLength={field.key === "hero_summary" || field.key.endsWith("intro") ? 280 : 160}
-                        onChange={(event) => { setCopySaved(false); setCopy((current) => ({ ...current, [field.key]: event.target.value })); }}
+                        onChange={(event) => updateCopy(field.key, event.target.value)}
                         className="w-full resize-y rounded-sm border border-border bg-background px-4 py-3 text-base leading-7 outline-none transition-shadow focus:border-foreground focus:ring-2 focus:ring-foreground/10"
                       />
                     ) : (
                       <input
                         value={copy[field.key]}
                         maxLength={120}
-                        onChange={(event) => { setCopySaved(false); setCopy((current) => ({ ...current, [field.key]: event.target.value })); }}
+                        onChange={(event) => updateCopy(field.key, event.target.value)}
                         className="min-h-12 w-full rounded-sm border border-border bg-background px-4 py-3 text-base outline-none transition-shadow focus:border-foreground focus:ring-2 focus:ring-foreground/10"
                       />
                     )}
                     {field.key === "hero_title" && <span className="mt-1.5 block text-xs text-muted-foreground">Each line break creates a new headline line.</span>}
                   </label>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </Panel>
           ))}
         </div>
