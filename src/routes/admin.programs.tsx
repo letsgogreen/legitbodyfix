@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
+  ArrowLeft,
   ArrowDown,
   ArrowUp,
   Check,
@@ -10,7 +11,6 @@ import {
   Loader2,
   Plus,
   Trash2,
-  X,
 } from "lucide-react";
 import { Btn, PageHead, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
@@ -161,6 +161,21 @@ function ProgramsView() {
     }
   };
 
+  if (editing) {
+    return (
+      <ProgramDrawer
+        initial={editing}
+        initialSection={editingSection}
+        onClose={closeEditor}
+        onRefresh={loadPrograms}
+        onSaved={async () => {
+          closeEditor();
+          await loadPrograms();
+        }}
+      />
+    );
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
       <PageHead
@@ -240,19 +255,6 @@ function ProgramsView() {
           </div>
         )}
       </div>
-
-      {editing && (
-        <ProgramDrawer
-          initial={editing}
-          initialSection={editingSection}
-          onClose={closeEditor}
-          onRefresh={loadPrograms}
-          onSaved={async () => {
-            closeEditor();
-            await loadPrograms();
-          }}
-        />
-      )}
     </div>
   );
 }
@@ -360,7 +362,7 @@ function ProgramDrawer({
   const [recipeLinks, setRecipeLinks] = useState<RecipeLink[]>([]);
   const [lessons, setLessons] = useState<LessonSummary[]>([]);
   const [guideCount, setGuideCount] = useState(0);
-  const [section, setSection] = useState<ProgramEditorSection>(initialSection ?? "overview");
+  const initialAnchor = initialSection ?? "overview";
   const isDirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(baseline), [draft, baseline]);
   const effectiveCover = draft.image_url.trim() || draft.fallback_image_url.trim();
   const closeSafely = () => {
@@ -579,10 +581,11 @@ function ProgramDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" role="dialog" aria-modal="true">
-      <div className="flex h-full w-full max-w-4xl flex-col border-l border-border bg-background shadow-2xl">
-        <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+    <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
+      <div className="overflow-hidden border border-border bg-background">
+        <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-5 lg:px-7">
           <div>
+            <button type="button" onClick={closeSafely} className="mb-4 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground"><ArrowLeft className="h-3.5 w-3.5" /> All programs</button>
             <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
               {draft.id ? "Editing program" : "New program"}
             </p>
@@ -590,29 +593,21 @@ function ProgramDrawer({
               {draft.name || "Untitled program"}
             </h2>
           </div>
-          <button
-            type="button"
-            onClick={closeSafely}
-            aria-label="Close"
-            className="rounded-sm border border-border p-1.5"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          {draft.id && <Link to="/programs/$programSlug" params={{ programSlug: draft.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex min-h-10 items-center border border-border px-3 text-xs font-bold">Open preview <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link>}
         </div>
-        <div className="grid grid-cols-4 border-b border-border bg-card">
+        <nav aria-label="Program editor sections" className="grid grid-cols-2 border-b border-border bg-card lg:grid-cols-4">
           {programEditorSections.map((item) => (
-            <button
+            <a
               key={item.id}
-              type="button"
-              onClick={() => setSection(item.id)}
-              className={`min-h-16 border-r border-border px-2 py-3 text-left last:border-r-0 ${section === item.id ? "bg-ink text-ink-foreground" : "hover:bg-secondary"}`}
+              href={`#program-${item.id}`}
+              className="min-h-16 border-b border-r border-border px-4 py-3 text-left hover:bg-secondary lg:border-b-0 lg:last:border-r-0"
             >
               <span className="block text-xs font-extrabold">{item.label}</span>
-              <span className={`mt-1 hidden text-[10px] leading-tight sm:block ${section === item.id ? "text-ink-foreground/65" : "text-muted-foreground"}`}>{item.description}</span>
-            </button>
+              <span className="mt-1 hidden text-[10px] leading-tight text-muted-foreground sm:block">{item.description}</span>
+            </a>
           ))}
-        </div>
-        <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
+        </nav>
+        <div className="space-y-8 px-5 py-6 lg:px-7 lg:py-8" ref={(node) => { if (node && initialAnchor !== "overview") requestAnimationFrame(() => document.getElementById(`program-${initialAnchor}`)?.scrollIntoView({ block: "start" })); }}>
           <div className="grid grid-cols-[72px_1fr] gap-4 border border-border bg-card p-4">
             <div className="aspect-square overflow-hidden bg-secondary">
               {effectiveCover ? <img src={effectiveCover} alt="" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center font-mono text-[9px] uppercase text-muted-foreground">No cover</div>}
@@ -623,49 +618,7 @@ function ProgramDrawer({
               <p className="mt-1 text-xs text-muted-foreground">{lessons.length} lesson{lessons.length === 1 ? "" : "s"} · {draft.paddle_price_id ? "Price connected" : "No price"} · {effectiveCover ? (draft.image_url ? "Program cover" : "Lesson thumbnail fallback") : "No storefront image"}</p>
             </div>
           </div>
-          {section === "content" && draft.id && (
-            <ProgramCurriculum requestedProgramId={draft.id} embedded />
-          )}
-          {section === "commerce" && draft.id && (
-            <div
-              className={`border p-4 ${launchBlockers.length ? "border-amber-500/50 bg-amber-50/40" : "border-lime-500/50 bg-lime-50/40"}`}
-            >
-              <div className="flex items-start gap-3">
-                {launchBlockers.length ? (
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
-                ) : (
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
-                )}
-                <div>
-                  <p className="text-sm font-extrabold">
-                    {launchBlockers.length
-                      ? `${launchBlockers.length} readiness suggestions`
-                      : "All readiness suggestions complete"}
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    These checks are editorial guidance only. Administrators can publish at any
-                    time, including while a program is still being assembled.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {launchChecks.map((check) => (
-                  <span
-                    key={check.label}
-                    className={`inline-flex items-center gap-1.5 text-xs font-bold ${check.ready ? "text-foreground" : "text-amber-800"}`}
-                  >
-                    {check.ready ? (
-                      <Check className="h-3.5 w-3.5" />
-                    ) : (
-                      <AlertTriangle className="h-3.5 w-3.5" />
-                    )}
-                    {check.label}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          {section === "overview" && <div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><div className="space-y-4"><Field
+          <section id="program-overview" className="scroll-mt-4 space-y-4"><SectionHeading index="01" title="Overview" description="Shape the first message customers read." /><div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><div className="space-y-4"><Field
             label="Program name"
             value={draft.name}
             onChange={(value) => update("name", value)}
@@ -681,8 +634,8 @@ function ProgramDrawer({
             value={draft.who_its_for}
             onChange={(value) => update("who_its_for", value)}
           />
-          </div><aside className="self-start overflow-hidden border border-border bg-card"><div className="bg-ink p-5 text-ink-foreground"><p className="font-mono text-[9px] uppercase tracking-[.16em] text-accent">Customer-facing snapshot</p><h3 className="mt-3 text-2xl font-black leading-tight">{draft.name || "Your program title"}</h3><p className="mt-3 text-sm leading-6 text-ink-foreground/75">{draft.outcome || "The program outcome will appear here."}</p></div><div className="p-5"><p className="font-mono text-[9px] uppercase tracking-[.16em] text-muted-foreground">Who it is for</p><p className="mt-2 text-sm leading-6">{draft.who_its_for || "Describe who will benefit from this program."}</p><p className="mt-5 border-t border-border pt-4 font-mono text-[9px] uppercase tracking-[.14em] text-muted-foreground">/{draft.slug || "program-url"}</p></div></aside></div>}
-          {section === "presentation" && <><div className="grid grid-cols-2 gap-3">
+          </div><aside className="self-start overflow-hidden border border-border bg-card"><div className="bg-ink p-5 text-ink-foreground"><p className="font-mono text-[9px] uppercase tracking-[.16em] text-accent">Customer-facing snapshot</p><h3 className="mt-3 text-2xl font-black leading-tight">{draft.name || "Your program title"}</h3><p className="mt-3 text-sm leading-6 text-ink-foreground/75">{draft.outcome || "The program outcome will appear here."}</p></div><div className="p-5"><p className="font-mono text-[9px] uppercase tracking-[.16em] text-muted-foreground">Who it is for</p><p className="mt-2 text-sm leading-6">{draft.who_its_for || "Describe who will benefit from this program."}</p><p className="mt-5 border-t border-border pt-4 font-mono text-[9px] uppercase tracking-[.14em] text-muted-foreground">/{draft.slug || "program-url"}</p></div></aside></div></section>
+          <section id="program-presentation" className="scroll-mt-4 space-y-4 border-t border-border pt-8"><SectionHeading index="02" title="Presentation" description="Control the cover and storefront details." /><div className="grid grid-cols-2 gap-3">
             <Field
               label="Format"
               value={draft.format}
@@ -726,8 +679,22 @@ function ProgramDrawer({
             />
             {!draft.image_url && draft.fallback_image_url && <p className="mt-3 border-l-2 border-accent px-3 text-xs leading-5 text-muted-foreground">No dedicated cover is set. The storefront currently uses the first available lesson thumbnail shown above.</p>}
             {imageMessage && <p className="mt-2 text-xs font-medium text-emerald-700">{imageMessage}</p>}
-          </div></>}
-          {section === "commerce" && <><details className="border border-border bg-card p-4">
+          </div></section>
+          <section id="program-content" className="scroll-mt-4 space-y-5 border-t border-border pt-8"><SectionHeading index="03" title="Content" description="Build the curriculum and connect supporting guidance." />
+          {draft.id ? <ProgramCurriculum requestedProgramId={draft.id} embedded /> : <div className="border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Save this program first, then add modules, lessons, and videos.</div>}
+          {draft.id && (
+            <div className="border border-border bg-card p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div><p className="text-sm font-bold">Related Posture & Movement</p><p className="mt-1 text-xs text-muted-foreground">Choose and order the supporting guidance included with this program.</p></div>
+                <Link to="/programs/$programSlug" params={{ programSlug: draft.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex items-center gap-1 text-xs font-bold underline">Sales-page preview <ExternalLink className="h-3 w-3" /></Link>
+              </div>
+              <select defaultValue="" onChange={(event) => { if (event.target.value) void addRecipe(event.target.value); event.target.value = ""; }} className="mt-4 w-full rounded-sm border border-border bg-background px-3 py-2 text-xs"><option value="">Add Posture & Movement content…</option>{recipes.filter((recipe) => !recipeLinks.some((link) => link.recipe_id === recipe.id)).map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.title}</option>)}</select>
+              <div className="mt-3 space-y-2">{recipeLinks.map((link, index) => { const recipe = recipes.find((item) => item.id === link.recipe_id); return <div key={link.recipe_id} className="flex items-center gap-2 border border-border px-3 py-2"><span className="min-w-0 flex-1 text-xs font-bold">{recipe?.title ?? link.recipe_id}</span><Tag tone={recipe?.published ? "accent" : "muted"}>{recipe?.published ? "live" : "draft"}</Tag>{!recipe?.image_url && <Tag tone="warn">no image</Tag>}<Btn disabled={index === 0} onClick={() => void moveRecipe(index, -1)}><ArrowUp className="h-3 w-3" /></Btn><Btn disabled={index === recipeLinks.length - 1} onClick={() => void moveRecipe(index, 1)}><ArrowDown className="h-3 w-3" /></Btn><Btn onClick={() => void removeRecipe(link.recipe_id)}><Trash2 className="h-3 w-3" /></Btn></div>; })}{!recipeLinks.length && <p className="py-3 text-center text-xs text-muted-foreground">No supporting content linked yet.</p>}</div>
+            </div>
+          )}</section>
+          <section id="program-commerce" className="scroll-mt-4 space-y-4 border-t border-border pt-8"><SectionHeading index="04" title="Publish" description="Review readiness, pricing, access, and visibility." />
+          {draft.id && <div className={`border p-4 ${launchBlockers.length ? "border-amber-500/50 bg-amber-50/40" : "border-lime-500/50 bg-lime-50/40"}`}><div className="flex items-start gap-3">{launchBlockers.length ? <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" /> : <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />}<div><p className="text-sm font-extrabold">{launchBlockers.length ? `${launchBlockers.length} readiness suggestions` : "All readiness suggestions complete"}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">These checks are editorial guidance. Review them before publishing.</p></div></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{launchChecks.map((check) => <span key={check.label} className={`inline-flex items-center gap-1.5 text-xs font-bold ${check.ready ? "text-foreground" : "text-amber-800"}`}>{check.ready ? <Check className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}{check.label}</span>)}</div></div>}
+          <details className="border border-border bg-card p-4">
             <summary className="cursor-pointer text-sm font-extrabold">Paddle and access settings</summary>
             <div className="mt-4 space-y-4">
           <Field label="Paddle product ID" value={draft.paddle_product_id} onChange={(value) => update("paddle_product_id", value)} />
@@ -750,84 +717,10 @@ function ProgramDrawer({
               checked={draft.published}
               onChange={(value) => update("published", value)}
             />
-          </div></>}
-          {section === "content" && draft.id && (
-            <div className="border border-border bg-card p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-bold">Related Posture & Movement</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Choose and order the supporting guidance included with this program.
-                  </p>
-                </div>
-                <Link
-                  to="/programs/$programSlug"
-                  params={{ programSlug: draft.slug }}
-                  search={{ preview: "admin" }}
-                  target="_blank"
-                  className="inline-flex items-center gap-1 text-xs font-bold underline"
-                >
-                  Sales-page preview <ExternalLink className="h-3 w-3" />
-                </Link>
-              </div>
-              <select
-                defaultValue=""
-                onChange={(event) => {
-                  if (event.target.value) void addRecipe(event.target.value);
-                  event.target.value = "";
-                }}
-                className="mt-4 w-full rounded-sm border border-border bg-background px-3 py-2 text-xs"
-              >
-                <option value="">Add Posture & Movement content…</option>
-                {recipes
-                  .filter((recipe) => !recipeLinks.some((link) => link.recipe_id === recipe.id))
-                  .map((recipe) => (
-                    <option key={recipe.id} value={recipe.id}>
-                      {recipe.title}
-                    </option>
-                  ))}
-              </select>
-              <div className="mt-3 space-y-2">
-                {recipeLinks.map((link, index) => {
-                  const recipe = recipes.find((item) => item.id === link.recipe_id);
-                  return (
-                    <div
-                      key={link.recipe_id}
-                      className="flex items-center gap-2 border border-border px-3 py-2"
-                    >
-                      <span className="min-w-0 flex-1 text-xs font-bold">
-                        {recipe?.title ?? link.recipe_id}
-                      </span>
-                      <Tag tone={recipe?.published ? "accent" : "muted"}>
-                        {recipe?.published ? "live" : "draft"}
-                      </Tag>
-                      {!recipe?.image_url && <Tag tone="warn">no image</Tag>}
-                      <Btn disabled={index === 0} onClick={() => void moveRecipe(index, -1)}>
-                        <ArrowUp className="h-3 w-3" />
-                      </Btn>
-                      <Btn
-                        disabled={index === recipeLinks.length - 1}
-                        onClick={() => void moveRecipe(index, 1)}
-                      >
-                        <ArrowDown className="h-3 w-3" />
-                      </Btn>
-                      <Btn onClick={() => void removeRecipe(link.recipe_id)}>
-                        <Trash2 className="h-3 w-3" />
-                      </Btn>
-                    </div>
-                  );
-                })}
-                {!recipeLinks.length && (
-                  <p className="py-3 text-center text-xs text-muted-foreground">
-                    No supporting content linked yet.
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-          {section === "commerce" && <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          </div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             New sales use Paddle. Historical Stripe identifiers remain stored only for old orders.
-          </p>}
+          </p></section>
           {error && (
             <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
               {error}
@@ -859,6 +752,10 @@ function Label({ children }: { children: React.ReactNode }) {
       {children}
     </span>
   );
+}
+
+function SectionHeading({ index, title, description }: { index: string; title: string; description: string }) {
+  return <div className="flex items-end justify-between gap-4"><div><p className="font-mono text-[10px] uppercase tracking-[.16em] text-muted-foreground">{index} / Program editor</p><h3 className="mt-1 text-2xl font-extrabold tracking-tight">{title}</h3></div><p className="hidden max-w-sm text-right text-xs leading-5 text-muted-foreground sm:block">{description}</p></div>;
 }
 
 function PaddlePricePanel({ programId, productId, priceId, onChanged }: { programId: string; productId: string; priceId: string; onChanged: (result: { productId: string; priceId: string }) => void }) {
