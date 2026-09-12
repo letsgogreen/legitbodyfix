@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 function isAdmin(claims: unknown) {
@@ -10,7 +9,9 @@ function isAdmin(claims: unknown) {
 }
 
 export const setAdminCustomerAccess = createServerFn({ method: "POST" })
-  .middleware([attachSupabaseAuth, requireSupabaseAuth])
+  // The bearer token is attached globally in src/start.ts. Registering the
+  // client attacher again here can duplicate the Authorization header.
+  .middleware([requireSupabaseAuth])
   .validator((input) => z.object({
     userId: z.string().uuid(),
     programId: z.string().uuid(),
