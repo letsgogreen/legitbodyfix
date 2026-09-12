@@ -139,26 +139,7 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
         }
       />
 
-      <Panel className="mt-5 overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
-          <div>
-            <p className="text-sm font-bold">Customer view</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              This preview loads the currently deployed homepage. Refresh after publishing content.
-            </p>
-          </div>
-          <Tag tone="accent">Live preview</Tag>
-        </div>
-        <div className="bg-secondary p-3 sm:p-5">
-          <iframe
-            src="/"
-            title="Live homepage preview"
-            className="h-[38rem] w-full rounded-sm border border-border bg-background"
-          />
-        </div>
-      </Panel>
-
-      <section id="homepage-copy" className="mt-8 scroll-mt-24">
+      <section id="homepage-copy" className="mt-5 scroll-mt-24">
         <div className="sticky top-0 z-10 -mx-2 flex flex-wrap items-end justify-between gap-4 border-y border-border bg-background/95 px-2 py-4 backdrop-blur">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Homepage copy</p>
