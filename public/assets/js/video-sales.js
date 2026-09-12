@@ -290,7 +290,7 @@
     setText("mobilePrice", displayPrice);
     setText("paymentNote", hasOwnPrice ? "One-time payment" : "Included in the full package");
     var recipeProgramMeta = document.getElementById("recipeProgramMeta");
-    if (recipeProgramMeta) recipeProgramMeta.textContent = String(video.durationMinutes) + " min · Guided video · " + displayPrice.replace(" USD", "") + " · One-time";
+    if (recipeProgramMeta) recipeProgramMeta.textContent = "Best for guided practice · " + String(video.durationMinutes) + " min · " + displayPrice.replace(" USD", "") + " one-time";
     renderSessionSequence(video);
 
     document.querySelectorAll(".checkout-link").forEach(function (link) { link.href = checkoutUrl; });
