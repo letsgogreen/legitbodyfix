@@ -196,6 +196,13 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .benefit-grid li { display: grid; grid-template-columns: 60px 1fr; gap: 20px; padding: 31px 0; border-bottom: 1px solid var(--line); }
 .benefit-grid span { color: var(--teal); font: 500 10px "DM Mono", monospace; }
 .benefit-grid p { margin: 0; font-size: clamp(19px, 1.75vw, 26px); font-weight: 650; line-height: 1.38; letter-spacing: -.025em; }
+.sales-evidence { margin: 34px 0 0; overflow: hidden; border: 1px solid var(--line); background: white; }
+.sales-evidence[hidden] { display: none; }
+.sales-evidence img { display: block; width: 100%; height: auto; object-fit: contain; }
+.sales-evidence figcaption { margin: 0; padding: 14px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.55; }
+.sales-evidence-neck { max-width: 550px; }
+.sales-evidence-model { max-width: 560px; }
+.sales-evidence-model img { filter: contrast(.94); }
 
 .upper-crossed-model { display: grid; grid-template-columns: minmax(320px, .9fr) minmax(0, 1.1fr); gap: clamp(48px, 6vw, 88px); align-items: start; background: var(--card); }
 .upper-crossed-model[hidden] { display: none; }
@@ -431,6 +438,7 @@ footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7v
   .credibility-bar { grid-template-columns: 1fr; }
   .credibility-bar p + p { border-left: 0; border-top: 1px solid var(--line); }
   .benefit-grid li { grid-template-columns: 38px 1fr; }
+  .sales-evidence { margin-top: 26px; }
   .model-plan-label { margin-left: 0; }
   .model-plan article { width: 100%; min-height: 0; margin: 0 !important; padding: 72px 24px 28px; }
   .model-plan article::before { left: 24px; top: 26px; transform: none; font-size: 28px; }
