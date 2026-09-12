@@ -162,7 +162,7 @@
     var summaries = {
       conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
       muscles: function (item) { return item.actions || item.function || "Explore this muscle's role in movement."; },
-      recipes: function (item) { return item.goal || "Use a focused sequence, then reassess before progressing."; }
+      recipes: function (item) { return item.goal || item.summary || "Use a focused sequence, then reassess before progressing."; }
     };
     var shoulderGuides = [
       { id: "scapula-anterior-tilt", title: "Scapula anterior tilt", summary: "Understand how scapular position can influence shoulder mechanics and overhead movement." },
