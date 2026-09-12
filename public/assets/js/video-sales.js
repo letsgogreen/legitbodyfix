@@ -275,6 +275,7 @@
     setText("equipment", text(video.equipment, "Bodyweight"));
     setText("moduleNumber", "SESSION " + String(video.moduleNumber || 1).padStart(2, "0"));
     setText("previewTitle", title);
+    setText("whyHeadline", text(video.landingWhyHeadline, "Stop collecting tips. Start following a plan."));
     setText("description", text(video.description, summary));
     setText("benefit1", text(video.landingBenefit1, "Practice controlled movement with a clear sequence."));
     setText("benefit2", text(video.landingBenefit2, "Build awareness you can apply outside the session."));
