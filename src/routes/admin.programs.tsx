@@ -47,6 +47,7 @@ type ProgramDraft = {
   entitlement_key: string;
   image_url: string;
   image_alt: string;
+  fallback_image_url: string;
   featured: boolean;
   featured_rank: string;
   published: boolean;
@@ -67,6 +68,7 @@ const emptyDraft: ProgramDraft = {
   entitlement_key: "",
   image_url: "",
   image_alt: "",
+  fallback_image_url: "",
   featured: false,
   featured_rank: "",
   published: false,
@@ -309,6 +311,7 @@ function rowToDraft(program: ProgramRow): ProgramDraft {
     entitlement_key: program.entitlement_key ?? "",
     image_url: program.image_url ?? "",
     image_alt: program.image_alt ?? "",
+    fallback_image_url: program.fallback_image_url ?? "",
     featured: program.featured,
     featured_rank: program.featured_rank?.toString() ?? "",
     published: program.published,
@@ -357,6 +360,19 @@ function draftToPayload(draft: ProgramDraft) {
   };
 }
 
+type ProgramEditorSection = "overview" | "presentation" | "content" | "commerce";
+
+const programEditorSections: Array<{
+  id: ProgramEditorSection;
+  label: string;
+  description: string;
+}> = [
+  { id: "overview", label: "Overview", description: "What customers see first" },
+  { id: "presentation", label: "Presentation", description: "Cover and storefront details" },
+  { id: "content", label: "Content", description: "Videos and related guidance" },
+  { id: "commerce", label: "Publish", description: "Price, access, and visibility" },
+];
+
 function ProgramDrawer({
   initial,
   onClose,
@@ -369,16 +385,36 @@ function ProgramDrawer({
   onSaved: () => Promise<void>;
 }) {
   const [draft, setDraft] = useState(initial);
+  const [baseline, setBaseline] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageMessage, setImageMessage] = useState<string | null>(null);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<RecipeOption[]>([]);
   const [recipeLinks, setRecipeLinks] = useState<RecipeLink[]>([]);
   const [lessons, setLessons] = useState<LessonSummary[]>([]);
   const [guideCount, setGuideCount] = useState(0);
-  const update = <K extends keyof ProgramDraft>(key: K, value: ProgramDraft[K]) =>
+  const [section, setSection] = useState<ProgramEditorSection>("overview");
+  const isDirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(baseline), [draft, baseline]);
+  const effectiveCover = draft.image_url.trim() || draft.fallback_image_url.trim();
+  const closeSafely = () => {
+    if (isDirty && !window.confirm("Discard your unsaved program changes?")) return;
+    onClose();
+  };
+
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isDirty]);
+  const update = <K extends keyof ProgramDraft>(key: K, value: ProgramDraft[K]) => {
+    setSaveMessage(null);
     setDraft((current) => ({ ...current, [key]: value }));
+  };
 
   const loadRecipeLinks = useCallback(async () => {
     if (!initial.id) return;
@@ -422,7 +458,7 @@ function ProgramDrawer({
       },
       {
         label: "Cover image and alt text",
-        ready: Boolean(draft.image_url.trim() && draft.image_alt.trim()),
+        ready: Boolean(effectiveCover && (!draft.image_url.trim() || draft.image_alt.trim())),
       },
       {
         label: "Paddle price connected",
@@ -440,7 +476,7 @@ function ProgramDrawer({
       { label: "Supporting recipe linked", ready: recipeLinks.length > 0 },
       { label: "Movement guide linked", ready: guideCount > 0 },
     ],
-    [draft, guideCount, lessons, recipeLinks.length],
+    [draft, effectiveCover, guideCount, lessons, recipeLinks.length],
   );
   const launchBlockers = launchChecks.filter((check) => !check.ready);
 
@@ -504,11 +540,21 @@ function ProgramDrawer({
     }
     setSaving(true);
     setError(null);
+    setSaveMessage(null);
     try {
-      await saveAdminProgram({ data: { id: draft.id, ...draftToPayload(draft) } });
-      await onSaved();
+      const saved = await saveAdminProgram({ data: { id: draft.id, ...draftToPayload(draft) } });
+      if (!draft.id) {
+        await onSaved();
+        return;
+      }
+      const nextDraft = rowToDraft({ ...saved, fallback_image_url: draft.fallback_image_url });
+      setDraft(nextDraft);
+      setBaseline(nextDraft);
+      setSaveMessage("Program saved. You can keep editing.");
+      await onRefresh();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
       setSaving(false);
     }
   };
@@ -526,6 +572,7 @@ function ProgramDrawer({
     setError(null);
     try {
       await saveAdminProgram({ data: { id: nextDraft.id, ...draftToPayload(nextDraft) } });
+      setBaseline(nextDraft);
       await onRefresh();
       setImageMessage("Cover uploaded and saved to this program.");
     } catch (cause) {
@@ -580,32 +627,49 @@ function ProgramDrawer({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={closeSafely}
             aria-label="Close"
             className="rounded-sm border border-border p-1.5"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
+        <div className="grid grid-cols-4 border-b border-border bg-card">
+          {programEditorSections.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setSection(item.id)}
+              className={`min-h-16 border-r border-border px-2 py-3 text-left last:border-r-0 ${section === item.id ? "bg-ink text-ink-foreground" : "hover:bg-secondary"}`}
+            >
+              <span className="block text-xs font-extrabold">{item.label}</span>
+              <span className={`mt-1 hidden text-[10px] leading-tight sm:block ${section === item.id ? "text-ink-foreground/65" : "text-muted-foreground"}`}>{item.description}</span>
+            </button>
+          ))}
+        </div>
         <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
-          {draft.id && (
-            <div className="flex items-center justify-between gap-4 border border-border bg-secondary/40 p-4">
-              <div>
-                <p className="text-sm font-bold">Curriculum & videos</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Upload lessons, choose video frames, and preview playback.
-                </p>
+          <div className="grid grid-cols-[72px_1fr] gap-4 border border-border bg-card p-4">
+            <div className="aspect-square overflow-hidden bg-secondary">
+              {effectiveCover ? <img src={effectiveCover} alt="" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center font-mono text-[9px] uppercase text-muted-foreground">No cover</div>}
+            </div>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2"><Tag tone={draft.published ? "accent" : "muted"}>{draft.published ? "Published" : "Draft"}</Tag>{isDirty && <Tag tone="warn">Unsaved</Tag>}</div>
+              <p className="mt-2 truncate text-sm font-extrabold">{draft.name || "Untitled program"}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{lessons.length} lesson{lessons.length === 1 ? "" : "s"} · {draft.paddle_price_id ? "Price connected" : "No price"} · {effectiveCover ? (draft.image_url ? "Program cover" : "Lesson thumbnail fallback") : "No storefront image"}</p>
+            </div>
+          </div>
+          {section === "content" && draft.id && (
+            <div className="border border-border bg-secondary/40 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-bold">Curriculum & videos</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{lessons.length ? `${lessons.length} lessons connected` : "Add the first lesson and video."}</p>
+                </div>
+                <Link to="/admin/programs" search={{ view: "curriculum", program: draft.id }} className="inline-flex min-h-10 shrink-0 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"><FileVideo className="mr-1.5 h-4 w-4" /> Manage</Link>
               </div>
-              <Link
-                to="/admin/programs"
-                search={{ view: "curriculum", program: draft.id }}
-                className="inline-flex min-h-10 shrink-0 items-center rounded-sm bg-ink px-3 text-xs font-bold text-ink-foreground"
-              >
-                <FileVideo className="mr-1.5 h-4 w-4" /> Manage
-              </Link>
             </div>
           )}
-          {draft.id && (
+          {section === "commerce" && draft.id && (
             <div
               className={`border p-4 ${launchBlockers.length ? "border-amber-500/50 bg-amber-50/40" : "border-lime-500/50 bg-lime-50/40"}`}
             >
@@ -644,7 +708,7 @@ function ProgramDrawer({
               </div>
             </div>
           )}
-          <Field
+          {section === "overview" && <><Field
             label="Program name"
             value={draft.name}
             onChange={(value) => update("name", value)}
@@ -660,7 +724,8 @@ function ProgramDrawer({
             value={draft.who_its_for}
             onChange={(value) => update("who_its_for", value)}
           />
-          <div className="grid grid-cols-2 gap-3">
+          </>}
+          {section === "presentation" && <><div className="grid grid-cols-2 gap-3">
             <Field
               label="Format"
               value={draft.format}
@@ -691,13 +756,6 @@ function ProgramDrawer({
             value={draft.goals}
             onChange={(value) => update("goals", value)}
           />
-          <Field label="Paddle product ID" value={draft.paddle_product_id} onChange={(value) => update("paddle_product_id", value)} />
-          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={({ productId, priceId }) => { update("paddle_product_id", productId); update("paddle_price_id", priceId); void onRefresh(); }} />}
-          <Field
-            label="Entitlement key"
-            value={draft.entitlement_key}
-            onChange={(value) => update("entitlement_key", value)}
-          />
           <div className="border border-border bg-card p-4">
             <ImageUploadField
               value={draft.image_url}
@@ -709,10 +767,21 @@ function ProgramDrawer({
               onUploaded={(value) => { void saveUploadedCover(value); }}
               onAltChange={(value) => update("image_alt", value)}
             />
-            {imageMessage && (
-              <p className="mt-2 text-xs font-medium text-emerald-700">{imageMessage}</p>
-            )}
-          </div>
+            {!draft.image_url && draft.fallback_image_url && <p className="mt-3 border-l-2 border-accent px-3 text-xs leading-5 text-muted-foreground">No dedicated cover is set. The storefront currently uses the first available lesson thumbnail shown above.</p>}
+            {imageMessage && <p className="mt-2 text-xs font-medium text-emerald-700">{imageMessage}</p>}
+          </div></>}
+          {section === "commerce" && <><details className="border border-border bg-card p-4">
+            <summary className="cursor-pointer text-sm font-extrabold">Paddle and access settings</summary>
+            <div className="mt-4 space-y-4">
+          <Field label="Paddle product ID" value={draft.paddle_product_id} onChange={(value) => update("paddle_product_id", value)} />
+          {draft.id && <PaddlePricePanel programId={draft.id} productId={draft.paddle_product_id.trim()} priceId={draft.paddle_price_id} onChanged={({ productId, priceId }) => { update("paddle_product_id", productId); update("paddle_price_id", priceId); void onRefresh(); }} />}
+              <Field
+                label="Entitlement key"
+                value={draft.entitlement_key}
+                onChange={(value) => update("entitlement_key", value)}
+              />
+            </div>
+          </details>
           <div className="grid grid-cols-2 gap-3 border border-border bg-card p-3">
             <Toggle
               label="Feature on homepage"
@@ -724,14 +793,14 @@ function ProgramDrawer({
               checked={draft.published}
               onChange={(value) => update("published", value)}
             />
-          </div>
-          {draft.id && (
+          </div></>}
+          {section === "content" && draft.id && (
             <div className="border border-border bg-card p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-bold">Linked corrective recipes</p>
+                  <p className="text-sm font-bold">Related Posture & Movement</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Order the supporting material included with this program.
+                    Choose and order the supporting guidance included with this program.
                   </p>
                 </div>
                 <Link
@@ -752,7 +821,7 @@ function ProgramDrawer({
                 }}
                 className="mt-4 w-full rounded-sm border border-border bg-background px-3 py-2 text-xs"
               >
-                <option value="">Add a recipe…</option>
+                <option value="">Add Posture & Movement content…</option>
                 {recipes
                   .filter((recipe) => !recipeLinks.some((link) => link.recipe_id === recipe.id))
                   .map((recipe) => (
@@ -793,24 +862,29 @@ function ProgramDrawer({
                 })}
                 {!recipeLinks.length && (
                   <p className="py-3 text-center text-xs text-muted-foreground">
-                    No recipes linked yet.
+                    No supporting content linked yet.
                   </p>
                 )}
               </div>
             </div>
           )}
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          {section === "commerce" && <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             New sales use Paddle. Historical Stripe identifiers remain stored only for old orders.
-          </p>
+          </p>}
           {error && (
             <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
               {error}
             </p>
           )}
+          {saveMessage && !error && (
+            <p className="border border-emerald-600/30 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
+              {saveMessage}
+            </p>
+          )}
         </div>
         <div className="flex items-center justify-between gap-2 border-t border-border px-5 py-4">
           <div>{draft.id && <Btn disabled={saving || deleting} onClick={() => void deleteProgram()}><Trash2 className="mr-1.5 h-4 w-4" />{deleting ? "Checking…" : "Delete program"}</Btn>}</div>
-          <div className="flex items-center gap-2"><Btn onClick={onClose}>Cancel</Btn>
+          <div className="flex items-center gap-2"><Btn onClick={closeSafely}>{isDirty ? "Discard" : "Close"}</Btn>
           <Btn variant="ink" disabled={saving || deleting} onClick={() => void save()}>
             {saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
             {saving ? "Saving…" : "Save program"}
