@@ -157,20 +157,17 @@
     document.getElementById("musclesMatter").hidden = false;
   }
 
-  function renderRelatedKnowledge(videoId, payload) {
+  function renderRelatedKnowledge(video, payload) {
+    var videoId = video.id;
     var labels = { conditions: "Movement pattern", muscles: "Muscle dictionary", recipes: "Correction recipe" };
     var summaries = {
       conditions: function (item) { return item.summary || item.screening || "Explore this movement pattern."; },
       muscles: function (item) { return item.actions || item.function || "Explore this muscle's role in movement."; },
       recipes: function (item) { return item.goal || item.summary || "Use a focused sequence, then reassess before progressing."; }
     };
-    var shoulderGuides = [
-      { id: "scapula-anterior-tilt", title: "Scapula anterior tilt", summary: "Understand how scapular position can influence shoulder mechanics and overhead movement." },
-      { id: "round-shoulder", title: "Rounded shoulder", summary: "Explore how anterior shoulder position and scapular control can shape the way the arm moves." },
-      { id: "shoulder-elevation", title: "Shoulder elevation", summary: "Connect humeral control with scapular movement as the arm progresses into elevation." }
-    ];
-    var records = videoId === "shoulder-movement"
-      ? shoulderGuides.map(function (item) { return { type: "recipes", item: item, href: "/recipes/" + item.id }; })
+    var configuredGuides = Array.isArray(video.relatedGuides) ? video.relatedGuides.slice(0, 3) : [];
+    var records = configuredGuides.length
+      ? configuredGuides.map(function (item) { return { type: "recipes", item: item, href: "/recipes/" + item.id }; })
       : Object.keys(labels).flatMap(function (type) {
           var items = payload && Array.isArray(payload[type]) ? payload[type] : [];
           return items.filter(function (item) {
@@ -179,7 +176,7 @@
         }).slice(0, 3);
     if (!records.length) return;
 
-    if (videoId === "shoulder-movement") {
+    if (configuredGuides.length) {
       setText("relatedKnowledgeEyebrow", "Three free starting points");
       setText("relatedKnowledgeTitle", "Understand the patterns behind the program.");
       setText("relatedKnowledgeIntro", "Review scapular position, rounded-shoulder mechanics, and shoulder elevation separately. The guided program then connects them through one inhibit–activate–integrate progression.");
@@ -202,15 +199,16 @@
     document.getElementById("relatedKnowledge").hidden = false;
   }
 
-  function renderFeaturedRecipe(videoId, payload) {
-    if (videoId !== "neck-alignment") return;
+  function renderFeaturedRecipe(video, payload) {
+    var guide = video && video.featuredGuide;
+    if (!guide || typeof guide.id !== "string") return;
     var recipes = payload && Array.isArray(payload.recipes) ? payload.recipes : [];
     var conditions = payload && Array.isArray(payload.conditions) ? payload.conditions : [];
-    var source = recipes.find(function (item) { return item && item.id === "forward-head-posture" && item.published !== false; })
-      || conditions.find(function (item) { return item && item.id === "forward-head-posture" && item.published !== false; });
+    var source = recipes.find(function (item) { return item && item.id === guide.id && item.published !== false; })
+      || conditions.find(function (item) { return item && item.id === guide.id && item.published !== false; });
     if (!source) return;
 
-    var href = "/recipes/forward-head-posture";
+    var href = "/recipes/" + guide.id;
     setText("featuredRecipeSummary", text(source.summary || source.goal,
       "Forward head posture is common. Explore whether the position is comfortable, adaptable, and relevant to the task before deciding what to practice."));
     setText("featuredRecipeScreening", text(source.screening,
@@ -227,8 +225,8 @@
       })
       .then(function (payload) {
         renderMusclesThatMatter(video, payload);
-        renderFeaturedRecipe(video.id, payload);
-        renderRelatedKnowledge(video.id, payload);
+        renderFeaturedRecipe(video, payload);
+        renderRelatedKnowledge(video, payload);
       })
       .catch(function () {
         document.getElementById("musclesMatter").hidden = true;
@@ -243,24 +241,10 @@
   }
 
   function renderSessionSequence(video) {
-    var sequences = {
-      "neck-alignment": [
-        ["01 / INHIBIT", "Reduce unnecessary tension", "Apply inhibition techniques to muscles that are overactive and contributing to excess neck and shoulder tension."],
-        ["02 / ACTIVATE", "Recruit the deep neck flexors", "Learn to activate the underactive deep neck flexors with control, without letting larger surface muscles take over."],
-        ["03 / INTEGRATE", "Connect neck and scapular control", "Integrate deep-neck-flexor control with lower-trapezius activation to stabilize the scapula, then reassess the full pattern."]
-      ],
-      "shoulder-movement": [
-        ["01 / INHIBIT", "Create room for better positioning", "Use targeted inhibition work to reduce muscular strategies that encourage the humeral head to glide forward."],
-        ["02 / ACTIVATE", "Build shoulder and scapular control", "Recruit the rotator cuff and scapular stabilizers while maintaining a more centered, controlled shoulder position."],
-        ["03 / INTEGRATE", "Carry control into elevation", "Coordinate the humerus and scapula through reaching and elevation, then reassess comfort and movement quality."]
-      ],
-      "ankle-sprain-rehabilitation": [
-        ["01 / ASSESS", "Check current tolerance", "Compare motion, balance, and loading before beginning the progression."],
-        ["02 / RESTORE", "Restore comfortable motion", "Use controlled mobility before adding more demanding balance or resistance."],
-        ["03 / INTEGRATE", "Build stability and strength", "Progress through guided balance and resistance work, then recheck walking and standing confidence."]
-      ]
-    };
-    var steps = sequences[video.id] || [
+    var configuredSteps = Array.isArray(video.curriculum) ? video.curriculum.slice(0, 3).map(function (step, index) {
+      return [String(index + 1).padStart(2, "0") + " / " + text(step.phase, "PRACTICE").toUpperCase(), text(step.title, "Build control"), text(step.description, "Follow the guided practice with clear pacing and dosage.")];
+    }) : [];
+    var steps = configuredSteps.length === 3 ? configuredSteps : [
       ["01 / ASSESS", "Observe your starting point", "Check the relevant movement and comfort before changing anything."],
       ["02 / PRACTICE", "Build control", "Follow the guided sequence with clear pacing and dosage."],
       ["03 / INTEGRATE", "Return to the task", "Integrate the new option into the original movement and compare what changed."]
@@ -305,6 +289,8 @@
     setText("finalPrice", displayPrice);
     setText("mobilePrice", displayPrice);
     setText("paymentNote", hasOwnPrice ? "One-time payment" : "Included in the full package");
+    var recipeProgramMeta = document.getElementById("recipeProgramMeta");
+    if (recipeProgramMeta) recipeProgramMeta.textContent = String(video.durationMinutes) + " min · Guided video · " + displayPrice.replace(" USD", "") + " · One-time";
     renderSessionSequence(video);
 
     document.querySelectorAll(".checkout-link").forEach(function (link) { link.href = checkoutUrl; });

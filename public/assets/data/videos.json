@@ -15,6 +15,12 @@
     "landingBenefit3": "Integrate lower-trapezius activation to support scapular stability and coordinated neck control.",
     "landingAudience": "Designed for people dealing with desk-related stiffness, recurring postural tension, or a neck that never feels settled.",
     "landingReassurance": "One payment gives you protected access through your personal movement library—no subscription required.",
+    "featuredGuide": { "id": "forward-head-posture", "durationMinutes": 8 },
+    "curriculum": [
+      { "phase": "Inhibit", "title": "Reduce unnecessary tension", "description": "Apply inhibition techniques to muscles that are working harder than needed while treating the response as individual, not universal." },
+      { "phase": "Activate", "title": "Recruit the deep neck flexors", "description": "Practise deep-neck-flexor control without letting larger surface muscles dominate the movement." },
+      { "phase": "Integrate", "title": "Connect neck and scapular control", "description": "Combine neck control with coordinated lower-trapezius and scapular movement, then reassess the full pattern." }
+    ],
     "relatedMuscleGroupIds": [
       "trapezius",
       "superficial-neck",
@@ -200,6 +206,16 @@
     "landingBenefit3": "Integrate humeral and scapular control into reaching and shoulder elevation.",
     "landingAudience": "For people who want a structured shoulder session instead of disconnected mobility drills.",
     "landingReassurance": "One payment gives you ongoing access to the complete guided session.",
+    "curriculum": [
+      { "phase": "Inhibit", "title": "Create room for better positioning", "description": "Use targeted inhibition work to reduce muscular strategies that encourage the humeral head to glide forward." },
+      { "phase": "Activate", "title": "Build shoulder and scapular control", "description": "Recruit the rotator cuff and scapular stabilizers while maintaining a more centered, controlled shoulder position." },
+      { "phase": "Integrate", "title": "Carry control into elevation", "description": "Coordinate the humerus and scapula through reaching and elevation, then reassess comfort and movement quality." }
+    ],
+    "relatedGuides": [
+      { "id": "scapula-anterior-tilt", "title": "Scapular anterior tilt", "summary": "Understand how scapular position can influence shoulder mechanics and overhead movement." },
+      { "id": "round-shoulder", "title": "Rounded shoulders", "summary": "Explore how anterior shoulder position and scapular control can shape the way the arm moves." },
+      { "id": "shoulder-elevation", "title": "Shoulder elevation", "summary": "Connect humeral control with scapular movement as the arm progresses into elevation." }
+    ],
     "relatedMuscleGroupIds": ["trapezius", "rotator-cuff", "superficial-neck"],
     "relatedMuscleIds": ["upper-trapezius", "lower-trapezius", "infraspinatus", "levator-scapulae"],
     "durationMinutes": 12,
