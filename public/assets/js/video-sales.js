@@ -164,18 +164,31 @@
       muscles: function (item) { return item.actions || item.function || "Explore this muscle's role in movement."; },
       recipes: function (item) { return item.goal || "Use a focused sequence, then reassess before progressing."; }
     };
-    var records = Object.keys(labels).flatMap(function (type) {
-      var items = payload && Array.isArray(payload[type]) ? payload[type] : [];
-      return items.filter(function (item) {
-        return item && item.published !== false && relatedVideoIds(item).indexOf(videoId) !== -1;
-      }).map(function (item) { return { type: type, item: item }; });
-    }).slice(0, 3);
+    var shoulderGuides = [
+      { id: "scapula-anterior-tilt", title: "Scapula anterior tilt", summary: "Understand how scapular position can influence shoulder mechanics and overhead movement." },
+      { id: "round-shoulder", title: "Rounded shoulder", summary: "Explore how anterior shoulder position and scapular control can shape the way the arm moves." },
+      { id: "shoulder-elevation", title: "Shoulder elevation", summary: "Connect humeral control with scapular movement as the arm progresses into elevation." }
+    ];
+    var records = videoId === "shoulder-movement"
+      ? shoulderGuides.map(function (item) { return { type: "recipes", item: item, href: "/recipes/" + item.id }; })
+      : Object.keys(labels).flatMap(function (type) {
+          var items = payload && Array.isArray(payload[type]) ? payload[type] : [];
+          return items.filter(function (item) {
+            return item && item.published !== false && relatedVideoIds(item).indexOf(videoId) !== -1;
+          }).map(function (item) { return { type: type, item: item }; });
+        }).slice(0, 3);
     if (!records.length) return;
+
+    if (videoId === "shoulder-movement") {
+      setText("relatedKnowledgeEyebrow", "Three free starting points");
+      setText("relatedKnowledgeTitle", "Understand the patterns behind the program.");
+      setText("relatedKnowledgeIntro", "Review scapular position, rounded-shoulder mechanics, and shoulder elevation separately. The guided program then connects them through one inhibit–activate–integrate progression.");
+    }
 
     var grid = document.getElementById("relatedKnowledgeGrid");
     var cards = records.map(function (record, index) {
       var link = createElement("a", "learning-card");
-      link.href = "knowledge.html?type=" + encodeURIComponent(record.type) + "&id=" + encodeURIComponent(record.item.id);
+      link.href = record.href || "knowledge.html?type=" + encodeURIComponent(record.type) + "&id=" + encodeURIComponent(record.item.id);
       link.append(
         createElement("span", "learning-number", String(index + 1).padStart(2, "0")),
         createElement("span", "learning-type", labels[record.type]),
@@ -235,6 +248,11 @@
         ["01 / INHIBIT", "Reduce unnecessary tension", "Apply inhibition techniques to muscles that are overactive and contributing to excess neck and shoulder tension."],
         ["02 / ACTIVATE", "Recruit the deep neck flexors", "Learn to activate the underactive deep neck flexors with control, without letting larger surface muscles take over."],
         ["03 / INTEGRATE", "Connect neck and scapular control", "Integrate deep-neck-flexor control with lower-trapezius activation to stabilize the scapula, then reassess the full pattern."]
+      ],
+      "shoulder-movement": [
+        ["01 / INHIBIT", "Create room for better positioning", "Use targeted inhibition work to reduce muscular strategies that encourage the humeral head to glide forward."],
+        ["02 / ACTIVATE", "Build shoulder and scapular control", "Recruit the rotator cuff and scapular stabilizers while maintaining a more centered, controlled shoulder position."],
+        ["03 / INTEGRATE", "Carry control into elevation", "Coordinate the humerus and scapula through reaching and elevation, then reassess comfort and movement quality."]
       ],
       "ankle-sprain-rehabilitation": [
         ["01 / ASSESS", "Check current tolerance", "Compare motion, balance, and loading before beginning the progression."],
