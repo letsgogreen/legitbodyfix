@@ -164,6 +164,7 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .preview-frame { position: relative; z-index: 1; background: var(--card); border: 1px solid #3d3d39; box-shadow: 14px 14px 0 var(--lime); }
 .preview-art { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--lime); }
 .preview-art img { width: 100%; height: 100%; display: block; object-fit: cover; filter: saturate(.9) contrast(1.03); }
+.preview-art iframe { position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%; border: 0; background: #000; }
 .preview-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 48%, rgba(0,0,0,.45)); pointer-events: none; }
 .preview-placeholder { width: 100%; height: 100%; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
 .preview-placeholder span { font: 500 11px "DM Mono", monospace; letter-spacing: .13em; }

@@ -340,7 +340,17 @@
     document.querySelectorAll(".checkout-link").forEach(function (link) { link.href = checkoutUrl; });
 
     var thumbnailUrl = safeImageUrl(video.thumbnailUrl);
-    if (thumbnailUrl) {
+    var previewIframeUrl = safeImageUrl(video.previewIframeUrl);
+    if (previewIframeUrl) {
+      var previewVideo = document.getElementById("previewVideo");
+      previewVideo.src = previewIframeUrl;
+      previewVideo.hidden = false;
+      document.getElementById("thumbnail").hidden = true;
+      document.getElementById("previewPlaceholder").hidden = true;
+      document.getElementById("previewLabel").hidden = true;
+      document.getElementById("previewPlay").hidden = true;
+    }
+    if (thumbnailUrl && !previewIframeUrl) {
       var thumbnail = document.getElementById("thumbnail");
       thumbnail.src = thumbnailUrl;
       thumbnail.alt = title + " session preview";

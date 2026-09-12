@@ -65,13 +65,14 @@
           <div class="preview-kicker"><span>Inside the session</span><span>Preview / 01</span></div>
           <div class="preview-frame">
             <div class="preview-art" id="previewArt">
+              <iframe id="previewVideo" title="Session video preview" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen hidden></iframe>
               <img id="thumbnail" alt="" hidden />
               <div class="preview-placeholder" id="previewPlaceholder">
                 <span id="moduleNumber"></span>
                 <strong id="previewTitle"></strong>
               </div>
-              <span class="preview-label">Session preview</span>
-              <span class="preview-play" aria-hidden="true">▶</span>
+              <span class="preview-label" id="previewLabel">Session preview</span>
+              <span class="preview-play" id="previewPlay" aria-hidden="true">▶</span>
             </div>
             <div class="preview-caption">
               <p><span>Format</span><strong>Guided video</strong></p>

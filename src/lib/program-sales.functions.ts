@@ -10,6 +10,9 @@ const content = z.object({
   landingAudience: z.string().trim().max(2000), landingReassurance: z.string().trim().max(1000),
   techniqueEyebrow: z.string().trim().max(120), techniqueHeadline: z.string().trim().max(240), techniqueBody: z.string().trim().max(2000),
   curriculum: z.array(step).length(3), finalHeadline: z.string().trim().max(240),
+  previewStreamUid: z.string().regex(/^[a-f0-9]{32}$/).optional().or(z.literal("")),
+  previewStreamStatus: z.enum(["not_uploaded", "uploading", "processing", "ready", "error"]).optional(),
+  previewThumbnailUrl: z.string().trim().url().max(1000).optional().or(z.literal("")),
 });
 
 function isAdmin(claims: unknown) {
