@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/video-sales.css?v=20260912-1" />
-  <script src="assets/js/video-sales.js?v=20260912-1" defer></script>
+  <link rel="stylesheet" href="assets/css/video-sales.css?v=20260912-2" />
+  <script src="assets/js/video-sales.js?v=20260912-2" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -144,17 +144,18 @@
       <section class="included-section section-pad section-dark">
         <div class="section-heading included-heading">
           <div>
-            <p class="eyebrow">Included with purchase</p>
-            <h2>What your purchase includes.</h2>
+            <p class="eyebrow">Inside the session</p>
+            <h2>A sequence you can actually follow.</h2>
           </div>
-          <p>A one-time purchase of the program shown on this page. Access is through your personal library, not a subscription to the entire catalog.</p>
+          <p id="sequenceIntro">Move through a deliberate beginning, practice, and reassessment instead of assembling disconnected exercises.</p>
         </div>
-        <div class="included-grid">
-          <article><span>01 / WATCH</span><h3>Full guided session</h3><p>Follow a clear sequence instead of piecing together disconnected exercises.</p></article>
-          <article><span>02 / ACCESS</span><h3>Personal library</h3><p>Keep your purchased movement sessions organized in one private place.</p></article>
-          <article><span>03 / REPEAT</span><h3>Practice on demand</h3><p>Revisit key sections as your awareness, confidence, and control improve.</p></article>
-          <article><span>04 / OWN</span><h3>No subscription</h3><p>Pay once for this session without adding another recurring membership.</p></article>
+        <div class="included-grid" aria-label="Session sequence">
+          <article><span>01 / CHECK IN</span><h3 id="sessionStep1Title">Start with context</h3><p id="sessionStep1Body">Notice the movement and comfort you have before changing anything.</p></article>
+          <article><span>02 / PREPARE</span><h3 id="sessionStep2Title">Create options</h3><p id="sessionStep2Body">Use low-pressure preparation before the main practice.</p></article>
+          <article><span>03 / PRACTICE</span><h3 id="sessionStep3Title">Build control</h3><p id="sessionStep3Body">Follow the guided sequence with clear pacing and dosage.</p></article>
+          <article><span>04 / REASSESS</span><h3 id="sessionStep4Title">Compare the change</h3><p id="sessionStep4Body">Return to the original task and keep only what feels useful.</p></article>
         </div>
+        <p class="access-strip"><strong>Also included:</strong> protected streaming · personal library access · repeat viewing · no subscription</p>
       </section>
 
       <section class="fit-section section-pad">
@@ -164,13 +165,24 @@
           <p class="fit-intro">A clear session for self-directed learners who want structure, not hype.</p>
         </div>
         <div class="fit-card">
-          <p id="audience"></p>
-          <ul>
-            <li>You want a clear sequence instead of scattered tips.</li>
-            <li>You value patient, repeatable movement practice.</li>
-            <li>You are comfortable learning independently by video.</li>
-          </ul>
-          <p class="clinical-note"><strong>Important:</strong> Movement education is not medical diagnosis or treatment. If you have an acute injury, severe symptoms, or uncertainty about exercising, consult a qualified clinician first.</p>
+          <div class="fit-group">
+            <p class="fit-label">A GOOD FIT IF</p>
+            <p id="audience"></p>
+            <ul>
+              <li>You want a clear sequence instead of scattered tips.</li>
+              <li>You can keep the practice within a comfortable range.</li>
+              <li>You are comfortable learning independently by video.</li>
+            </ul>
+          </div>
+          <div class="fit-group fit-caution">
+            <p class="fit-label">SEEK ASSESSMENT FIRST IF</p>
+            <ul>
+              <li>Your symptoms followed significant or recent trauma.</li>
+              <li>You have new or worsening weakness, numbness, balance changes, or pain spreading into a limb.</li>
+              <li>You have severe, unusual, or rapidly worsening symptoms.</li>
+            </ul>
+          </div>
+          <p class="clinical-note"><strong>Scope:</strong> This is movement education, not medical diagnosis, individualized rehabilitation, or emergency care.</p>
         </div>
       </section>
 

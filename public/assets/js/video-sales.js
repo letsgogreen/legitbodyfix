@@ -229,6 +229,34 @@
     page.hidden = true;
   }
 
+  function renderSessionSequence(video) {
+    var sequences = {
+      "neck-alignment": [
+        ["Observe your starting point", "Check comfortable head position, breathing, and neck motion without forcing a correction."],
+        ["Prepare the upper back", "Use support and gentle thoracic movement to reduce unnecessary neck effort."],
+        ["Practice neck control", "Build comfortable retraction and rotation with deliberate pacing rather than rigid posture holding."],
+        ["Return to the real task", "Recheck sitting, reaching, or screen work and compare comfort and ease of movement."]
+      ],
+      "ankle-sprain-rehabilitation": [
+        ["Check current tolerance", "Compare motion, balance, and loading before beginning the progression."],
+        ["Restore comfortable motion", "Use controlled mobility before adding more demanding balance or resistance."],
+        ["Build stability and strength", "Progress through guided balance and resistance work at a manageable level."],
+        ["Recheck weight bearing", "Compare walking and standing confidence before deciding whether to progress."]
+      ]
+    };
+    var steps = sequences[video.id] || [
+      ["Observe your starting point", "Check the relevant movement and comfort before changing anything."],
+      ["Prepare the movement", "Use guided preparation before the main practice."],
+      ["Build control", "Follow the sequence with clear pacing and dosage."],
+      ["Reassess the task", "Return to the original movement and compare what changed."]
+    ];
+    steps.forEach(function (step, index) {
+      setText("sessionStep" + (index + 1) + "Title", step[0]);
+      setText("sessionStep" + (index + 1) + "Body", step[1]);
+    });
+    setText("sequenceIntro", "A guided " + String(video.durationMinutes) + "-minute progression with a clear beginning, practice phase, and reassessment.");
+  }
+
   function render(video) {
     var title = text(video.title, "Movement session");
     var hasOwnPrice = isPurchasablePrice(video.price);
@@ -259,6 +287,7 @@
     setText("finalPrice", displayPrice);
     setText("mobilePrice", displayPrice);
     setText("paymentNote", hasOwnPrice ? "One-time payment" : "Included in the full package");
+    renderSessionSequence(video);
 
     document.querySelectorAll(".checkout-link").forEach(function (link) { link.href = checkoutUrl; });
 

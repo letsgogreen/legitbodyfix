@@ -234,15 +234,21 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .included-grid span { color: var(--lime); font: 500 8px "DM Mono", monospace; letter-spacing: .1em; }
 .included-grid h3 { margin: auto 0 14px; font-size: clamp(20px, 1.7vw, 26px); letter-spacing: -.04em; }
 .included-grid p { margin: 0; color: #b9b8b2; font-size: 13px; line-height: 1.62; }
+.access-strip { margin: 24px 0 0; color: #b9b8b2; font-size: 11px; line-height: 1.6; }
+.access-strip strong { color: var(--lime); }
 
 .fit-section { display: grid; grid-template-columns: .9fr 1.1fr; gap: 8vw; }
 .fit-copy { align-self: start; position: sticky; top: 125px; }
 .fit-intro { max-width: 520px; color: var(--muted); line-height: 1.65; }
 .fit-card { padding: clamp(30px, 4vw, 56px); border: 1px solid var(--ink); background: var(--card); box-shadow: 10px 10px 0 var(--paper-deep); }
-.fit-card > p:first-child { margin: 0; font-size: clamp(20px, 1.9vw, 28px); font-weight: 650; line-height: 1.48; letter-spacing: -.025em; }
-.fit-card ul { margin: 36px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
+.fit-group + .fit-group { margin-top: 38px; padding-top: 32px; border-top: 1px solid var(--ink); }
+.fit-label { margin: 0 0 18px; color: var(--teal); font: 500 9px "DM Mono", monospace; letter-spacing: .12em; }
+.fit-group > p:not(.fit-label) { margin: 0; font-size: clamp(18px, 1.7vw, 24px); font-weight: 650; line-height: 1.48; letter-spacing: -.025em; }
+.fit-card ul { margin: 24px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
 .fit-card li { padding: 18px 0 18px 28px; position: relative; border-bottom: 1px solid var(--line); line-height: 1.45; }
 .fit-card li::before { content: "+"; position: absolute; left: 0; color: var(--teal); font-family: "DM Mono", monospace; }
+.fit-caution .fit-label { color: #a53b2e; }
+.fit-caution li::before { content: "!"; color: #a53b2e; }
 .clinical-note { margin: 36px 0 0; padding-top: 21px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.65; }
 .clinical-note strong { color: var(--ink); }
 
