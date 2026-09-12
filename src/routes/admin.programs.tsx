@@ -12,7 +12,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
+import { Btn, PageHead, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { ProgramCurriculum } from "@/components/admin/ProgramCurriculum";
 import { ProgramSalesPageEditor } from "@/components/admin/ProgramSalesPageEditor";
@@ -179,63 +179,48 @@ function ProgramsView() {
         </div>
       )}
 
-      <Panel className="mt-5 overflow-x-auto">
+      <div className="mt-5">
         {loading ? (
-          <div className="flex min-h-44 items-center justify-center gap-2 text-sm text-muted-foreground">
+          <div className="flex min-h-56 items-center justify-center gap-2 border border-border bg-card text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading programs…
           </div>
         ) : (
-          <table className="w-full min-w-[780px] text-sm">
-            <thead>
-              <tr>
-                <Th>Program</Th>
-                <Th>Regions</Th>
-                <Th>Paddle price</Th>
-                <Th>Status</Th>
-                <Th>Ready</Th>
-                <Th>Updated</Th>
-                <Th />
-              </tr>
-            </thead>
-            <tbody>
-              {programs.map((program) => (
-                <tr key={program.id} className="hover:bg-secondary/50">
-                  <Td>
-                    <p className="font-medium">{program.name}</p>
-                    <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                      /{program.slug}
-                    </p>
-                  </Td>
-                  <Td className="text-muted-foreground">{program.regions.join(", ") || "—"}</Td>
-                  <Td className="font-mono text-xs text-muted-foreground">
-                    {(program as ProgramRow & { paddle_price_id?: string | null }).paddle_price_id || "Not connected"}
-                  </Td>
-                  <Td>
-                    <Tag tone={program.published ? "accent" : "muted"}>
-                      {program.published ? "Published" : "Draft"}
-                    </Tag>
-                  </Td>
-                  <Td>
-                    {(() => {
-                      const missing = programReadiness(program);
-                      return missing.length ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          {missing.map((item) => (
-                            <Tag key={item} tone="warn">
-                              Missing {item}
-                            </Tag>
-                          ))}
-                        </div>
-                      ) : (
-                        <Tag tone="accent">Ready</Tag>
-                      );
-                    })()}
-                  </Td>
-                  <Td className="font-mono text-xs text-muted-foreground">
-                    {new Date(program.updated_at).toLocaleDateString()}
-                  </Td>
-                  <Td className="text-right">
-                    <div className="flex justify-end gap-2">
+          <div className="grid gap-5 md:grid-cols-2">
+            {programs.map((program) => {
+              const missing = programReadiness(program);
+              const cover = program.image_url || program.fallback_image_url;
+              return (
+                <article key={program.id} className="group overflow-hidden border border-border bg-card">
+                  <div className="relative aspect-[16/7] overflow-hidden border-b border-border bg-secondary">
+                    {cover ? (
+                      <img src={cover} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.015]" />
+                    ) : (
+                      <div className="grid h-full place-items-center font-mono text-[10px] uppercase tracking-[.16em] text-muted-foreground">Cover needed</div>
+                    )}
+                    <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                      <Tag tone={program.published ? "accent" : "muted"}>{program.published ? "Published" : "Draft"}</Tag>
+                      <Tag tone={missing.length ? "warn" : "accent"}>{missing.length ? `${missing.length} to review` : "Ready"}</Tag>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <p className="font-mono text-[10px] uppercase tracking-[.16em] text-muted-foreground">/{program.slug}</p>
+                    <h2 className="mt-2 text-xl font-extrabold tracking-tight">{program.name}</h2>
+                    <p className="mt-2 min-h-10 text-sm leading-5 text-muted-foreground">{program.outcome || "Add a clear outcome so customers immediately understand this program."}</p>
+                    <div className="mt-4 flex min-h-6 flex-wrap gap-1.5">
+                      {program.regions.length ? program.regions.map((region) => <span key={region} className="border border-border bg-secondary px-2 py-1 font-mono text-[9px] uppercase tracking-wider">{region}</span>) : <span className="text-xs text-muted-foreground">No body regions selected</span>}
+                    </div>
+                    <div className="mt-5 grid grid-cols-3 border-y border-border py-3 text-xs">
+                      <div><span className="block font-mono text-[9px] uppercase tracking-wider text-muted-foreground">Price</span><strong className="mt-1 block">{program.paddle_price_id ? "Connected" : "Not connected"}</strong></div>
+                      <div><span className="block font-mono text-[9px] uppercase tracking-wider text-muted-foreground">Cover</span><strong className="mt-1 block">{program.image_url ? "Custom" : program.fallback_image_url ? "Video fallback" : "Missing"}</strong></div>
+                      <div><span className="block font-mono text-[9px] uppercase tracking-wider text-muted-foreground">Updated</span><strong className="mt-1 block">{new Date(program.updated_at).toLocaleDateString()}</strong></div>
+                    </div>
+                    {missing.length > 0 && <p className="mt-3 text-xs text-amber-800">Needs: {missing.join(", ")}</p>}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 border-t border-border bg-secondary/30 p-3">
+                    <Btn variant="ink" onClick={() => setEditing(rowToDraft(program))}>Edit program</Btn>
+                    <Link to="/admin/programs" search={{ view: "curriculum", program: program.id }} className="inline-flex min-h-9 items-center rounded-sm border border-border bg-background px-3 text-xs font-bold"><FileVideo className="mr-1.5 h-3.5 w-3.5" /> Videos</Link>
+                    <Link to="/programs/$programSlug" params={{ programSlug: program.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex min-h-9 items-center rounded-sm border border-border bg-background px-3 text-xs font-bold">Preview <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link>
+                    <div className="ml-auto">
                       <Btn
                         disabled={publishingId === program.id}
                         onClick={() => void togglePublished(program)}
@@ -246,38 +231,15 @@ function ProgramsView() {
                             ? "Unpublish"
                             : "Publish"}
                       </Btn>
-                      <Link
-                        to="/programs/$programSlug"
-                        params={{ programSlug: program.slug }}
-                        search={{ preview: "admin" }}
-                        target="_blank"
-                        className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"
-                      >
-                        Sales <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                      </Link>
-                      <Link
-                        to="/admin/programs"
-                        search={{ view: "curriculum", program: program.id }}
-                        className="inline-flex min-h-9 items-center rounded-sm border border-border px-3 text-xs font-bold"
-                      >
-                        <FileVideo className="mr-1.5 h-3.5 w-3.5" /> Videos
-                      </Link>
-                      <Btn onClick={() => setEditing(rowToDraft(program))}>Edit</Btn>
                     </div>
-                  </Td>
-                </tr>
-              ))}
-              {!programs.length && !error && (
-                <tr>
-                  <Td colSpan={7} className="py-12 text-center text-muted-foreground">
-                    No programs yet. Create the first program to begin.
-                  </Td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  </div>
+                </article>
+              );
+            })}
+            {!programs.length && !error && <div className="col-span-full border border-border bg-card py-16 text-center text-sm text-muted-foreground">No programs yet. Create the first program to begin.</div>}
+          </div>
         )}
-      </Panel>
+      </div>
 
       {editing && (
         <ProgramDrawer
@@ -615,7 +577,7 @@ function ProgramDrawer({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" role="dialog" aria-modal="true">
-      <div className="flex h-full w-full max-w-xl flex-col border-l border-border bg-background">
+      <div className="flex h-full w-full max-w-4xl flex-col border-l border-border bg-background shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
@@ -708,7 +670,7 @@ function ProgramDrawer({
               </div>
             </div>
           )}
-          {section === "overview" && <><Field
+          {section === "overview" && <div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><div className="space-y-4"><Field
             label="Program name"
             value={draft.name}
             onChange={(value) => update("name", value)}
@@ -724,7 +686,7 @@ function ProgramDrawer({
             value={draft.who_its_for}
             onChange={(value) => update("who_its_for", value)}
           />
-          </>}
+          </div><aside className="self-start overflow-hidden border border-border bg-card"><div className="bg-ink p-5 text-ink-foreground"><p className="font-mono text-[9px] uppercase tracking-[.16em] text-accent">Customer-facing snapshot</p><h3 className="mt-3 text-2xl font-black leading-tight">{draft.name || "Your program title"}</h3><p className="mt-3 text-sm leading-6 text-ink-foreground/75">{draft.outcome || "The program outcome will appear here."}</p></div><div className="p-5"><p className="font-mono text-[9px] uppercase tracking-[.16em] text-muted-foreground">Who it is for</p><p className="mt-2 text-sm leading-6">{draft.who_its_for || "Describe who will benefit from this program."}</p><p className="mt-5 border-t border-border pt-4 font-mono text-[9px] uppercase tracking-[.14em] text-muted-foreground">/{draft.slug || "program-url"}</p></div></aside></div>}
           {section === "presentation" && <><div className="grid grid-cols-2 gap-3">
             <Field
               label="Format"
