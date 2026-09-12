@@ -7,6 +7,7 @@ import {
   PanelsTopLeft,
   NotebookPen,
   ExternalLink,
+  ChartNoAxesCombined,
   type LucideIcon,
 } from "lucide-react";
 import { AdminAuthGate } from "@/components/admin/AdminAuthGate";
@@ -34,6 +35,7 @@ type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean };
 
 const nav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/admin/analytics", label: "Analytics", icon: ChartNoAxesCombined },
   { to: "/admin/programs", label: "Programs", icon: Dumbbell },
   { to: "/admin/muscles", label: "Muscle library", icon: Activity },
   { to: "/admin/recipes", label: "Posture & Movement", icon: NotebookPen },
@@ -57,7 +59,7 @@ function AdminShell() {
 
           <nav aria-label="Admin navigation" className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2">
             {[
-              { label: "Workspace", paths: ["/admin", "/admin/programs"] },
+              { label: "Workspace", paths: ["/admin", "/admin/analytics", "/admin/programs"] },
               { label: "Content", paths: ["/admin/recipes", "/admin/conditions", "/admin/muscles", "/admin/content"] },
               { label: "Operations", paths: ["/admin/customers"] },
             ].map((group) => <div key={group.label} className="mb-4">
