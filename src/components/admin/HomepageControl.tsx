@@ -1,14 +1,21 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, BookOpen, Check, Dumbbell, ExternalLink, Loader2, PanelsTopLeft } from "lucide-react";
+import { ArrowUpRight, BookOpen, Check, Dumbbell, ExternalLink, Loader2, PanelsTopLeft, Type } from "lucide-react";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { bodyRegions, resolveBodyRegionMedia } from "@/data/body-regions";
+import { homepageCopyDefaults, homepageCopyGroups, type HomepageCopy, type HomepageCopyKey } from "@/data/homepage-copy";
 import { supabase } from "@/integrations/supabase/client";
 
 type AdminPrefix = "/admin";
 
 const sections = [
+  {
+    name: "Homepage copy",
+    description: "Hero wording, section headings, introductions, and calls to action.",
+    icon: Type,
+    path: "/content#homepage-copy",
+  },
   {
     name: "Featured programs",
     description: "Program cards, cover images, pricing, availability, and homepage featuring.",
@@ -34,6 +41,10 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
   const [saving, setSaving] = useState("");
   const [saved, setSaved] = useState("");
   const [error, setError] = useState("");
+  const [copy, setCopy] = useState<HomepageCopy>({ ...homepageCopyDefaults });
+  const [copyLoading, setCopyLoading] = useState(true);
+  const [copySaving, setCopySaving] = useState(false);
+  const [copySaved, setCopySaved] = useState(false);
 
   useEffect(() => {
     void supabase.from("site_media").select("key,image_url,image_alt").like("key", "body-region:%").then(({ data, error: loadError }) => {
@@ -54,6 +65,23 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
     });
   }, []);
 
+  useEffect(() => {
+    void supabase.from("site_copy").select("key,value").then(({ data, error: loadError }) => {
+      setCopyLoading(false);
+      if (loadError) {
+        setError(loadError.message);
+        return;
+      }
+      setCopy((current) => {
+        const next = { ...current };
+        for (const item of data ?? []) {
+          if (item.key in next) next[item.key as HomepageCopyKey] = item.value;
+        }
+        return next;
+      });
+    });
+  }, []);
+
   async function saveRegion(slug: string) {
     const item = media[slug];
     if (!item) return;
@@ -64,6 +92,18 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
     setSaving("");
     if (saveError) setError(saveError.message);
     else setSaved(slug);
+  }
+
+  async function saveHomepageCopy() {
+    setCopySaving(true);
+    setCopySaved(false);
+    setError("");
+    const updated_at = new Date().toISOString();
+    const rows = Object.entries(copy).map(([key, value]) => ({ key, value, updated_at }));
+    const { error: saveError } = await supabase.from("site_copy").upsert(rows);
+    setCopySaving(false);
+    if (saveError) setError(saveError.message);
+    else setCopySaved(true);
   }
 
   return (
@@ -100,6 +140,54 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
           />
         </div>
       </Panel>
+
+      <section id="homepage-copy" className="mt-5 scroll-mt-24">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Homepage copy</p>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight">Edit the main visitor journey</h2>
+          </div>
+          <div className="flex items-center gap-3">
+            {copySaved && <Tag tone="accent"><Check className="h-3 w-3" /> Saved</Tag>}
+            <Btn variant="ink" disabled={copyLoading || copySaving} onClick={() => void saveHomepageCopy()}>
+              {copySaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              Save homepage copy
+            </Btn>
+          </div>
+        </div>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Edit the live wording without changing the homepage layout. Line breaks in the hero headline are preserved.</p>
+        <div className="mt-4 grid gap-4 xl:grid-cols-3">
+          {homepageCopyGroups.map((group) => (
+            <Panel key={group.title} className="p-4">
+              <h3 className="text-base font-bold">{group.title}</h3>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{group.description}</p>
+              <div className="mt-5 space-y-4">
+                {group.fields.map((field) => (
+                  <label key={field.key} className="block">
+                    <span className="mb-1.5 block font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">{field.label}</span>
+                    {field.multiline ? (
+                      <textarea
+                        value={copy[field.key]}
+                        rows={field.key === "hero_title" ? 4 : 3}
+                        maxLength={field.key === "hero_summary" || field.key.endsWith("intro") ? 280 : 160}
+                        onChange={(event) => setCopy((current) => ({ ...current, [field.key]: event.target.value }))}
+                        className="w-full resize-y rounded-sm border border-border bg-background px-3 py-2 text-sm leading-6 outline-none focus:border-foreground"
+                      />
+                    ) : (
+                      <input
+                        value={copy[field.key]}
+                        maxLength={120}
+                        onChange={(event) => setCopy((current) => ({ ...current, [field.key]: event.target.value }))}
+                        className="min-h-10 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+                      />
+                    )}
+                  </label>
+                ))}
+              </div>
+            </Panel>
+          ))}
+        </div>
+      </section>
 
       <div className="mt-5">
         <div className="flex flex-wrap items-end justify-between gap-3">
@@ -180,9 +268,8 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
       </div>
 
       <Panel className="mt-5 border-amber-300/70 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-        Hero wording, section headings, navigation labels, and the final CTA still live in the
-        codebase. They are deliberately shown as code-controlled instead of pretending a draft was
-        saved. A database-backed copy editor can be added when frequent copy changes justify it.
+        Navigation labels and structural layouts remain code-controlled. Homepage copy, media, and
+        content cards are edited through their live sources above.
       </Panel>
     </div>
   );

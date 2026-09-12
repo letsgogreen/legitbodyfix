@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
 import { getHomepageRegionData } from "@/lib/homepage.functions";
 import { getPublicPrograms } from "@/lib/public-programs.functions";
+import { homepageCopyDefaults } from "@/data/homepage-copy";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
@@ -63,6 +64,8 @@ const differentiators = [
 
 function PhaseOneHomepage() {
   const { regionData, programs, regionLoadFailed, programLoadFailed } = Route.useLoaderData();
+  const copy = regionData?.copy ?? homepageCopyDefaults;
+  const heroLines = copy.hero_title.split("\n").map((line) => line.trim()).filter(Boolean);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -73,30 +76,28 @@ function PhaseOneHomepage() {
           <div className="mx-auto grid max-w-[1220px] items-center gap-10 px-6 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
             <div className="min-w-0">
               <p className="inline-block bg-accent px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-accent-foreground">
-                Movement education for everyday life and training
+                {copy.hero_eyebrow}
               </p>
               <h1 className="original-hero-title mt-[26px] max-w-[620px] text-[clamp(3.5rem,5.6vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.065em]">
-                <span className="block">Move</span>
-                <span className="block">better.</span>
-                <span className="original-outline block">Start</span>
-                <span className="original-outline block">here.</span>
+                {heroLines.map((line, index) => (
+                  <span key={`${line}-${index}`} className={index >= 2 ? "original-outline block" : "block"}>{line}</span>
+                ))}
               </h1>
               <p className="mt-6 max-w-[550px] text-lg leading-[1.65] text-muted-foreground">
-                Stiff after sitting? Unsure where to begin with your movement? Find relevant anatomy
-                and articles, then explore a guided program when you want more structure.
+                {copy.hero_summary}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   to="/start"
                   className="inline-flex min-h-11 items-center justify-center rounded-sm bg-accent px-6 py-3.5 text-center text-sm font-bold text-accent-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  Find my starting point
+                  {copy.hero_primary_cta}
                 </Link>
                 <a
                   href="#regions"
                   className="inline-flex min-h-11 items-center justify-center rounded-sm border border-foreground px-6 py-3.5 text-center text-sm font-bold outline-none transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  Explore free resources
+                  {copy.hero_secondary_cta}
                 </a>
               </div>
               <p className="mt-6 font-mono text-xs leading-relaxed text-muted-foreground">
@@ -122,7 +123,7 @@ function PhaseOneHomepage() {
         >
           <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
             <h2 id="choose-path-title" className="text-2xl font-extrabold">
-              Choose the kind of help you need.
+              {copy.paths_heading}
             </h2>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {[
@@ -173,15 +174,14 @@ function PhaseOneHomepage() {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-                  START BY BODY REGION
+                  {copy.regions_eyebrow}
                 </p>
                 <h2 className="mt-4 text-3xl font-extrabold uppercase sm:text-5xl">
-                  Where do you want to start?
+                  {copy.regions_heading}
                 </h2>
               </div>
               <p className="max-w-xl text-base leading-relaxed text-muted-foreground lg:justify-self-end">
-                Whether a squat feels restricted, overhead movement feels uncertain, or sitting
-                leaves you stiff, begin with the area that feels most relevant.
+                {copy.regions_intro}
               </p>
             </div>
             <div className="mt-10">
@@ -195,15 +195,14 @@ function PhaseOneHomepage() {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-                  OPTIONAL GUIDED PROGRAMS
+                  {copy.programs_eyebrow}
                 </p>
                 <h2 className="mt-4 text-3xl font-extrabold uppercase sm:text-5xl">
-                  Choose a program with a clear focus.
+                  {copy.programs_heading}
                 </h2>
               </div>
               <p className="max-w-xl text-base leading-relaxed text-muted-foreground lg:justify-self-end">
-                Compare the focus and contents before you buy. Each program page shows its current
-                price and what is included. Purchased sessions live in your private library.
+                {copy.programs_intro}
               </p>
             </div>
             <div className="mt-10">
@@ -215,10 +214,10 @@ function PhaseOneHomepage() {
         <section id="method" className="scroll-mt-24 border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
             <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-              HOW IT WORKS
+              {copy.method_eyebrow}
             </p>
             <h2 className="mt-4 text-3xl font-extrabold uppercase sm:text-5xl">
-              Three steps. One clear direction.
+              {copy.method_heading}
             </h2>
             <div className="mt-10">
               <HowItWorks />
@@ -230,10 +229,10 @@ function PhaseOneHomepage() {
           <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
             <div className="max-w-3xl">
               <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-                WHY LEGITBODYFIX
+                {copy.why_eyebrow}
               </p>
               <h2 className="mt-4 text-3xl font-extrabold uppercase leading-tight sm:text-5xl">
-                More structure than another exercise list.
+                {copy.why_heading}
               </h2>
             </div>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -256,16 +255,16 @@ function PhaseOneHomepage() {
         <section className="bg-accent text-accent-foreground">
           <div className="mx-auto max-w-4xl px-5 py-24 text-center lg:px-8">
             <h2 className="text-4xl font-extrabold uppercase leading-[0.92] sm:text-6xl">
-              Not sure where to begin?
+              {copy.final_heading}
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base text-accent-foreground/75 sm:text-lg">
-              Choose an area and how you prefer to learn. We will show you where to go next.
+              {copy.final_body}
             </p>
             <Link
               to="/start"
               className="mt-9 inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-8 py-3.5 text-sm font-bold text-ink-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-accent"
             >
-              Find my starting point <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              {copy.final_cta} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </section>
