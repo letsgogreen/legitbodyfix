@@ -57,7 +57,8 @@ export function SiteFooter() {
             <Link to="/privacy" className="hover:text-ink-foreground">Privacy</Link>
             <Link to="/refund-policy" className="hover:text-ink-foreground">Refund policy</Link>
           </nav>
-          <p className="mt-2">© {new Date().getFullYear()} LegitBodyFix · Movement System</p>
+          <p className="mt-2">LegitBodyFix · Operator: Song J.</p>
+          <p className="mt-1">© {new Date().getFullYear()} LegitBodyFix · Movement System</p>
         </div>
       </div>
     </footer>
