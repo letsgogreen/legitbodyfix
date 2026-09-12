@@ -357,6 +357,43 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .is-neck-sales .learning-section { display: none; }
 .is-neck-sales .fit-section { align-items: start; }
 .is-neck-sales .fit-copy { position: static; }
+/* Neck program: preserve the visual identity without exhausting long-form readers. */
+.is-neck-sales .section-pad { padding-top: clamp(72px, 7vw, 108px); padding-bottom: clamp(72px, 7vw, 108px); }
+.is-neck-sales .eyebrow { letter-spacing: .14em; }
+.is-neck-sales .upper-crossed-model { background: var(--paper); }
+.is-neck-sales .model-plan-label { background: var(--paper-deep); color: var(--ink); }
+.is-neck-sales .model-plan article,
+.is-neck-sales .model-plan article:nth-of-type(1),
+.is-neck-sales .model-plan article:nth-of-type(2),
+.is-neck-sales .model-plan article:nth-of-type(3) { background: var(--card); color: var(--ink); }
+.is-neck-sales .model-plan article::before,
+.is-neck-sales .model-plan article:nth-of-type(1)::before,
+.is-neck-sales .model-plan article > span,
+.is-neck-sales .model-plan article:nth-of-type(1) > span { color: var(--teal); }
+.is-neck-sales .model-plan article:nth-of-type(1) small { color: var(--muted); }
+.is-neck-sales .featured-recipe { background: var(--card); }
+.is-neck-sales .recipe-path { border-color: var(--line); box-shadow: none; }
+.is-neck-sales .recipe-observation { min-height: 180px; background: var(--paper-deep); color: var(--ink); }
+.is-neck-sales .recipe-observation span { color: var(--teal); }
+.is-neck-sales .recipe-observation p { color: var(--muted); }
+.is-neck-sales .recipe-explanation { border-color: var(--line); }
+.is-neck-sales .recipe-program-choice { border-left: 1px solid var(--line); background: var(--paper); }
+.is-neck-sales .recipe-program-choice span { color: var(--teal); }
+.is-neck-sales .recipe-safety { border-color: var(--line); }
+.is-neck-sales .section-dark { background: var(--paper); color: var(--ink); }
+.is-neck-sales .section-dark .eyebrow { color: var(--teal); }
+.is-neck-sales .included-heading > p,
+.is-neck-sales .included-grid p,
+.is-neck-sales .access-strip { color: var(--muted) !important; }
+.is-neck-sales .included-grid { border-color: var(--line); background: var(--card); }
+.is-neck-sales .included-grid article + article { border-color: var(--line); }
+.is-neck-sales .included-grid span,
+.is-neck-sales .access-strip strong { color: var(--teal); }
+.is-neck-sales .fit-card { border-color: var(--line); box-shadow: none; }
+.is-neck-sales .muscles-section { background: var(--card); }
+.is-neck-sales .anatomy-disclosure { border-color: var(--line); }
+.is-neck-sales .final-cta { background: var(--ink); color: white; }
+.is-neck-sales .final-cta .eyebrow { color: var(--lime); }
 footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7vw, 106px); display: flex; justify-content: space-between; font: 500 9px "DM Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
 
 @media (max-width: 1080px) {
@@ -410,6 +447,7 @@ footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7v
   .recipe-observation, .recipe-explanation, .recipe-program-choice, .recipe-safety { grid-column: 1; }
   .recipe-explanation { border-right: 0; border-bottom: 1px solid var(--ink); }
   .recipe-program-choice { grid-template-columns: 1fr; gap: 18px; align-items: start; }
+  .is-neck-sales .recipe-program-choice { border-left: 0; border-top: 1px solid var(--line); }
   .included-grid { grid-template-columns: 1fr; }
   .included-grid article { min-height: 230px; }
   .included-grid article + article { border-left: 0; border-top: 1px solid #4b4b47; }
