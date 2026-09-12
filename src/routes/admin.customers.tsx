@@ -5,6 +5,7 @@ import { AdminLoadingState, Btn, PageHead, Panel, Tag, Td, Th } from "@/componen
 import { CustomerAccessTabs } from "@/components/admin/CustomerAccessTabs";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { setAdminCustomerAccess } from "@/lib/admin-customers.functions";
 
 type Profile = Database["public"]["Tables"]["customer_profiles"]["Row"];
 type Entitlement = Database["public"]["Tables"]["entitlements"]["Row"];
@@ -81,12 +82,12 @@ function AccessDrawer({ profile, programs, entitlements, onClose, onChanged }: {
   const setAccess = async (program: Program, active: boolean) => {
     setWorking(program.id);
     setError(null);
-    const current = entitlements.find((item) => item.program_id === program.id);
-    const result = current
-      ? await supabase.from("entitlements").update({ active, revoked_at: active ? null : new Date().toISOString(), source: current.source || "manual" }).eq("id", current.id)
-      : await supabase.from("entitlements").insert({ user_id: profile.user_id, program_id: program.id, source: "manual", active: true });
-    if (result.error) setError(result.error.message);
-    else await onChanged();
+    try {
+      await setAdminCustomerAccess({ data: { userId: profile.user_id, programId: program.id, active } });
+      await onChanged();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    }
     setWorking(null);
   };
 
