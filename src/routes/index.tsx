@@ -128,25 +128,25 @@ function PhaseOneHomepage() {
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {[
                 {
-                  label: "01 / FIND YOUR DIRECTION",
-                  title: "Not sure where to start?",
-                  body: "Choose your area and goal to find relevant resources. A starting point, not a diagnosis.",
+                  label: copy.path_direction_label,
+                  title: copy.path_direction_title,
+                  body: copy.path_direction_body,
                   href: "/start",
-                  action: "Find my starting point",
+                  action: copy.path_direction_cta,
                 },
                 {
-                  label: "02 / FREE LEARNING",
-                  title: "Understand your movement.",
-                  body: "Browse anatomy, movement articles, and condition guides before deciding what to explore.",
+                  label: copy.path_learning_label,
+                  title: copy.path_learning_title,
+                  body: copy.path_learning_body,
                   href: "#regions",
-                  action: "Explore by body region",
+                  action: copy.path_learning_cta,
                 },
                 {
-                  label: "03 / PAID PROGRAMS",
-                  title: "Prefer a guided session?",
-                  body: "Review each program’s focus, contents, and current price before choosing. No subscription.",
+                  label: copy.path_programs_label,
+                  title: copy.path_programs_title,
+                  body: copy.path_programs_body,
                   href: "#programs",
-                  action: "Compare programs",
+                  action: copy.path_programs_cta,
                 },
               ].map((path) => (
                 <a
