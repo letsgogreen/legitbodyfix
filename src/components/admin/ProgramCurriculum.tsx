@@ -32,6 +32,15 @@ type Program = Database["public"]["Tables"]["programs"]["Row"];
 type Module = Database["public"]["Tables"]["program_modules"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 
+function isCloudflareStreamThumbnail(url: string | null | undefined) {
+  if (!url) return false;
+  try {
+    return new URL(url).hostname.endsWith(".cloudflarestream.com");
+  } catch {
+    return false;
+  }
+}
+
 export function ProgramCurriculum({ requestedProgramId, embedded = false }: { requestedProgramId?: string; embedded?: boolean }) {
   const navigate = useNavigate();
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -653,9 +662,11 @@ function LessonDrawer({
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const autoPreviewedUid = useRef<string | null>(null);
+  const autoRepairedThumbnail = useRef<string | null>(null);
   const [thumbnailTime, setThumbnailTime] = useState("0");
   const [previewSeek, setPreviewSeek] = useState<{ time: number; request: number } | null>(null);
   const [thumbnailRevision, setThumbnailRevision] = useState(0);
+  const [refreshingThumbnail, setRefreshingThumbnail] = useState(false);
   const [captions, setCaptions] = useState<StreamCaption[]>([]);
   const [captionBusy, setCaptionBusy] = useState<"en" | "ko" | null>(null);
 
@@ -671,6 +682,41 @@ function LessonDrawer({
   useEffect(() => {
     void refreshCaptions();
   }, [refreshCaptions]);
+
+  const refreshStreamThumbnail = useCallback(async () => {
+    if (!lesson) return;
+    setRefreshingThumbnail(true);
+    setError(null);
+    try {
+      const refreshed = await refreshStreamVideo({ data: { lessonId: lesson.id } });
+      setStreamStatus(refreshed.status);
+      if (refreshed.thumbnailUrl) {
+        setThumbnailUrl(refreshed.thumbnailUrl);
+        setThumbnailRevision((current) => current + 1);
+      }
+      if (refreshed.durationSeconds) setDuration(String(refreshed.durationSeconds));
+      await onChanged();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setRefreshingThumbnail(false);
+    }
+  }, [lesson, onChanged]);
+
+  useEffect(() => {
+    if (
+      !lesson ||
+      !streamUid ||
+      streamStatus !== "ready" ||
+      !isCloudflareStreamThumbnail(thumbnailUrl)
+    )
+      return;
+
+    const repairKey = `${lesson.id}:${thumbnailUrl}`;
+    if (autoRepairedThumbnail.current === repairKey) return;
+    autoRepairedThumbnail.current = repairKey;
+    void refreshStreamThumbnail();
+  }, [lesson, refreshStreamThumbnail, streamStatus, streamUid, thumbnailUrl]);
 
   const generateCaptions = async (language: "en" | "ko") => {
     if (!lesson) return;
@@ -1207,14 +1253,12 @@ function LessonDrawer({
               }}
             />
             <div className="mt-3 flex flex-wrap gap-2">
-              {lesson?.stream_thumbnail_url && (
+              {lesson && streamUid && streamStatus === "ready" && (
                 <Btn
-                  onClick={() => {
-                    setThumbnailUrl(lesson.stream_thumbnail_url ?? "");
-                    setThumbnailRevision((current) => current + 1);
-                  }}
+                  disabled={refreshingThumbnail}
+                  onClick={() => void refreshStreamThumbnail()}
                 >
-                  Use Stream default
+                  {refreshingThumbnail ? "Refreshing…" : "Refresh Stream thumbnail"}
                 </Btn>
               )}
               {thumbnailUrl && <Btn onClick={() => setThumbnailUrl("")}>Remove thumbnail</Btn>}
