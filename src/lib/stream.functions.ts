@@ -421,6 +421,16 @@ export async function getPublicSalesPreviewIframe(streamUid: string) {
   return `https://customer-${customerCode}.cloudflarestream.com/${signed.token}/iframe?preload=metadata`;
 }
 
+export const getAdminSalesPreviewIframe = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) =>
+    z.object({ streamUid: z.string().regex(/^[a-f0-9]{32}$/) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    return { iframeUrl: await getPublicSalesPreviewIframe(data.streamUid) };
+  });
+
 export const refreshStreamVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) => z.object({ lessonId: z.string().uuid() }).parse(input))

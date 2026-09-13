@@ -5,7 +5,11 @@ import {
   getAdminProgramSalesPages,
   saveAdminProgramSalesPage,
 } from "@/lib/program-sales.functions";
-import { createSalesPreviewTusUpload, refreshSalesPreviewVideo } from "@/lib/stream.functions";
+import {
+  createSalesPreviewTusUpload,
+  getAdminSalesPreviewIframe,
+  refreshSalesPreviewVideo,
+} from "@/lib/stream.functions";
 
 type Step = { phase: string; title: string; description: string };
 type SalesDraft = {
@@ -126,15 +130,18 @@ export function ProgramSalesPageEditor() {
     setPreviewIframeUrl("");
     if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
     let active = true;
-    void fetch(`/api/public/program-sales/${encodeURIComponent(videoId)}?preview=${Date.now()}`, {
-      cache: "no-store",
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (active && typeof data.previewIframeUrl === "string")
-          setPreviewIframeUrl(data.previewIframeUrl);
+    void getAdminSalesPreviewIframe({ data: { streamUid: draft.previewStreamUid } })
+      .then(({ iframeUrl }) => {
+        if (active) setPreviewIframeUrl(iframeUrl);
       })
-      .catch(() => {});
+      .catch((e) => {
+        if (active)
+          setMessage(
+            e instanceof Error
+              ? `Could not load the secure preview: ${e.message}`
+              : "Could not load the secure preview.",
+          );
+      });
     return () => {
       active = false;
     };
@@ -371,7 +378,7 @@ export function ProgramSalesPageEditor() {
               )}
               {draft.previewStreamStatus === "ready" && (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  The player on the right uses the same secure Stream playback as the live sales
+                  Preview ready. The player on the right is what customers will see on the sales
                   page.
                 </p>
               )}
