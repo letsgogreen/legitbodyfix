@@ -142,34 +142,37 @@ function AnalyticsPage() {
           {statCards.map((stat) => <Panel key={stat.label} className="p-5"><div className="flex items-start justify-between gap-3"><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{stat.label}</p><Delta value={stat.delta} /></div><p className="mt-3 text-4xl font-extrabold tracking-tight">{stat.value}</p><p className="mt-1 text-xs text-muted-foreground">{stat.note}</p></Panel>)}
         </section>
 
-        <section className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,.7fr)]">
-          <Panel className="p-5">
-            <div className="flex items-baseline justify-between"><h2 className="text-lg font-extrabold">Traffic trend</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Daily views</span></div>
-            <TrendLine rows={report.daily} />
-            <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground"><span>{report.daily[0]?.[0]}</span><span>{report.daily.at(-1)?.[0]}</span></div>
-          </Panel>
-          <Panel className="bg-ink p-6 text-ink-foreground">
-            <p className="font-mono text-[10px] uppercase tracking-[.16em] text-ink-foreground/55">Quick read</p>
-            <h2 className="mt-4 text-2xl font-extrabold">{report.views.length ? "Where attention is going" : "Waiting for real traffic"}</h2>
-            <div className="mt-7 space-y-6 text-sm">
-              <div><p className="text-ink-foreground/55">Most viewed</p><p className="mt-1 font-bold">{topPage ? `${topPage[0] === "/" ? "Homepage" : topPage[0]} · ${topPage[1]} views` : "No page data yet"}</p></div>
-              <div><p className="text-ink-foreground/55">Most active hour</p><p className="mt-1 font-bold">{bestHour?.[1] ? `${String(bestHour[0]).padStart(2, "0")}:00–${String((bestHour[0] + 1) % 24).padStart(2, "0")}:00 · ${bestHour[1]} views` : "No hourly pattern yet"}</p></div>
-              <div><p className="text-ink-foreground/55">Acquisition</p><p className="mt-1 font-bold">{report.sessions ? `${report.acquired} of ${report.sessions} sessions identified` : "No sessions yet"}</p></div>
-            </div>
-          </Panel>
-        </section>
-
-        <Panel className="mt-4 p-5">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between"><h2 className="text-lg font-extrabold">Visits by hour</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Local time · {timeZone}</span></div>
-          <HourlyActivity rows={report.hourly} />
-          <div className="mt-2 grid grid-cols-4 font-mono text-[10px] text-muted-foreground"><span>00:00</span><span className="text-center">06:00</span><span className="text-center">12:00</span><span className="text-right">18:00</span></div>
+        <Panel className="mt-4 bg-ink px-6 py-5 text-ink-foreground">
+          <div className="grid gap-5 lg:grid-cols-[1.2fr_repeat(3,1fr)] lg:items-center">
+            <div><p className="font-mono text-[10px] uppercase tracking-[.16em] text-ink-foreground/55">Quick read</p><h2 className="mt-2 text-xl font-extrabold">{report.views.length ? "What changed at a glance" : "Waiting for real traffic"}</h2></div>
+            <div><p className="text-xs text-ink-foreground/55">Most viewed</p><p className="mt-1 text-sm font-bold">{topPage ? `${topPage[0] === "/" ? "Homepage" : topPage[0]} · ${topPage[1]} views` : "No page data yet"}</p></div>
+            <div><p className="text-xs text-ink-foreground/55">Most active hour</p><p className="mt-1 text-sm font-bold">{bestHour?.[1] ? `${String(bestHour[0]).padStart(2, "0")}:00–${String((bestHour[0] + 1) % 24).padStart(2, "0")}:00 · ${bestHour[1]} views` : "No pattern yet"}</p></div>
+            <div><p className="text-xs text-ink-foreground/55">Acquisition</p><p className="mt-1 text-sm font-bold">{report.sessions ? `${report.acquired} of ${report.sessions} sessions identified` : "No sessions yet"}</p></div>
+          </div>
         </Panel>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <section className="mt-4 grid items-start gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,.65fr)]">
+          <div className="space-y-4">
+            <Panel className="p-5">
+              <div className="flex items-baseline justify-between"><h2 className="text-lg font-extrabold">Daily traffic</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Page views</span></div>
+              <DailyBars rows={report.daily} />
+              <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground"><span>{report.daily[0]?.[0]}</span><span>{report.daily.at(-1)?.[0]}</span></div>
+            </Panel>
+            <Panel className="p-5">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between"><h2 className="text-lg font-extrabold">Visits by hour</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Local time · {timeZone}</span></div>
+              <HourlyLine rows={report.hourly} />
+              <div className="mt-2 grid grid-cols-4 font-mono text-[10px] text-muted-foreground"><span>00:00</span><span className="text-center">06:00</span><span className="text-center">12:00</span><span className="text-right">18:00</span></div>
+            </Panel>
+          </div>
+          <div className="space-y-4">
+            <RankPanel title="Traffic sources" rows={report.sources} empty="Direct and referred traffic will appear here." numbered />
+            <RankPanel title="Campaigns" rows={report.campaigns} empty="Add UTM campaign tags to marketing links to measure them here." numbered />
+            <DevicePanel rows={report.devices} />
+          </div>
+        </section>
+
+        <div className="mt-4">
           <RankPanel title="Top pages" rows={report.pages} empty="Page activity will appear after visitors browse the site." formatLabel={(label) => label === "/" ? "Homepage" : label} />
-          <RankPanel title="Traffic sources" rows={report.sources} empty="Direct and referred traffic will appear here." />
-          <RankPanel title="Campaigns" rows={report.campaigns} empty="Add UTM campaign tags to marketing links to measure them here." />
-          <RankPanel title="Device mix" rows={report.devices} empty="Device data will appear after the first visit." />
         </div>
 
         <Panel className="mt-4 overflow-hidden">
@@ -189,41 +192,46 @@ function Delta({ value }: { value: number | null }) {
   return <span className={`inline-flex items-center text-[10px] font-bold ${positive ? "text-emerald-700" : negative ? "text-destructive" : "text-muted-foreground"}`}>{positive ? <ArrowUpRight className="h-3 w-3" /> : negative ? <ArrowDownRight className="h-3 w-3" /> : null}{Math.abs(value)}%</span>;
 }
 
-function TrendLine({ rows }: { rows: readonly (readonly [string, number])[] }) {
+function DailyBars({ rows }: { rows: readonly (readonly [string, number])[] }) {
   const width = 1000;
-  const height = 210;
-  const inset = 10;
+  const height = 180;
+  const inset = 12;
   const max = Math.max(1, ...rows.map(([, count]) => count));
-  const points = rows.map(([, count], index) => {
-    const x = inset + index / Math.max(1, rows.length - 1) * (width - inset * 2);
-    const y = height - inset - count / max * (height - inset * 2);
-    return { x, y, count };
-  });
-  const line = points.map(({ x, y }) => `${x},${y}`).join(" ");
-  const area = points.length ? `${inset},${height - inset} ${line} ${width - inset},${height - inset}` : "";
-
-  return <div className="mt-7 h-52 w-full" aria-label="Daily page view trend">
+  const slot = (width - inset * 2) / Math.max(1, rows.length);
+  const barWidth = Math.max(3, slot * .62);
+  return <div className="mt-6 h-44 w-full" aria-label="Daily page views">
     <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img">
       {[0, 1, 2].map((lineIndex) => <line key={lineIndex} x1={inset} x2={width - inset} y1={inset + lineIndex * (height - inset * 2) / 2} y2={inset + lineIndex * (height - inset * 2) / 2} className="stroke-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
-      <polygon points={area} className="fill-secondary/60" />
-      <polyline points={line} fill="none" className="stroke-ink" strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
-      {points.filter((point) => point.count > 0).map((point, index) => <circle key={index} cx={point.x} cy={point.y} r="4" className="fill-accent stroke-ink" strokeWidth="2" vectorEffect="non-scaling-stroke"><title>{point.count} views</title></circle>)}
+      {rows.map(([date, count], index) => {
+        const barHeight = count ? Math.max(5, count / max * (height - inset * 2)) : 2;
+        return <rect key={date} x={inset + index * slot + (slot - barWidth) / 2} y={height - inset - barHeight} width={barWidth} height={barHeight} className={count ? "fill-accent" : "fill-secondary"}><title>{date} · {count} views</title></rect>;
+      })}
     </svg>
   </div>;
 }
 
-function HourlyActivity({ rows }: { rows: readonly (readonly [number, number])[] }) {
+function HourlyLine({ rows }: { rows: readonly (readonly [number, number])[] }) {
+  const width = 1000;
+  const height = 160;
+  const inset = 12;
   const max = Math.max(1, ...rows.map(([, count]) => count));
-  return <div className="mt-7 grid grid-cols-12 gap-2 sm:grid-cols-24" aria-label="Page views by local hour">
-    {rows.map(([hour, count]) => <div key={hour} title={`${String(hour).padStart(2, "0")}:00–${String((hour + 1) % 24).padStart(2, "0")}:00 · ${count} views`} className="group flex flex-col items-center gap-2">
-      <span className={`aspect-square w-full border transition-colors group-hover:border-accent ${count ? "border-ink" : "border-border bg-secondary/30"}`} style={count ? { backgroundColor: `rgb(15 15 14 / ${0.18 + count / max * 0.82})` } : undefined} />
-      <span className="font-mono text-[9px] text-muted-foreground sm:hidden">{String(hour).padStart(2, "0")}</span>
-    </div>)}
-  </div>;
+  const points = rows.map(([hour, count], index) => ({ hour, count, x: inset + index / Math.max(1, rows.length - 1) * (width - inset * 2), y: height - inset - count / max * (height - inset * 2) }));
+  return <div className="mt-6 h-40 w-full" aria-label="Visits by local hour"><svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img">
+    {[0, 1, 2].map((lineIndex) => <line key={lineIndex} x1={inset} x2={width - inset} y1={inset + lineIndex * (height - inset * 2) / 2} y2={inset + lineIndex * (height - inset * 2) / 2} className="stroke-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
+    <polyline points={points.map(({ x, y }) => `${x},${y}`).join(" ")} fill="none" className="stroke-accent" strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
+    {points.filter(({ count }) => count > 0).map(({ hour, count, x, y }) => <circle key={hour} cx={x} cy={y} r="4" className="fill-card stroke-ink" strokeWidth="2" vectorEffect="non-scaling-stroke"><title>{String(hour).padStart(2, "0")}:00 · {count} views</title></circle>)}
+  </svg></div>;
 }
 
-function RankPanel({ title, rows, empty, formatLabel = (label) => label }: { title: string; rows: [string, number][]; empty: string; formatLabel?: (label: string) => string }) {
+function DevicePanel({ rows }: { rows: [string, number][] }) {
+  const total = rows.reduce((sum, [, value]) => sum + value, 0);
+  const first = rows[0]?.[1] || 0;
+  const angle = total ? first / total * 360 : 0;
+  return <Panel className="p-5"><h2 className="text-lg font-extrabold">Device mix</h2>{rows.length ? <div className="mt-5 flex items-center gap-6"><div className="relative h-28 w-28 shrink-0 rounded-full" style={{ background: `conic-gradient(hsl(var(--accent)) 0deg ${angle}deg, hsl(var(--ink)) ${angle}deg 360deg)` }}><div className="absolute inset-5 grid place-items-center rounded-full bg-card text-center"><span className="text-lg font-extrabold">{total}</span></div></div><div className="min-w-0 flex-1 space-y-3">{rows.map(([label, value], index) => <div key={label} className="flex items-center justify-between gap-3 text-sm"><span className="flex items-center gap-2 capitalize"><span className={`h-2.5 w-2.5 ${index === 0 ? "bg-accent" : "bg-ink"}`} />{label}</span><strong>{Math.round(value / total * 100)}%</strong></div>)}</div></div> : <p className="py-8 text-sm text-muted-foreground">Device data will appear after the first visit.</p>}</Panel>;
+}
+
+function RankPanel({ title, rows, empty, formatLabel = (label) => label, numbered = false }: { title: string; rows: [string, number][]; empty: string; formatLabel?: (label: string) => string; numbered?: boolean }) {
   const max = rows[0]?.[1] || 1;
   const total = rows.reduce((sum, [, value]) => sum + value, 0);
-  return <Panel className="p-5"><div className="flex items-baseline justify-between"><h2 className="text-lg font-extrabold">{title}</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Share</span></div><div className="mt-5 space-y-5">{rows.slice(0, 8).map(([label, value]) => <div key={label}><div className="mb-1.5 flex items-center justify-between gap-4 text-sm"><span className="truncate font-medium">{formatLabel(label)}</span><span className="shrink-0 font-mono text-xs text-muted-foreground">{value.toLocaleString()} · {total ? Math.round(value / total * 100) : 0}%</span></div><div className="h-2 bg-secondary"><div className="h-full bg-ink" style={{ width: `${value / max * 100}%` }} /></div></div>)}{!rows.length && <p className="py-10 text-sm text-muted-foreground">{empty}</p>}</div></Panel>;
+  return <Panel className="p-5"><div className="flex items-baseline justify-between"><h2 className="text-lg font-extrabold">{title}</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Share</span></div><div className={numbered ? "mt-4 divide-y divide-border" : "mt-5 space-y-5"}>{rows.slice(0, 8).map(([label, value], index) => numbered ? <div key={label} className={`grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-2 py-3 text-sm ${index === 0 ? "text-emerald-700" : ""}`}><strong>{index + 1}</strong><span className="truncate font-medium">{formatLabel(label)}</span><strong>{total ? Math.round(value / total * 100) : 0}%</strong></div> : <div key={label}><div className="mb-1.5 flex items-center justify-between gap-4 text-sm"><span className="truncate font-medium">{formatLabel(label)}</span><span className="shrink-0 font-mono text-xs text-muted-foreground">{value.toLocaleString()} · {total ? Math.round(value / total * 100) : 0}%</span></div><div className="h-2 bg-secondary"><div className="h-full bg-ink" style={{ width: `${value / max * 100}%` }} /></div></div>)}{!rows.length && <p className="py-10 text-sm text-muted-foreground">{empty}</p>}</div></Panel>;
 }
