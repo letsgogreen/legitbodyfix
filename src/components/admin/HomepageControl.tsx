@@ -4,7 +4,7 @@ import { ArrowUpRight, BookOpen, Check, Dumbbell, ExternalLink, Loader2, PanelsT
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { bodyRegions, resolveBodyRegionMedia } from "@/data/body-regions";
-import { homepageCopyDefaults, homepageCopyGroups, type HomepageCopy, type HomepageCopyKey } from "@/data/homepage-copy";
+import { homepageCopyDefaults, homepageCopyGroups, normalizeHomepageCopyValue, type HomepageCopy, type HomepageCopyKey } from "@/data/homepage-copy";
 import { supabase } from "@/integrations/supabase/client";
 
 type AdminPrefix = "/admin";
@@ -87,7 +87,10 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
       setCopy((current) => {
         const next = { ...current };
         for (const item of data ?? []) {
-          if (item.key in next) next[item.key as HomepageCopyKey] = item.value;
+          if (item.key in next) {
+            const key = item.key as HomepageCopyKey;
+            next[key] = normalizeHomepageCopyValue(key, item.value);
+          }
         }
         return next;
       });

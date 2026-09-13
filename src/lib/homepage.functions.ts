@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { bodyRegions } from "@/data/body-regions";
-import { homepageCopyDefaults, type HomepageCopy, type HomepageCopyKey } from "@/data/homepage-copy";
+import { homepageCopyDefaults, normalizeHomepageCopyValue, type HomepageCopy, type HomepageCopyKey } from "@/data/homepage-copy";
 
 export type HomepageMediaOverride = { image_url: string; image_alt: string };
 export type HomepageRegionCounts = { recipes: number; programs: number };
@@ -35,7 +35,10 @@ export const getHomepageRegionData = createServerFn({ method: "GET" }).handler(
     const copy = { ...homepageCopyDefaults } as HomepageCopy;
     if (!copyResult.error) {
       for (const item of copyResult.data ?? []) {
-        if (item.key in copy && item.value.trim()) copy[item.key as HomepageCopyKey] = item.value;
+        if (item.key in copy && item.value.trim()) {
+          const key = item.key as HomepageCopyKey;
+          copy[key] = normalizeHomepageCopyValue(key, item.value);
+        }
       }
     }
 

@@ -3,7 +3,7 @@ export const homepageCopyDefaults = {
   hero_title: "Move\nbetter.\nStart\nhere.",
   hero_summary: "Stiff after sitting? Unsure where to begin with your movement? Find relevant anatomy and articles, then explore a guided program when you want more structure.",
   hero_primary_cta: "Find my starting point",
-  hero_secondary_cta: "Explore free resources",
+  hero_secondary_cta: "Explore programs",
   paths_heading: "Choose the kind of help you need.",
   path_direction_label: "01 / Find your direction",
   path_direction_title: "Not sure where to start?",
@@ -34,6 +34,13 @@ export const homepageCopyDefaults = {
 
 export type HomepageCopyKey = keyof typeof homepageCopyDefaults;
 export type HomepageCopy = Record<HomepageCopyKey, string>;
+
+export function normalizeHomepageCopyValue(key: HomepageCopyKey, value: string) {
+  if (key === "hero_secondary_cta" && value === "Explore free resources") {
+    return homepageCopyDefaults.hero_secondary_cta;
+  }
+  return value;
+}
 
 export const homepageCopyGroups: Array<{
   title: string;

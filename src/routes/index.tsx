@@ -94,7 +94,7 @@ function PhaseOneHomepage() {
                   {copy.hero_primary_cta}
                 </Link>
                 <a
-                  href="#regions"
+                  href="#programs"
                   className="inline-flex min-h-11 items-center justify-center rounded-sm border border-foreground px-6 py-3.5 text-center text-sm font-bold outline-none transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   {copy.hero_secondary_cta}
