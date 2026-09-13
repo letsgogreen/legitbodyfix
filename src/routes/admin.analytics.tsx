@@ -67,6 +67,7 @@ function AnalyticsPage() {
   const latestViewLabel = latestView
     ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(latestView))
     : "No events received";
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const statCards = [
     ["Page views", views.length.toLocaleString(), `Last ${range} days`],
     ["Sessions", report.sessions.size.toLocaleString(), "Approximate browser visits"],
@@ -102,18 +103,39 @@ function AnalyticsPage() {
           <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground"><span>{report.daily[0]?.[0]}</span><span>{report.daily.at(-1)?.[0]}</span></div>
         </Panel>
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          <RankPanel title="Top pages" rows={report.pages} empty="Page activity will appear after visitors browse the site." />
+          <RankPanel title="Top pages" rows={report.pages} empty="Page activity will appear after visitors browse the site." formatLabel={(label) => label === "/" ? "Homepage" : label} />
           <RankPanel title="Traffic sources" rows={report.sources} empty="Referrer domains and UTM sources will appear here." />
           <RankPanel title="Campaigns" rows={report.campaigns} empty="Add utm_campaign to campaign links to measure them here." />
           <RankPanel title="Device mix" rows={report.devices} empty="Device data will appear after the first visit." />
         </div>
+        <Panel className="mt-4 overflow-hidden">
+          <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between">
+            <h2 className="text-lg font-extrabold">Recent visits</h2>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Local time · {timeZone}</span>
+          </div>
+          <div className="divide-y divide-border">
+            {views.slice(0, 12).map((view) => (
+              <div key={view.id} className="grid gap-2 px-5 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-5">
+                <div className="min-w-0">
+                  <p className="truncate font-bold">{view.path === "/" ? "Homepage" : view.path}</p>
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">{view.utm_source || view.referrer_host || "Direct"}</p>
+                </div>
+                <span className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">{view.device_type}</span>
+                <time dateTime={view.created_at} className="font-mono text-[11px] text-muted-foreground sm:text-right">
+                  {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(view.created_at))}
+                </time>
+              </div>
+            ))}
+            {!views.length && <p className="px-5 py-10 text-sm text-muted-foreground">Visit times will appear after the first page view.</p>}
+          </div>
+        </Panel>
         <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Privacy note: analytics stores a random per-tab session ID, page path, device category, referrer domain, and UTM tags. It does not store IP addresses, names, email addresses, or full referrer URLs. Admin visits are excluded.</p>
       </>}
     </div>
   );
 }
 
-function RankPanel({ title, rows, empty }: { title: string; rows: [string, number][]; empty: string }) {
+function RankPanel({ title, rows, empty, formatLabel = (label) => label }: { title: string; rows: [string, number][]; empty: string; formatLabel?: (label: string) => string }) {
   const max = rows[0]?.[1] || 1;
-  return <Panel className="p-5"><h2 className="text-lg font-extrabold">{title}</h2><div className="mt-4 space-y-4">{rows.slice(0, 8).map(([label, value]) => <div key={label}><div className="mb-1.5 flex items-center justify-between gap-4 text-sm"><span className="truncate font-medium">{label}</span><span className="font-mono text-xs text-muted-foreground">{value.toLocaleString()}</span></div><div className="h-1.5 bg-secondary"><div className="h-full bg-ink" style={{ width: `${value / max * 100}%` }} /></div></div>)}{!rows.length && <p className="py-8 text-sm text-muted-foreground">{empty}</p>}</div></Panel>;
+  return <Panel className="p-5"><h2 className="text-lg font-extrabold">{title}</h2><div className="mt-4 space-y-4">{rows.slice(0, 8).map(([label, value]) => <div key={label}><div className="mb-1.5 flex items-center justify-between gap-4 text-sm"><span className="truncate font-medium">{formatLabel(label)}</span><span className="font-mono text-xs text-muted-foreground">{value.toLocaleString()}</span></div><div className="h-1.5 bg-secondary"><div className="h-full bg-ink" style={{ width: `${value / max * 100}%` }} /></div></div>)}{!rows.length && <p className="py-8 text-sm text-muted-foreground">{empty}</p>}</div></Panel>;
 }
