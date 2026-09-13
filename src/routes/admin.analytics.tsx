@@ -57,10 +57,15 @@ function AnalyticsPage() {
       const key = date.toISOString().slice(0, 10);
       return [key, views.filter((view) => view.created_at.slice(0, 10) === key).length] as const;
     });
-    return { sessions, referred, pages, sources, campaigns, devices, daily };
+    const hourly = Array.from({ length: 24 }, (_, hour) => [
+      hour,
+      views.filter((view) => new Date(view.created_at).getHours() === hour).length,
+    ] as const);
+    return { sessions, referred, pages, sources, campaigns, devices, daily, hourly };
   }, [views, range]);
 
   const maxDaily = Math.max(1, ...report.daily.map(([, count]) => count));
+  const maxHourly = Math.max(1, ...report.hourly.map(([, count]) => count));
   const latestView = views[0]?.created_at;
   const latestViewAge = latestView ? Date.now() - new Date(latestView).getTime() : null;
   const collectionActive = latestViewAge !== null && latestViewAge < 86_400_000;
@@ -98,9 +103,16 @@ function AnalyticsPage() {
         <Panel className="mt-4 p-5">
           <div className="flex items-baseline justify-between"><h2 className="text-lg font-extrabold">Traffic trend</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Daily page views</span></div>
           <div className="mt-6 flex h-44 items-end gap-1" aria-label="Daily page view chart">
-            {report.daily.map(([date, count]) => <div key={date} className="group relative flex min-w-0 flex-1 items-end" title={`${date}: ${count} views`}><div className="w-full bg-ink transition-colors group-hover:bg-accent" style={{ height: `${Math.max(count ? 6 : 1, count / maxDaily * 100)}%` }} /></div>)}
+            {report.daily.map(([date, count]) => <div key={date} className="group relative flex h-full min-w-0 flex-1 items-end" title={`${date}: ${count} views`}><div className="w-full bg-ink transition-colors group-hover:bg-accent" style={{ height: `${Math.max(count ? 6 : 1, count / maxDaily * 100)}%` }} /></div>)}
           </div>
           <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground"><span>{report.daily[0]?.[0]}</span><span>{report.daily.at(-1)?.[0]}</span></div>
+        </Panel>
+        <Panel className="mt-4 p-5">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between"><h2 className="text-lg font-extrabold">Visits by hour</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Local time · {timeZone}</span></div>
+          <div className="mt-6 flex h-40 items-end gap-1" aria-label="Page views by local hour">
+            {report.hourly.map(([hour, count]) => <div key={hour} className="group relative flex h-full min-w-0 flex-1 items-end" title={`${String(hour).padStart(2, "0")}:00–${String((hour + 1) % 24).padStart(2, "0")}:00 · ${count} views`}><div className={`w-full transition-colors group-hover:bg-accent ${count ? "bg-ink" : "bg-secondary"}`} style={{ height: `${Math.max(count ? 8 : 2, count / maxHourly * 100)}%` }} /></div>)}
+          </div>
+          <div className="mt-2 grid grid-cols-4 font-mono text-[10px] text-muted-foreground"><span>00:00</span><span className="text-center">06:00</span><span className="text-center">12:00</span><span className="text-right">18:00</span></div>
         </Panel>
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <RankPanel title="Top pages" rows={report.pages} empty="Page activity will appear after visitors browse the site." formatLabel={(label) => label === "/" ? "Homepage" : label} />
