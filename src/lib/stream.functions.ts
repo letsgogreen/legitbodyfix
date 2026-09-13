@@ -53,10 +53,14 @@ async function updateSalesPreviewContent(
   patch: Record<string, unknown>,
 ) {
   const { data: current, error: readError } = await supabase
-    .from("program_sales_pages").select("content").eq("video_id", videoId).maybeSingle();
+    .from("program_sales_pages")
+    .select("content")
+    .eq("video_id", videoId)
+    .maybeSingle();
   if (readError) throw new Error(readError.message);
   const content = { ...((current?.content as Record<string, unknown> | null) ?? {}), ...patch };
-  const { error } = await supabase.from("program_sales_pages")
+  const { error } = await supabase
+    .from("program_sales_pages")
     .upsert({ video_id: videoId, content }, { onConflict: "video_id" });
   if (error) throw new Error(error.message);
   return content;
@@ -121,7 +125,8 @@ export async function rehostStreamThumbnail(
   const response = await fetch(
     `https://customer-${customerCode}.cloudflarestream.com/${signed.token}/thumbnails/thumbnail.jpg`,
   );
-  if (!response.ok) throw new Error(`Could not download the Stream thumbnail (${response.status}).`);
+  if (!response.ok)
+    throw new Error(`Could not download the Stream thumbnail (${response.status}).`);
 
   const bytes = await response.arrayBuffer();
   if (!bytes.byteLength) throw new Error("Cloudflare returned an empty Stream thumbnail.");
@@ -325,11 +330,15 @@ export const createStreamTusUpload = createServerFn({ method: "POST" })
 
 export const createSalesPreviewTusUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input) => z.object({
-    videoId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-    fileName: z.string().min(1).max(200),
-    fileSize: z.number().int().positive().max(1_000_000_000),
-  }).parse(input))
+  .validator((input) =>
+    z
+      .object({
+        videoId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        fileName: z.string().min(1).max(200),
+        fileSize: z.number().int().positive().max(1_000_000_000),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const { accountId, apiToken } = streamConfig();
@@ -338,26 +347,68 @@ export const createSalesPreviewTusUpload = createServerFn({ method: "POST" })
       "requiresignedurls",
       `maxdurationseconds ${toBase64("180")}`,
     ].join(",");
-    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/stream?direct_user=true`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiToken}`, "Tus-Resumable": "1.0.0", "Upload-Length": String(data.fileSize), "Upload-Creator": context.userId, "Upload-Metadata": metadata },
-    });
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream?direct_user=true`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Tus-Resumable": "1.0.0",
+          "Upload-Length": String(data.fileSize),
+          "Upload-Creator": context.userId,
+          "Upload-Metadata": metadata,
+        },
+      },
+    );
     const uploadURL = response.headers.get("Location");
-    const uid = response.headers.get("stream-media-id") || (uploadURL ? new URL(uploadURL).pathname.split("/").filter(Boolean).pop() : null);
-    if (!response.ok || !uploadURL || !uid) throw new Error(`Could not create preview upload (${response.status}).`);
-    await updateSalesPreviewContent(context.supabase as any, data.videoId, { previewStreamUid: uid, previewStreamStatus: "uploading" });
+    const uid =
+      response.headers.get("stream-media-id") ||
+      (uploadURL ? new URL(uploadURL).pathname.split("/").filter(Boolean).pop() : null);
+    if (!response.ok || !uploadURL || !uid)
+      throw new Error(`Could not create preview upload (${response.status}).`);
+    await updateSalesPreviewContent(context.supabase as any, data.videoId, {
+      previewStreamUid: uid,
+      previewStreamStatus: "uploading",
+    });
     return { uploadURL, uid };
   });
 
 export const refreshSalesPreviewVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input) => z.object({ videoId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), streamUid: z.string().regex(/^[a-f0-9]{32}$/) }).parse(input))
+  .validator((input) =>
+    z
+      .object({
+        videoId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        streamUid: z.string().regex(/^[a-f0-9]{32}$/),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    const video = await cloudflare<{ readyToStream?: boolean; thumbnail?: string; status?: { state?: string; errorReasonText?: string } }>(`/${data.streamUid}`);
-    const status = video.status?.state === "error" ? "error" : video.readyToStream ? "ready" : "processing";
-    await updateSalesPreviewContent(context.supabase as any, data.videoId, { previewStreamUid: data.streamUid, previewStreamStatus: status, previewThumbnailUrl: video.thumbnail || "" });
-    return { status, thumbnailUrl: video.thumbnail || "", error: video.status?.errorReasonText || "" };
+    const video = await cloudflare<{
+      readyToStream?: boolean;
+      thumbnail?: string;
+      status?: { state?: string; pctComplete?: string; errorReasonText?: string };
+    }>(`/${data.streamUid}`);
+    const status =
+      video.status?.state === "error" ? "error" : video.readyToStream ? "ready" : "processing";
+    await updateSalesPreviewContent(context.supabase as any, data.videoId, {
+      previewStreamUid: data.streamUid,
+      previewStreamStatus: status,
+      previewThumbnailUrl: video.thumbnail || "",
+    });
+    const parsedProgress = Number.parseFloat(video.status?.pctComplete || "0");
+    return {
+      status,
+      thumbnailUrl: video.thumbnail || "",
+      progress:
+        status === "ready"
+          ? 100
+          : Number.isFinite(parsedProgress)
+            ? Math.max(0, Math.min(99, Math.round(parsedProgress)))
+            : 0,
+      error: video.status?.errorReasonText || "",
+    };
   });
 
 export async function getPublicSalesPreviewIframe(streamUid: string) {
