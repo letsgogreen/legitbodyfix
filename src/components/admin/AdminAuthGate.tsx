@@ -12,7 +12,6 @@ export function isApprovedAdminEmail(email?: string | null) {
 
 export function AdminAuthGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>("loading");
-  const [user, setUser] = useState<User>();
 
   useEffect(() => {
     const client = getSupabaseClient();
@@ -22,7 +21,6 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
     }
 
     const syncUser = (nextUser?: User) => {
-      setUser(nextUser);
       if (!nextUser) setState("signed-out");
       else if (nextUser.app_metadata?.["is_admin"] === true && isApprovedAdminEmail(nextUser.email)) {
         cleanConsumedAuthFragment();
@@ -50,7 +48,7 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
     return (
       <AuthMessage
         title="This account is not an administrator"
-        body={`${user?.email ?? "The signed-in account"} is authenticated, but does not have admin access.`}
+        body="The signed-in account is authenticated, but does not have admin access."
         action={<SignOutButton />}
       />
     );
