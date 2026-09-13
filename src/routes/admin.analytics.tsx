@@ -111,8 +111,6 @@ function AnalyticsPage() {
   const latestView = report.views[0]?.created_at;
   const collectionActive = latestView ? Date.now() - new Date(latestView).getTime() < 86_400_000 : false;
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const maxDaily = Math.max(1, ...report.daily.map(([, count]) => count));
-  const maxHourly = Math.max(1, ...report.hourly.map(([, count]) => count));
   const bestHour = report.hourly.reduce((best, item) => item[1] > best[1] ? item : best, report.hourly[0]);
   const topPage = report.pages[0];
   const statCards = [
@@ -147,7 +145,7 @@ function AnalyticsPage() {
         <section className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,.7fr)]">
           <Panel className="p-5">
             <div className="flex items-baseline justify-between"><h2 className="text-lg font-extrabold">Traffic trend</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Daily views</span></div>
-            <div className="mt-7 flex h-52 items-end gap-1" aria-label="Daily page view chart">{report.daily.map(([date, count]) => <div key={date} className="group relative flex h-full min-w-0 flex-1 items-end" title={`${date} · ${count} views`}><div className={`w-full transition-colors group-hover:bg-accent ${count ? "bg-ink" : "bg-secondary"}`} style={{ height: `${Math.max(count ? 7 : 2, count / maxDaily * 100)}%` }} /></div>)}</div>
+            <TrendLine rows={report.daily} />
             <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground"><span>{report.daily[0]?.[0]}</span><span>{report.daily.at(-1)?.[0]}</span></div>
           </Panel>
           <Panel className="bg-ink p-6 text-ink-foreground">
@@ -163,7 +161,7 @@ function AnalyticsPage() {
 
         <Panel className="mt-4 p-5">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between"><h2 className="text-lg font-extrabold">Visits by hour</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Local time · {timeZone}</span></div>
-          <div className="mt-7 flex h-40 items-end gap-1" aria-label="Page views by local hour">{report.hourly.map(([hour, count]) => <div key={hour} className="group relative flex h-full min-w-0 flex-1 items-end" title={`${String(hour).padStart(2, "0")}:00–${String((hour + 1) % 24).padStart(2, "0")}:00 · ${count} views`}><div className={`w-full transition-colors group-hover:bg-accent ${count ? "bg-ink" : "bg-secondary"}`} style={{ height: `${Math.max(count ? 8 : 2, count / maxHourly * 100)}%` }} /></div>)}</div>
+          <HourlyActivity rows={report.hourly} />
           <div className="mt-2 grid grid-cols-4 font-mono text-[10px] text-muted-foreground"><span>00:00</span><span className="text-center">06:00</span><span className="text-center">12:00</span><span className="text-right">18:00</span></div>
         </Panel>
 
@@ -189,6 +187,39 @@ function Delta({ value }: { value: number | null }) {
   const positive = value > 0;
   const negative = value < 0;
   return <span className={`inline-flex items-center text-[10px] font-bold ${positive ? "text-emerald-700" : negative ? "text-destructive" : "text-muted-foreground"}`}>{positive ? <ArrowUpRight className="h-3 w-3" /> : negative ? <ArrowDownRight className="h-3 w-3" /> : null}{Math.abs(value)}%</span>;
+}
+
+function TrendLine({ rows }: { rows: readonly (readonly [string, number])[] }) {
+  const width = 1000;
+  const height = 210;
+  const inset = 10;
+  const max = Math.max(1, ...rows.map(([, count]) => count));
+  const points = rows.map(([, count], index) => {
+    const x = inset + index / Math.max(1, rows.length - 1) * (width - inset * 2);
+    const y = height - inset - count / max * (height - inset * 2);
+    return { x, y, count };
+  });
+  const line = points.map(({ x, y }) => `${x},${y}`).join(" ");
+  const area = points.length ? `${inset},${height - inset} ${line} ${width - inset},${height - inset}` : "";
+
+  return <div className="mt-7 h-52 w-full" aria-label="Daily page view trend">
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img">
+      {[0, 1, 2].map((lineIndex) => <line key={lineIndex} x1={inset} x2={width - inset} y1={inset + lineIndex * (height - inset * 2) / 2} y2={inset + lineIndex * (height - inset * 2) / 2} className="stroke-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
+      <polygon points={area} className="fill-secondary/60" />
+      <polyline points={line} fill="none" className="stroke-ink" strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
+      {points.filter((point) => point.count > 0).map((point, index) => <circle key={index} cx={point.x} cy={point.y} r="4" className="fill-accent stroke-ink" strokeWidth="2" vectorEffect="non-scaling-stroke"><title>{point.count} views</title></circle>)}
+    </svg>
+  </div>;
+}
+
+function HourlyActivity({ rows }: { rows: readonly (readonly [number, number])[] }) {
+  const max = Math.max(1, ...rows.map(([, count]) => count));
+  return <div className="mt-7 grid grid-cols-12 gap-2 sm:grid-cols-24" aria-label="Page views by local hour">
+    {rows.map(([hour, count]) => <div key={hour} title={`${String(hour).padStart(2, "0")}:00–${String((hour + 1) % 24).padStart(2, "0")}:00 · ${count} views`} className="group flex flex-col items-center gap-2">
+      <span className={`aspect-square w-full border transition-colors group-hover:border-accent ${count ? "border-ink" : "border-border bg-secondary/30"}`} style={count ? { backgroundColor: `rgb(15 15 14 / ${0.18 + count / max * 0.82})` } : undefined} />
+      <span className="font-mono text-[9px] text-muted-foreground sm:hidden">{String(hour).padStart(2, "0")}</span>
+    </div>)}
+  </div>;
 }
 
 function RankPanel({ title, rows, empty, formatLabel = (label) => label }: { title: string; rows: [string, number][]; empty: string; formatLabel?: (label: string) => string }) {
