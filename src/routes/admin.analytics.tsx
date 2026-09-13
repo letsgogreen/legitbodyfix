@@ -7,6 +7,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 type View = Database["public"]["Tables"]["page_views"]["Row"];
 type Range = 7 | 30 | 90;
+type AcquisitionMode = "source" | "campaign";
 
 export const Route = createFileRoute("/admin/analytics")({
   head: () => ({ meta: [{ title: "Analytics — LegitBodyFix Admin" }, { name: "robots", content: "noindex" }] }),
@@ -40,6 +41,7 @@ function AnalyticsPage() {
   const [range, setRange] = useState<Range>(30);
   const [rawViews, setRawViews] = useState<View[]>([]);
   const [showVerification, setShowVerification] = useState(false);
+  const [acquisitionMode, setAcquisitionMode] = useState<AcquisitionMode>("source");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -154,8 +156,8 @@ function AnalyticsPage() {
         <section className="mt-4 grid items-start gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,.65fr)]">
           <div className="space-y-4">
             <Panel className="p-5">
-              <div className="flex items-baseline justify-between"><h2 className="text-lg font-extrabold">Daily traffic</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Page views</span></div>
-              <DailyBars rows={report.daily} />
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-lg font-extrabold">Acquisition trend</h2><p className="mt-1 text-xs text-muted-foreground">Compare how each source changes over time.</p></div><ModeToggle value={acquisitionMode} onChange={setAcquisitionMode} /></div>
+              <AcquisitionTrend views={report.views} range={range} mode={acquisitionMode} />
               <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground"><span>{report.daily[0]?.[0]}</span><span>{report.daily.at(-1)?.[0]}</span></div>
             </Panel>
             <Panel className="p-5">
@@ -165,8 +167,7 @@ function AnalyticsPage() {
             </Panel>
           </div>
           <div className="space-y-4">
-            <RankPanel title="Traffic sources" rows={report.sources} empty="Direct and referred traffic will appear here." numbered />
-            <RankPanel title="Campaigns" rows={report.campaigns} empty="Add UTM campaign tags to marketing links to measure them here." numbered />
+            <Panel className="p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><h2 className="text-lg font-extrabold">{acquisitionMode === "source" ? "Traffic sources" : "Campaigns"}</h2><ModeToggle value={acquisitionMode} onChange={setAcquisitionMode} /></div><RankList rows={acquisitionMode === "source" ? report.sources : report.campaigns} empty={acquisitionMode === "source" ? "Direct and referred traffic will appear here." : "Add UTM campaign tags to marketing links to measure them here."} /></Panel>
             <DevicePanel rows={report.devices} />
           </div>
         </section>
@@ -192,22 +193,37 @@ function Delta({ value }: { value: number | null }) {
   return <span className={`inline-flex items-center text-[10px] font-bold ${positive ? "text-emerald-700" : negative ? "text-destructive" : "text-muted-foreground"}`}>{positive ? <ArrowUpRight className="h-3 w-3" /> : negative ? <ArrowDownRight className="h-3 w-3" /> : null}{Math.abs(value)}%</span>;
 }
 
-function DailyBars({ rows }: { rows: readonly (readonly [string, number])[] }) {
+function ModeToggle({ value, onChange }: { value: AcquisitionMode; onChange: (value: AcquisitionMode) => void }) {
+  return <div className="inline-flex self-start rounded-full border border-border bg-background p-1 text-xs font-bold">
+    <button type="button" onClick={() => onChange("source")} className={`rounded-full px-3 py-2 transition-colors ${value === "source" ? "bg-ink text-ink-foreground" : "text-muted-foreground hover:text-foreground"}`}>Sources</button>
+    <button type="button" onClick={() => onChange("campaign")} className={`rounded-full px-3 py-2 transition-colors ${value === "campaign" ? "bg-ink text-ink-foreground" : "text-muted-foreground hover:text-foreground"}`}>Campaigns</button>
+  </div>;
+}
+
+const SERIES_COLORS = ["#17c98b", "#3478f6", "#ff6078", "#e9b949", "#19bfd0"];
+
+function AcquisitionTrend({ views, range, mode }: { views: View[]; range: Range; mode: AcquisitionMode }) {
   const width = 1000;
   const height = 180;
   const inset = 12;
-  const max = Math.max(1, ...rows.map(([, count]) => count));
-  const slot = (width - inset * 2) / Math.max(1, rows.length);
-  const barWidth = Math.max(3, slot * .62);
-  return <div className="mt-6 h-44 w-full" aria-label="Daily page views">
-    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img">
+  const labels = Array.from({ length: range }, (_, index) => localDateKey(new Date(Date.now() - (range - index - 1) * 86_400_000)));
+  const getKey = (view: View) => mode === "source" ? view.utm_source || view.referrer_host || "Direct" : view.utm_campaign;
+  const leaders = countBy(views, getKey).slice(0, 5).map(([label]) => label);
+  const series = leaders.map((label) => ({ label, values: labels.map((date) => views.filter((view) => localDateKey(view.created_at) === date && getKey(view) === label).length) }));
+  const max = Math.max(1, ...series.flatMap((item) => item.values));
+
+  if (!series.length) return <div className="mt-6 grid h-44 place-items-center border border-dashed border-border text-center text-sm text-muted-foreground">No {mode === "source" ? "source" : "campaign"} trend data yet.</div>;
+
+  return <>
+    <div className="mt-6 h-44 w-full" aria-label={`${mode} traffic trend`}><svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img">
       {[0, 1, 2].map((lineIndex) => <line key={lineIndex} x1={inset} x2={width - inset} y1={inset + lineIndex * (height - inset * 2) / 2} y2={inset + lineIndex * (height - inset * 2) / 2} className="stroke-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
-      {rows.map(([date, count], index) => {
-        const barHeight = count ? Math.max(5, count / max * (height - inset * 2)) : 2;
-        return <rect key={date} x={inset + index * slot + (slot - barWidth) / 2} y={height - inset - barHeight} width={barWidth} height={barHeight} className={count ? "fill-accent" : "fill-secondary"}><title>{date} · {count} views</title></rect>;
+      {series.map((item, seriesIndex) => {
+        const points = item.values.map((count, index) => ({ count, x: inset + index / Math.max(1, labels.length - 1) * (width - inset * 2), y: height - inset - count / max * (height - inset * 2) }));
+        return <g key={item.label}><polyline points={points.map(({ x, y }) => `${x},${y}`).join(" ")} fill="none" stroke={SERIES_COLORS[seriesIndex]} strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />{points.filter(({ count }) => count > 0).map(({ count, x, y }, index) => <circle key={index} cx={x} cy={y} r="3" fill={SERIES_COLORS[seriesIndex]} vectorEffect="non-scaling-stroke"><title>{item.label} · {count} views</title></circle>)}</g>;
       })}
-    </svg>
-  </div>;
+    </svg></div>
+    <div className="mt-4 flex flex-wrap gap-2">{series.map((item, index) => <span key={item.label} className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[11px] font-medium"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: SERIES_COLORS[index] }} />{item.label}</span>)}</div>
+  </>;
 }
 
 function HourlyLine({ rows }: { rows: readonly (readonly [number, number])[] }) {
@@ -228,6 +244,11 @@ function DevicePanel({ rows }: { rows: [string, number][] }) {
   const first = rows[0]?.[1] || 0;
   const angle = total ? first / total * 360 : 0;
   return <Panel className="p-5"><h2 className="text-lg font-extrabold">Device mix</h2>{rows.length ? <div className="mt-5 flex items-center gap-6"><div className="relative h-28 w-28 shrink-0 rounded-full" style={{ background: `conic-gradient(hsl(var(--accent)) 0deg ${angle}deg, hsl(var(--ink)) ${angle}deg 360deg)` }}><div className="absolute inset-5 grid place-items-center rounded-full bg-card text-center"><span className="text-lg font-extrabold">{total}</span></div></div><div className="min-w-0 flex-1 space-y-3">{rows.map(([label, value], index) => <div key={label} className="flex items-center justify-between gap-3 text-sm"><span className="flex items-center gap-2 capitalize"><span className={`h-2.5 w-2.5 ${index === 0 ? "bg-accent" : "bg-ink"}`} />{label}</span><strong>{Math.round(value / total * 100)}%</strong></div>)}</div></div> : <p className="py-8 text-sm text-muted-foreground">Device data will appear after the first visit.</p>}</Panel>;
+}
+
+function RankList({ rows, empty }: { rows: [string, number][]; empty: string }) {
+  const total = rows.reduce((sum, [, value]) => sum + value, 0);
+  return <div className="mt-4 divide-y divide-border">{rows.slice(0, 8).map(([label, value], index) => <div key={label} className={`grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-2 py-3 text-sm ${index === 0 ? "text-emerald-700" : ""}`}><strong>{index + 1}</strong><span className="truncate font-medium">{label}</span><strong>{total ? Math.round(value / total * 100) : 0}%</strong></div>)}{!rows.length && <p className="py-10 text-sm text-muted-foreground">{empty}</p>}</div>;
 }
 
 function RankPanel({ title, rows, empty, formatLabel = (label) => label, numbered = false }: { title: string; rows: [string, number][]; empty: string; formatLabel?: (label: string) => string; numbered?: boolean }) {
