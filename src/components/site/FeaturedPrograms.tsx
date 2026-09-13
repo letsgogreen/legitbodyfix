@@ -55,10 +55,10 @@ export function FeaturedPrograms({ programs, loadFailed = false }: { programs: P
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2" aria-label="Filter programs by goal">
-        <span className="mr-2 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Filter by goal</span>
+      <div className="-mx-4 flex snap-x items-center gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" aria-label="Filter programs by goal">
+        <span className="mr-2 shrink-0 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Filter</span>
         {categories.map((category) => (
-          <button key={category} type="button" aria-pressed={category === activeCategory} onClick={() => setActiveCategory(category)} className={`min-h-9 border px-3 text-xs font-bold transition-colors ${category === activeCategory ? "border-foreground bg-foreground text-accent" : "border-border bg-background hover:border-foreground"}`}>
+          <button key={category} type="button" aria-pressed={category === activeCategory} onClick={() => setActiveCategory(category)} className={`min-h-10 shrink-0 snap-start border px-3 text-xs font-bold transition-colors ${category === activeCategory ? "border-foreground bg-foreground text-accent" : "border-border bg-background hover:border-foreground"}`}>
             {category}
           </button>
         ))}
@@ -66,7 +66,7 @@ export function FeaturedPrograms({ programs, loadFailed = false }: { programs: P
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
         {visiblePrograms.map((program, index) => (
-          <article key={program.id} className="group relative isolate flex min-h-[25rem] overflow-hidden bg-neutral-900 p-5 text-white shadow-sm transition duration-200 sm:aspect-square sm:min-h-0">
+          <article key={program.id} className="group relative isolate flex min-h-[21rem] overflow-hidden bg-neutral-900 p-5 text-white shadow-sm transition duration-200 sm:aspect-square sm:min-h-0">
             {program.imageUrl && <img src={program.imageUrl} alt={program.imageAlt ?? ""} loading="lazy" decoding="async" className="absolute inset-0 -z-20 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" />}
             <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/5 via-black/20 to-black/90" />
             <div className="flex w-full flex-col">

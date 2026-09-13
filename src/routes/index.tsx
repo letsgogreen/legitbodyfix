@@ -73,17 +73,17 @@ function PhaseOneHomepage() {
 
       <main>
         <section className="overflow-hidden border-b border-border">
-          <div className="mx-auto grid max-w-[1220px] items-center gap-10 px-6 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
+          <div className="mx-auto grid max-w-[1220px] items-center gap-8 px-4 py-9 sm:px-6 sm:py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
             <div className="min-w-0">
               <p className="inline-block bg-accent px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-accent-foreground">
                 {copy.hero_eyebrow}
               </p>
-              <h1 className="original-hero-title mt-[26px] max-w-[620px] text-[clamp(3.5rem,5.6vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.065em]">
+              <h1 className="original-hero-title mt-5 max-w-[620px] text-[clamp(2.75rem,13vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.06em] sm:mt-[26px]">
                 {heroLines.map((line, index) => (
                   <span key={`${line}-${index}`} className={index >= 2 ? "original-outline block" : "block"}>{line}</span>
                 ))}
               </h1>
-              <p className="mt-6 max-w-[550px] text-lg leading-[1.65] text-muted-foreground">
+              <p className="mt-5 max-w-[550px] text-base leading-7 text-muted-foreground sm:mt-6 sm:text-lg sm:leading-[1.65]">
                 {copy.hero_summary}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -121,7 +121,7 @@ function PhaseOneHomepage() {
           aria-labelledby="choose-path-title"
           className="border-b border-border bg-secondary/30"
         >
-          <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-5 sm:py-12 lg:px-8">
             <h2 id="choose-path-title" className="text-2xl font-extrabold">
               {copy.paths_heading}
             </h2>
@@ -152,7 +152,7 @@ function PhaseOneHomepage() {
                 <a
                   key={path.href}
                   href={path.href}
-                  className="group flex min-w-0 flex-col border border-border bg-card p-6 transition-colors hover:border-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+                  className="group flex min-w-0 flex-col border border-border bg-card p-5 transition-colors hover:border-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 sm:p-6"
                 >
                   <span className="font-mono text-[10px] tracking-widest text-muted-foreground">
                     {path.label}
@@ -170,7 +170,7 @@ function PhaseOneHomepage() {
         </section>
 
         <section id="regions" className="scroll-mt-24 border-b border-border">
-          <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-20 lg:px-8">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
@@ -191,7 +191,7 @@ function PhaseOneHomepage() {
         </section>
 
         <section id="programs" className="scroll-mt-24 border-b border-border bg-secondary/40">
-          <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-20 lg:px-8">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-end">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
@@ -212,7 +212,7 @@ function PhaseOneHomepage() {
         </section>
 
         <section id="method" className="scroll-mt-24 border-b border-border">
-          <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-20 lg:px-8">
             <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
               {copy.method_eyebrow}
             </p>
@@ -226,7 +226,7 @@ function PhaseOneHomepage() {
         </section>
 
         <section className="border-b border-border">
-          <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-20 lg:px-8">
             <div className="max-w-3xl">
               <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
                 {copy.why_eyebrow}
@@ -239,7 +239,7 @@ function PhaseOneHomepage() {
               {differentiators.map(({ icon: Icon, title, description }) => (
                 <article
                   key={title}
-                  className="min-w-0 rounded-sm border border-border bg-card p-7"
+                  className="min-w-0 rounded-sm border border-border bg-card p-5 sm:p-7"
                 >
                   <Icon className="h-5 w-5" aria-hidden="true" />
                   <h3 className="mt-6 text-xl font-bold">{title}</h3>
@@ -253,8 +253,8 @@ function PhaseOneHomepage() {
         </section>
 
         <section className="bg-accent text-accent-foreground">
-          <div className="mx-auto max-w-4xl px-5 py-24 text-center lg:px-8">
-            <h2 className="text-4xl font-extrabold uppercase leading-[0.92] sm:text-6xl">
+          <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-5 sm:py-24 lg:px-8">
+            <h2 className="text-3xl font-extrabold uppercase leading-[0.95] sm:text-6xl">
               {copy.final_heading}
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base text-accent-foreground/75 sm:text-lg">

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 export function SiteFooter() {
   return (
     <footer className="bg-ink text-ink-foreground">
-      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16 lg:px-8">
         <div className="grid gap-10 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div className="min-w-0">
             <p className="text-xl font-extrabold">LegitBodyFix</p>
@@ -50,7 +50,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-14 border-t border-ink-foreground/15 pt-6 text-xs text-ink-foreground/50">
+        <div className="mt-10 border-t border-ink-foreground/15 pt-6 text-xs text-ink-foreground/50 sm:mt-14">
           <p>Educational content only. Not a substitute for medical diagnosis or treatment.</p>
           <nav aria-label="Legal" className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
             <Link to="/terms" className="hover:text-ink-foreground">Terms</Link>

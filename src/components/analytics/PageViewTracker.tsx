@@ -55,37 +55,35 @@ export function PageViewTracker() {
 
   useEffect(() => {
     if (location.pathname.startsWith("/admin") || navigator.webdriver) return;
-
-    let referrerHost: string | null = null;
     try {
-      const referrer = document.referrer ? new URL(document.referrer) : null;
-      if (referrer && referrer.hostname !== window.location.hostname) referrerHost = referrer.hostname;
-    } catch {
-      referrerHost = null;
-    }
+      let referrerHost: string | null = null;
+      try {
+        const referrer = document.referrer ? new URL(document.referrer) : null;
+        if (referrer && referrer.hostname !== window.location.hostname) referrerHost = referrer.hostname;
+      } catch {
+        referrerHost = null;
+      }
 
-    const campaign = getCampaign(location.searchStr);
-    const path = location.pathname.slice(0, 500);
-    void supabase
-      .from("page_views")
-      .insert({
-        session_id: getSessionId(),
-        path,
-        referrer_host: clean(referrerHost, 255),
-        utm_source: campaign.source,
-        utm_medium: campaign.medium,
-        utm_campaign: campaign.campaign,
-        device_type: deviceType(),
-      })
-      .then(({ error }) => {
-        if (!error) return;
-        console.error(JSON.stringify({
-          level: "error",
-          message: "Analytics page-view collection failed",
-          code: error.code,
+      const campaign = getCampaign(location.searchStr);
+      const path = location.pathname.slice(0, 500);
+      void supabase
+        .from("page_views")
+        .insert({
+          session_id: getSessionId(),
           path,
-        }));
-      });
+          referrer_host: clean(referrerHost, 255),
+          utm_source: campaign.source,
+          utm_medium: campaign.medium,
+          utm_campaign: campaign.campaign,
+          device_type: deviceType(),
+        })
+        .then(({ error }) => {
+          if (error) console.warn("Analytics page-view collection was skipped.");
+        })
+        .catch(() => console.warn("Analytics page-view collection was skipped."));
+    } catch {
+      console.warn("Analytics page-view collection is unavailable.");
+    }
   }, [location.pathname, location.searchStr]);
 
   return null;

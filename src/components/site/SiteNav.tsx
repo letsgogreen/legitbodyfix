@@ -84,10 +84,10 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-4 lg:px-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:px-5 sm:py-4 lg:px-8">
         <Link
           to="/"
-          className="min-w-0 truncate rounded-sm text-lg font-extrabold tracking-tight outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="min-w-0 truncate rounded-sm text-base font-extrabold tracking-tight outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-lg"
         >
           LegitBodyFix
         </Link>
@@ -131,7 +131,7 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
           )}
         </nav>
 
-        <div className="flex items-center gap-3 lg:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
         <LibraryNavLink nativeNavigation={nativeNavigation} signedIn={signedIn} compact />
         <button
           type="button"
@@ -147,7 +147,7 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
       </div>
 
       {open && (
-        <div className="border-t border-border bg-background px-5 pb-6 pt-2 lg:hidden">
+        <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-background px-4 pb-5 pt-1 sm:px-5 lg:hidden">
           <nav id="mobile-navigation" className="flex flex-col">
             {links.map((l) => (
               l.href === "/movement-check" ? <Link

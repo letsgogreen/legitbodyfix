@@ -37,15 +37,15 @@ export function BodyRegionGrid({
           Resource totals are temporarily unavailable. You can still explore every body region.
         </p>
       )}
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,0.7fr)]">
-      <ul className="border-t border-border">
+      <div className="grid gap-6 sm:gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,0.7fr)]">
+      <ul className="order-2 border-t border-border lg:order-1">
         {rows.map(({ region, index, active, counts: regionCounts }) => (
           <li key={region.slug} className="border-b border-border">
             {active ? (
               <Link
                 to="/movement-check"
                 search={{ region: region.slug }}
-                className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 bg-ink px-4 py-6 text-left text-ink-foreground transition-colors sm:px-5"
+                className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 bg-ink px-4 py-5 text-left text-ink-foreground transition-colors sm:gap-5 sm:px-5 sm:py-6"
               >
                 <RegionRowContent index={index} region={region} counts={regionCounts} active />
               </Link>
@@ -56,7 +56,7 @@ export function BodyRegionGrid({
                 onFocus={() => setActiveIndex(index)}
                 onClick={() => setActiveIndex(index)}
                 aria-pressed={false}
-                className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-5 bg-background px-4 py-6 text-left transition-colors hover:bg-secondary/60 sm:px-5"
+                className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 bg-background px-4 py-5 text-left transition-colors hover:bg-secondary/60 sm:gap-5 sm:px-5 sm:py-6"
               >
                 <RegionRowContent index={index} region={region} counts={regionCounts} active={false} />
               </button>
@@ -65,10 +65,10 @@ export function BodyRegionGrid({
         ))}
       </ul>
 
-      <aside className="lg:sticky lg:top-28 lg:self-start">
+      <aside className="order-1 lg:order-2 lg:sticky lg:top-28 lg:self-start">
         <div className="overflow-hidden rounded-sm border border-border bg-card">
           <div className="aspect-[4/3] overflow-hidden border-b border-border bg-white">
-            <img src={imageUrl} alt={imageAlt} width={1024} height={768} loading="lazy" className="size-full object-contain p-4" />
+            <img src={imageUrl} alt={imageAlt} width={1024} height={768} loading="lazy" className="size-full object-contain p-3 sm:p-4" />
           </div>
           <div className="p-6">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
@@ -112,7 +112,7 @@ function RegionRowContent({
         {String(index + 1).padStart(2, "0")}
       </span>
       <span className="min-w-0">
-        <span className="block text-2xl font-extrabold uppercase leading-none sm:text-3xl">
+        <span className="block text-xl font-extrabold uppercase leading-none sm:text-3xl">
           {region.title}
         </span>
         <span className={`mt-2 block font-mono text-[10px] uppercase tracking-[0.18em] ${active ? "text-ink-foreground/65" : "text-muted-foreground"}`}>
