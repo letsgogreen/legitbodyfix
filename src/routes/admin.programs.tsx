@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { deleteAdminProgram, getAdminPrograms, getProgramDeleteImpact, saveAdminProgram, setAdminProgramPublished, type AdminProgram } from "@/lib/admin-programs.functions";
 import { getProgramPrice, updateProgramPrice } from "@/lib/paddle.functions";
+import { getAdminProgramSale, removeAdminProgramSale, saveAdminProgramSale } from "@/lib/program-sales-events.functions";
 
 type ProgramRow = AdminProgram;
 type RecipeOption = Pick<
@@ -795,9 +796,54 @@ function PaddlePricePanel({ programId, productId, priceId, onChanged }: { progra
     {!productId && <p className="text-xs text-muted-foreground">No Paddle product yet. Saving a price will create and connect it automatically.</p>}
     <div className="grid grid-cols-[1fr_7rem] gap-3"><Field label="New amount" type="number" value={amount} onChange={setAmount} /><Field label="Currency" value={currency} onChange={(value) => setCurrency(value.toUpperCase())} /></div><Btn variant="ink" disabled={working} onClick={() => void savePrice()}>{working ? "Updating…" : productId ? "Save Paddle price" : "Create Paddle product & price"}</Btn>
     {message && <p className="text-xs text-muted-foreground">{message}</p>}
+    <SaleEventPanel programId={programId} />
   </div>;
 }
 
+function SaleEventPanel({ programId }: { programId: string }) {
+  const [label, setLabel] = useState("Limited-time sale");
+  const [amount, setAmount] = useState("");
+  const [currency, setCurrency] = useState("USD");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
+  const [active, setActive] = useState(true);
+  const [working, setWorking] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    void getAdminProgramSale({ data: { programId } }).then((sale) => {
+      if (!sale) return;
+      setLabel(sale.label); setAmount(String(sale.amountMinor / 100)); setCurrency(sale.currency);
+      setStartsAt(toLocalInput(sale.startsAt)); setEndsAt(toLocalInput(sale.endsAt)); setActive(sale.active);
+    }).catch((error) => setMessage(error instanceof Error ? error.message : "Sale could not be loaded."));
+  }, [programId]);
+
+  const save = async () => {
+    const value = Number(amount);
+    if (!Number.isFinite(value) || value <= 0 || !startsAt || !endsAt) { setMessage("Enter a sale price, start, and end time."); return; }
+    setWorking(true); setMessage(null);
+    try {
+      await saveAdminProgramSale({ data: { programId, label, amount: value, currency, startsAt: new Date(startsAt).toISOString(), endsAt: new Date(endsAt).toISOString(), active } });
+      setMessage("Sale saved. Storefront and PayPal checkout will switch automatically.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Sale could not be saved."); }
+    finally { setWorking(false); }
+  };
+
+  const remove = async () => {
+    setWorking(true); setMessage(null);
+    try { await removeAdminProgramSale({ data: { programId } }); setAmount(""); setStartsAt(""); setEndsAt(""); setMessage("Sale removed. Normal price is active."); }
+    catch (error) { setMessage(error instanceof Error ? error.message : "Sale could not be removed."); }
+    finally { setWorking(false); }
+  };
+
+  return <section className="mt-5 space-y-3 border-t border-border pt-5"><div><Label>Sale event</Label><p className="text-xs text-muted-foreground">Schedule a temporary storefront and PayPal checkout price. Times use your local timezone.</p></div><Field label="Sale label" value={label} onChange={setLabel} /><div className="grid grid-cols-[1fr_7rem] gap-3"><Field label="Sale amount" type="number" value={amount} onChange={setAmount} /><Field label="Currency" value={currency} onChange={(value) => setCurrency(value.toUpperCase())} /></div><div className="grid gap-3 sm:grid-cols-2"><Field label="Starts" type="datetime-local" value={startsAt} onChange={setStartsAt} /><Field label="Ends" type="datetime-local" value={endsAt} onChange={setEndsAt} /></div><label className="flex items-center gap-2 text-sm font-bold"><input type="checkbox" checked={active} onChange={(event) => setActive(event.target.checked)} /> Enable this sale</label><div className="flex flex-wrap gap-2"><Btn variant="ink" disabled={working} onClick={() => void save()}>{working ? "Saving…" : "Save sale event"}</Btn><Btn variant="ghost" disabled={working} onClick={() => void remove()}>Remove sale</Btn></div>{message && <p role="status" className="text-xs text-muted-foreground">{message}</p>}</section>;
+}
+
+function toLocalInput(value: string) {
+  const date = new Date(value);
+  const offset = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
 function Field({
   label,
   value,

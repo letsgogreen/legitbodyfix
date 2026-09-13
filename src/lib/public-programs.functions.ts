@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { fetchPaddlePrices } from "@/lib/paddle.functions";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { readProgramSales } from "@/lib/program-sales-events.functions";
 
 export type PublicProgram = {
   id: string;
@@ -19,6 +20,9 @@ export type PublicProgram = {
   fallbackImageUrl: string | null;
   imageAlt: string | null;
   price: string | null;
+  originalPrice: string | null;
+  saleLabel: string | null;
+  saleEndsAt: string | null;
   paddlePriceId: string | null;
 };
 
@@ -77,6 +81,9 @@ export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async
   const prices = await fetchPaddlePrices(
     rows.map((row) => row.paddle_price_id).filter((id): id is string => Boolean(id)),
   );
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const sales = await readProgramSales(supabaseAdmin, rows.map((row) => row.id), true);
+  const salesByProgram = new Map(sales.map((sale) => [sale.programId, sale]));
   return rows.map((row) => ({
     id: row.id,
     slug: row.slug,
@@ -91,7 +98,10 @@ export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async
     imageUrl: row.image_url || lessonThumbnailByProgram.get(row.id) || null,
     fallbackImageUrl: lessonThumbnailByProgram.get(row.id) || null,
     imageAlt: row.image_alt || (lessonThumbnailByProgram.has(row.id) ? `${row.name} session thumbnail` : null),
-    price: row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
+    price: salesByProgram.has(row.id) ? formatMinor(salesByProgram.get(row.id)!.amountMinor, salesByProgram.get(row.id)!.currency) : row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
+    originalPrice: salesByProgram.has(row.id) && row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
+    saleLabel: salesByProgram.get(row.id)?.label ?? null,
+    saleEndsAt: salesByProgram.get(row.id)?.endsAt ?? null,
     paddlePriceId: row.paddle_price_id,
   }));
 });
@@ -133,6 +143,7 @@ async function loadProgramDetail(
     ]);
     if (modulesError || lessonsError || coverLessonsError) throw new Error(modulesError?.message || lessonsError?.message || coverLessonsError?.message || "Curriculum could not be loaded.");
     const prices = await fetchPaddlePrices(row.paddle_price_id ? [row.paddle_price_id] : []);
+    const sale = (await readProgramSales(client, [row.id], true))[0];
 
     const publicLessons = (lessons ?? []).map((lesson) => ({
       id: lesson.id,
@@ -160,7 +171,10 @@ async function loadProgramDetail(
       imageUrl: row.image_url || fallbackThumbnail,
       fallbackImageUrl: fallbackThumbnail,
       imageAlt: row.image_alt || (fallbackThumbnail ? `${row.name} session thumbnail` : null),
-      price: row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
+      price: sale ? formatMinor(sale.amountMinor, sale.currency) : row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
+      originalPrice: sale && row.paddle_price_id ? prices[row.paddle_price_id] ?? null : null,
+      saleLabel: sale?.label ?? null,
+      saleEndsAt: sale?.endsAt ?? null,
       paddlePriceId: row.paddle_price_id,
       modules: (modules ?? []).map((module) => ({ id: module.id, title: module.title, position: module.position })),
       lessons: publicLessons,
@@ -187,3 +201,7 @@ export const getAdminProgramPreview = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Administrator access required.");
     return loadProgramDetail(context.supabase as ProgramClient, data.slug, false);
   });
+
+function formatMinor(amountMinor: number, currency: string) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase() }).format(amountMinor / 100);
+}

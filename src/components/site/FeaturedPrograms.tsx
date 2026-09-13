@@ -77,7 +77,7 @@ export function FeaturedPrograms({ programs, loadFailed = false }: { programs: P
               <div className="mt-auto">
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-accent">Program {String(index + 1).padStart(2, "0")}</p>
                 <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight sm:text-[1.65rem]">{program.name}</h3>
-                <p className="mt-3 font-mono text-[11px] text-white/90">{[program.duration, program.format, program.price].filter(Boolean).join(" · ")}</p>
+                {program.saleLabel && <p className="mt-3 inline-block bg-accent px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-[.12em] text-accent-foreground">{program.saleLabel}</p>}<p className="mt-3 font-mono text-[11px] text-white/90">{[program.duration, program.format, program.originalPrice ? `${program.originalPrice} → ${program.price}` : program.price].filter(Boolean).join(" · ")}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]"><span>{categoryOf(program)}</span><a href={programSalesHref(program)} className="border-b border-accent text-accent transition-colors hover:text-white">View program →</a></div>
               </div>
             </div>

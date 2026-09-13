@@ -11,7 +11,11 @@ async function currentPrice(programId: string) {
   if (!program?.published) throw new Error("This program is not available for purchase.");
   const price = prices?.[0];
   if (!price || price.amount_minor <= 0) throw new Error("This program does not have a PayPal price yet.");
-  return { amountMinor: price.amount_minor, currency: price.currency.toUpperCase() };
+  const { readProgramSales } = await import("@/lib/program-sales-events.functions");
+  const sale = (await readProgramSales(supabaseAdmin, [programId], true))[0];
+  return sale
+    ? { amountMinor: sale.amountMinor, currency: sale.currency.toUpperCase() }
+    : { amountMinor: price.amount_minor, currency: price.currency.toUpperCase() };
 }
 
 export const getPayPalClientConfig = createServerFn({ method: "GET" }).handler(async () => {
