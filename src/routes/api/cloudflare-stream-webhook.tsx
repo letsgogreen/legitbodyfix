@@ -29,14 +29,18 @@ export const Route = createFileRoute("/api/cloudflare-stream-webhook")({
         const state = payload.status?.state === "error" ? "error" : payload.readyToStream ? "ready" : "processing";
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         let thumbnailUrl = payload.thumbnail || null;
+        let lessonId: string | null = null;
+        let existingThumbnailUrl: string | null = null;
         if (payload.readyToStream) {
           const { data: lesson } = await supabaseAdmin
             .from("lessons")
-            .select("id")
+            .select("id,thumbnail_url")
             .eq("stream_uid", payload.uid)
             .limit(1)
             .maybeSingle();
           if (lesson) {
+            lessonId = lesson.id;
+            existingThumbnailUrl = lesson.thumbnail_url;
             try {
               const { rehostStreamThumbnail } = await import("@/lib/stream.functions");
               thumbnailUrl = await rehostStreamThumbnail(supabaseAdmin, lesson.id, payload.uid);
@@ -49,9 +53,15 @@ export const Route = createFileRoute("/api/cloudflare-stream-webhook")({
           stream_status: state,
           stream_error: payload.status?.errorReasonText || null,
           stream_thumbnail_url: thumbnailUrl,
+          ...(!existingThumbnailUrl || existingThumbnailUrl.includes(".cloudflarestream.com")
+            ? { thumbnail_url: thumbnailUrl }
+            : {}),
           ...(payload.duration ? { duration_seconds: Math.max(1, Math.round(payload.duration)) } : {}),
         };
-        const { error } = await supabaseAdmin.from("lessons").update(update).eq("stream_uid", payload.uid);
+        const query = supabaseAdmin.from("lessons").update(update);
+        const { error } = lessonId
+          ? await query.eq("id", lessonId)
+          : await query.eq("stream_uid", payload.uid);
         if (error) {
           console.error("Cloudflare Stream webhook update failed:", error.message);
           return new Response("Database update failed", { status: 500 });

@@ -21,6 +21,15 @@ function normalizeCustomerCode(value: string | undefined) {
     .replace(/^customer-/i, "");
 }
 
+function isProtectedStreamThumbnail(url: string | null | undefined) {
+  if (!url) return false;
+  try {
+    return new URL(url).hostname.endsWith(".cloudflarestream.com");
+  } catch {
+    return false;
+  }
+}
+
 function streamConfig() {
   const accountId =
     process.env["CLOUDFLARE_ACCOUNT_ID"] ?? process.env["CLOUDFLARE_STREAM_ACCOUNT_ID"];
@@ -196,6 +205,12 @@ export const attachStreamVideo = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { data: currentLesson, error: lessonError } = await context.supabase
+      .from("lessons")
+      .select("thumbnail_url")
+      .eq("id", data.lessonId)
+      .single();
+    if (lessonError) throw new Error(lessonError.message);
     const video = await cloudflare<{
       uid: string;
       readyToStream?: boolean;
@@ -213,18 +228,21 @@ export const attachStreamVideo = createServerFn({ method: "POST" })
     const thumbnailUrl = video.readyToStream
       ? await rehostStreamThumbnail(context.supabase, data.lessonId, video.uid)
       : null;
+    const replacePrimaryThumbnail =
+      !currentLesson.thumbnail_url || isProtectedStreamThumbnail(currentLesson.thumbnail_url);
     const update = {
       stream_uid: video.uid,
       stream_status: state,
       stream_error: video.status?.errorReasonText || null,
       stream_thumbnail_url: thumbnailUrl,
+      ...(replacePrimaryThumbnail ? { thumbnail_url: thumbnailUrl } : {}),
       ...(video.duration ? { duration_seconds: Math.max(1, Math.round(video.duration)) } : {}),
     };
     const { error } = await context.supabase.from("lessons").update(update).eq("id", data.lessonId);
     if (error) throw new Error(error.message);
     return {
       status: state,
-      thumbnailUrl,
+      thumbnailUrl: replacePrimaryThumbnail ? thumbnailUrl : currentLesson.thumbnail_url,
       durationSeconds: video.duration ? Math.max(1, Math.round(video.duration)) : null,
     };
   });
@@ -359,7 +377,7 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const { data: lesson, error } = await context.supabase
       .from("lessons")
-      .select("stream_uid")
+      .select("stream_uid,thumbnail_url")
       .eq("id", data.lessonId)
       .single();
     if (error || !lesson?.stream_uid)
@@ -376,6 +394,8 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
     const thumbnailUrl = video.readyToStream
       ? await rehostStreamThumbnail(context.supabase, data.lessonId, video.uid)
       : null;
+    const replacePrimaryThumbnail =
+      !lesson.thumbnail_url || isProtectedStreamThumbnail(lesson.thumbnail_url);
     const lessonUpdate: {
       stream_status: string;
       stream_error: string | null;
@@ -385,6 +405,7 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
       stream_status: state,
       stream_error: video.status?.errorReasonText || null,
       stream_thumbnail_url: thumbnailUrl,
+      ...(replacePrimaryThumbnail ? { thumbnail_url: thumbnailUrl } : {}),
     };
     if (video.duration) lessonUpdate.duration_seconds = Math.max(1, Math.round(video.duration));
     const { error: updateError } = await context.supabase
@@ -394,7 +415,7 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
     if (updateError) throw new Error(updateError.message);
     return {
       status: state,
-      thumbnailUrl,
+      thumbnailUrl: replacePrimaryThumbnail ? thumbnailUrl : lesson.thumbnail_url,
       durationSeconds: video.duration ? Math.max(1, Math.round(video.duration)) : null,
     };
   });
