@@ -63,3 +63,45 @@ export const setAdminCustomerAccess = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { programId: data.programId, active: data.active };
   });
+export const grantAdminCustomerAccessByEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => z.object({
+    email: z.string().trim().email(),
+    programId: z.string().uuid(),
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+
+    const email = data.email.trim().toLowerCase();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: customer, error: customerError } = await supabaseAdmin
+      .from("customer_profiles")
+      .select("user_id,email")
+      .ilike("email", email)
+      .maybeSingle();
+    if (customerError) throw new Error(customerError.message);
+    if (!customer) throw new Error("No customer account uses this email. Ask the customer to create an account first.");
+
+    const { data: current, error: readError } = await supabaseAdmin
+      .from("entitlements")
+      .select("id,source")
+      .eq("user_id", customer.user_id)
+      .eq("program_id", data.programId)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+
+    const mutation = current
+      ? supabaseAdmin.from("entitlements").update({ active: true, revoked_at: null, source: current.source || "manual" }).eq("id", current.id)
+      : supabaseAdmin.from("entitlements").insert({
+          user_id: customer.user_id,
+          program_id: data.programId,
+          buyer_email: email,
+          source: "manual",
+          active: true,
+          revoked_at: null,
+        } as never);
+
+    const { error } = await mutation;
+    if (error) throw new Error(error.message);
+    return { userId: customer.user_id, email, programId: data.programId };
+  });

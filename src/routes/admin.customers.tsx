@@ -5,7 +5,7 @@ import { AdminLoadingState, Btn, PageHead, Panel, Tag, Td, Th } from "@/componen
 import { CustomerAccessTabs } from "@/components/admin/CustomerAccessTabs";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { setAdminCustomerAccess } from "@/lib/admin-customers.functions";
+import { grantAdminCustomerAccessByEmail, setAdminCustomerAccess } from "@/lib/admin-customers.functions";
 
 type Profile = Database["public"]["Tables"]["customer_profiles"]["Row"];
 type Entitlement = Database["public"]["Tables"]["entitlements"]["Row"];
@@ -55,6 +55,7 @@ function CustomersView() {
       <PageHead title="Customers & access" meta={loading ? "Loading account totals" : `${profiles.length} real accounts · ${entitlements.filter((item) => item.active).length} active program grants`} />
       <CustomerAccessTabs current="customers" />
       {error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
+      <DirectAccessGrant programs={programs} disabled={loading || Boolean(error)} onChanged={load} />
       <div className="relative mt-5 max-w-md"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input disabled={loading || Boolean(error)} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name or email" className="w-full rounded-sm border border-border bg-card py-2 pl-9 pr-3 text-sm disabled:cursor-wait disabled:opacity-50" /></div>
       {loading ? <div className="mt-4"><AdminLoadingState variant="list" label="Loading customers" /></div> : <Panel className="mt-4 overflow-x-auto">
         {(
@@ -75,6 +76,29 @@ function CustomersView() {
   );
 }
 
+function DirectAccessGrant({ programs, disabled, onChanged }: { programs: Program[]; disabled: boolean; onChanged: () => Promise<void> }) {
+  const [email, setEmail] = useState("");
+  const [programId, setProgramId] = useState("");
+  const [working, setWorking] = useState(false);
+  const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
+
+  const grant = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setWorking(true);
+    setMessage(null);
+    try {
+      await grantAdminCustomerAccessByEmail({ data: { email, programId } });
+      const program = programs.find((item) => item.id === programId);
+      setMessage({ tone: "success", text: `Access granted to ${email.trim().toLowerCase()} for ${program?.name ?? "the selected program"}.` });
+      await onChanged();
+    } catch (cause) {
+      setMessage({ tone: "error", text: cause instanceof Error ? cause.message : String(cause) });
+    }
+    setWorking(false);
+  };
+
+  return <Panel className="mt-5 p-5"><div className="max-w-3xl"><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Quick access grant</p><h2 className="mt-1 text-lg font-extrabold">Grant a program by email</h2><p className="mt-1 text-sm text-muted-foreground">Enter the email used for the customer account, then choose one program.</p><form onSubmit={(event) => void grant(event)} className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"><label className="grid gap-1.5 text-xs font-bold">Customer email<input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="customer@example.com" disabled={disabled || working} className="rounded-sm border border-border bg-background px-3 py-2.5 text-sm font-normal" /></label><label className="grid gap-1.5 text-xs font-bold">Program<select required value={programId} onChange={(event) => setProgramId(event.target.value)} disabled={disabled || working} className="rounded-sm border border-border bg-background px-3 py-2.5 text-sm font-normal"><option value="">Select a program</option>{programs.map((program) => <option key={program.id} value={program.id}>{program.name}</option>)}</select></label><Btn variant="ink" type="submit" disabled={disabled || working || !email.trim() || !programId} className="self-end">{working ? "Granting…" : "Grant access"}</Btn></form>{message && <p role="status" className={`mt-3 border px-3 py-2 text-sm ${message.tone === "success" ? "border-lime-400 bg-lime-50 text-ink" : "border-destructive/40 bg-destructive/5 text-destructive"}`}>{message.text}</p>}</div></Panel>;
+}
 function AccessDrawer({ profile, programs, entitlements, onClose, onChanged }: { profile: Profile; programs: Program[]; entitlements: Entitlement[]; onClose: () => void; onChanged: () => Promise<void> }) {
   const [working, setWorking] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
