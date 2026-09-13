@@ -61,14 +61,20 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
   useEffect(() => {
     let active = true;
     let changed = false;
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      changed = true;
-      if (active) setUser(session?.user ?? null);
-    });
-    void supabase.auth.getUser().then(({ data }) => {
-      if (active && !changed) setUser(data.user);
-    }).catch(() => {});
-    return () => { active = false; data.subscription.unsubscribe(); };
+    let unsubscribe = () => {};
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        changed = true;
+        if (active) setUser(session?.user ?? null);
+      });
+      unsubscribe = () => data.subscription.unsubscribe();
+      void supabase.auth.getUser().then(({ data }) => {
+        if (active && !changed) setUser(data.user);
+      }).catch(() => {});
+    } catch {
+      setUser(null);
+    }
+    return () => { active = false; unsubscribe(); };
   }, []);
 
   async function signOut() {
