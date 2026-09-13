@@ -110,9 +110,6 @@ function AdminSignIn() {
       body="Send a secure, one-time sign-in link to the approved administrator email. The link returns directly to this control room."
       action={
         <div className="mt-6 grid gap-3">
-          <p className="rounded-sm border border-border bg-secondary/50 px-3 py-2 font-mono text-xs text-muted-foreground">
-            {ADMIN_EMAIL}
-          </p>
           <button
             type="button"
             onClick={() => void requestSignInLink()}
