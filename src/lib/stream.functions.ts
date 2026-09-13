@@ -431,6 +431,77 @@ export const getAdminSalesPreviewIframe = createServerFn({ method: "POST" })
     return { iframeUrl: await getPublicSalesPreviewIframe(data.streamUid) };
   });
 
+const previewCaptionInput = z.object({
+  streamUid: z.string().regex(/^[a-f0-9]{32}$/),
+  language: captionLanguage,
+});
+
+export const listSalesPreviewCaptions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => z.object({ streamUid: z.string().regex(/^[a-f0-9]{32}$/) }).parse(input))
+  .handler(async ({ data, context }): Promise<StreamCaption[]> => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const captions = await cloudflare<
+      Array<{ language?: string; label?: string; status?: string; generated?: boolean }>
+    >(`/${data.streamUid}/captions`);
+    return captions
+      .filter(
+        (item): item is { language: "en" | "ko"; label?: string; status?: string; generated?: boolean } =>
+          item.language === "en" || item.language === "ko",
+      )
+      .map((item) => ({
+        language: item.language,
+        label: item.label || (item.language === "ko" ? "한국어" : "English"),
+        status: item.status || "ready",
+        generated: item.generated === true,
+      }));
+  });
+
+export const generateSalesPreviewCaptions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => previewCaptionInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const video = await cloudflare<{ readyToStream?: boolean }>(`/${data.streamUid}`);
+    if (!video.readyToStream) throw new Error("Wait until the preview is ready.");
+    await cloudflare<Record<string, unknown>>(
+      `/${data.streamUid}/captions/${data.language}/generate`,
+      { method: "POST" },
+    );
+    return { language: data.language, status: "inprogress" };
+  });
+
+export const uploadSalesPreviewCaptions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) =>
+    previewCaptionInput
+      .extend({ fileName: z.string().min(1).max(200), content: z.string().min(6).max(1_000_000) })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    if (!data.content.trimStart().startsWith("WEBVTT"))
+      throw new Error("Caption file must be valid WebVTT and begin with WEBVTT.");
+    const form = new FormData();
+    form.append("file", new Blob([data.content], { type: "text/vtt" }), data.fileName);
+    await cloudflareMultipart<Record<string, unknown>>(
+      `/${data.streamUid}/captions/${data.language}`,
+      form,
+    );
+    return { language: data.language, status: "ready" };
+  });
+
+export const deleteSalesPreviewCaptions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => previewCaptionInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    await cloudflare<string>(`/${data.streamUid}/captions/${data.language}`, {
+      method: "DELETE",
+    });
+    return { language: data.language };
+  });
+
 export const refreshStreamVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) => z.object({ lessonId: z.string().uuid() }).parse(input))

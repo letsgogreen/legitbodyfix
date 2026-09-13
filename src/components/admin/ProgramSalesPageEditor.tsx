@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ExternalLink, Loader2, Save, Upload } from "lucide-react";
 import { Btn, PageHead } from "@/components/admin/AdminUI";
 import {
@@ -7,8 +7,13 @@ import {
 } from "@/lib/program-sales.functions";
 import {
   createSalesPreviewTusUpload,
+  deleteSalesPreviewCaptions,
+  generateSalesPreviewCaptions,
   getAdminSalesPreviewIframe,
+  listSalesPreviewCaptions,
   refreshSalesPreviewVideo,
+  uploadSalesPreviewCaptions,
+  type StreamCaption,
 } from "@/lib/stream.functions";
 
 type Step = { phase: string; title: string; description: string };
@@ -106,6 +111,8 @@ export function ProgramSalesPageEditor() {
     [processingProgress, setProcessingProgress] = useState(0),
     [message, setMessage] = useState("");
   const [previewIframeUrl, setPreviewIframeUrl] = useState("");
+  const [previewCaptions, setPreviewCaptions] = useState<StreamCaption[]>([]);
+  const [captionBusy, setCaptionBusy] = useState<"en" | "ko" | null>(null);
   useEffect(() => {
     void Promise.all([
       fetch("/assets/data/videos.json", { cache: "no-store" }).then((r) => r.json()),
@@ -153,6 +160,20 @@ export function ProgramSalesPageEditor() {
     const timer = window.setInterval(() => void refreshPreview(uid, true), 4000);
     return () => window.clearInterval(timer);
   }, [draft?.previewStreamStatus, draft?.previewStreamUid, videoId]);
+  const refreshCaptions = useCallback(async () => {
+    if (draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
+    try {
+      setPreviewCaptions(
+        await listSalesPreviewCaptions({ data: { streamUid: draft.previewStreamUid } }),
+      );
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : String(e));
+    }
+  }, [draft?.previewStreamStatus, draft?.previewStreamUid]);
+  useEffect(() => {
+    setPreviewCaptions([]);
+    void refreshCaptions();
+  }, [refreshCaptions]);
   const set = (key: keyof SalesDraft, value: string) =>
     setDraft((d) => (d ? { ...d, [key]: value } : d));
   const setStep = (i: number, key: keyof Step, value: string) =>
@@ -226,6 +247,59 @@ export function ProgramSalesPageEditor() {
       setMessage(e instanceof Error ? e.message : String(e));
     } finally {
       setUploading(false);
+    }
+  }
+  async function generateCaptions(language: "en" | "ko") {
+    if (!draft?.previewStreamUid) return;
+    setCaptionBusy(language);
+    setMessage("");
+    try {
+      await generateSalesPreviewCaptions({
+        data: { streamUid: draft.previewStreamUid, language },
+      });
+      await refreshCaptions();
+      setMessage("Caption generation started. Refresh shortly to check its status.");
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCaptionBusy(null);
+    }
+  }
+  async function uploadCaptions(language: "en" | "ko", file: File) {
+    if (!draft?.previewStreamUid) return;
+    setCaptionBusy(language);
+    setMessage("");
+    try {
+      await uploadSalesPreviewCaptions({
+        data: {
+          streamUid: draft.previewStreamUid,
+          language,
+          fileName: file.name,
+          content: await file.text(),
+        },
+      });
+      await refreshCaptions();
+      setMessage("Preview captions uploaded.");
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCaptionBusy(null);
+    }
+  }
+  async function removeCaptions(language: "en" | "ko") {
+    if (!draft?.previewStreamUid) return;
+    setCaptionBusy(language);
+    setMessage("");
+    try {
+      await deleteSalesPreviewCaptions({
+        data: { streamUid: draft.previewStreamUid, language },
+      });
+      await refreshCaptions();
+      setMessage("Preview captions removed.");
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCaptionBusy(null);
     }
   }
   if (loading)
@@ -422,6 +496,74 @@ export function ProgramSalesPageEditor() {
                 </div>
               )}
             </div>
+            {draft.previewStreamStatus === "ready" && draft.previewStreamUid && (
+              <div className="border-t border-border pt-5 lg:col-span-2">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold">Preview captions</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Generate captions for spoken audio, or upload a reviewed WebVTT translation.
+                    </p>
+                  </div>
+                  <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
+                    Refresh captions
+                  </Btn>
+                </div>
+                <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                  {(["en", "ko"] as const).map((language) => {
+                    const caption = previewCaptions.find((item) => item.language === language);
+                    const name = language === "ko" ? "한국어" : "English";
+                    return (
+                      <div
+                        key={language}
+                        className="flex flex-wrap items-center justify-between gap-3 border border-border bg-background p-3"
+                      >
+                        <div>
+                          <span className="text-xs font-bold">{name}</span>
+                          <span className="ml-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                            {caption
+                              ? `${caption.status}${caption.generated ? " · AI" : " · uploaded"}`
+                              : "not added"}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Btn
+                            disabled={captionBusy !== null || Boolean(caption)}
+                            onClick={() => void generateCaptions(language)}
+                          >
+                            {captionBusy === language ? "Working…" : `Generate from ${name} audio`}
+                          </Btn>
+                          <label
+                            className={`inline-flex cursor-pointer items-center border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "pointer-events-none opacity-50" : ""}`}
+                          >
+                            Upload WebVTT
+                            <input
+                              className="sr-only"
+                              type="file"
+                              accept=".vtt,text/vtt"
+                              disabled={captionBusy !== null}
+                              onChange={(event) => {
+                                const file = event.target.files?.[0];
+                                if (file) void uploadCaptions(language, file);
+                                event.currentTarget.value = "";
+                              }}
+                            />
+                          </label>
+                          {caption && (
+                            <Btn
+                              disabled={captionBusy !== null}
+                              onClick={() => void removeCaptions(language)}
+                            >
+                              Remove
+                            </Btn>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </section>
           <section className="p-6 lg:p-10">
             <Field label="Why this session">
