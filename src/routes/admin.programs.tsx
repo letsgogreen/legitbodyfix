@@ -293,7 +293,6 @@ function csv(value: string) {
 function programReadiness(program: ProgramRow) {
   const missing: string[] = [];
   if (!program.image_url && !program.fallback_image_url) missing.push("cover");
-  if (program.image_url && !program.image_alt) missing.push("alt");
   if (!(program as ProgramRow & { paddle_price_id?: string | null }).paddle_price_id) {
     missing.push("price");
   }
@@ -424,8 +423,8 @@ function ProgramDrawer({
         ready: Boolean(draft.outcome.trim() && draft.who_its_for.trim()),
       },
       {
-        label: "Cover image and alt text",
-        ready: Boolean(effectiveCover && (!draft.image_url.trim() || draft.image_alt.trim())),
+        label: "Cover image",
+        ready: Boolean(effectiveCover),
       },
       {
         label: "Paddle price connected",
