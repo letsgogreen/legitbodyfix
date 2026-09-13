@@ -100,6 +100,34 @@ async function cloudflareMultipart<T>(path: string, body: FormData): Promise<T> 
   return payload.result;
 }
 
+export async function rehostStreamThumbnail(
+  storageClient: { storage: any },
+  lessonId: string,
+  streamUid: string,
+) {
+  const { customerCode } = streamConfig();
+  if (!customerCode) throw new Error("Cloudflare Stream customer code is not configured.");
+
+  const signed = await cloudflare<{ token: string }>(`/${streamUid}/token`, { method: "POST" });
+  const response = await fetch(
+    `https://customer-${customerCode}.cloudflarestream.com/${signed.token}/thumbnails/thumbnail.jpg`,
+  );
+  if (!response.ok) throw new Error(`Could not download the Stream thumbnail (${response.status}).`);
+
+  const bytes = await response.arrayBuffer();
+  if (!bytes.byteLength) throw new Error("Cloudflare returned an empty Stream thumbnail.");
+  const path = `stream-thumbnails/${lessonId}.jpg`;
+  const { error } = await storageClient.storage.from("lesson-images").upload(path, bytes, {
+    cacheControl: "300",
+    contentType: response.headers.get("content-type") || "image/jpeg",
+    upsert: true,
+  });
+  if (error) throw new Error(error.message);
+
+  const { data } = storageClient.storage.from("lesson-images").getPublicUrl(path);
+  return `${data.publicUrl}?v=${Date.now()}`;
+}
+
 function isAdmin(claims: unknown) {
   const adminClaims = claims as { email?: string; app_metadata?: { is_admin?: boolean } };
   return (
@@ -182,18 +210,21 @@ export const attachStreamVideo = createServerFn({ method: "POST" })
       );
     const state =
       video.status?.state === "error" ? "error" : video.readyToStream ? "ready" : "processing";
+    const thumbnailUrl = video.readyToStream
+      ? await rehostStreamThumbnail(context.supabase, data.lessonId, video.uid)
+      : null;
     const update = {
       stream_uid: video.uid,
       stream_status: state,
       stream_error: video.status?.errorReasonText || null,
-      stream_thumbnail_url: video.thumbnail || null,
+      stream_thumbnail_url: thumbnailUrl,
       ...(video.duration ? { duration_seconds: Math.max(1, Math.round(video.duration)) } : {}),
     };
     const { error } = await context.supabase.from("lessons").update(update).eq("id", data.lessonId);
     if (error) throw new Error(error.message);
     return {
       status: state,
-      thumbnailUrl: video.thumbnail ?? null,
+      thumbnailUrl,
       durationSeconds: video.duration ? Math.max(1, Math.round(video.duration)) : null,
     };
   });
@@ -342,6 +373,9 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
     }>(`/${lesson.stream_uid}`);
     const state =
       video.status?.state === "error" ? "error" : video.readyToStream ? "ready" : "processing";
+    const thumbnailUrl = video.readyToStream
+      ? await rehostStreamThumbnail(context.supabase, data.lessonId, video.uid)
+      : null;
     const lessonUpdate: {
       stream_status: string;
       stream_error: string | null;
@@ -350,7 +384,7 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
     } = {
       stream_status: state,
       stream_error: video.status?.errorReasonText || null,
-      stream_thumbnail_url: video.thumbnail || null,
+      stream_thumbnail_url: thumbnailUrl,
     };
     if (video.duration) lessonUpdate.duration_seconds = Math.max(1, Math.round(video.duration));
     const { error: updateError } = await context.supabase
@@ -360,7 +394,7 @@ export const refreshStreamVideo = createServerFn({ method: "POST" })
     if (updateError) throw new Error(updateError.message);
     return {
       status: state,
-      thumbnailUrl: video.thumbnail ?? null,
+      thumbnailUrl,
       durationSeconds: video.duration ? Math.max(1, Math.round(video.duration)) : null,
     };
   });
@@ -390,9 +424,12 @@ export const setStreamThumbnailFrame = createServerFn({ method: "POST" })
       method: "POST",
       body: JSON.stringify({ thumbnailTimestampPct }),
     });
-    const video = await cloudflare<{ thumbnail?: string }>(`/${lesson.stream_uid}`);
-    const thumbnailUrl =
-      video.thumbnail ?? lesson.stream_thumbnail_url ?? lesson.thumbnail_url ?? null;
+    await cloudflare<{ thumbnail?: string }>(`/${lesson.stream_uid}`);
+    const thumbnailUrl = await rehostStreamThumbnail(
+      context.supabase,
+      data.lessonId,
+      lesson.stream_uid,
+    );
     const { error: updateError } = await context.supabase
       .from("lessons")
       .update({

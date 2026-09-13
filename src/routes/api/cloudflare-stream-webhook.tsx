@@ -27,13 +27,30 @@ export const Route = createFileRoute("/api/cloudflare-stream-webhook")({
         if (!payload.uid) return new Response("Missing video UID", { status: 400 });
 
         const state = payload.status?.state === "error" ? "error" : payload.readyToStream ? "ready" : "processing";
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        let thumbnailUrl = payload.thumbnail || null;
+        if (payload.readyToStream) {
+          const { data: lesson } = await supabaseAdmin
+            .from("lessons")
+            .select("id")
+            .eq("stream_uid", payload.uid)
+            .limit(1)
+            .maybeSingle();
+          if (lesson) {
+            try {
+              const { rehostStreamThumbnail } = await import("@/lib/stream.functions");
+              thumbnailUrl = await rehostStreamThumbnail(supabaseAdmin, lesson.id, payload.uid);
+            } catch (cause) {
+              console.error("Cloudflare Stream thumbnail rehosting failed:", cause);
+            }
+          }
+        }
         const update = {
           stream_status: state,
           stream_error: payload.status?.errorReasonText || null,
-          stream_thumbnail_url: payload.thumbnail || null,
+          stream_thumbnail_url: thumbnailUrl,
           ...(payload.duration ? { duration_seconds: Math.max(1, Math.round(payload.duration)) } : {}),
         };
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { error } = await supabaseAdmin.from("lessons").update(update).eq("stream_uid", payload.uid);
         if (error) {
           console.error("Cloudflare Stream webhook update failed:", error.message);
