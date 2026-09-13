@@ -1,0 +1,12 @@
+import { type FormEvent, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { AuthCard, authButtonClass, authInputClass } from "@/components/auth/AuthCard";
+import { supabase } from "@/integrations/supabase/client";
+
+export const Route = createFileRoute("/reset-password")({ head: () => ({ meta: [{ title: "Choose new password — LegitBodyFix" }, { name: "robots", content: "noindex, nofollow" }] }), component: ResetPasswordPage });
+
+function ResetPasswordPage() {
+  const [password, setPassword] = useState(""); const [confirm, setConfirm] = useState(""); const [busy, setBusy] = useState(false); const [message, setMessage] = useState(""); const [complete, setComplete] = useState(false);
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (password.length < 8) return setMessage("Use at least 8 characters."); if (password !== confirm) return setMessage("Passwords do not match."); setBusy(true); const { error } = await supabase.auth.updateUser({ password }); setBusy(false); if (error) setMessage("This reset link is invalid or has expired. Request a new one."); else setComplete(true); }
+  return <AuthCard eyebrow="Account recovery" title="Choose a new password" body="Create a password with at least 8 characters.">{complete ? <Link to="/library" className={authButtonClass + " inline-flex items-center justify-center"}>Open my library</Link> : <form onSubmit={submit} className="grid gap-4"><label className="grid gap-2 font-mono text-[10px] uppercase tracking-[0.14em]">New password<input className={authInputClass} type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label><label className="grid gap-2 font-mono text-[10px] uppercase tracking-[0.14em]">Confirm password<input className={authInputClass} type="password" required minLength={8} autoComplete="new-password" value={confirm} onChange={(event) => setConfirm(event.target.value)} /></label><button className={authButtonClass} disabled={busy}>{busy ? "Saving…" : "Save new password"}</button></form>}{message && <p role="alert" className="mt-4 text-sm text-destructive">{message}</p>}<p className="mt-7 border-t border-border pt-5 text-center text-sm"><Link to="/forgot-password" className="font-bold underline underline-offset-4">Request another link</Link></p></AuthCard>;
+}

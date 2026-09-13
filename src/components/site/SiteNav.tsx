@@ -24,13 +24,14 @@ function LibraryNavLink({
   compact?: boolean;
 }) {
   const baseClass = `inline-flex min-h-11 items-center font-bold underline-offset-4 ${compact ? "text-xs" : "text-sm"}`;
-  const label = signedIn ? "My library" : "Sign in / Join";
+  const label = signedIn ? "My library" : "Log in";
+  const destination = signedIn ? "/library" : "/login";
 
   if (nativeNavigation) {
     const active = typeof window !== "undefined" && window.location.pathname.startsWith("/library");
     return (
       <a
-        href="/library"
+        href={destination}
         aria-current={active ? "page" : undefined}
         className={`${baseClass} ${active ? "underline" : ""}`}
       >
@@ -41,7 +42,8 @@ function LibraryNavLink({
 
   return (
     <RouterLink
-      to="/library"
+      to={destination}
+      search={signedIn ? {} : { next: "/library" }}
       activeProps={{ className: "underline", "aria-current": "page" }}
       className={baseClass}
     >
