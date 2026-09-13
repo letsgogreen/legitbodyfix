@@ -142,6 +142,7 @@ export function ProgramSalesPageEditor() {
   useEffect(() => {
     if (draft?.previewStreamStatus !== "processing" || !draft.previewStreamUid) return;
     const uid = draft.previewStreamUid;
+    void refreshPreview(uid, true);
     const timer = window.setInterval(() => void refreshPreview(uid, true), 4000);
     return () => window.clearInterval(timer);
   }, [draft?.previewStreamStatus, draft?.previewStreamUid, videoId]);
@@ -169,26 +170,34 @@ export function ProgramSalesPageEditor() {
   }
   async function refreshPreview(uid = draft?.previewStreamUid, quiet = false) {
     if (!draft || !uid) return;
-    const r = await refreshSalesPreviewVideo({ data: { videoId, streamUid: uid } });
-    setProcessingProgress(r.progress);
-    setDraft((d) =>
-      d
-        ? {
-            ...d,
-            previewStreamUid: uid,
-            previewStreamStatus: r.status,
-            previewThumbnailUrl: r.thumbnailUrl,
-          }
-        : d,
-    );
-    if (!quiet || r.status === "ready")
-      setMessage(
-        r.status === "ready"
-          ? "Preview video is ready. Publish changes to show it on the sales page."
-          : r.status === "error"
-            ? r.error || "Cloudflare could not process this video."
-            : "Cloudflare is processing the preview.",
+    try {
+      const r = await refreshSalesPreviewVideo({ data: { videoId, streamUid: uid } });
+      setProcessingProgress(r.progress);
+      setDraft((d) =>
+        d
+          ? {
+              ...d,
+              previewStreamUid: uid,
+              previewStreamStatus: r.status,
+              previewThumbnailUrl: r.thumbnailUrl,
+            }
+          : d,
       );
+      if (!quiet || r.status === "ready" || r.status === "error")
+        setMessage(
+          r.status === "ready"
+            ? "Preview video is ready. Publish changes to show it on the sales page."
+            : r.status === "error"
+              ? r.error || "Cloudflare could not process this video."
+              : "Cloudflare is processing the preview.",
+        );
+    } catch (e) {
+      setMessage(
+        e instanceof Error
+          ? `Could not refresh Cloudflare status: ${e.message}`
+          : "Could not refresh Cloudflare status. Try again.",
+      );
+    }
   }
   async function uploadPreview(file: File) {
     if (!draft) return;
@@ -322,7 +331,7 @@ export function ProgramSalesPageEditor() {
                 </label>
                 {draft.previewStreamUid && draft.previewStreamStatus !== "ready" && (
                   <Btn disabled={uploading} onClick={() => void refreshPreview()}>
-                    Check processing
+                    Refresh status
                   </Btn>
                 )}
               </div>
@@ -330,6 +339,36 @@ export function ProgramSalesPageEditor() {
                 {draft.previewStreamStatus.replace("_", " ")}
                 {draft.previewStreamUid ? ` · ${draft.previewStreamUid}` : ""}
               </p>
+              {(uploading || draft.previewStreamStatus === "processing") && (
+                <div className="mt-4 max-w-md">
+                  <div className="flex items-center justify-between gap-4 text-xs font-bold">
+                    <span>{uploading ? "Uploading preview" : "Cloudflare processing"}</span>
+                    <span className="font-mono">
+                      {uploading ? uploadProgress : processingProgress}%
+                    </span>
+                  </div>
+                  <div
+                    className="mt-2 h-2 overflow-hidden bg-secondary"
+                    role="progressbar"
+                    aria-label={uploading ? "Preview upload progress" : "Video processing progress"}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={uploading ? uploadProgress : processingProgress}
+                  >
+                    <div
+                      className="h-full bg-accent transition-[width] duration-500"
+                      style={{
+                        width: `${uploading ? uploadProgress : Math.max(processingProgress, 3)}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {uploading
+                      ? "Keep this page open until the upload reaches 100%."
+                      : "Status refreshes automatically every 4 seconds. You may leave this page."}
+                  </p>
+                </div>
+              )}
               {draft.previewStreamStatus === "ready" && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   The player on the right uses the same secure Stream playback as the live sales
@@ -338,7 +377,7 @@ export function ProgramSalesPageEditor() {
               )}
             </div>
             <div className="aspect-video overflow-hidden border border-border bg-secondary">
-              {previewIframeUrl ? (
+              {draft.previewStreamStatus === "ready" && previewIframeUrl ? (
                 <iframe
                   key={previewIframeUrl}
                   className="h-full w-full border-0"
@@ -347,18 +386,28 @@ export function ProgramSalesPageEditor() {
                   allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
                   allowFullScreen
                 />
-              ) : draft.previewThumbnailUrl ? (
+              ) : draft.previewStreamStatus === "processing" ? (
                 <div className="relative h-full">
-                  <img
-                    className="h-full w-full object-cover"
-                    src={draft.previewThumbnailUrl}
-                    alt="Sales preview thumbnail"
-                  />
+                  {draft.previewThumbnailUrl && (
+                    <img
+                      className="h-full w-full object-cover"
+                      src={draft.previewThumbnailUrl}
+                      alt="Sales preview thumbnail"
+                    />
+                  )}
                   <div className="absolute inset-0 grid place-items-center bg-ink/25">
                     <span className="bg-ink px-3 py-2 text-xs font-bold text-ink-foreground">
-                      Loading secure player…
+                      Cloudflare is processing · {processingProgress}%
                     </span>
                   </div>
+                </div>
+              ) : draft.previewStreamStatus === "error" ? (
+                <div className="grid h-full place-items-center px-6 text-center text-sm text-destructive">
+                  Video processing failed. Replace the video or refresh its status.
+                </div>
+              ) : draft.previewStreamStatus === "ready" ? (
+                <div className="grid h-full place-items-center text-sm text-muted-foreground">
+                  Loading secure player…
                 </div>
               ) : (
                 <div className="grid h-full place-items-center text-sm text-muted-foreground">
@@ -367,36 +416,6 @@ export function ProgramSalesPageEditor() {
               )}
             </div>
           </section>
-          {(uploading || draft.previewStreamStatus === "processing") && (
-            <div className="border-b border-border px-6 py-4 lg:px-10">
-              <div className="flex items-center justify-between gap-4 text-xs font-bold">
-                <span>{uploading ? "Uploading preview" : "Preparing secure playback"}</span>
-                <span className="font-mono">
-                  {uploading ? uploadProgress : processingProgress}%
-                </span>
-              </div>
-              <div
-                className="mt-2 h-2 overflow-hidden bg-secondary"
-                role="progressbar"
-                aria-label={uploading ? "Preview upload progress" : "Video processing progress"}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={uploading ? uploadProgress : processingProgress}
-              >
-                <div
-                  className="h-full bg-accent transition-[width] duration-500"
-                  style={{
-                    width: `${uploading ? uploadProgress : Math.max(processingProgress, 3)}%`,
-                  }}
-                />
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">
-                {uploading
-                  ? "Keep this page open until the upload reaches 100%."
-                  : "You can leave this page. Status refreshes automatically every 4 seconds."}
-              </p>
-            </div>
-          )}
           <section className="p-6 lg:p-10">
             <Field label="Why this session">
               <input
