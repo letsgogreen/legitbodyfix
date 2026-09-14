@@ -66,9 +66,11 @@ export function PageViewTracker() {
 
       const campaign = getCampaign(location.searchStr);
       const path = location.pathname.slice(0, 500);
-      void supabase
-        .from("page_views")
-        .insert({
+      void fetch("/api/analytics/page-view", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        keepalive: true,
+        body: JSON.stringify({
           session_id: getSessionId(),
           path,
           referrer_host: clean(referrerHost, 255),
@@ -76,9 +78,10 @@ export function PageViewTracker() {
           utm_medium: campaign.medium,
           utm_campaign: campaign.campaign,
           device_type: deviceType(),
-        })
-        .then(({ error }) => {
-          if (error) console.warn("Analytics page-view collection was skipped.");
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) console.warn("Analytics page-view collection was skipped.");
         })
         .catch(() => console.warn("Analytics page-view collection was skipped."));
     } catch {

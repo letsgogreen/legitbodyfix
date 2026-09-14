@@ -18,6 +18,8 @@ type RecentSession = {
   deviceType: string;
   source: string;
   campaign: string | null;
+  countryCode: string | null;
+  regionCode: string | null;
 };
 
 export const Route = createFileRoute("/admin/analytics")({
@@ -65,6 +67,8 @@ function groupRecentSessions(views: View[]): RecentSession[] {
       deviceType: entry.device_type,
       source: entry.utm_source || entry.referrer_host || "Direct",
       campaign: entry.utm_campaign,
+      countryCode: entry.country_code,
+      regionCode: entry.region_code,
     };
   }).sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
 }
@@ -81,12 +85,17 @@ function AnalyticsPage() {
     setLoading(true);
     setError(null);
     const since = new Date(Date.now() - range * 2 * 86_400_000).toISOString();
-    const { data, error: queryError } = await supabase
+    let result = await supabase
       .from("page_views")
-      .select("id,created_at,session_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type")
+      .select("id,created_at,session_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type,country_code,region_code")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(10000);
+    if (result.error) {
+      const fallback = await supabase.from("page_views").select("id,created_at,session_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type").gte("created_at", since).order("created_at", { ascending: false }).limit(10000);
+      result = { data: (fallback.data || []).map((view) => ({ ...view, country_code: null, region_code: null })), error: fallback.error };
+    }
+    const { data, error: queryError } = result;
     if (queryError) setError(queryError.message);
     else setRawViews(data || []);
     setLoading(false);
@@ -211,14 +220,26 @@ function AnalyticsPage() {
 
         <Panel className="mt-4 overflow-hidden">
           <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between"><div><h2 className="text-lg font-extrabold">Recent sessions</h2><p className="mt-1 text-xs text-muted-foreground">Each browser session appears once, even when it views several pages.</p></div><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest first · {timeZone}</span></div>
-          <div className="divide-y divide-border">{recentSessions.slice(0, 15).map((session) => <div key={session.sessionId} className="grid gap-2 px-5 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center sm:gap-5"><div className="min-w-0"><p className="truncate font-bold">{session.entryPath === "/" ? "Homepage" : session.entryPath}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">{session.source}{session.campaign ? " · " + session.campaign : ""} · Entry page</p></div><span className="text-xs font-bold text-muted-foreground">{session.pageViews} {session.pageViews === 1 ? "page" : "pages"}</span><Tag tone="muted">{session.deviceType}</Tag><time dateTime={session.lastSeenAt} title={"Started " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.startedAt))} className="font-mono text-[11px] text-muted-foreground sm:text-right">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.lastSeenAt))}</time></div>)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
+          <div className="divide-y divide-border">{recentSessions.slice(0, 15).map((session) => <div key={session.sessionId} className="grid gap-2 px-5 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] sm:items-center sm:gap-5"><div className="min-w-0"><p className="truncate font-bold">{session.entryPath === "/" ? "Homepage" : session.entryPath}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">{session.source}{session.campaign ? " · " + session.campaign : ""} · Entry page</p></div><span className="text-xs font-bold text-muted-foreground">{session.pageViews} {session.pageViews === 1 ? "page" : "pages"}</span><span className="whitespace-nowrap text-xs text-muted-foreground">{formatLocation(session.countryCode, session.regionCode)}</span><Tag tone="muted">{session.deviceType}</Tag><time dateTime={session.lastSeenAt} title={"Started " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.startedAt))} className="font-mono text-[11px] text-muted-foreground sm:text-right">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.lastSeenAt))}</time></div>)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
         </Panel>
-        <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Privacy note: analytics stores a random per-tab session ID, page path, device category, referrer domain, and UTM tags. It does not store IP addresses, names, email addresses, precise location, or full referrer URLs. Administrator pages and automated browser checks are excluded.</p>
+        <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Privacy note: analytics stores a random per-tab session ID, page path, device category, referrer domain, UTM tags, and coarse country/region codes. It does not store IP addresses, names, email addresses, city-level or precise location, or full referrer URLs. Administrator pages and automated browser checks are excluded.</p>
       </>}
     </div>
   );
 }
 
+const KOREA_REGIONS: Record<string, string> = {
+  "11": "Seoul", "26": "Busan", "27": "Daegu", "28": "Incheon", "29": "Gwangju", "30": "Daejeon", "31": "Ulsan", "36": "Sejong",
+  "41": "Gyeonggi", "42": "Gangwon", "43": "North Chungcheong", "44": "South Chungcheong", "45": "North Jeolla", "46": "South Jeolla", "47": "North Gyeongsang", "48": "South Gyeongsang", "49": "Jeju",
+};
+
+function formatLocation(countryCode: string | null, regionCode: string | null) {
+  if (!countryCode) return "Location unknown";
+  let country = countryCode;
+  try { country = new Intl.DisplayNames(["en"], { type: "region" }).of(countryCode) || countryCode; } catch { /* use the code */ }
+  const region = countryCode === "KR" && regionCode ? KOREA_REGIONS[regionCode] || regionCode : regionCode;
+  return region ? country + " · " + region : country;
+}
 function Delta({ value }: { value: number | null }) {
   if (value === null) return <span className="text-[10px] text-muted-foreground">New</span>;
   const positive = value > 0;

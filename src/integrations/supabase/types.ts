@@ -16,10 +16,12 @@ export type Database = {
     Tables: {
       page_views: {
         Row: {
+          country_code: string | null
           created_at: string
           device_type: string
           id: string
           path: string
+          region_code: string | null
           referrer_host: string | null
           session_id: string
           utm_campaign: string | null
@@ -27,10 +29,12 @@ export type Database = {
           utm_source: string | null
         }
         Insert: {
+          country_code?: string | null
           created_at?: string
           device_type?: string
           id?: string
           path: string
+          region_code?: string | null
           referrer_host?: string | null
           session_id: string
           utm_campaign?: string | null
@@ -38,10 +42,12 @@ export type Database = {
           utm_source?: string | null
         }
         Update: {
+          country_code?: string | null
           created_at?: string
           device_type?: string
           id?: string
           path?: string
+          region_code?: string | null
           referrer_host?: string | null
           session_id?: string
           utm_campaign?: string | null
