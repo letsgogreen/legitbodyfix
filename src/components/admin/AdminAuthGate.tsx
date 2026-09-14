@@ -28,8 +28,14 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
       } else setState("forbidden");
     };
 
-    void client.auth.getUser().then(({ data }) => syncUser(data.user ?? undefined));
-    const { data } = client.auth.onAuthStateChange((_event, session) => syncUser(session?.user));
+    const { data } = client.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) syncUser(session.user);
+      else if (!window.location.hash.includes("access_token")) syncUser();
+    });
+    void client.auth.getSession().then(({ data: sessionData }) => {
+      if (sessionData.session?.user) syncUser(sessionData.session.user);
+      else if (!window.location.hash.includes("access_token")) syncUser();
+    });
 
     return () => data.subscription.unsubscribe();
   }, []);
