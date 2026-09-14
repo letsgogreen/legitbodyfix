@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ExternalLink, Loader2, Save, Upload } from "lucide-react";
 import { Btn, PageHead } from "@/components/admin/AdminUI";
+import { getAdminPrograms } from "@/lib/admin-programs.functions";
 import {
   getAdminProgramSalesPages,
   saveAdminProgramSalesPage,
@@ -42,6 +43,13 @@ type Video = Partial<SalesDraft> & {
   description?: string;
   curriculum?: Step[];
 };
+const SALES_PAGE_ID_BY_PROGRAM_SLUG: Record<string, string> = {
+  "neck-shoulder-reset": "neck-alignment",
+  "ankle-recovery": "ankle-sprain-rehabilitation",
+  "shoulder-movement": "shoulder-movement",
+  "bunion-hallux-valgus-guide": "bunion-hallux-valgus-guide",
+};
+
 const control =
   "min-h-11 w-full border border-border bg-background px-3 py-2 text-sm leading-relaxed text-foreground caret-foreground outline-none placeholder:text-muted-foreground focus:border-ink";
 const textarea = `${control} min-h-24 resize-y`;
@@ -117,9 +125,23 @@ export function ProgramSalesPageEditor() {
     void Promise.all([
       fetch("/assets/data/videos.json", { cache: "no-store" }).then((r) => r.json()),
       getAdminProgramSalesPages(),
+      getAdminPrograms(),
     ])
-      .then(([catalog, saved]) => {
-        const list = (catalog as Video[]).filter((v) => v?.id);
+      .then(([catalog, saved, programs]) => {
+        const catalogById = new Map(
+          (catalog as Video[]).filter((item) => item?.id).map((item) => [item.id, item]),
+        );
+        const list = programs.flatMap((program) => {
+          const salesPageId = SALES_PAGE_ID_BY_PROGRAM_SLUG[program.slug];
+          const base = salesPageId ? catalogById.get(salesPageId) : undefined;
+          if (!salesPageId || !base) return [];
+          return [{
+            ...base,
+            id: salesPageId,
+            title: program.name,
+            description: program.outcome || base.description,
+          }];
+        });
         setVideos(list);
         setRecords(
           Object.fromEntries(saved.map((r) => [r.video_id, r.content as Partial<SalesDraft>])),
