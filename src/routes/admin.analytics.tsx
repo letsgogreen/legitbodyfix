@@ -9,6 +9,17 @@ type View = Database["public"]["Tables"]["page_views"]["Row"];
 type Range = 7 | 30 | 90;
 type AcquisitionMode = "source" | "campaign";
 
+type RecentSession = {
+  sessionId: string;
+  startedAt: string;
+  lastSeenAt: string;
+  entryPath: string;
+  pageViews: number;
+  deviceType: string;
+  source: string;
+  campaign: string | null;
+};
+
 export const Route = createFileRoute("/admin/analytics")({
   head: () => ({ meta: [{ title: "Analytics — LegitBodyFix Admin" }, { name: "robots", content: "noindex" }] }),
   component: AnalyticsPage,
@@ -35,6 +46,27 @@ function localDateKey(value: Date | string) {
 function change(current: number, previous: number) {
   if (!previous) return current ? null : 0;
   return Math.round(((current - previous) / previous) * 100);
+}
+
+function groupRecentSessions(views: View[]): RecentSession[] {
+  const sessions = new Map<string, View[]>();
+  views.forEach((view) => sessions.set(view.session_id, [...(sessions.get(view.session_id) || []), view]));
+
+  return [...sessions.entries()].map(([sessionId, sessionViews]) => {
+    const chronological = [...sessionViews].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    const entry = chronological[0];
+    const latest = chronological.at(-1) || entry;
+    return {
+      sessionId,
+      startedAt: entry.created_at,
+      lastSeenAt: latest.created_at,
+      entryPath: entry.path,
+      pageViews: sessionViews.length,
+      deviceType: entry.device_type,
+      source: entry.utm_source || entry.referrer_host || "Direct",
+      campaign: entry.utm_campaign,
+    };
+  }).sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
 }
 
 function AnalyticsPage() {
@@ -111,6 +143,7 @@ function AnalyticsPage() {
   }, [rawViews, range, showVerification]);
 
   const latestView = report.views[0]?.created_at;
+  const recentSessions = useMemo(() => groupRecentSessions(report.views), [report.views]);
   const collectionActive = latestView ? Date.now() - new Date(latestView).getTime() < 86_400_000 : false;
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const bestHour = report.hourly.reduce((best, item) => item[1] > best[1] ? item : best, report.hourly[0]);
@@ -177,8 +210,8 @@ function AnalyticsPage() {
         </div>
 
         <Panel className="mt-4 overflow-hidden">
-          <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between"><h2 className="text-lg font-extrabold">Recent visits</h2><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest first · {timeZone}</span></div>
-          <div className="divide-y divide-border">{report.views.slice(0, 15).map((view) => <div key={view.id} className="grid gap-2 px-5 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-5"><div className="min-w-0"><p className="truncate font-bold">{view.path === "/" ? "Homepage" : view.path}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">{view.utm_source || view.referrer_host || "Direct"}{view.utm_campaign ? ` · ${view.utm_campaign}` : ""}</p></div><Tag tone="muted">{view.device_type}</Tag><time dateTime={view.created_at} className="font-mono text-[11px] text-muted-foreground sm:text-right">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(view.created_at))}</time></div>)}{!report.views.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
+          <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between"><div><h2 className="text-lg font-extrabold">Recent sessions</h2><p className="mt-1 text-xs text-muted-foreground">Each browser session appears once, even when it views several pages.</p></div><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest first · {timeZone}</span></div>
+          <div className="divide-y divide-border">{recentSessions.slice(0, 15).map((session) => <div key={session.sessionId} className="grid gap-2 px-5 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center sm:gap-5"><div className="min-w-0"><p className="truncate font-bold">{session.entryPath === "/" ? "Homepage" : session.entryPath}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">{session.source}{session.campaign ? " · " + session.campaign : ""} · Entry page</p></div><span className="text-xs font-bold text-muted-foreground">{session.pageViews} {session.pageViews === 1 ? "page" : "pages"}</span><Tag tone="muted">{session.deviceType}</Tag><time dateTime={session.lastSeenAt} title={"Started " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.startedAt))} className="font-mono text-[11px] text-muted-foreground sm:text-right">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.lastSeenAt))}</time></div>)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
         </Panel>
         <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Privacy note: analytics stores a random per-tab session ID, page path, device category, referrer domain, and UTM tags. It does not store IP addresses, names, email addresses, precise location, or full referrer URLs. Administrator pages and automated browser checks are excluded.</p>
       </>}
