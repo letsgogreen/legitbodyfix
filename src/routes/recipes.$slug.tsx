@@ -17,11 +17,11 @@ export const Route = createFileRoute("/recipes/$slug")({
   head: ({ params, loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Recipe not found | LegitBodyFix" }] };
     const ogImage = `https://move-system-landing.lovable.app/og/recipe/${params.slug}.png`;
-    const title = `${loaderData.title} — Movement Guide | LegitBodyFix`;
+    const title = `${loaderData.title} — Corrective Movement Strategy | LegitBodyFix`;
     const description =
       loaderData.summary ??
       loaderData.goal ??
-      `A reviewed movement guide for ${loaderData.title.toLowerCase()}.`;
+      `A reviewed corrective movement strategy for ${loaderData.title.toLowerCase()}.`;
     return {
       meta: [
         { title },
@@ -37,19 +37,19 @@ export const Route = createFileRoute("/recipes/$slug")({
   },
   errorComponent: () => (
     <Shell>
-      <h1 className="text-3xl font-extrabold uppercase">Posture &amp; movement guide unavailable</h1>
+      <h1 className="text-3xl font-extrabold uppercase">Corrective movement strategy unavailable</h1>
       <p className="mt-3 text-muted-foreground">Please reload the page in a moment.</p>
     </Shell>
   ),
   notFoundComponent: () => (
     <Shell>
-      <h1 className="text-3xl font-extrabold uppercase">Posture &amp; movement guide not published</h1>
+      <h1 className="text-3xl font-extrabold uppercase">Corrective movement strategy not published</h1>
       <p className="mt-3 max-w-md text-muted-foreground">
         This content is still in editorial review. Nothing publishes here until its instructions,
         safety context and muscle links have passed review.
       </p>
       <Link to="/" hash="recipes" className="mt-6 inline-flex text-sm font-bold underline">
-        Back to posture &amp; movement
+        Back to corrective movement strategies
       </Link>
     </Shell>
   ),
@@ -143,12 +143,12 @@ function RecipeDetail() {
               hash="recipes"
               className="inline-flex min-h-11 items-center gap-2 text-sm font-bold"
             >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All posture &amp; movement guides
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All corrective movement strategies
             </Link>
 
             <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
               <div className="min-w-0">
-                <Label>Movement guide</Label>
+                <Label>Corrective movement strategy</Label>
                 <h1 className="mt-4 text-[2.6rem] font-extrabold uppercase leading-[0.92] sm:text-5xl">
                   {recipe.title}
                 </h1>

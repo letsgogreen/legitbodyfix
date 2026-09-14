@@ -34,7 +34,7 @@
   var canvasHelp = document.getElementById("siteCanvasHelp");
   var activeSitePage = "home";
   var PAGE_ROUTES = {
-    knowledge: { workspace: "knowledge-base", title: "Edit movement guides", copy: "Manage posture guides, muscle pages, recipes, images, and educational copy in the visual Movement guides workspace.", safety: "Publishing here updates the public knowledge library without changing payment or account access." },
+    knowledge: { workspace: "knowledge-base", title: "Edit corrective movement strategies", copy: "Manage posture guides, muscle pages, recipes, images, and educational copy in the visual Corrective movement strategies workspace.", safety: "Publishing here updates the public knowledge library without changing payment or account access." },
     program: { workspace: "video-library", title: "Edit programs and sales pages", copy: "Choose a session, then edit its public sales copy, thumbnail, pricing presentation, and protected video details.", safety: "Actual charge amounts and protected delivery remain server-controlled." },
     library: { workspace: "buyer-access", title: "Review the customer account", copy: "Preview the sign-in, library, and profile experience. Use Customer access for support actions and access verification.", safety: "Account and purchase history layouts are preview-only to protect authentication and payment records." }
   };
@@ -80,7 +80,7 @@
       ["library.label", "Section label", 80], ["library.titleLines.0", "Title line 1", 40], ["library.titleLines.1", "Title line 2", 40],
       ["library.intro", "Introduction", 320, "textarea"], ["library.linkLabel", "Link label", 40], ["library.linkHref", "Link destination", 500, "link"]
     ]},
-    knowledge: { title: "Movement guides preview", description: "Free education that builds trust and guides visitors toward the most relevant paid program.", fields: [
+    knowledge: { title: "Corrective movement strategies preview", description: "Free education that builds trust and guides visitors toward the most relevant paid program.", fields: [
       ["knowledge.label", "Section label", 80], ["knowledge.titleLines.0", "Title line 1", 40], ["knowledge.titleLines.1", "Title line 2", 40],
       ["knowledge.intro", "Introduction", 320, "textarea"], ["knowledge.linkLabel", "Link label", 40], ["knowledge.linkHref", "Link destination", 500, "link"]
     ]},

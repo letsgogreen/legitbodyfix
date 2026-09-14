@@ -56,10 +56,10 @@
     "linkHref": "#pricing"
   },
   "knowledge": {
-    "label": "Free movement guides",
+    "label": "Free corrective movement strategies",
     "titleLines": ["UNDERSTAND WHY.", "CHOOSE WHAT'S NEXT."],
     "intro": "Learn what may influence a movement pattern, then find the guided program that fits your goal.",
-    "linkLabel": "Browse movement guides",
+    "linkLabel": "Browse corrective movement strategies",
     "linkHref": "knowledge.html"
   },
   "standard": {

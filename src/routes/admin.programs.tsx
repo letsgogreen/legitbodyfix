@@ -441,7 +441,7 @@ function ProgramDrawer({
         ready: lessons.some((lesson) => lesson.preview_free && lesson.stream_status === "ready"),
       },
       { label: "Supporting recipe linked", ready: recipeLinks.length > 0 },
-      { label: "Movement guide linked", ready: guideCount > 0 },
+      { label: "Corrective movement strategy linked", ready: guideCount > 0 },
     ],
     [draft, effectiveCover, guideCount, lessons, recipeLinks.length],
   );
@@ -687,10 +687,10 @@ function ProgramDrawer({
           {draft.id && (
             <div className="border border-border bg-card p-4">
               <div className="flex items-center justify-between gap-3">
-                <div><p className="text-sm font-bold">Related Posture & Movement</p><p className="mt-1 text-xs text-muted-foreground">Choose and order the supporting guidance included with this program.</p></div>
+                <div><p className="text-sm font-bold">Related corrective movement strategies</p><p className="mt-1 text-xs text-muted-foreground">Choose and order the supporting guidance included with this program.</p></div>
                 <Link to="/programs/$programSlug" params={{ programSlug: draft.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex items-center gap-1 text-xs font-bold underline">Sales-page preview <ExternalLink className="h-3 w-3" /></Link>
               </div>
-              <select defaultValue="" onChange={(event) => { if (event.target.value) void addRecipe(event.target.value); event.target.value = ""; }} className="mt-4 w-full rounded-sm border border-border bg-background px-3 py-2 text-xs"><option value="">Add Posture & Movement content…</option>{recipes.filter((recipe) => !recipeLinks.some((link) => link.recipe_id === recipe.id)).map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.title}</option>)}</select>
+              <select defaultValue="" onChange={(event) => { if (event.target.value) void addRecipe(event.target.value); event.target.value = ""; }} className="mt-4 w-full rounded-sm border border-border bg-background px-3 py-2 text-xs"><option value="">Add corrective movement strategy…</option>{recipes.filter((recipe) => !recipeLinks.some((link) => link.recipe_id === recipe.id)).map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.title}</option>)}</select>
               <div className="mt-3 space-y-2">{recipeLinks.map((link, index) => { const recipe = recipes.find((item) => item.id === link.recipe_id); return <div key={link.recipe_id} className="flex items-center gap-2 border border-border px-3 py-2"><span className="min-w-0 flex-1 text-xs font-bold">{recipe?.title ?? link.recipe_id}</span><Tag tone={recipe?.published ? "accent" : "muted"}>{recipe?.published ? "live" : "draft"}</Tag>{!recipe?.image_url && <Tag tone="warn">no image</Tag>}<Btn disabled={index === 0} onClick={() => void moveRecipe(index, -1)}><ArrowUp className="h-3 w-3" /></Btn><Btn disabled={index === recipeLinks.length - 1} onClick={() => void moveRecipe(index, 1)}><ArrowDown className="h-3 w-3" /></Btn><Btn onClick={() => void removeRecipe(link.recipe_id)}><Trash2 className="h-3 w-3" /></Btn></div>; })}{!recipeLinks.length && <p className="py-3 text-center text-xs text-muted-foreground">No supporting content linked yet.</p>}</div>
             </div>
           )}</section>

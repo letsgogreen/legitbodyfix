@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 const sections = [
   ["regions", "/movement-check", "Body regions"],
   ["muscles", "/knowledge.html?type=muscles", "Muscle dictionary"],
-  ["posture", "/recipes", "Posture & movement"],
+  ["posture", "/recipes", "Corrective Movement Strategies"],
   ["conditions", "/conditions", "Conditions"],
 ] as const;
 

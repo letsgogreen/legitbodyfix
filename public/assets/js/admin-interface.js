@@ -23,7 +23,7 @@
     sales: "Sales",
     "buyer-access": "Customer access",
     "video-library": "Programs & videos",
-    "knowledge-base": "Movement guides"
+    "knowledge-base": "Corrective movement strategies"
   };
   var scrollPositions = {};
   var activeWorkspace = "overview";

@@ -63,10 +63,10 @@ export const Route = createFileRoute("/recipes/")({
   loader: () => listPublishedRecipes(),
   head: () => ({
     meta: [
-      { title: "Posture & Movement Recipes | LegitBodyFix" },
+      { title: "Corrective Movement Strategies | LegitBodyFix" },
       {
         name: "description",
-        content: "Explore published posture and movement recipes by body region.",
+        content: "Explore published corrective movement strategies by body region.",
       },
     ],
   }),
@@ -101,7 +101,7 @@ function PostureRecipes() {
           <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end lg:px-8 lg:py-16">
             <div>
               <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Learn · Posture</p>
-              <h1 className="mt-4 max-w-4xl text-4xl font-extrabold uppercase leading-[0.92] sm:text-6xl">Posture &amp; movement recipes</h1>
+              <h1 className="mt-4 max-w-4xl text-4xl font-extrabold uppercase leading-[0.92] sm:text-6xl">Corrective Movement Strategies</h1>
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Practical starting points for posture, mobility, control, and movement preparation. These resources are educational and are not a diagnosis.
               </p>
@@ -109,7 +109,7 @@ function PostureRecipes() {
             <div className="border-l-2 border-accent pl-5">
               <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Library</p>
               <p className="mt-2 text-3xl font-extrabold">{recipes.length}</p>
-              <p className="mt-1 text-sm text-muted-foreground">Published movement guides</p>
+              <p className="mt-1 text-sm text-muted-foreground">Published corrective movement strategies</p>
             </div>
           </div>
         </section>

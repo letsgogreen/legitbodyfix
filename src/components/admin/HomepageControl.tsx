@@ -23,7 +23,7 @@ const sections = [
     path: "/programs",
   },
   {
-    name: "Posture & Movement",
+    name: "Corrective Movement Strategies",
     description: "Posture guidance, corrective exercises, images, dosage, and relationship links.",
     icon: BookOpen,
     path: "/recipes",

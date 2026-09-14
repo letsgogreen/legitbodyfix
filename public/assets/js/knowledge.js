@@ -915,7 +915,7 @@ import { muscleRegion, muscleInRegion, muscleFunctionalRoles, muscleSectionGroup
     if (related) detailContent.appendChild(related);
     directory.hidden = true;
     detail.hidden = false;
-    document.title = (item.title || "Movement Guide") + " — LegitBodyFix";
+    document.title = (item.title || "Corrective Movement Strategy") + " — LegitBodyFix";
     if (shouldUpdateUrl !== false) updateUrl(type, item.id);
     detail.scrollIntoView({ behavior: shouldUpdateUrl === false ? "auto" : "smooth", block: "start" });
   }
@@ -926,7 +926,7 @@ import { muscleRegion, muscleInRegion, muscleFunctionalRoles, muscleSectionGroup
     detail.classList.remove("is-condition-detail");
     detail.hidden = true;
     directory.hidden = false;
-    document.title = "Movement Guides — LegitBodyFix";
+    document.title = "Corrective Movement Strategies — LegitBodyFix";
     if (shouldUpdateUrl !== false) updateUrl();
   }
 
@@ -1685,7 +1685,7 @@ import { muscleRegion, muscleInRegion, muscleFunctionalRoles, muscleSectionGroup
     })
     .catch(function () {
       if (new URLSearchParams(window.location.search).get("type") === "muscles") selectType("muscles");
-      status.textContent = "The movement guides are temporarily unavailable. Please refresh to try again.";
+      status.textContent = "The corrective movement strategies are temporarily unavailable. Please refresh to try again.";
       status.setAttribute("role", "alert");
       grid.setAttribute("aria-busy", "false");
       document.documentElement.removeAttribute("data-muscle-loading");

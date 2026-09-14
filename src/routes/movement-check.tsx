@@ -17,7 +17,7 @@ type MovementCheckSearch = { region?: string };
 
 const learnBrowseLinks = [
   {
-    title: "Posture & movement",
+    title: "Corrective Movement Strategies",
     description: "Practical articles for mobility, control, and movement preparation.",
     to: "/recipes" as const,
     icon: BookOpen,

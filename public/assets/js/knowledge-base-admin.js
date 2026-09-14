@@ -853,7 +853,7 @@
       }
       var badge = document.createElement("span"); badge.className = "muscle-board-badge"; badge.textContent = state.label;
       var copy = document.createElement("span"); copy.className = "muscle-board-copy";
-      var group = document.createElement("small"); group.textContent = record.postureCategory || record.conditionCategory || record.bodyRegion || "Movement guide";
+      var group = document.createElement("small"); group.textContent = record.postureCategory || record.conditionCategory || record.bodyRegion || "Corrective movement strategy";
       var title = document.createElement("strong"); title.textContent = record.title || "Untitled guide";
       copy.appendChild(group); copy.appendChild(title);
       button.appendChild(visual); button.appendChild(badge); button.appendChild(copy);

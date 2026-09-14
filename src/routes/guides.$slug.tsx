@@ -19,9 +19,9 @@ export const Route = createFileRoute("/guides/$slug")({
   },
   head: ({ params, loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Guide not found | LegitBodyFix" }] };
-    const title = `${loaderData.title} — Movement Guide | LegitBodyFix`;
+    const title = `${loaderData.title} — Corrective Movement Strategy | LegitBodyFix`;
     const description = (
-      loaderData.pattern_summary ?? `A movement guide for ${loaderData.title.toLowerCase()}.`
+      loaderData.pattern_summary ?? `A corrective movement strategy for ${loaderData.title.toLowerCase()}.`
     ).slice(0, 155);
     const ogImage = `https://move-system-landing.lovable.app/og/guide/${params.slug}.png`;
     return {
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/guides/$slug")({
     <Shell>
       <h1 className="text-3xl font-extrabold uppercase">Guide not published</h1>
       <p className="mt-3 max-w-md text-muted-foreground">
-        This movement guide is still in editorial review.
+        This corrective movement strategy is still in editorial review.
       </p>
     </Shell>
   ),
@@ -82,7 +82,7 @@ function GuideDetail() {
       <main>
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 pb-14 pt-10 lg:px-8 lg:pb-20 lg:pt-14">
-            <Label>Movement guide</Label>
+            <Label>Corrective movement strategy</Label>
             <h1 className="mt-4 max-w-3xl text-[2.6rem] font-extrabold uppercase leading-[0.92] sm:text-6xl">
               {guide.title}
             </h1>

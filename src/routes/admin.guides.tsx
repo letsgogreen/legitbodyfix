@@ -619,7 +619,7 @@ function GuideEditor() {
               </div>
               <div className="p-6">
                 <p className="font-mono text-[10px] uppercase tracking-[.16em] text-muted-foreground">
-                  Movement guide
+                  Corrective movement strategy
                 </p>
                 <h2 className="mt-3 text-4xl font-extrabold uppercase leading-[.95]">
                   {draft.title || "Untitled guide"}

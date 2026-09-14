@@ -93,7 +93,7 @@ function Dashboard() {
       />
       <section aria-label="Start a task" className="my-6 grid gap-3 md:grid-cols-3">
         <Link to="/admin/recipes" className="border border-border bg-card p-5 transition-colors hover:bg-secondary focus-visible:outline focus-visible:outline-2">
-          <h2 className="text-lg font-bold">Write a movement guide →</h2>
+          <h2 className="text-lg font-bold">Write a corrective movement strategy →</h2>
           <p className="mt-2 text-sm text-muted-foreground">Open your articles and continue editing.</p>
         </Link>
         <Link to="/admin/programs" search={{}} className="border border-border bg-card p-5 transition-colors hover:bg-secondary focus-visible:outline focus-visible:outline-2">
