@@ -3,9 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
 import { AdminLoadingState, Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { CustomerAccessTabs } from "@/components/admin/CustomerAccessTabs";
-import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { grantAdminCustomerAccessByEmail, setAdminCustomerAccess } from "@/lib/admin-customers.functions";
+import { getAdminCustomerAccessData, grantAdminCustomerAccessByEmail, setAdminCustomerAccess } from "@/lib/admin-customers.functions";
 
 type Profile = Database["public"]["Tables"]["customer_profiles"]["Row"];
 type Entitlement = Database["public"]["Tables"]["entitlements"]["Row"];
@@ -27,19 +26,17 @@ function CustomersView() {
 
   const load = async () => {
     setLoading(true);
-    const [profileResult, entitlementResult, programResult] = await Promise.all([
-      supabase.from("customer_profiles").select("*").order("created_at", { ascending: false }),
-      supabase.from("entitlements").select("*").order("granted_at", { ascending: false }),
-      supabase.from("programs").select("*").order("name"),
-    ]);
-    const firstError = profileResult.error ?? entitlementResult.error ?? programResult.error;
-    if (firstError) setError(firstError.message);
-    else {
-      setProfiles(profileResult.data ?? []);
-      setEntitlements(entitlementResult.data ?? []);
-      setPrograms(programResult.data ?? []);
+    setError(null);
+    try {
+      const data = await getAdminCustomerAccessData();
+      setProfiles(data.profiles);
+      setEntitlements(data.entitlements);
+      setPrograms(data.programs);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => { void load(); }, []);

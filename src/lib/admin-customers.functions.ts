@@ -8,6 +8,24 @@ function isAdmin(claims: unknown) {
     adminClaims.email?.trim().toLowerCase() === "thriveinside@protonmail.com";
 }
 
+export const getAdminCustomerAccessData = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [profileResult, entitlementResult, programResult] = await Promise.all([
+      supabaseAdmin.from("customer_profiles").select("*").order("created_at", { ascending: false }),
+      supabaseAdmin.from("entitlements").select("*").order("granted_at", { ascending: false }),
+      supabaseAdmin.from("programs").select("*").order("name"),
+    ]);
+    const error = profileResult.error ?? entitlementResult.error ?? programResult.error;
+    if (error) throw new Error(error.message);
+    return {
+      profiles: profileResult.data ?? [],
+      entitlements: entitlementResult.data ?? [],
+      programs: programResult.data ?? [],
+    };
+  });
 export const setAdminCustomerAccess = createServerFn({ method: "POST" })
   // The bearer token is attached globally in src/start.ts. Registering the
   // client attacher again here can duplicate the Authorization header.
