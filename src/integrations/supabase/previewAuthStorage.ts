@@ -89,24 +89,30 @@ export function brokeredPreviewStorage() {
 
 const PERSISTENCE_KEY = 'legitbodyfix-auth-persistence';
 
+export function setAuthPersistence(remember: boolean) {
+  if (remember) localStorage.setItem(PERSISTENCE_KEY, '1');
+  else localStorage.removeItem(PERSISTENCE_KEY);
+}
+
 function customerSessionStorage(): Storage {
   const requested = new URLSearchParams(window.location.search).get('remember');
   if (requested === '1') localStorage.setItem(PERSISTENCE_KEY, '1');
   if (requested === '0') localStorage.removeItem(PERSISTENCE_KEY);
-  const persistent = requested === '1' || (requested !== '0' && localStorage.getItem(PERSISTENCE_KEY) === '1');
-  const selected = persistent ? localStorage : sessionStorage;
+  const persistent = () => localStorage.getItem(PERSISTENCE_KEY) === '1';
+  const selected = () => persistent() ? localStorage : sessionStorage;
 
   return {
-    get length() { return selected.length; },
-    clear() { selected.clear(); },
-    key(index) { return selected.key(index); },
+    get length() { return selected().length; },
+    clear() { selected().clear(); },
+    key(index) { return selected().key(index); },
     getItem(key) {
-      if (!persistent) localStorage.removeItem(key);
-      return selected.getItem(key);
+      if (!persistent()) localStorage.removeItem(key);
+      return selected().getItem(key);
     },
     setItem(key, value) {
-      selected.setItem(key, value);
-      if (!persistent) localStorage.removeItem(key);
+      selected().setItem(key, value);
+      if (persistent()) sessionStorage.removeItem(key);
+      if (!persistent()) localStorage.removeItem(key);
     },
     removeItem(key) {
       sessionStorage.removeItem(key);
