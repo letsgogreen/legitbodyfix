@@ -51,6 +51,23 @@ function isAdmin(claims: unknown) {
     adminClaims.email?.trim().toLowerCase() === "thriveinside@protonmail.com";
 }
 
+const DASHBOARD_QUERY_TIMEOUT_MS = 6_000;
+
+async function withQueryTimeout<T>(query: PromiseLike<T>, fallback: T, label: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const timedOut = new Promise<T>((resolve) => {
+    timeout = setTimeout(() => {
+      console.error(`[admin-dashboard] ${label} query timed out`);
+      resolve(fallback);
+    }, DASHBOARD_QUERY_TIMEOUT_MS);
+  });
+  try {
+    return await Promise.race([Promise.resolve(query), timedOut]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
 export const getAdminDashboardData = createServerFn({ method: "GET" })
   .middleware([attachSupabaseAuth, requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminDashboardData> => {
@@ -59,16 +76,19 @@ export const getAdminDashboardData = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [programResult, lessonResult, customerResult, orderResult, integrations] =
       await Promise.all([
-        supabaseAdmin
-          .from("programs")
-          .select("*")
-          .order("featured_rank", { ascending: true, nullsFirst: false }),
-        supabaseAdmin.from("lessons").select("*").order("position"),
-        supabaseAdmin
-          .from("customer_profiles")
-          .select("*")
-          .order("created_at", { ascending: false }),
-        supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false }).limit(8),
+        withQueryTimeout(
+          supabaseAdmin.from("programs").select("*").order("featured_rank", { ascending: true, nullsFirst: false }),
+          { data: [] as Program[], error: null }, "programs",
+        ),
+        withQueryTimeout(supabaseAdmin.from("lessons").select("*").order("position"), { data: [] as Lesson[], error: null }, "lessons"),
+        withQueryTimeout(
+          supabaseAdmin.from("customer_profiles").select("*").order("created_at", { ascending: false }),
+          { data: [] as Customer[], error: null }, "customers",
+        ),
+        withQueryTimeout(
+          supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false }).limit(8),
+          { data: [] as Order[], error: null }, "orders",
+        ),
         Promise.resolve(integrationReadiness()),
       ]);
 
