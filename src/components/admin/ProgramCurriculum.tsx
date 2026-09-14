@@ -945,9 +945,9 @@ function LessonDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" role="dialog" aria-modal="true">
-      <div className="flex h-full w-full max-w-xl flex-col border-l border-border bg-background">
-        <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-background" role="dialog" aria-modal="true">
+      <div className="mx-auto flex min-h-full w-full max-w-7xl flex-col bg-background">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-border bg-background px-5 py-4 lg:px-8">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
               {lesson ? "Editing lesson" : "New lesson"}
@@ -965,7 +965,7 @@ function LessonDrawer({
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
+        <div className="mx-auto w-full max-w-5xl flex-1 space-y-4 px-5 py-6 lg:px-8 lg:py-10">
           <Field label="Lesson title" value={title} onChange={setTitle} />
           <Field
             label="URL slug"
@@ -1283,7 +1283,7 @@ function LessonDrawer({
             </p>
           )}
         </div>
-        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
+        <div className="sticky bottom-0 z-10 flex items-center justify-end gap-2 border-t border-border bg-background px-5 py-4 lg:px-8">
           <Btn onClick={onClose}>Cancel</Btn>
           <Btn variant="ink" disabled={saving || uploading} onClick={() => void save()}>
             {saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
