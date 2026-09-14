@@ -34,8 +34,8 @@ function LibraryIndex() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-9 sm:px-5 sm:py-12 lg:px-8 lg:py-20">
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">My programs</p>
-      <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-6xl">Continue where you left off.</h1>
-      <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Every program you own appears here. Choose one to view its modules and secure video lessons.</p>
+      <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-6xl">Your programs</h1>
+      <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Access your programs and follow each session at your own pace.</p>
       {loading && <div className="mt-12 flex items-center gap-3 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" />Loading your programs…</div>}
       {error && <p className="mt-10 border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{error}</p>}
       {!loading && !error && !programs.length && <section className="mt-12 border border-border bg-card p-7"><h2 className="text-2xl font-extrabold">No programs yet</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Purchases linked to this email will appear here automatically. If you recently purchased, contact support with your receipt.</p><Link to="/" hash="programs" className="mt-5 inline-flex items-center gap-2 text-sm font-bold">Browse programs <ArrowRight className="h-4 w-4" /></Link></section>}
