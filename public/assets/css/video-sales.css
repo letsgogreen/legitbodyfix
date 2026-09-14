@@ -496,3 +496,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   .muscle-matter-copy { min-height: 0; }
   .mobile-checkout { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
 }
+
+.anterior-humeral-guide { border-bottom: 1px solid var(--line, #d8d6cf); }
+.anterior-humeral-guide[hidden] { display: none; }
+.anterior-humeral-guide .section-heading { max-width: 860px; }
+.anterior-humeral-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; margin-top: 32px; }
+.anterior-humeral-columns h3 { font-size: 20px; line-height: 1.4; margin: 0 0 16px; }
+.anterior-humeral-columns ul { margin: 0; padding-left: 22px; }
+.anterior-humeral-columns li { padding-left: 4px; margin-bottom: 16px; line-height: 1.8; }
+.anterior-humeral-guide a { text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+@media (max-width: 760px) { .anterior-humeral-columns { grid-template-columns: minmax(0, 1fr); gap: 24px; } }

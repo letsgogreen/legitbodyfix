@@ -296,6 +296,7 @@
   }
 
   function render(video) {
+    document.getElementById("anteriorHumeralGuide").hidden = video.id !== "shoulder-movement";
     var title = text(video.title, "Movement session");
     var hasOwnPrice = isPurchasablePrice(video.price);
     var productId = hasOwnPrice ? video.id : text(video.programId, "neck-shoulder-reset");
