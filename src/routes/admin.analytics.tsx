@@ -20,6 +20,7 @@ type RecentSession = {
   campaign: string | null;
   countryCode: string | null;
   regionCode: string | null;
+  observedDurationSeconds: number | null;
 };
 
 export const Route = createFileRoute("/admin/analytics")({
@@ -69,6 +70,7 @@ function groupRecentSessions(views: View[]): RecentSession[] {
       campaign: entry.utm_campaign,
       countryCode: entry.country_code,
       regionCode: entry.region_code,
+      observedDurationSeconds: sessionViews.length > 1 ? Math.max(0, (Date.parse(latest.created_at) - Date.parse(entry.created_at)) / 1000) : null,
     };
   }).sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
 }
@@ -153,11 +155,14 @@ function AnalyticsPage() {
 
   const latestView = report.views[0]?.created_at;
   const recentSessions = useMemo(() => groupRecentSessions(report.views), [report.views]);
+  const measuredSessions = recentSessions.filter((session) => session.observedDurationSeconds !== null);
+  const averageDuration = measuredSessions.length ? measuredSessions.reduce((sum, session) => sum + (session.observedDurationSeconds ?? 0), 0) / measuredSessions.length : null;
   const collectionActive = latestView ? Date.now() - new Date(latestView).getTime() < 86_400_000 : false;
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const bestHour = report.hourly.reduce((best, item) => item[1] > best[1] ? item : best, report.hourly[0]);
   const topPage = report.pages[0];
   const statCards = [
+    { label: "Avg. estimated duration", value: formatSessionDuration(averageDuration), note: measuredSessions.length + " of " + recentSessions.length + " sessions measurable", delta: undefined },
     { label: "Page views", value: report.views.length.toLocaleString(), note: `Last ${range} days`, delta: report.changes.views },
     { label: "Sessions", value: report.sessions.toLocaleString(), note: "Approximate visits", delta: report.changes.sessions },
     { label: "Pages / session", value: report.sessions ? report.pagesPerSession.toFixed(1) : "—", note: "Browsing depth", delta: report.changes.depth },
@@ -182,7 +187,7 @@ function AnalyticsPage() {
           <p className="text-xs text-muted-foreground">Latest real event: <strong className="text-foreground">{latestView ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(latestView)) : "None"}</strong></p>
         </section>
 
-        <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {statCards.map((stat) => <Panel key={stat.label} className="p-5"><div className="flex items-start justify-between gap-3"><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{stat.label}</p><Delta value={stat.delta} /></div><p className="mt-3 text-4xl font-extrabold tracking-tight">{stat.value}</p><p className="mt-1 text-xs text-muted-foreground">{stat.note}</p></Panel>)}
         </section>
 
@@ -219,8 +224,8 @@ function AnalyticsPage() {
         </div>
 
         <Panel className="mt-4 overflow-hidden">
-          <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between"><div><h2 className="text-lg font-extrabold">Recent sessions</h2><p className="mt-1 text-xs text-muted-foreground">Each browser session appears once, even when it views several pages.</p></div><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest first · {timeZone}</span></div>
-          <div className="divide-y divide-border">{recentSessions.slice(0, 15).map((session) => <div key={session.sessionId} className="grid gap-2 px-5 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] sm:items-center sm:gap-5"><div className="min-w-0"><p className="truncate font-bold">{session.entryPath === "/" ? "Homepage" : session.entryPath}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">{session.source}{session.campaign ? " · " + session.campaign : ""} · Entry page</p></div><span className="text-xs font-bold text-muted-foreground">{session.pageViews} {session.pageViews === 1 ? "page" : "pages"}</span><span className="whitespace-nowrap text-xs text-muted-foreground">{formatLocation(session.countryCode, session.regionCode)}</span><Tag tone="muted">{session.deviceType}</Tag><time dateTime={session.lastSeenAt} title={"Started " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.startedAt))} className="font-mono text-[11px] text-muted-foreground sm:text-right">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.lastSeenAt))}</time></div>)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
+          <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between"><div><h2 className="text-lg font-extrabold">Recent sessions</h2><p className="mt-1 text-xs text-muted-foreground">Each browser session appears once. Duration is estimated from its first to last page view within the selected period. Time on the final page and whether the tab was visible are unknown. Single-page sessions are not measurable and are excluded from the average.</p></div><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest first · {timeZone}</span></div>
+          <div className="divide-y divide-border">{recentSessions.slice(0, 15).map((session) => <div key={session.sessionId} className="grid gap-2 px-5 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] sm:items-center sm:gap-5"><div className="min-w-0"><p className="truncate font-bold">{session.entryPath === "/" ? "Homepage" : session.entryPath}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">{session.source}{session.campaign ? " · " + session.campaign : ""} · Entry page</p></div><span className="text-xs font-bold text-muted-foreground">{session.pageViews} {session.pageViews === 1 ? "page" : "pages"}</span><div className="text-xs text-muted-foreground"><p className="font-bold" title="Estimated time from first to last page view. Time on the final page is not measured.">{formatSessionDuration(session.observedDurationSeconds)}{session.observedDurationSeconds !== null ? " · estimated" : ""}</p><p className="mt-1">{formatLocation(session.countryCode, session.regionCode)}</p></div><Tag tone="muted">{session.deviceType}</Tag><time dateTime={session.lastSeenAt} title={"Started " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.startedAt))} className="font-mono text-[11px] text-muted-foreground sm:text-right">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.lastSeenAt))}</time></div>)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
         </Panel>
         <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Privacy note: analytics stores a random per-tab session ID, page path, device category, referrer domain, UTM tags, and coarse country/region codes. It does not store IP addresses, names, email addresses, city-level or precise location, or full referrer URLs. Administrator pages and automated browser checks are excluded.</p>
       </>}
@@ -240,7 +245,16 @@ function formatLocation(countryCode: string | null, regionCode: string | null) {
   const region = countryCode === "KR" && regionCode ? KOREA_REGIONS[regionCode] || regionCode : regionCode;
   return region ? country + " · " + region : country;
 }
-function Delta({ value }: { value: number | null }) {
+function formatSessionDuration(seconds: number | null) {
+  if (seconds === null) return "Not measurable";
+  const total = Math.floor(seconds);
+  if (total < 1) return "<1s";
+  if (total < 60) return total + "s";
+  if (total < 3600) return Math.floor(total / 60) + "m " + total % 60 + "s";
+  return Math.floor(total / 3600) + "h " + Math.floor(total % 3600 / 60) + "m";
+}
+function Delta({ value }: { value: number | null | undefined }) {
+  if (value === undefined) return null;
   if (value === null) return <span className="text-[10px] text-muted-foreground">New</span>;
   const positive = value > 0;
   const negative = value < 0;
