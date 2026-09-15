@@ -3,7 +3,6 @@ import { ArrowRight, Route as RouteIcon, ScanSearch, Waypoints } from "lucide-re
 import { BodyRegionGrid } from "@/components/site/BodyRegionGrid";
 import { FeaturedPrograms } from "@/components/site/FeaturedPrograms";
 import { HeroBodyMap } from "@/components/site/HeroBodyMap";
-import { HowItWorks } from "@/components/site/HowItWorks";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
 import { getHomepageRegionData } from "@/lib/homepage.functions";
@@ -212,20 +211,6 @@ function PhaseOneHomepage() {
         </section>
 
         <section id="method" className="scroll-mt-24 border-b border-border">
-          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-20 lg:px-8">
-            <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-              {copy.method_eyebrow}
-            </p>
-            <h2 className="mt-4 text-3xl font-extrabold uppercase sm:text-5xl">
-              {copy.method_heading}
-            </h2>
-            <div className="mt-10">
-              <HowItWorks />
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-20 lg:px-8">
             <div className="max-w-3xl">
               <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">

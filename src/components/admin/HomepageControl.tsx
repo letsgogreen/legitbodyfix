@@ -235,10 +235,9 @@ export function HomepageControl({ adminPrefix }: { adminPrefix: AdminPrefix }) {
                   />
                 </div>
               ) : group.title === "Method & positioning" ? (
-                <div className="grid gap-px bg-border md:grid-cols-2">
+                <div className="grid gap-px bg-border">
                   {[
-                    { name: "How it works", eyebrow: "method_eyebrow" as const, heading: "method_heading" as const, number: "01" },
-                    { name: "Why LegitBodyFix", eyebrow: "why_eyebrow" as const, heading: "why_heading" as const, number: "02" },
+                    { name: "Why LegitBodyFix", eyebrow: "why_eyebrow" as const, heading: "why_heading" as const, number: "01" },
                   ].map((item) => (
                     <div key={item.name} className="bg-card p-6 lg:p-8">
                       <div className="flex items-center gap-3">
