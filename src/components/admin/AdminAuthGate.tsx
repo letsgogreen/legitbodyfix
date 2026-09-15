@@ -15,6 +15,9 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>("loading");
 
   useEffect(() => {
+    // Administrator sessions are intentionally limited to this browser session.
+    // Clear any previously selected persistent auth mode before reading a session.
+    setAuthPersistence(false);
     const client = getSupabaseClient();
     if (!client) {
       setState("signed-out");
@@ -86,7 +89,6 @@ function cleanConsumedAuthFragment() {
 function AdminSignIn() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [remember, setRemember] = useState(false);
 
   async function requestSignInLink() {
     const client = getSupabaseClient();
@@ -94,12 +96,12 @@ function AdminSignIn() {
 
     setSubmitting(true);
     setMessage("");
-    setAuthPersistence(remember);
+    setAuthPersistence(false);
     const { error } = await client.auth.signInWithOtp({
       email: ADMIN_EMAIL,
       options: {
         shouldCreateUser: false,
-        emailRedirectTo: window.location.origin + "/admin?remember=" + (remember ? "1" : "0"),
+        emailRedirectTo: window.location.origin + "/admin?remember=0",
       },
     });
     setSubmitting(false);
@@ -117,8 +119,7 @@ function AdminSignIn() {
       body="Send a secure, one-time sign-in link to the approved administrator email. The link returns directly to this control room."
       action={
         <div className="mt-6 grid gap-3">
-          <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} disabled={submitting} className="h-4 w-4 accent-ink" />Remember me on this device</label>
-          <p className="text-xs text-muted-foreground">Keep me signed in after closing the browser. Use on your personal device.</p>
+          <p className="text-xs text-muted-foreground">For security, administrator access ends when you close the browser.</p>
           <button
             type="button"
             onClick={() => void requestSignInLink()}
