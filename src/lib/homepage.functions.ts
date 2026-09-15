@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { bodyRegions } from "@/data/body-regions";
 import { homepageCopyDefaults, normalizeHomepageCopyValue, type HomepageCopy, type HomepageCopyKey } from "@/data/homepage-copy";
+import type { Database } from "@/integrations/supabase/types";
 
 export type HomepageMediaOverride = { image_url: string; image_alt: string };
 export type HomepageRegionCounts = { recipes: number; programs: number };
@@ -19,14 +21,23 @@ function belongsToRegion(regions: string[] | null, slug: string) {
   return (regions ?? []).some((region) => accepted.includes(region));
 }
 
+function publicClient() {
+  const url = process.env["SUPABASE_URL"];
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
+  if (!url || !key) throw new Error("Homepage resource data is not configured.");
+  return createClient<Database>(url, key, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
+}
+
 export const getHomepageRegionData = createServerFn({ method: "GET" }).handler(
   async (): Promise<HomepageRegionData> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = publicClient();
     const [mediaResult, recipeResult, programResult, copyResult] = await Promise.all([
-      supabaseAdmin.from("site_media").select("key,image_url,image_alt").like("key", "body-region:%"),
-      supabaseAdmin.from("recipes").select("regions").eq("published", true),
-      supabaseAdmin.from("programs").select("regions").eq("published", true),
-      supabaseAdmin.from("site_copy").select("key,value"),
+      supabase.from("site_media").select("key,image_url,image_alt").like("key", "body-region:%").abortSignal(AbortSignal.timeout(10000)),
+      supabase.from("recipes").select("regions").eq("published", true).abortSignal(AbortSignal.timeout(10000)),
+      supabase.from("programs").select("regions").eq("published", true).abortSignal(AbortSignal.timeout(10000)),
+      supabase.from("site_copy").select("key,value").abortSignal(AbortSignal.timeout(10000)),
     ]);
 
     const error = mediaResult.error || recipeResult.error || programResult.error;
