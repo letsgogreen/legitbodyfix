@@ -90,8 +90,21 @@ export function brokeredPreviewStorage() {
 const PERSISTENCE_KEY = 'legitbodyfix-auth-persistence';
 
 export function setAuthPersistence(remember: boolean) {
-  if (remember) localStorage.setItem(PERSISTENCE_KEY, '1');
-  else localStorage.removeItem(PERSISTENCE_KEY);
+  if (remember) {
+    localStorage.setItem(PERSISTENCE_KEY, '1');
+    return;
+  }
+
+  // Preserve an active login while moving it out of persistent storage.
+  // Supabase stores the session under an sb-<project>-auth-token key.
+  const authKeys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index))
+    .filter((key): key is string => Boolean(key?.startsWith('sb-') && key.endsWith('-auth-token')));
+  for (const key of authKeys) {
+    const value = localStorage.getItem(key);
+    if (value) sessionStorage.setItem(key, value);
+    localStorage.removeItem(key);
+  }
+  localStorage.removeItem(PERSISTENCE_KEY);
 }
 
 function customerSessionStorage(): Storage {
