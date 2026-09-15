@@ -2,6 +2,7 @@ import { type FormEvent, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AuthCard, authButtonClass, authInputClass } from "@/components/auth/AuthCard";
 import { supabase } from "@/integrations/supabase/client";
+import { isAuthError } from "@supabase/supabase-js";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({ meta: [{ title: "Create account — LegitBodyFix" }, { name: "robots", content: "noindex, nofollow" }] }),
@@ -19,16 +20,22 @@ function SignupPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     if (password.length < 8) return setMessage("Use at least 8 characters for your password.");
     if (password !== confirm) return setMessage("Passwords do not match.");
     if (!accepted) return setMessage("Please agree to the Terms and Privacy Policy.");
     setBusy(true);
     setMessage("");
-    const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${window.location.origin}/library` } });
-    setBusy(false);
-    if (error) return setMessage("We could not create your account. Try logging in or resetting your password.");
-    if (data.session) window.location.assign("/library");
-    else setComplete(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${window.location.origin}/library` } });
+      if (error) throw error;
+      if (data.session) window.location.assign("/library");
+      else setComplete(true);
+    } catch (error) {
+      setMessage(signupErrorMessage(error));
+    } finally {
+      setBusy(false);
+    }
   }
 
   return <AuthCard eyebrow="New customer" title="Create account" body="Use the same email you used at checkout so we can connect your purchased programs.">
@@ -42,4 +49,15 @@ function SignupPage() {
     {message && <p role="alert" className="mt-4 text-sm text-destructive">{message}</p>}
     {!complete && <p className="mt-7 border-t border-border pt-5 text-center text-sm text-muted-foreground">Already have an account? <Link to="/login" search={{ next: "/library" }} className="font-bold text-foreground underline underline-offset-4">Log in</Link></p>}
   </AuthCard>;
+}
+
+function signupErrorMessage(error: unknown): string {
+  if (isAuthError(error)) {
+    const details = [
+      error.code && /^[a-z0-9_]+$/i.test(error.code) ? error.code : null,
+      error.status ? `HTTP ${error.status}` : null,
+    ].filter(Boolean).join(" · ");
+    return `${error.message || "The authentication service could not create your account."}${details ? ` (${details})` : ""}`;
+  }
+  return "Unable to complete signup. Check your connection and try again. If this continues, contact support.";
 }
