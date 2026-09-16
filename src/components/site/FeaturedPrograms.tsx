@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
 import { useCustomerAccess } from "@/lib/useCustomerAccess";
-import { captureProgramPayPalOrder, createProgramPayPalOrder, getPayPalClientConfig } from "@/lib/paypal.functions";
+import { usePaddle } from "@/lib/usePaddle";
 
 const categories = ["All", "Neck & shoulders", "Ankle & foot", "Hips & balance", "Breathing & recovery"] as const;
 type Category = (typeof categories)[number];
@@ -98,68 +98,32 @@ export function CheckoutButton({ program }: { program: PublicProgram }) {
 }
 
 function PurchaseButton({ program }: { program: PublicProgram }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const rendered = useRef(false);
-  const [error, setError] = useState<string | null>(null);
+  const { paddle, loading, error } = usePaddle();
+  const priceId = program.paddlePriceId;
 
-  useEffect(() => {
-    let active = true;
-    async function mountPayPal() {
-      try {
-        const config = await getPayPalClientConfig();
-        await loadPayPalSdk(config.clientId);
-        if (!active || !containerRef.current || rendered.current || !window.paypal) return;
-        rendered.current = true;
-        await window.paypal.Buttons({
-          style: { layout: "vertical", color: "gold", shape: "rect", label: "pay" },
-          createOrder: async () => (await createProgramPayPalOrder({ data: { programId: program.id } })).orderId,
-          onApprove: async ({ orderID }) => {
-            setError(null);
-            await captureProgramPayPalOrder({ data: { orderId: orderID } });
-            window.location.assign("/library?purchase=complete");
-          },
-          onCancel: () => setError("Checkout was cancelled. No payment was taken."),
-          onError: () => setError("PayPal checkout could not be completed. Please try again."),
-        }).render(containerRef.current);
-      } catch (cause) {
-        if (active) setError(cause instanceof Error ? cause.message : "PayPal checkout is unavailable.");
-      }
-    }
-    void mountPayPal();
-    return () => { active = false; };
-  }, [program.id]);
+  const openCheckout = () => {
+    if (!paddle || !priceId) return;
+    paddle.Checkout.open({
+      items: [{ priceId, quantity: 1 }],
+      settings: {
+        displayMode: "overlay",
+        variant: "one-page",
+        theme: "light",
+        successUrl: `${window.location.origin}/checkout/complete`,
+      },
+      customData: { program_id: program.id },
+    });
+  };
 
   return (
     <div>
-      <div ref={containerRef} className="min-h-11" aria-label={`Buy ${program.name} with PayPal`} />
-      {error && <p className="mt-2 text-xs text-red-200">{error}</p>}
+      <button type="button" onClick={openCheckout} disabled={loading || !paddle || !priceId} className="inline-flex min-h-12 w-full items-center justify-center bg-accent px-5 text-sm font-extrabold text-accent-foreground disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/55">
+        {loading ? "Preparing secure checkout…" : priceId ? "Buy with secure checkout" : "Not available for purchase"}
+      </button>
+      {error && <p role="alert" className="mt-2 text-xs text-red-200">{error}</p>}
+      <p className="mt-3 text-[11px] leading-5 text-white/60">
+        One-time purchase processed securely by Paddle. By continuing, you agree to our <Link to="/terms" className="underline underline-offset-2">Terms &amp; Conditions</Link>, <Link to="/refund-policy" className="underline underline-offset-2">Refund Policy</Link>, and <Link to="/privacy" className="underline underline-offset-2">Privacy Policy</Link>.
+      </p>
     </div>
   );
-}
-
-type PayPalButtons = {
-  Buttons: (options: {
-    style: Record<string, string>;
-    createOrder: () => Promise<string>;
-    onApprove: (data: { orderID: string }) => Promise<void>;
-    onCancel: () => void;
-    onError: () => void;
-  }) => { render: (element: HTMLElement) => Promise<void> };
-};
-
-declare global { interface Window { paypal?: PayPalButtons } }
-
-let paypalSdkPromise: Promise<void> | null = null;
-function loadPayPalSdk(clientId: string) {
-  if (window.paypal) return Promise.resolve();
-  if (paypalSdkPromise) return paypalSdkPromise;
-  paypalSdkPromise = new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&components=buttons`;
-    script.async = true;
-    script.onload = () => window.paypal ? resolve() : reject(new Error("PayPal SDK did not initialize."));
-    script.onerror = () => reject(new Error("PayPal SDK could not be loaded."));
-    document.head.appendChild(script);
-  });
-  return paypalSdkPromise;
 }

@@ -6,7 +6,7 @@ export const Route = createFileRoute("/terms")({ component: TermsPage });
 
 function TermsPage() {
   return (
-    <LegalPage eyebrow="Legal" title="Terms of service">
+    <LegalPage eyebrow="Legal" title="Terms & Conditions">
       <section><h2>1. About these terms</h2><p>LegitBodyFix is operated by Song J. These terms govern your use of LegitBodyFix, including our corrective movement strategies, programs, videos, and related digital content. By using the site or purchasing a program, you agree to these terms.</p></section>
       <section><h2>2. Educational content only</h2><p>LegitBodyFix provides general educational movement and exercise information. It does not provide medical diagnosis, treatment, physiotherapy, or emergency care. Stop an activity that causes pain, dizziness, numbness, or other concerning symptoms and seek advice from a qualified healthcare professional when appropriate.</p><p>You are responsible for deciding whether an activity is suitable for you and for using a safe environment and appropriate equipment.</p></section>
       <section><h2>3. Accounts and access</h2><p>You must provide accurate information and keep access links and account credentials secure. A purchase grants you a personal, limited, non-exclusive, non-transferable right to access the purchased content. You may not share, resell, reproduce, scrape, or redistribute it except where applicable law permits.</p></section>
