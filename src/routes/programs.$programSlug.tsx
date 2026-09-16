@@ -13,6 +13,13 @@ export const Route = createFileRoute("/programs/$programSlug")({
   component: ProgramSalesPage,
 });
 
+const SALES_PREVIEW_ID_BY_PROGRAM_SLUG: Record<string, string> = {
+  "neck-shoulder-reset": "neck-alignment",
+  "ankle-recovery": "ankle-sprain-rehabilitation",
+  "shoulder-movement": "shoulder-movement",
+  "bunion-hallux-valgus-guide": "bunion-hallux-valgus-guide",
+};
+
 function ProgramSalesPage() {
   const { programSlug } = Route.useParams();
   const { preview } = Route.useSearch();
@@ -23,8 +30,16 @@ function ProgramSalesPage() {
   useEffect(() => {
     let active = true;
     const request = preview === "admin" ? getAdminProgramPreview : getPublicProgramDetail;
-    void request({ data: { slug: programSlug } })
-      .then((result) => { if (active) setProgram(result); })
+    const salesPreviewId = SALES_PREVIEW_ID_BY_PROGRAM_SLUG[programSlug];
+    const previewRequest = salesPreviewId
+      ? fetch(`/api/public/program-sales/${encodeURIComponent(salesPreviewId)}`, { cache: "no-store" })
+        .then(async (response) => response.ok ? await response.json() as { previewIframeUrl?: string } : null)
+        .catch(() => null)
+      : Promise.resolve(null);
+    void Promise.all([request({ data: { slug: programSlug } }), previewRequest])
+      .then(([result, salesPreview]) => {
+        if (active) setProgram(result ? { ...result, previewIframeUrl: salesPreview?.previewIframeUrl || result.previewIframeUrl } : null);
+      })
       .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : "Program could not be loaded."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
