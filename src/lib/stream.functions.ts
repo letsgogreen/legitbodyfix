@@ -413,6 +413,7 @@ export const refreshSalesPreviewVideo = createServerFn({ method: "POST" })
 
 const SALES_PREVIEW_ALLOWED_ORIGINS = [
   "legitbodyfix.com",
+  "www.legitbodyfix.com",
   "*.legitbodyfix.com",
   "*.vercel.app",
   "localhost",
@@ -426,7 +427,7 @@ function sameOrigins(current: string[] | undefined, expected: string[]) {
 
 export async function getPublicSalesPreviewIframe(streamUid: string) {
   if (!/^[a-f0-9]{32}$/.test(streamUid)) throw new Error("Invalid preview video.");
-  const video = await cloudflare<{ readyToStream?: boolean; allowedOrigins?: string[] }>(
+  const video = await cloudflare<{ readyToStream?: boolean; allowedOrigins?: string[]; preview?: string }>(
     "/" + streamUid,
   );
   if (!video.readyToStream) throw new Error("Preview is not ready.");
@@ -441,9 +442,20 @@ export async function getPublicSalesPreviewIframe(streamUid: string) {
     });
   }
   const { customerCode } = streamConfig();
-  if (!customerCode) throw new Error("Cloudflare Stream customer code is not configured.");
+  let deliveryOrigin = "";
+  if (video.preview) {
+    try {
+      deliveryOrigin = new URL(video.preview).origin;
+    } catch {
+      // Fall back to the configured customer code below.
+    }
+  }
+  if (!deliveryOrigin && customerCode) {
+    deliveryOrigin = "https://customer-" + customerCode + ".cloudflarestream.com";
+  }
+  if (!deliveryOrigin) throw new Error("Cloudflare Stream customer code is not configured.");
   const signed = await cloudflare<{ token: string }>("/" + streamUid + "/token", { method: "POST" });
-  return "https://customer-" + customerCode + ".cloudflarestream.com/" + signed.token + "/iframe?preload=metadata";
+  return deliveryOrigin + "/" + signed.token + "/iframe?preload=metadata";
 }
 
 export const getAdminSalesPreviewIframe = createServerFn({ method: "POST" })
