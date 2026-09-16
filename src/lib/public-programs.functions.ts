@@ -26,6 +26,13 @@ export type PublicProgram = {
   paddlePriceId: string | null;
 };
 
+const SALES_PAGE_ID_BY_PROGRAM_SLUG: Record<string, string> = {
+  "neck-shoulder-reset": "neck-alignment",
+  "ankle-recovery": "ankle-sprain-rehabilitation",
+  "shoulder-movement": "shoulder-movement",
+  "bunion-hallux-valgus-guide": "bunion-hallux-valgus-guide",
+};
+
 type PublicProgramRow = Pick<
   Database["public"]["Tables"]["programs"]["Row"],
   "id" | "slug" | "name" | "outcome" | "format" | "duration_label" | "level" | "regions" | "goals" | "who_its_for" | "image_url" | "image_alt" | "paddle_price_id" | "featured_rank"
@@ -107,6 +114,7 @@ export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async
 });
 
 export type PublicProgramDetail = PublicProgram & {
+  previewIframeUrl: string | null;
   modules: Array<{ id: string; title: string; position: number }>;
   lessons: Array<{ id: string; moduleId: string | null; title: string; summary: string | null; durationSeconds: number | null; previewFree: boolean; thumbnailUrl: string | null; position: number }>;
 };
@@ -144,6 +152,29 @@ async function loadProgramDetail(
     if (modulesError || lessonsError || coverLessonsError) throw new Error(modulesError?.message || lessonsError?.message || coverLessonsError?.message || "Curriculum could not be loaded.");
     const prices = await fetchPaddlePrices(row.paddle_price_id ? [row.paddle_price_id] : []);
     const sale = (await readProgramSales(client, [row.id], true))[0];
+    let previewIframeUrl: string | null = null;
+    const salesPageId = SALES_PAGE_ID_BY_PROGRAM_SLUG[row.slug];
+    if (salesPageId) {
+      const { data: salesPage, error: salesPageError } = await client
+        .from("program_sales_pages")
+        .select("content")
+        .eq("video_id", salesPageId)
+        .maybeSingle();
+      if (salesPageError) {
+        console.error("Program sales preview unavailable:", salesPageError.message);
+      } else {
+        const salesContent = salesPage?.content as Record<string, unknown> | null;
+        const streamUid = salesContent?.["previewStreamUid"];
+        if (salesContent?.["previewStreamStatus"] === "ready" && typeof streamUid === "string" && /^[a-f0-9]{32}$/.test(streamUid)) {
+          try {
+            const { getPublicSalesPreviewIframe } = await import("@/lib/stream.functions");
+            previewIframeUrl = await getPublicSalesPreviewIframe(streamUid);
+          } catch (previewError) {
+            console.error("Program sales preview player unavailable:", previewError);
+          }
+        }
+      }
+    }
 
     const publicLessons = (lessons ?? []).map((lesson) => ({
       id: lesson.id,
@@ -176,6 +207,7 @@ async function loadProgramDetail(
       saleLabel: sale?.label ?? null,
       saleEndsAt: sale?.endsAt ?? null,
       paddlePriceId: row.paddle_price_id,
+      previewIframeUrl,
       modules: (modules ?? []).map((module) => ({ id: module.id, title: module.title, position: module.position })),
       lessons: publicLessons,
     };

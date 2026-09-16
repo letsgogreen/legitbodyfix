@@ -17,14 +17,7 @@ function categoryOf(program: PublicProgram): Exclude<Category, "All"> {
 }
 
 function programSalesHref(program: PublicProgram) {
-  const salesPages: Record<string, string> = {
-    "neck-shoulder-reset": "neck-alignment",
-    "ankle-recovery": "ankle-sprain-rehabilitation",
-    "shoulder-movement": "shoulder-movement",
-    "bunion-hallux-valgus-guide": "bunion-hallux-valgus-guide",
-  };
-  const salesPage = salesPages[program.slug];
-  return salesPage ? `/video.html?id=${salesPage}` : `/programs/${program.slug}`;
+  return `/programs/${encodeURIComponent(program.slug)}`;
 }
 
 export function FeaturedPrograms({ programs, loadFailed = false }: { programs: PublicProgram[]; loadFailed?: boolean }) {

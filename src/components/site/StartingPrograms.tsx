@@ -16,13 +16,6 @@ type StartingProgram = {
   regions: string[] | null;
 };
 
-const salesPages: Record<string, string> = {
-  "neck-shoulder-reset": "neck-alignment",
-  "ankle-recovery": "ankle-sprain-rehabilitation",
-  "shoulder-movement": "shoulder-movement",
-  "bunion-hallux-valgus-guide": "bunion-hallux-valgus-guide",
-};
-
 export function StartingPrograms({ region, title, learnHref: learningDestination }: { region: string; title: string; learnHref?: string }) {
   const [programs, setPrograms] = useState<StartingProgram[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -86,8 +79,8 @@ export function StartingPrograms({ region, title, learnHref: learningDestination
         <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Guided program</p>
         <h2 className="mt-3 text-2xl font-bold">{program.name}</h2>
         {program.outcome && <p className="mt-3 leading-7 text-muted-foreground">{program.outcome}</p>}
-        <p className="mt-4 text-sm text-muted-foreground">{(salesPages[program.slug] ? [program.level] : [program.duration, program.level, program.format]).filter(Boolean).join(" · ")}</p>
-        <a href={salesPages[program.slug] ? `/video.html?id=${salesPages[program.slug]}` : `/programs/${encodeURIComponent(program.slug)}`} className="mt-6 inline-flex min-h-12 items-center gap-3 bg-accent px-6 text-sm font-bold" aria-label={`View ${program.name} details`}>View program details <ArrowRight size={16} /></a>
+        <p className="mt-4 text-sm text-muted-foreground">{[program.duration, program.level, program.format].filter(Boolean).join(" · ")}</p>
+        <a href={`/programs/${encodeURIComponent(program.slug)}`} className="mt-6 inline-flex min-h-12 items-center gap-3 bg-accent px-6 text-sm font-bold" aria-label={`View ${program.name} details`}>View program details <ArrowRight size={16} /></a>
         <p className="mt-3 text-xs text-muted-foreground">Review the content and current price on the program page.</p>
       </div>
     </article>)}
