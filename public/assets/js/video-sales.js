@@ -321,9 +321,14 @@
     setText("benefit3", text(video.landingBenefit3, "Return to the practice whenever you need it."));
     setText("audience", text(video.landingAudience, "For people who want a focused, practical approach to better everyday movement."));
     setText("reassurance", text(video.landingReassurance, "One payment gives you protected access through your personal movement library."));
-    setText("techniqueEyebrow", text(video.techniqueEyebrow, "Why technique matters"));
-    setText("techniqueHeadline", text(video.techniqueHeadline, "Knowing what to do is one thing. Knowing how to make it work in your body is another."));
-    setText("techniqueBody", text(video.techniqueBody, "This session teaches an effective active self-myofascial release (SMR) technique designed to reduce overactivity in targeted muscles. It combines focused pressure on tight areas with controlled movement of the joint and surrounding tissue to help break up adhesions, improve mobility, and prepare your body for the activation and integration work that follows."));
+    var legacyTechniqueHeadline = "Knowing what to do is one thing. Knowing how to make it work in your body is another.";
+    var legacyTechniqueBody = "This session teaches an effective active self-myofascial release (SMR) technique designed to reduce overactivity in targeted muscles. It combines focused pressure on tight areas with controlled movement of the joint and surrounding tissue to help break up adhesions, improve mobility, and prepare your body for the activation and integration work that follows.";
+    var techniqueEyebrow = text(video.techniqueEyebrow, "How the session works");
+    var techniqueHeadline = text(video.techniqueHeadline, "A clear sequence, built for controlled practice.");
+    var techniqueBody = text(video.techniqueBody, "Work through each phase at a comfortable range and pace. The session moves from reducing unnecessary effort to building control, then applying it to coordinated movement. Pause, repeat, or stop whenever the movement does not feel right.");
+    setText("techniqueEyebrow", techniqueEyebrow === "Why technique matters" ? "How the session works" : techniqueEyebrow);
+    setText("techniqueHeadline", techniqueHeadline === legacyTechniqueHeadline ? "A clear sequence, built for controlled practice." : techniqueHeadline);
+    setText("techniqueBody", techniqueBody === legacyTechniqueBody ? "Work through each phase at a comfortable range and pace. The session moves from reducing unnecessary effort to building control, then applying it to coordinated movement. Pause, repeat, or stop whenever the movement does not feel right." : techniqueBody);
     document.getElementById("upperCrossedModel").hidden = video.id !== "neck-alignment";
     document.getElementById("neckRelationshipFigure").hidden = video.id !== "neck-alignment";
     setText("finalHeadline", text(video.finalHeadline, video.id === "neck-alignment"

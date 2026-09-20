@@ -83,11 +83,10 @@ function makeDraft(v: Video, s?: Partial<SalesDraft>): SalesDraft {
     landingReassurance:
       v.landingReassurance ||
       "One payment gives you protected access through your personal movement library.",
-    techniqueEyebrow: "Why technique matters",
-    techniqueHeadline:
-      "Knowing what to do is one thing. Knowing how to make it work in your body is another.",
+    techniqueEyebrow: "How the session works",
+    techniqueHeadline: "A clear sequence, built for controlled practice.",
     techniqueBody:
-      "This session teaches an effective active self-myofascial release (SMR) technique designed to reduce overactivity in targeted muscles. It combines focused pressure on tight areas with controlled movement of the joint and surrounding tissue to help break up adhesions, improve mobility, and prepare your body for the activation and integration work that follows.",
+      "Work through each phase at a comfortable range and pace. The session moves from reducing unnecessary effort to building control, then applying it to coordinated movement. Pause, repeat, or stop whenever the movement does not feel right.",
     curriculum: v.curriculum?.length === 3 ? v.curriculum : fallbackSteps,
     finalHeadline: "Put the method into practice.",
     previewStreamUid: "",
