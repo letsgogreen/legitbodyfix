@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ExternalLink, Loader2, Save, Upload } from "lucide-react";
 import { Btn, PageHead } from "@/components/admin/AdminUI";
+import { CaptionWorkspaceEditor } from "@/components/admin/CaptionWorkspaceEditor";
 import { getAdminPrograms } from "@/lib/admin-programs.functions";
 import {
   getAdminProgramSalesPages,
@@ -157,7 +158,10 @@ export function ProgramSalesPageEditor() {
   useEffect(() => {
     if (video) setDraft(makeDraft(video, records[video.id]));
   }, [video, records]);
-  const loadPreviewPlayer = useCallback(async () => {
+  const loadPreviewPlayer = useCallback(async (
+    language: "en" | "ko" | null = previewCaptionLanguage,
+    startTime?: number,
+  ) => {
     setPreviewIframeUrl("");
     setPreviewPlayerError("");
     if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
@@ -166,7 +170,8 @@ export function ProgramSalesPageEditor() {
       const { iframeUrl } = await getAdminSalesPreviewIframe({
         data: {
           streamUid: draft.previewStreamUid,
-          preferredLanguage: previewCaptionLanguage || undefined,
+          preferredLanguage: language || undefined,
+          startTime,
         },
       });
       setPreviewIframeUrl(iframeUrl);
@@ -608,6 +613,13 @@ export function ProgramSalesPageEditor() {
                     );
                   })}
                 </div>
+                <CaptionWorkspaceEditor
+                  streamUid={draft.previewStreamUid}
+                  onPreview={(language, startTime) => {
+                    setPreviewCaptionLanguage(language);
+                    void loadPreviewPlayer(language, startTime);
+                  }}
+                />
               </div>
             )}
           </section>

@@ -414,6 +414,7 @@ export const refreshSalesPreviewVideo = createServerFn({ method: "POST" })
 export async function getPublicSalesPreviewIframe(
   streamUid: string,
   preferredLanguage?: "en" | "ko",
+  startTime?: number,
 ) {
   if (!/^[a-f0-9]{32}$/.test(streamUid)) throw new Error("Invalid preview video.");
   const video = await cloudflare<{ readyToStream?: boolean; allowedOrigins?: string[]; preview?: string }>(
@@ -464,6 +465,7 @@ export async function getPublicSalesPreviewIframe(
   const playerUrl = new URL(deliveryOrigin + "/" + signed.token + "/iframe");
   playerUrl.searchParams.set("preload", "metadata");
   if (preferredLanguage) playerUrl.searchParams.set("defaultTextTrack", preferredLanguage);
+  if (startTime !== undefined) playerUrl.searchParams.set("startTime", String(startTime));
   return playerUrl.toString();
 }
 
@@ -474,13 +476,18 @@ export const getAdminSalesPreviewIframe = createServerFn({ method: "POST" })
       .object({
         streamUid: z.string().regex(/^[a-f0-9]{32}$/),
         preferredLanguage: captionLanguage.optional(),
+        startTime: z.number().min(0).max(86_400).optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     return {
-      iframeUrl: await getPublicSalesPreviewIframe(data.streamUid, data.preferredLanguage),
+      iframeUrl: await getPublicSalesPreviewIframe(
+        data.streamUid,
+        data.preferredLanguage,
+        data.startTime,
+      ),
     };
   });
 
