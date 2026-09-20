@@ -19,7 +19,7 @@ function AboutPage() {
       <section className="border-b border-border">
         <div className="mx-auto max-w-5xl px-5 py-16 lg:px-8 lg:py-24">
           <p className="font-mono text-xs font-bold uppercase tracking-[.18em] text-muted-foreground">About us</p>
-          <h1 className="mt-5 max-w-4xl text-5xl font-black uppercase leading-[.92] tracking-[-.04em] sm:text-7xl">Movement education with a clear progression.</h1>
+          <h1 className="mt-5 max-w-4xl break-words text-4xl font-black uppercase leading-[.92] tracking-[-.04em] sm:text-7xl">Movement education with a clear progression.</h1>
           <p className="mt-7 max-w-3xl text-lg leading-8 text-muted-foreground">LegitBodyFix turns anatomy, movement patterns, and practical exercise progressions into focused resources you can revisit at your own pace.</p>
         </div>
       </section>
