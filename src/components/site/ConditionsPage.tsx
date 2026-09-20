@@ -61,7 +61,7 @@ export function ConditionsPage({ slug, region }: { slug?: string | undefined; re
         <p className="text-lg leading-8">{selected.summary}</p>
         {selected.content_blocks.length > 0 && <RecipeBlockContent blocks={selected.content_blocks} />}
         {([["Areas involved", selected.joints], ["Common associations", selected.tags], ["Movement screen", selected.screening], ["Often overactive or restricted", selected.tightMuscles], ["Often underactive", selected.weakMuscles]] as const).map(([label, value]) => value ? <section key={label} className="border-t border-border pt-6"><h2 className="text-xl font-bold">{label}</h2><p className="mt-3 whitespace-pre-line leading-7 text-muted-foreground">{value}</p></section> : null)}
-        {selected.sourceUrl?.startsWith("https://") && <a href={selected.sourceUrl} target="_blank" rel="noopener noreferrer" className="block min-h-11 underline">{selected.sourceName || "Source reference"} ↗</a>}
+        {selected.sourceUrl?.startsWith("https://") && <a href={selected.sourceUrl} target="_blank" rel="noopener noreferrer" className="block min-h-11 underline">{selected.sourceName || "Reference"} ↗</a>}
         {selected.relatedVideoIds?.split(",").filter(Boolean).map((id) => <a key={id} className="inline-flex min-h-12 items-center bg-accent px-5 font-bold" href={`/video.html?id=${encodeURIComponent(id.trim())}`}>View related program →</a>)}
       </article> : <p className="mt-8" role="status">This guide is unavailable. <Link to="/conditions" search={{ region: activeRegion?.slug }} className="underline">Browse published guides</Link>.</p> : <>
         <div className="mt-9"><LearnRegionFilter region={activeRegion?.slug} to="/conditions" noun="guides" /></div>

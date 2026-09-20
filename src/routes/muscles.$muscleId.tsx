@@ -71,7 +71,7 @@ function MuscleDetail() {
                 rel="noreferrer"
                 className="font-bold text-foreground underline underline-offset-4"
               >
-                Image source <ExternalLink className="inline h-3 w-3" aria-hidden="true" />
+                Image reference <ExternalLink className="inline h-3 w-3" aria-hidden="true" />
               </a>
             </figcaption>
           </figure>
@@ -94,7 +94,7 @@ function MuscleDetail() {
 
             <div className="mt-8 rounded-sm border border-border bg-secondary p-5">
               <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                Anatomy source
+                Anatomy reference
               </p>
               <p className="mt-2 text-sm leading-relaxed">{muscle.sourceName}</p>
               <a
