@@ -67,6 +67,17 @@ export function CaptionWorkspaceEditor({
 
   const englishCues = useMemo(() => cueRows(workspaces.en?.vtt || ""), [workspaces.en?.vtt]);
   const koreanCues = useMemo(() => cueRows(workspaces.ko?.vtt || ""), [workspaces.ko?.vtt]);
+  const koreanByTiming = useMemo(
+    () => new Map(koreanCues.map((cue) => [cue.timing, cue])),
+    [koreanCues],
+  );
+  const timingsMatch = useMemo(
+    () =>
+      englishCues.length > 0 &&
+      englishCues.length === koreanCues.length &&
+      englishCues.every((cue) => koreanByTiming.has(cue.timing)),
+    [englishCues, koreanCues, koreanByTiming],
+  );
   const update = (language: Language, patch: Partial<CaptionWorkspace>) =>
     setWorkspaces((current) => ({ ...current, [language]: { language, vtt: "WEBVTT\n", status: "draft", updatedAt: "", ...current[language], ...patch } }));
 
@@ -104,6 +115,7 @@ export function CaptionWorkspaceEditor({
         {(["en", "ko"] as const).map((language) => {
           const workspace = workspaces[language];
           const label = language === "en" ? "English source" : "한국어 번역";
+          const koreanTimingBlocked = language === "ko" && englishCues.length > 0 && !timingsMatch;
           return (
             <div key={language} className="border border-border bg-background p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -123,14 +135,20 @@ export function CaptionWorkspaceEditor({
                   />
                   <div className="mt-3 flex flex-wrap gap-2">
                     <ActionButton disabled={Boolean(busy)} onClick={() => void run(`save-${language}`, async () => update(language, await saveCaptionWorkspace({ data: { streamUid, language, vtt: workspace.vtt, status: workspace.status } })))}>Save draft</ActionButton>
-                    <ActionButton disabled={Boolean(busy)} onClick={() => void run(`review-${language}`, async () => update(language, await saveCaptionWorkspace({ data: { streamUid, language, vtt: workspace.vtt, status: "review" } })))}>Mark for review</ActionButton>
-                    <ActionButton disabled={workspace.status !== "review" || Boolean(busy)} className="bg-ink text-ink-foreground" onClick={() => void run(`publish-${language}`, async () => { update(language, await publishCaptionWorkspace({ data: { streamUid, language, vtt: workspace.vtt } })); onPreview(language); setMessage(`${label} published to Cloudflare.`); })}>Publish</ActionButton>
+                    <ActionButton disabled={Boolean(busy) || koreanTimingBlocked} onClick={() => void run(`review-${language}`, async () => update(language, await saveCaptionWorkspace({ data: { streamUid, language, vtt: workspace.vtt, status: "review" } })))}>Mark for review</ActionButton>
+                    <ActionButton disabled={workspace.status !== "review" || Boolean(busy) || koreanTimingBlocked} className="bg-ink text-ink-foreground" onClick={() => void run(`publish-${language}`, async () => { update(language, await publishCaptionWorkspace({ data: { streamUid, language, vtt: workspace.vtt } })); onPreview(language); setMessage(`${label} published to Cloudflare.`); })}>Publish</ActionButton>
                     <ActionButton onClick={() => onPreview(language)}>Preview</ActionButton>
                   </div>
                 </details>
               ) : (
                 <p className="mt-3 text-xs leading-5 text-muted-foreground">
                   Import the ready player caption to begin editing. Nothing is published by importing it.
+                </p>
+              )}
+              {koreanTimingBlocked && (
+                <p className="mt-3 border border-destructive/40 bg-destructive/5 p-3 text-xs leading-5 text-destructive">
+                  Korean cue timings do not match the English source. Review and publishing are
+                  blocked until a translation is created from the English draft.
                 </p>
               )}
             </div>
@@ -153,12 +171,18 @@ export function CaptionWorkspaceEditor({
       {(englishCues.length > 0 || koreanCues.length > 0) && (
         <div className="mt-5 border-t border-border pt-4">
           <h4 className="text-sm font-bold">Cue-by-cue comparison</h4>
+          {englishCues.length > 0 && koreanCues.length > 0 && !timingsMatch && (
+            <p className="mt-3 border border-destructive/40 bg-destructive/5 p-3 text-xs leading-5 text-destructive">
+              Timing mismatch detected. Unmatched Korean cues are not paired with unrelated English
+              cues. Create a new Korean draft from the English source before publishing.
+            </p>
+          )}
           <div className="mt-3 max-h-96 overflow-auto border border-border bg-background">
-            {englishCues.map((cue, index) => (
+            {englishCues.map((cue) => (
               <button key={`${cue.index}-${cue.timing}`} type="button" onClick={() => onPreview(workspaces.ko ? "ko" : "en", cue.seconds)} className="grid w-full gap-3 border-b border-border p-3 text-left last:border-b-0 hover:bg-secondary sm:grid-cols-[120px_1fr_1fr]">
                 <span className="font-mono text-[10px] text-muted-foreground">{cue.timing.split(" --> ")[0]}<br />Play segment</span>
                 <span className="text-xs leading-5">{cue.text}</span>
-                <span className="text-xs leading-5 text-muted-foreground">{koreanCues[index]?.text || "—"}</span>
+                <span className="text-xs leading-5 text-muted-foreground">{koreanByTiming.get(cue.timing)?.text || "No translation at this timing"}</span>
               </button>
             ))}
           </div>
