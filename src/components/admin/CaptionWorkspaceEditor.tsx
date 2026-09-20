@@ -3,10 +3,7 @@ import {
   getCaptionWorkspace,
   importCaptionWorkspace,
   publishCaptionWorkspace,
-  saveCaptionGlossary,
   saveCaptionWorkspace,
-  translateCaptionWorkspace,
-  type CaptionGlossaryEntry,
   type CaptionWorkspace,
 } from "@/lib/caption-workspace.functions";
 
@@ -34,6 +31,10 @@ function downloadVtt(language: Language, vtt: string) {
   URL.revokeObjectURL(url);
 }
 
+async function copyVtt(vtt: string) {
+  await navigator.clipboard.writeText(vtt);
+}
+
 function ActionButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return <button type="button" {...props} className={`border border-border px-3 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-50 ${props.className || ""}`} />;
 }
@@ -46,9 +47,6 @@ export function CaptionWorkspaceEditor({
   onPreview: (language: Language, startTime?: number) => void;
 }) {
   const [workspaces, setWorkspaces] = useState<Partial<Record<Language, CaptionWorkspace>>>({});
-  const [glossary, setGlossary] = useState<CaptionGlossaryEntry[]>([]);
-  const [glossaryText, setGlossaryText] = useState("");
-  const [openAiConfigured, setOpenAiConfigured] = useState(false);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
 
@@ -57,9 +55,6 @@ export function CaptionWorkspaceEditor({
     void getCaptionWorkspace({ data: { streamUid } })
       .then((result) => {
         setWorkspaces(Object.fromEntries(result.workspaces.map((item) => [item.language, item])));
-        setGlossary(result.glossary);
-        setGlossaryText(result.glossary.map((item) => `${item.sourceTerm} = ${item.targetTerm}${item.note ? ` # ${item.note}` : ""}`).join("\n"));
-        setOpenAiConfigured(result.openAiConfigured);
       })
       .catch((error) => setMessage(error instanceof Error ? error.message : String(error)))
       .finally(() => setBusy(""));
@@ -88,25 +83,14 @@ export function CaptionWorkspaceEditor({
     finally { setBusy(""); }
   }
 
-  function parseGlossary() {
-    return glossaryText.split("\n").flatMap((line) => {
-      const [pair, note = ""] = line.split("#", 2);
-      const [sourceTerm, targetTerm] = (pair || "").split("=", 2).map((value) => value.trim());
-      return sourceTerm && targetTerm ? [{ sourceTerm, targetTerm, note: note.trim() }] : [];
-    });
-  }
-
   return (
     <section className="mt-6 border border-border bg-secondary/30 p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[.16em] text-muted-foreground">Caption workspace</p>
-          <h3 className="mt-1 text-lg font-extrabold">Translate, review, then publish</h3>
-          <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">Draft changes stay in the admin workspace. Cloudflare is updated only when you press Publish.</p>
+          <h3 className="mt-1 text-lg font-extrabold">Copy, edit, review, then publish</h3>
+          <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">Copy the source WebVTT for external translation, then paste the reviewed result into the Korean editor. Draft changes stay here until you press Publish.</p>
         </div>
-        <span className={`border px-3 py-2 font-mono text-[10px] uppercase ${openAiConfigured ? "border-accent text-foreground" : "border-destructive/40 text-destructive"}`}>
-          OpenAI {openAiConfigured ? "connected" : "key required"}
-        </span>
       </div>
 
       {message && <p className="mt-4 border border-border bg-background p-3 text-xs">{message}</p>}
@@ -122,6 +106,7 @@ export function CaptionWorkspaceEditor({
                 <div><strong className="text-sm">{label}</strong><span className="ml-2 font-mono text-[10px] uppercase text-muted-foreground">{workspace?.status || "not imported"}</span></div>
                 <div className="flex flex-wrap gap-2">
                   <ActionButton disabled={Boolean(busy)} onClick={() => void run(`import-${language}`, async () => update(language, await importCaptionWorkspace({ data: { streamUid, language } })))}>Import from player</ActionButton>
+                  {workspace && <ActionButton onClick={() => void run(`copy-${language}`, async () => { await copyVtt(workspace.vtt); setMessage(`${label} copied to the clipboard.`); })}>Copy VTT</ActionButton>}
                   {workspace && <ActionButton onClick={() => downloadVtt(language, workspace.vtt)}>Download VTT</ActionButton>}
                 </div>
               </div>
@@ -148,7 +133,8 @@ export function CaptionWorkspaceEditor({
               {koreanTimingBlocked && (
                 <p className="mt-3 border border-destructive/40 bg-destructive/5 p-3 text-xs leading-5 text-destructive">
                   Korean cue timings do not match the English source. Review and publishing are
-                  blocked until a translation is created from the English draft.
+                  blocked. Copy the English VTT, translate only the cue text while preserving its
+                  timestamps, then paste the result into the Korean editor.
                 </p>
               )}
             </div>
@@ -156,25 +142,13 @@ export function CaptionWorkspaceEditor({
         })}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <ActionButton disabled={!workspaces.en || !openAiConfigured || Boolean(busy)} className="bg-accent text-accent-foreground" onClick={() => void run("translate", async () => update("ko", await translateCaptionWorkspace({ data: { streamUid, englishVtt: workspaces.en!.vtt } })))}>Translate English draft to Korean</ActionButton>
-        <span className="self-center text-xs text-muted-foreground">Translation creates a draft and never publishes automatically.</span>
-      </div>
-
-      <details className="mt-5 border-t border-border pt-4">
-        <summary className="cursor-pointer text-sm font-bold">Professional terminology glossary ({glossary.length})</summary>
-        <p className="mt-2 text-xs text-muted-foreground">One entry per line: English term = Korean term # optional note</p>
-        <textarea className="mt-3 min-h-40 w-full border border-border bg-background p-3 font-mono text-xs leading-5" value={glossaryText} onChange={(event) => setGlossaryText(event.target.value)} />
-        <ActionButton disabled={Boolean(busy)} className="mt-2" onClick={() => void run("glossary", async () => { const entries = parseGlossary(); await saveCaptionGlossary({ data: { entries } }); setGlossary(entries); setMessage("Glossary saved."); })}>Save glossary</ActionButton>
-      </details>
-
       {(englishCues.length > 0 || koreanCues.length > 0) && (
         <div className="mt-5 border-t border-border pt-4">
           <h4 className="text-sm font-bold">Cue-by-cue comparison</h4>
           {englishCues.length > 0 && koreanCues.length > 0 && !timingsMatch && (
             <p className="mt-3 border border-destructive/40 bg-destructive/5 p-3 text-xs leading-5 text-destructive">
               Timing mismatch detected. Unmatched Korean cues are not paired with unrelated English
-              cues. Create a new Korean draft from the English source before publishing.
+              cues. Preserve the English timestamps when preparing the Korean WebVTT.
             </p>
           )}
           <div className="mt-3 max-h-96 overflow-auto border border-border bg-background">
