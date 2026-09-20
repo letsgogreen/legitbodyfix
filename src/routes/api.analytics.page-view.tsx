@@ -30,7 +30,13 @@ export const Route = createFileRoute("/api/analytics/page-view")({
         const located = await supabaseAdmin.from("page_views").insert({ ...parsed, country_code: countryCode, region_code: regionCode });
         if (located.error) {
           const fallback = await supabaseAdmin.from("page_views").insert(parsed);
-          if (fallback.error) return new Response("Analytics unavailable", { status: 503 });
+          if (fallback.error) {
+            console.error("Analytics page-view insert failed", {
+              located: located.error.message,
+              fallback: fallback.error.message,
+            });
+            return new Response("Analytics unavailable", { status: 503 });
+          }
         }
         return new Response(null, { status: 204 });
       },

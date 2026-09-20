@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HomepageControl } from "@/components/admin/HomepageControl";
+import { AboutControl } from "@/components/admin/AboutControl";
 
 export const Route = createFileRoute("/admin/content")({
   head: () => ({
@@ -12,5 +13,5 @@ export const Route = createFileRoute("/admin/content")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: () => <HomepageControl adminPrefix="/admin" />,
+  component: () => <><HomepageControl adminPrefix="/admin" /><AboutControl /></>,
 });

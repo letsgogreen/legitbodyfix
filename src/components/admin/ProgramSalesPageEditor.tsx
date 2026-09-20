@@ -120,6 +120,7 @@ export function ProgramSalesPageEditor() {
     [message, setMessage] = useState("");
   const [previewIframeUrl, setPreviewIframeUrl] = useState("");
   const [previewCaptions, setPreviewCaptions] = useState<StreamCaption[]>([]);
+  const [previewReloading, setPreviewReloading] = useState(false);
   const [captionBusy, setCaptionBusy] = useState<"en" | "ko" | null>(null);
   useEffect(() => {
     void Promise.all([
@@ -155,26 +156,22 @@ export function ProgramSalesPageEditor() {
   useEffect(() => {
     if (video) setDraft(makeDraft(video, records[video.id]));
   }, [video, records]);
-  useEffect(() => {
+  const loadPreviewPlayer = useCallback(async () => {
     setPreviewIframeUrl("");
     if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
-    let active = true;
-    void getAdminSalesPreviewIframe({ data: { streamUid: draft.previewStreamUid } })
-      .then(({ iframeUrl }) => {
-        if (active) setPreviewIframeUrl(iframeUrl);
-      })
-      .catch((e) => {
-        if (active)
-          setMessage(
-            e instanceof Error
-              ? `Could not load the secure preview: ${e.message}`
-              : "Could not load the secure preview.",
-          );
-      });
-    return () => {
-      active = false;
-    };
+    setPreviewReloading(true);
+    try {
+      const { iframeUrl } = await getAdminSalesPreviewIframe({ data: { streamUid: draft.previewStreamUid } });
+      setPreviewIframeUrl(iframeUrl);
+    } catch (e) {
+      setMessage(e instanceof Error ? `Could not load the secure preview: ${e.message}` : "Could not load the secure preview.");
+    } finally {
+      setPreviewReloading(false);
+    }
   }, [videoId, draft?.previewStreamStatus, draft?.previewStreamUid]);
+  useEffect(() => {
+    void loadPreviewPlayer();
+  }, [loadPreviewPlayer]);
   useEffect(() => {
     if (draft?.previewStreamStatus !== "processing" || !draft.previewStreamUid) return;
     const uid = draft.previewStreamUid;
@@ -473,10 +470,7 @@ export function ProgramSalesPageEditor() {
                 </div>
               )}
               {draft.previewStreamStatus === "ready" && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Preview ready. The player on the right is what customers will see on the sales
-                  page.
-                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-3"><p className="text-xs text-muted-foreground">Preview ready. The player on the right is what customers will see on the sales page.</p><Btn disabled={previewReloading} onClick={() => void loadPreviewPlayer()}>{previewReloading ? "Refreshing player…" : "Reload secure player"}</Btn></div>
               )}
             </div>
             <div className="aspect-video overflow-hidden border border-border bg-secondary">
