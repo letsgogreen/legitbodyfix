@@ -87,16 +87,21 @@ function MuscleList({ items, tone }: { items: RecipeMuscleLink[]; tone: "tight" 
     <ul className="mt-3 border-t border-border">
       {items.map((muscle) => (
         <li key={`${tone}-${muscle.id}`} className="border-b border-border">
-          <Link
-            to="/muscles/$muscleId"
-            params={{ muscleId: muscle.id }}
-            className="flex min-h-12 items-center justify-between gap-4 py-3 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
+          {muscle.available ? <Link
+              to="/muscles/$muscleId"
+              params={{ muscleId: muscle.id }}
+              className="flex min-h-12 items-center justify-between gap-4 py-3 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="text-sm font-bold">{muscle.name}</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                {muscle.group ?? "—"}
+              </span>
+            </Link> : <div className="flex min-h-12 items-center justify-between gap-4 py-3">
             <span className="text-sm font-bold">{muscle.name}</span>
             <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
               {muscle.group ?? "—"}
             </span>
-          </Link>
+          </div>}
         </li>
       ))}
     </ul>

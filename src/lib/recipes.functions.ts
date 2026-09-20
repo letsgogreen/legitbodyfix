@@ -13,15 +13,16 @@ export type RecipeMuscleLink = {
   name: string;
   group: string | null;
   role: "tight" | "weak";
+  available: boolean;
 };
 
-const CANONICAL_RECIPE_MUSCLES: Record<string, Array<{ name: string; role: RecipeMuscleLink["role"] }>> = {
+const CANONICAL_RECIPE_MUSCLES: Record<string, Array<{ id: string; name: string; group: string; role: RecipeMuscleLink["role"] }>> = {
   "feet-turn-out": [
-    { name: "Gastrocnemius", role: "tight" },
-    { name: "Biceps femoris", role: "tight" },
-    { name: "Semimembranosus", role: "weak" },
-    { name: "Semitendinosus", role: "weak" },
-    { name: "Gastrocnemius", role: "weak" },
+    { id: "gastrocnemius", name: "Gastrocnemius", group: "Posterior lower leg", role: "tight" },
+    { id: "biceps-femoris", name: "Biceps femoris", group: "Posterior thigh", role: "tight" },
+    { id: "semimembranosus", name: "Semimembranosus", group: "Posterior thigh", role: "weak" },
+    { id: "semitendinosus", name: "Semitendinosus", group: "Posterior thigh", role: "weak" },
+    { id: "gastrocnemius", name: "Gastrocnemius", group: "Posterior lower leg", role: "weak" },
   ],
 };
 
@@ -89,6 +90,7 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
           name: muscle.name,
           group: muscle.anatomical_group,
           role: row.role as "tight" | "weak",
+          available: true,
         };
       })
       .filter((row): row is RecipeMuscleLink => row !== null)
@@ -106,9 +108,15 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
         console.error("canonical recipe muscles read failed:", canonicalError.message);
       } else {
         const byName = new Map((canonicalRows ?? []).map((muscle) => [muscle.name.toLowerCase(), muscle]));
-        const fallbackLinks = canonical.flatMap((item) => {
+        const fallbackLinks = canonical.map((item) => {
           const muscle = byName.get(item.name.toLowerCase());
-          return muscle ? [{ id: muscle.id, name: muscle.name, group: muscle.anatomical_group, role: item.role }] : [];
+          return {
+            id: muscle?.id ?? item.id,
+            name: muscle?.name ?? item.name,
+            group: muscle?.anatomical_group ?? item.group,
+            role: item.role,
+            available: Boolean(muscle),
+          };
         });
         muscles = [...new Map([...muscles, ...fallbackLinks].map((muscle) => [`${muscle.id}:${muscle.role}`, muscle])).values()]
           .sort((a, b) => a.name.localeCompare(b.name));
