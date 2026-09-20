@@ -15,6 +15,16 @@ export type RecipeMuscleLink = {
   role: "tight" | "weak";
 };
 
+const CANONICAL_RECIPE_MUSCLES: Record<string, Array<{ name: string; role: RecipeMuscleLink["role"] }>> = {
+  "feet-turn-out": [
+    { name: "Gastrocnemius", role: "tight" },
+    { name: "Biceps femoris", role: "tight" },
+    { name: "Semimembranosus", role: "weak" },
+    { name: "Semitendinosus", role: "weak" },
+    { name: "Gastrocnemius", role: "weak" },
+  ],
+};
+
 const RECIPE_COLUMNS =
   "id,slug,title,goal,summary,instructions,content_blocks,regions,movement_functions,symptoms_goals,progression_level,dosage,session_minutes,assessment_clues,safety_notes,evidence,equipment,image_url,image_alt,last_reviewed_at";
 
@@ -66,7 +76,7 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
 
     if (linkError) console.error("recipe_muscles read failed:", linkError.message);
 
-    const muscles: RecipeMuscleLink[] = (linkRows ?? [])
+    let muscles: RecipeMuscleLink[] = (linkRows ?? [])
       .map((row) => {
         const muscle = row.muscles as unknown as {
           id: string;
@@ -83,6 +93,27 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
       })
       .filter((row): row is RecipeMuscleLink => row !== null)
       .sort((a, b) => a.name.localeCompare(b.name));
+
+    const canonical = CANONICAL_RECIPE_MUSCLES[input.slug] ?? [];
+    if (canonical.length) {
+      const canonicalNames = [...new Set(canonical.map((item) => item.name))];
+      const { data: canonicalRows, error: canonicalError } = await supabase
+        .from("muscles")
+        .select("id,name,anatomical_group")
+        .eq("published", true)
+        .in("name", canonicalNames);
+      if (canonicalError) {
+        console.error("canonical recipe muscles read failed:", canonicalError.message);
+      } else {
+        const byName = new Map((canonicalRows ?? []).map((muscle) => [muscle.name.toLowerCase(), muscle]));
+        const fallbackLinks = canonical.flatMap((item) => {
+          const muscle = byName.get(item.name.toLowerCase());
+          return muscle ? [{ id: muscle.id, name: muscle.name, group: muscle.anatomical_group, role: item.role }] : [];
+        });
+        muscles = [...new Map([...muscles, ...fallbackLinks].map((muscle) => [`${muscle.id}:${muscle.role}`, muscle])).values()]
+          .sort((a, b) => a.name.localeCompare(b.name));
+      }
+    }
 
     const { slug, ...rest } = data;
 
