@@ -429,6 +429,21 @@ export async function getPublicSalesPreviewIframe(streamUid: string) {
         allowedOrigins: [],
       }),
     });
+    // Stream metadata updates can take a moment to reach the playback edge.
+    // Do not mint a token against the previous origin policy: that produces a
+    // valid-looking iframe which renders Cloudflare's generic player error.
+    let originRestrictionCleared = false;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const updated = await cloudflare<{ allowedOrigins?: string[] }>("/" + streamUid);
+      if (!updated.allowedOrigins?.length) {
+        originRestrictionCleared = true;
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+    }
+    if (!originRestrictionCleared) {
+      throw new Error("Preview playback settings are still updating. Reload the secure player.");
+    }
   }
   const { customerCode } = streamConfig();
   let deliveryOrigin = customerCode
