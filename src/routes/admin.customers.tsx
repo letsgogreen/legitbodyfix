@@ -4,7 +4,7 @@ import { Check, Copy, Search, X } from "lucide-react";
 import { AdminLoadingState, Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { CustomerAccessTabs } from "@/components/admin/CustomerAccessTabs";
 import type { Database } from "@/integrations/supabase/types";
-import { getAdminCustomerAccessData, grantAdminCustomerAccessByEmail, setAdminCustomerAccess } from "@/lib/admin-customers.functions";
+import { deleteAdminCustomer, getAdminCustomerAccessData, grantAdminCustomerAccessByEmail, setAdminCustomerAccess } from "@/lib/admin-customers.functions";
 
 type Profile = Database["public"]["Tables"]["customer_profiles"]["Row"];
 type Entitlement = Database["public"]["Tables"]["entitlements"]["Row"];
@@ -132,6 +132,8 @@ function AccessDrawer({ profile, account, programs, entitlements, onClose, onCha
   const [working, setWorking] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const setAccess = async (program: Program, active: boolean) => {
     setWorking(program.id);
@@ -152,7 +154,23 @@ function AccessDrawer({ profile, account, programs, entitlements, onClose, onCha
     window.setTimeout(() => setCopied(false), 1500);
   };
 
-  return <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" role="dialog" aria-modal="true"><div className="flex h-full w-full max-w-lg flex-col border-l border-border bg-background"><div className="flex items-start justify-between border-b border-border px-5 py-4"><div><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Customer access</p><h2 className="mt-1 text-lg font-extrabold">{profile.display_name || profile.email || "Customer"}</h2><button type="button" onClick={() => void copyEmail()} className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground" disabled={!profile.email}>{profile.email}{copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}</button></div><button type="button" onClick={onClose} aria-label="Close" className="rounded-sm border border-border p-1.5"><X className="h-4 w-4" /></button></div><div className="flex-1 overflow-y-auto p-5"><div className="mb-5 grid grid-cols-2 gap-px border border-border bg-border text-xs"><AccountFact label="Email" value={account?.emailConfirmedAt ? "Confirmed" : "Unconfirmed"} /><AccountFact label="Joined" value={formatDate(profile.created_at)} /><AccountFact label="Last sign-in" value={account?.lastSignInAt ? formatDate(account.lastSignInAt) : "Never"} /><AccountFact label="Active programs" value={String(entitlements.filter((item) => item.active).length)} /></div><div className="space-y-3">{programs.map((program) => { const access = entitlements.find((item) => item.program_id === program.id); const active = access?.active === true; return <div key={program.id} className="flex items-center justify-between gap-3 border border-border bg-card p-4"><div><p className="text-sm font-bold">{program.name}</p><p className="mt-1 font-mono text-[10px] text-muted-foreground">{access ? `${access.source} · ${active ? "active" : "revoked"}${access.granted_at ? ` · ${formatDate(access.granted_at)}` : ""}` : "no access"}</p></div><Btn variant={active ? "ghost" : "ink"} disabled={working === program.id} onClick={() => void setAccess(program, !active)}>{working === program.id ? "Saving…" : active ? "Revoke" : "Grant"}</Btn></div>; })}{error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}</div></div></div></div>;
+  const deleteCustomer = async () => {
+    if (!profile.email || deleteConfirmation.trim().toLowerCase() !== profile.email.trim().toLowerCase() || deleting) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteAdminCustomer({ data: { userId: profile.user_id, confirmationEmail: deleteConfirmation } });
+      onClose();
+      await onChanged();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+      setDeleting(false);
+    }
+  };
+
+  const confirmationMatches = Boolean(profile.email) && deleteConfirmation.trim().toLowerCase() === profile.email?.trim().toLowerCase();
+
+  return <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" role="dialog" aria-modal="true"><div className="flex h-full w-full max-w-lg flex-col border-l border-border bg-background"><div className="flex items-start justify-between border-b border-border px-5 py-4"><div><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Customer access</p><h2 className="mt-1 text-lg font-extrabold">{profile.display_name || profile.email || "Customer"}</h2><button type="button" onClick={() => void copyEmail()} className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground" disabled={!profile.email}>{profile.email}{copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}</button></div><button type="button" onClick={onClose} aria-label="Close" className="rounded-sm border border-border p-1.5"><X className="h-4 w-4" /></button></div><div className="flex-1 overflow-y-auto p-5"><div className="mb-5 grid grid-cols-2 gap-px border border-border bg-border text-xs"><AccountFact label="Email" value={account?.emailConfirmedAt ? "Confirmed" : "Unconfirmed"} /><AccountFact label="Joined" value={formatDate(profile.created_at)} /><AccountFact label="Last sign-in" value={account?.lastSignInAt ? formatDate(account.lastSignInAt) : "Never"} /><AccountFact label="Active programs" value={String(entitlements.filter((item) => item.active).length)} /></div><div className="space-y-3">{programs.map((program) => { const access = entitlements.find((item) => item.program_id === program.id); const active = access?.active === true; return <div key={program.id} className="flex items-center justify-between gap-3 border border-border bg-card p-4"><div><p className="text-sm font-bold">{program.name}</p><p className="mt-1 font-mono text-[10px] text-muted-foreground">{access ? `${access.source} · ${active ? "active" : "revoked"}${access.granted_at ? ` · ${formatDate(access.granted_at)}` : ""}` : "no access"}</p></div><Btn variant={active ? "ghost" : "ink"} disabled={working === program.id} onClick={() => void setAccess(program, !active)}>{working === program.id ? "Saving…" : active ? "Revoke" : "Grant"}</Btn></div>; })}{error && <p className="border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}</div><div className="mt-8 border border-destructive/40 bg-destructive/5 p-4"><p className="text-sm font-extrabold text-destructive">Delete customer account</p><p className="mt-1 text-xs leading-5 text-muted-foreground">This permanently removes the login account, profile, and program access. Order records remain for accounting, but are disconnected from the deleted account.</p><label className="mt-3 grid gap-1.5 text-xs font-bold">Type the customer email to confirm<input type="email" value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} placeholder={profile.email || "customer@example.com"} autoComplete="off" className="rounded-sm border border-destructive/40 bg-background px-3 py-2.5 text-sm font-normal" /></label><button type="button" disabled={!confirmationMatches || deleting} onClick={() => void deleteCustomer()} className="mt-3 w-full rounded-sm border border-destructive bg-destructive px-4 py-2.5 text-sm font-bold text-destructive-foreground disabled:cursor-not-allowed disabled:opacity-40">{deleting ? "Deleting customer…" : "Permanently delete customer"}</button></div></div></div></div>;
 }
 
 function AccountFact({ label, value }: { label: string; value: string }) {

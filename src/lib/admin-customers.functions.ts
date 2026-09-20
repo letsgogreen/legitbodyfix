@@ -130,3 +130,33 @@ export const grantAdminCustomerAccessByEmail = createServerFn({ method: "POST" }
     if (error) throw new Error(error.message);
     return { userId: customer.user_id, email, programId: data.programId };
   });
+
+export const deleteAdminCustomer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => z.object({
+    userId: z.string().uuid(),
+    confirmationEmail: z.string().trim().email(),
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+
+    const claims = context.claims as { sub?: string; email?: string };
+    if (claims.sub === data.userId) throw new Error("You cannot delete the administrator account currently in use.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: customer, error: customerError } = await supabaseAdmin
+      .from("customer_profiles")
+      .select("email")
+      .eq("user_id", data.userId)
+      .maybeSingle();
+    if (customerError) throw new Error(customerError.message);
+    if (!customer?.email) throw new Error("Customer account not found.");
+
+    const customerEmail = customer.email.trim().toLowerCase();
+    if (customerEmail === claims.email?.trim().toLowerCase()) throw new Error("You cannot delete the administrator account currently in use.");
+    if (customerEmail !== data.confirmationEmail.trim().toLowerCase()) throw new Error("The confirmation email does not match this customer.");
+
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (error) throw new Error(error.message);
+    return { userId: data.userId };
+  });
