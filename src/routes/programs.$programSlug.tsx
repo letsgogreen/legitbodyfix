@@ -8,6 +8,11 @@ import { getAdminProgramPreview, getPublicProgramDetail, type ProgramSalesConten
 
 export const Route = createFileRoute("/programs/$programSlug")({
   validateSearch: (search: Record<string, unknown>) => ({ preview: search["preview"] === "admin" ? "admin" as const : undefined }),
+  loaderDeps: ({ search }) => ({ preview: search.preview }),
+  loader: ({ params, deps }) => {
+    const request = deps.preview === "admin" ? getAdminProgramPreview : getPublicProgramDetail;
+    return request({ data: { slug: params.programSlug } });
+  },
   component: ProgramSalesPage,
 });
 
@@ -23,33 +28,25 @@ type PublicSalesResponse = ProgramSalesContent & { previewIframeUrl?: string };
 function ProgramSalesPage() {
   const { programSlug } = Route.useParams();
   const { preview } = Route.useSearch();
-  const [program, setProgram] = useState<PublicProgramDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const loadedProgram = Route.useLoaderData();
+  const [program, setProgram] = useState<PublicProgramDetail | null>(loadedProgram);
 
   useEffect(() => {
     let active = true;
-    const request = preview === "admin" ? getAdminProgramPreview : getPublicProgramDetail;
-    void request({ data: { slug: programSlug } })
-      .then((result) => {
-        if (!active) return;
-        setProgram(result);
-        setLoading(false);
-        const salesPageId = SALES_PREVIEW_ID_BY_PROGRAM_SLUG[programSlug];
-        if (!result || !salesPageId) return;
-        void fetch(`/api/public/program-sales/${encodeURIComponent(salesPageId)}`, { cache: "no-store" })
-          .then(async (response) => response.ok ? await response.json() as PublicSalesResponse : null)
-          .then((sales) => {
-            if (!active || !sales) return;
-            const { previewIframeUrl, ...salesContent } = sales;
-            setProgram((current) => current ? { ...current, previewIframeUrl: previewIframeUrl || current.previewIframeUrl, salesContent: { ...(current.salesContent ?? {}), ...salesContent } } : current);
-          })
-          .catch(() => undefined);
-      })
-      .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : "Program could not be loaded."); })
-      .finally(() => { if (active) setLoading(false); });
+    setProgram(loadedProgram);
+    const salesPageId = SALES_PREVIEW_ID_BY_PROGRAM_SLUG[programSlug];
+    if (loadedProgram && salesPageId) {
+      void fetch(`/api/public/program-sales/${encodeURIComponent(salesPageId)}`, { cache: "no-store" })
+        .then(async (response) => response.ok ? await response.json() as PublicSalesResponse : null)
+        .then((sales) => {
+          if (!active || !sales) return;
+          const { previewIframeUrl, ...salesContent } = sales;
+          setProgram((current) => current ? { ...current, previewIframeUrl: previewIframeUrl || current.previewIframeUrl, salesContent: { ...(current.salesContent ?? {}), ...salesContent } } : current);
+        })
+        .catch(() => undefined);
+    }
     return () => { active = false; };
-  }, [preview, programSlug]);
+  }, [loadedProgram, programSlug]);
 
   const sections = useMemo(() => {
     if (!program) return [];
@@ -60,8 +57,7 @@ function ProgramSalesPage() {
     return rows;
   }, [program]);
 
-  if (loading) return <LoadingPage />;
-  if (!program) return <UnavailablePage error={error} />;
+  if (!program) return <UnavailablePage />;
 
   const sales = program.salesContent;
   const benefits = [sales?.landingBenefit1, sales?.landingBenefit2, sales?.landingBenefit3].filter((value): value is string => Boolean(value?.trim()));
@@ -92,6 +88,5 @@ function Curriculum({ sections }: { sections: Array<{ module: { id: string; titl
   return <div className="border border-border">{sections.length ? sections.map(({ module, lessons }) => <section key={module.id} className="border-b border-border last:border-b-0"><div className="flex items-center justify-between bg-secondary px-5 py-4"><h3 className="font-extrabold">{module.title}</h3><span className="font-mono text-[10px] uppercase tracking-[.12em]">{lessons.length} {lessons.length === 1 ? "lesson" : "lessons"}</span></div><ol>{lessons.map((lesson, index) => <li key={lesson.id} className="flex gap-4 border-t border-border px-5 py-5 first:border-t-0"><span className="grid h-9 w-9 shrink-0 place-items-center border border-border bg-background">{lesson.previewFree ? <PlayCircle className="h-4 w-4" /> : <Lock className="h-4 w-4" />}</span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><h4 className="font-bold">{String(index + 1).padStart(2, "0")} {lesson.title}</h4><span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[.1em] text-muted-foreground"><Clock3 className="h-3 w-3" />{formatDuration(lesson.durationSeconds)}</span></div>{lesson.summary ? <p className="mt-2 text-sm leading-6 text-muted-foreground">{lesson.summary}</p> : null}{lesson.previewFree ? <span className="mt-2 inline-block bg-accent px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-[.12em]">Free preview</span> : null}</div></li>)}</ol></section>) : <p className="p-8 text-sm text-muted-foreground">Curriculum details are being prepared.</p>}</div>;
 }
 
-function LoadingPage() { return <div className="min-h-screen bg-background"><SiteNav /><main className="mx-auto max-w-7xl px-5 py-24" aria-busy="true"><div className="h-3 w-36 animate-pulse bg-secondary" /><div className="mt-6 h-14 max-w-2xl animate-pulse bg-secondary" /><div className="mt-4 h-24 max-w-3xl animate-pulse bg-secondary/70" /><p className="sr-only">Loading program</p></main></div>; }
-function UnavailablePage({ error }: { error: string | null }) { return <div className="min-h-screen bg-background"><SiteNav /><main className="mx-auto max-w-3xl px-5 py-24"><h1 className="text-4xl font-black uppercase">Program unavailable</h1><p className="mt-4 text-muted-foreground">{error || "This program has not been published."}</p><Link to="/" hash="programs" className="mt-8 inline-flex items-center gap-2 font-bold"><ArrowLeft className="h-4 w-4" />Back to programs</Link></main></div>; }
+function UnavailablePage() { return <div className="min-h-screen bg-background"><SiteNav /><main className="mx-auto max-w-3xl px-5 py-24"><h1 className="text-4xl font-black uppercase">Program unavailable</h1><p className="mt-4 text-muted-foreground">This program has not been published.</p><Link to="/" hash="programs" className="mt-8 inline-flex items-center gap-2 font-bold"><ArrowLeft className="h-4 w-4" />Back to programs</Link></main></div>; }
 function formatDuration(seconds: number | null) { if (!seconds) return "Video lesson"; return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`; }
