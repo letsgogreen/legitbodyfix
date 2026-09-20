@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-export function SiteFooter() {
+export function SiteFooter({ showOperatorContact = true }: { showOperatorContact?: boolean }) {
   return (
     <footer className="bg-ink text-ink-foreground">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16 lg:px-8">
@@ -58,7 +58,7 @@ export function SiteFooter() {
             <Link to="/privacy" className="hover:text-ink-foreground">Privacy Policy</Link>
             <Link to="/refund-policy" className="hover:text-ink-foreground">Refund Policy</Link>
           </nav>
-          <p className="mt-2">LegitBodyFix · Sole proprietor and operator: Song J. · <a href="mailto:thriveinside@protonmail.com" className="hover:text-ink-foreground">thriveinside@protonmail.com</a></p>
+          {showOperatorContact ? <p className="mt-2">LegitBodyFix · Sole proprietor and operator: Song J. · <a href="mailto:thriveinside@protonmail.com" className="hover:text-ink-foreground">thriveinside@protonmail.com</a></p> : <p className="mt-2">LegitBodyFix · Sole proprietor and operator: Song J.</p>}
           <p className="mt-1">© {new Date().getFullYear()} LegitBodyFix · Movement System</p>
         </div>
       </div>

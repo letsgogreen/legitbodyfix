@@ -34,6 +34,6 @@ function AboutPage() {
       </section>
       <section className={`mx-auto grid max-w-5xl gap-10 px-5 py-14 lg:px-8 lg:py-20 ${copy.about_credentials_body.trim() ? "md:grid-cols-2" : ""}`}><article><h2 className="text-3xl font-black uppercase">{copy.about_operator_title}</h2><p className="mt-4 whitespace-pre-line leading-7 text-muted-foreground">{copy.about_operator_body}</p></article>{copy.about_credentials_body.trim() && <article><h2 className="text-3xl font-black uppercase">{copy.about_credentials_title}</h2><p className="mt-4 whitespace-pre-line leading-7 text-muted-foreground">{copy.about_credentials_body}</p></article>}</section>
     </main>
-    <SiteFooter />
+    <SiteFooter showOperatorContact={false} />
   </div>;
 }
