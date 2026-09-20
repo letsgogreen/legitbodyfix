@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { getPublicPrograms, type PublicProgram } from "@/lib/public-programs.functions";
 import { useCustomerAccess } from "@/lib/useCustomerAccess";
 import { usePaddle } from "@/lib/usePaddle";
+import { programSalesHref } from "@/lib/program-sales-links";
 
 const categories = ["All", "Neck & shoulders", "Ankle & foot", "Hips & balance", "Breathing & recovery"] as const;
 type Category = (typeof categories)[number];
@@ -14,10 +15,6 @@ function categoryOf(program: PublicProgram): Exclude<Category, "All"> {
   if (/hip|pelvi|balance|knee/.test(value)) return "Hips & balance";
   if (/breath|rib|recovery/.test(value)) return "Breathing & recovery";
   return "Neck & shoulders";
-}
-
-function programSalesHref(program: PublicProgram) {
-  return `/programs/${encodeURIComponent(program.slug)}`;
 }
 
 export function FeaturedPrograms({ programs, loadFailed = false }: { programs: PublicProgram[]; loadFailed?: boolean }) {
@@ -65,13 +62,13 @@ export function FeaturedPrograms({ programs, loadFailed = false }: { programs: P
             <div className="flex w-full flex-col">
               <div className="flex items-start justify-between gap-4">
                 <span className="bg-accent px-3 py-1 font-mono text-[10px] font-bold text-accent-foreground">{program.level?.toUpperCase() || "GUIDED"}</span>
-                <a href={programSalesHref(program)} aria-label={`View ${program.name}`} className="grid size-10 place-items-center rounded-full border border-white/80 text-white transition-colors hover:border-accent hover:bg-accent hover:text-accent-foreground"><ArrowUpRight className="h-4 w-4" /></a>
+                <a href={programSalesHref(program.slug)} aria-label={`View ${program.name}`} className="grid size-10 place-items-center rounded-full border border-white/80 text-white transition-colors hover:border-accent hover:bg-accent hover:text-accent-foreground"><ArrowUpRight className="h-4 w-4" /></a>
               </div>
               <div className="mt-auto">
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-accent">Program {String(index + 1).padStart(2, "0")}</p>
                 <h3 className="mt-2 text-2xl font-extrabold leading-none tracking-tight sm:text-[1.65rem]">{program.name}</h3>
                 {program.saleLabel && <p className="mt-3 inline-block bg-accent px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-[.12em] text-accent-foreground">{program.saleLabel}</p>}<p className="mt-3 font-mono text-[11px] text-white/90">{[program.duration, program.format, program.originalPrice ? `${program.originalPrice} → ${program.price}` : program.price].filter(Boolean).join(" · ")}</p>
-                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]"><span>{categoryOf(program)}</span><a href={programSalesHref(program)} className="border-b border-accent text-accent transition-colors hover:text-white">View program →</a></div>
+                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em]"><span>{categoryOf(program)}</span><a href={programSalesHref(program.slug)} className="border-b border-accent text-accent transition-colors hover:text-white">View program →</a></div>
               </div>
             </div>
           </article>

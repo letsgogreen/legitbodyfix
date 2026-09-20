@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowLeft, Check, Clock3, Lock, PlayCircle } from "lucide-react";
 import { CheckoutButton } from "@/components/site/FeaturedPrograms";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
 import { getAdminProgramPreview, getPublicProgramDetail, type ProgramSalesContent, type PublicProgramDetail } from "@/lib/public-programs.functions";
+import { legacySalesPageId } from "@/lib/program-sales-links";
 
 export const Route = createFileRoute("/programs/$programSlug")({
   validateSearch: (search: Record<string, unknown>) => ({ preview: search["preview"] === "admin" ? "admin" as const : undefined }),
   loaderDeps: ({ search }) => ({ preview: search.preview }),
   loader: ({ params, deps }) => {
+    const legacyId = legacySalesPageId(params.programSlug);
+    if (deps.preview !== "admin" && legacyId) throw redirect({ href: `/video.html?id=${encodeURIComponent(legacyId)}`, reloadDocument: true });
     const request = deps.preview === "admin" ? getAdminProgramPreview : getPublicProgramDetail;
     return request({ data: { slug: params.programSlug } });
   },

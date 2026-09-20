@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, BookOpen, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { matchesDiscoveryRegion } from "@/lib/discovery-program-regions";
+import { programSalesHref } from "@/lib/program-sales-links";
 
 type StartingProgram = {
   id: string;
@@ -80,7 +81,7 @@ export function StartingPrograms({ region, title, learnHref: learningDestination
         <h2 className="mt-3 text-2xl font-bold">{program.name}</h2>
         {program.outcome && <p className="mt-3 leading-7 text-muted-foreground">{program.outcome}</p>}
         <p className="mt-4 text-sm text-muted-foreground">{[program.duration, program.level, program.format].filter(Boolean).join(" · ")}</p>
-        <a href={`/programs/${encodeURIComponent(program.slug)}`} className="mt-6 inline-flex min-h-12 items-center gap-3 bg-accent px-6 text-sm font-bold" aria-label={`View ${program.name} details`}>View program details <ArrowRight size={16} /></a>
+        <a href={programSalesHref(program.slug)} className="mt-6 inline-flex min-h-12 items-center gap-3 bg-accent px-6 text-sm font-bold" aria-label={`View ${program.name} details`}>View program details <ArrowRight size={16} /></a>
         <p className="mt-3 text-xs text-muted-foreground">Review the content and current price on the program page.</p>
       </div>
     </article>)}
