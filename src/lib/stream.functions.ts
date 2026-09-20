@@ -411,7 +411,10 @@ export const refreshSalesPreviewVideo = createServerFn({ method: "POST" })
     };
   });
 
-export async function getPublicSalesPreviewIframe(streamUid: string) {
+export async function getPublicSalesPreviewIframe(
+  streamUid: string,
+  preferredLanguage?: "en" | "ko",
+) {
   if (!/^[a-f0-9]{32}$/.test(streamUid)) throw new Error("Invalid preview video.");
   const video = await cloudflare<{ readyToStream?: boolean; allowedOrigins?: string[]; preview?: string }>(
     "/" + streamUid,
@@ -458,17 +461,27 @@ export async function getPublicSalesPreviewIframe(streamUid: string) {
   }
   if (!deliveryOrigin) throw new Error("Cloudflare Stream customer code is not configured.");
   const signed = await cloudflare<{ token: string }>("/" + streamUid + "/token", { method: "POST" });
-  return deliveryOrigin + "/" + signed.token + "/iframe?preload=metadata";
+  const playerUrl = new URL(deliveryOrigin + "/" + signed.token + "/iframe");
+  playerUrl.searchParams.set("preload", "metadata");
+  if (preferredLanguage) playerUrl.searchParams.set("defaultTextTrack", preferredLanguage);
+  return playerUrl.toString();
 }
 
 export const getAdminSalesPreviewIframe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) =>
-    z.object({ streamUid: z.string().regex(/^[a-f0-9]{32}$/) }).parse(input),
+    z
+      .object({
+        streamUid: z.string().regex(/^[a-f0-9]{32}$/),
+        preferredLanguage: captionLanguage.optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    return { iframeUrl: await getPublicSalesPreviewIframe(data.streamUid) };
+    return {
+      iframeUrl: await getPublicSalesPreviewIframe(data.streamUid, data.preferredLanguage),
+    };
   });
 
 const previewCaptionInput = z.object({

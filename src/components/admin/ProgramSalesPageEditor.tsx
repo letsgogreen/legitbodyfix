@@ -120,6 +120,7 @@ export function ProgramSalesPageEditor() {
   const [previewIframeUrl, setPreviewIframeUrl] = useState("");
   const [previewPlayerError, setPreviewPlayerError] = useState("");
   const [previewCaptions, setPreviewCaptions] = useState<StreamCaption[]>([]);
+  const [previewCaptionLanguage, setPreviewCaptionLanguage] = useState<"en" | "ko" | null>(null);
   const [previewReloading, setPreviewReloading] = useState(false);
   const [captionBusy, setCaptionBusy] = useState<"en" | "ko" | null>(null);
   useEffect(() => {
@@ -162,7 +163,12 @@ export function ProgramSalesPageEditor() {
     if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
     setPreviewReloading(true);
     try {
-      const { iframeUrl } = await getAdminSalesPreviewIframe({ data: { streamUid: draft.previewStreamUid } });
+      const { iframeUrl } = await getAdminSalesPreviewIframe({
+        data: {
+          streamUid: draft.previewStreamUid,
+          preferredLanguage: previewCaptionLanguage || undefined,
+        },
+      });
       setPreviewIframeUrl(iframeUrl);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "Unknown playback error.";
@@ -171,7 +177,7 @@ export function ProgramSalesPageEditor() {
     } finally {
       setPreviewReloading(false);
     }
-  }, [videoId, draft?.previewStreamStatus, draft?.previewStreamUid]);
+  }, [videoId, draft?.previewStreamStatus, draft?.previewStreamUid, previewCaptionLanguage]);
   useEffect(() => {
     void loadPreviewPlayer();
   }, [loadPreviewPlayer]);
@@ -194,6 +200,7 @@ export function ProgramSalesPageEditor() {
   }, [draft?.previewStreamStatus, draft?.previewStreamUid]);
   useEffect(() => {
     setPreviewCaptions([]);
+    setPreviewCaptionLanguage(null);
     void refreshCaptions();
   }, [refreshCaptions]);
   const set = (key: keyof SalesDraft, value: string) =>
@@ -528,6 +535,7 @@ export function ProgramSalesPageEditor() {
                     <p className="text-sm font-bold">Preview captions</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Generate captions for spoken audio, or upload a reviewed WebVTT translation.
+                      Select a ready language to reload the player with captions visible.
                     </p>
                   </div>
                   <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
@@ -552,6 +560,19 @@ export function ProgramSalesPageEditor() {
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
+                          {caption?.status === "ready" && (
+                            <Btn
+                              disabled={captionBusy !== null || previewReloading}
+                              onClick={() => {
+                                if (previewCaptionLanguage === language) void loadPreviewPlayer();
+                                else setPreviewCaptionLanguage(language);
+                              }}
+                            >
+                              {previewCaptionLanguage === language
+                                ? "Viewing captions · reload"
+                                : "View captions"}
+                            </Btn>
+                          )}
                           <Btn
                             disabled={captionBusy !== null || Boolean(caption)}
                             onClick={() => void generateCaptions(language)}
