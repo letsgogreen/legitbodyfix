@@ -537,10 +537,10 @@ export function ProgramSalesPageEditor() {
               <div className="border-t border-border pt-5 lg:col-span-2">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-bold">Preview captions</p>
+                    <p className="text-sm font-bold">Create or replace captions</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Generate captions for spoken audio, or upload a reviewed WebVTT translation.
-                      Select a ready language to reload the player with captions visible.
+                      Generate a source transcript or upload an existing WebVTT file. Ready captions
+                      can then be reviewed in the workspace below.
                     </p>
                   </div>
                   <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
@@ -613,13 +613,20 @@ export function ProgramSalesPageEditor() {
                     );
                   })}
                 </div>
-                <CaptionWorkspaceEditor
-                  streamUid={draft.previewStreamUid}
-                  onPreview={(language, startTime) => {
-                    setPreviewCaptionLanguage(language);
-                    void loadPreviewPlayer(language, startTime);
-                  }}
-                />
+                {previewCaptions.some((caption) => caption.status === "ready") ? (
+                  <CaptionWorkspaceEditor
+                    streamUid={draft.previewStreamUid}
+                    onPreview={(language, startTime) => {
+                      setPreviewCaptionLanguage(language);
+                      void loadPreviewPlayer(language, startTime);
+                    }}
+                  />
+                ) : (
+                  <p className="mt-4 border border-border bg-secondary/30 p-4 text-xs leading-5 text-muted-foreground">
+                    Add at least one caption above. The review workspace will appear when Cloudflare
+                    reports it as ready.
+                  </p>
+                )}
               </div>
             )}
           </section>

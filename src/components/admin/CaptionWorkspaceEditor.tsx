@@ -113,18 +113,26 @@ export function CaptionWorkspaceEditor({
                   {workspace && <ActionButton onClick={() => downloadVtt(language, workspace.vtt)}>Download VTT</ActionButton>}
                 </div>
               </div>
-              <textarea
-                className="mt-3 min-h-80 w-full border border-border bg-secondary/30 p-3 font-mono text-xs leading-5 outline-none focus:border-foreground"
-                value={workspace?.vtt || ""}
-                placeholder="Import a caption or paste WEBVTT here."
-                onChange={(event) => update(language, { vtt: event.target.value, status: "draft" })}
-              />
-              <div className="mt-3 flex flex-wrap gap-2">
-                <ActionButton disabled={!workspace || Boolean(busy)} onClick={() => void run(`save-${language}`, async () => update(language, await saveCaptionWorkspace({ data: { streamUid, language, vtt: workspace!.vtt, status: workspace!.status } })))}>Save draft</ActionButton>
-                <ActionButton disabled={!workspace || Boolean(busy)} onClick={() => void run(`review-${language}`, async () => update(language, await saveCaptionWorkspace({ data: { streamUid, language, vtt: workspace!.vtt, status: "review" } })))}>Mark for review</ActionButton>
-                <ActionButton disabled={!workspace || workspace.status !== "review" || Boolean(busy)} className="bg-ink text-ink-foreground" onClick={() => void run(`publish-${language}`, async () => { update(language, await publishCaptionWorkspace({ data: { streamUid, language, vtt: workspace!.vtt } })); onPreview(language); setMessage(`${label} published to Cloudflare.`); })}>Publish</ActionButton>
-                {workspace && <ActionButton onClick={() => onPreview(language)}>Preview</ActionButton>}
-              </div>
+              {workspace ? (
+                <details className="mt-3" open>
+                  <summary className="cursor-pointer text-xs font-bold">Edit WebVTT</summary>
+                  <textarea
+                    className="mt-3 min-h-64 w-full border border-border bg-secondary/30 p-3 font-mono text-xs leading-5 outline-none focus:border-foreground"
+                    value={workspace.vtt}
+                    onChange={(event) => update(language, { vtt: event.target.value, status: "draft" })}
+                  />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <ActionButton disabled={Boolean(busy)} onClick={() => void run(`save-${language}`, async () => update(language, await saveCaptionWorkspace({ data: { streamUid, language, vtt: workspace.vtt, status: workspace.status } })))}>Save draft</ActionButton>
+                    <ActionButton disabled={Boolean(busy)} onClick={() => void run(`review-${language}`, async () => update(language, await saveCaptionWorkspace({ data: { streamUid, language, vtt: workspace.vtt, status: "review" } })))}>Mark for review</ActionButton>
+                    <ActionButton disabled={workspace.status !== "review" || Boolean(busy)} className="bg-ink text-ink-foreground" onClick={() => void run(`publish-${language}`, async () => { update(language, await publishCaptionWorkspace({ data: { streamUid, language, vtt: workspace.vtt } })); onPreview(language); setMessage(`${label} published to Cloudflare.`); })}>Publish</ActionButton>
+                    <ActionButton onClick={() => onPreview(language)}>Preview</ActionButton>
+                  </div>
+                </details>
+              ) : (
+                <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                  Import the ready player caption to begin editing. Nothing is published by importing it.
+                </p>
+              )}
             </div>
           );
         })}
