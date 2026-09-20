@@ -106,6 +106,14 @@ export function CaptionWorkspaceEditor({
                 <div><strong className="text-sm">{label}</strong><span className="ml-2 font-mono text-[10px] uppercase text-muted-foreground">{workspace?.status || "not imported"}</span></div>
                 <div className="flex flex-wrap gap-2">
                   <ActionButton disabled={Boolean(busy)} onClick={() => void run(`import-${language}`, async () => update(language, await importCaptionWorkspace({ data: { streamUid, language } })))}>Import from player</ActionButton>
+                  {language === "ko" && !workspace && workspaces.en && (
+                    <ActionButton
+                      disabled={Boolean(busy)}
+                      onClick={() => update("ko", { vtt: workspaces.en!.vtt, status: "draft" })}
+                    >
+                      Start from English timings
+                    </ActionButton>
+                  )}
                   {workspace && <ActionButton onClick={() => void run(`copy-${language}`, async () => { await copyVtt(workspace.vtt); setMessage(`${label} copied to the clipboard.`); })}>Copy VTT</ActionButton>}
                   {workspace && <ActionButton onClick={() => downloadVtt(language, workspace.vtt)}>Download VTT</ActionButton>}
                 </div>
