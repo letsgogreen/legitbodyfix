@@ -8,6 +8,7 @@ const links = [
   { label: "Learn", href: "/movement-check" },
   { label: "Programs", href: "/#programs" },
   { label: "How it works", href: "/#method" },
+  { label: "About", href: "/about" },
 ];
 
 function NativeLink({ to, search: _search, preload: _preload, ...props }: { to: string; search?: { region?: undefined; intent?: undefined }; preload?: "intent" } & AnchorHTMLAttributes<HTMLAnchorElement>) {

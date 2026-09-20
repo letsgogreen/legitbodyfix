@@ -177,7 +177,7 @@ function RecipeDetail() {
                   <img
                     src={recipe.image_url}
                     alt={recipe.image_alt ?? recipe.title}
-                    className="h-full max-h-[26rem] w-full object-cover"
+                    className="h-full max-h-[26rem] w-full object-contain p-2"
                     onError={() => setImageFailed(true)}
                   />
                 </figure>

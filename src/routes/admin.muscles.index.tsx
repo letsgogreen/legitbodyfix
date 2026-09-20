@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, ImageOff, Search } from "lucide-react";
-import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
+import { Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
+import { setAdminContentPublished } from "@/lib/admin-content-publication.functions";
 import {
   filterMuscleList,
   getMuscleReadiness,
@@ -34,6 +35,7 @@ function AdminMuscles() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [all, setAll] = useState<Muscle[]>([]);
   const [liveReferenceCounts, setLiveReferenceCounts] = useState<Record<string, number>>({});
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [loadState, setLoadState] = useState("Loading records from the database…");
 
   useEffect(() => {
@@ -100,6 +102,17 @@ function AdminMuscles() {
   ).length;
   const referencedCount = Object.keys(liveReferenceCounts).length;
 
+  async function setAllPublished(published: boolean) {
+    if (bulkBusy || !window.confirm(`${published ? "Publish" : "Unpublish"} all muscle records?`)) return;
+    setBulkBusy(true);
+    try {
+      await setAdminContentPublished({ data: { type: "muscles", published } });
+      setAll((current) => current.map((muscle) => ({ ...muscle, published })));
+      setLoadState(`All muscle records are now ${published ? "published" : "unpublished"}.`);
+    } catch (error) { setLoadState(error instanceof Error ? error.message : String(error)); }
+    finally { setBulkBusy(false); }
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
@@ -107,6 +120,8 @@ function AdminMuscles() {
         meta={`${all.length} records · ${publishedCount} published · live from database`}
         actions={
           <>
+            <Btn disabled={bulkBusy} onClick={() => void setAllPublished(true)}>Publish all</Btn>
+            <Btn disabled={bulkBusy} onClick={() => void setAllPublished(false)}>Unpublish all</Btn>
             <Link
               to="/muscles"
               target="_blank"

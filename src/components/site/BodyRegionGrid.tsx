@@ -11,14 +11,14 @@ export function BodyRegionGrid({
   initialData: HomepageRegionData | null;
   loadFailed?: boolean;
 }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const media = initialData?.media ?? {};
   const counts = initialData?.counts ?? {};
-  const activeRegion = bodyRegions[activeIndex] ?? bodyRegions[0]!;
+  const activeRegion = activeIndex === null ? null : bodyRegions[activeIndex] ?? null;
 
-  const activeMedia = media[`body-region:${activeRegion.slug}`];
-  const { imageUrl, imageAlt } = resolveBodyRegionMedia(activeRegion, activeMedia);
-  const activeCounts = counts[activeRegion.slug] ?? null;
+  const activeMedia = activeRegion ? media[`body-region:${activeRegion.slug}`] : undefined;
+  const activeVisual = activeRegion ? resolveBodyRegionMedia(activeRegion, activeMedia) : null;
+  const activeCounts = activeRegion ? counts[activeRegion.slug] ?? null : null;
 
   const rows = useMemo(
     () => bodyRegions.map((region, index) => ({
@@ -41,7 +41,7 @@ export function BodyRegionGrid({
       <ul className="order-2 border-t border-border lg:order-1">
         {rows.map(({ region, index, active, counts: regionCounts }) => (
           <li key={region.slug} className="border-b border-border">
-            {active ? (
+            {active && activeRegion ? (
               <Link
                 to="/movement-check"
                 search={{ region: region.slug }}
@@ -50,25 +50,24 @@ export function BodyRegionGrid({
                 <RegionRowContent index={index} region={region} counts={regionCounts} active />
               </Link>
             ) : (
-              <button
-                type="button"
+              <Link
+                to="/movement-check"
+                search={{ region: region.slug }}
                 onMouseEnter={() => setActiveIndex(index)}
                 onFocus={() => setActiveIndex(index)}
-                onClick={() => setActiveIndex(index)}
-                aria-pressed={false}
                 className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 bg-background px-4 py-5 text-left transition-colors hover:bg-secondary/60 sm:gap-5 sm:px-5 sm:py-6"
               >
                 <RegionRowContent index={index} region={region} counts={regionCounts} active={false} />
-              </button>
+              </Link>
             )}
           </li>
         ))}
       </ul>
 
       <aside className="order-1 lg:order-2 lg:sticky lg:top-28 lg:self-start">
-        <div className="overflow-hidden rounded-sm border border-border bg-card">
+        {activeRegion && activeVisual ? <div className="overflow-hidden rounded-sm border border-border bg-card">
           <div className="aspect-[4/3] overflow-hidden border-b border-border bg-white">
-            <img src={imageUrl} alt={imageAlt} width={1024} height={768} loading="lazy" className="size-full object-contain p-3 sm:p-4" />
+            <img src={activeVisual.imageUrl} alt={activeVisual.imageAlt} width={1024} height={768} loading="lazy" className="size-full object-contain p-3 sm:p-4" />
           </div>
           <div className="p-6">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
@@ -88,7 +87,7 @@ export function BodyRegionGrid({
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
-        </div>
+        </div> : <div className="hidden min-h-80 place-items-center rounded-sm border border-border bg-card p-8 text-center text-sm text-muted-foreground lg:grid">Hover or focus a body region to preview it. Select a region to open its page.</div>}
       </aside>
       </div>
     </div>

@@ -115,8 +115,26 @@ export const getPublicPrograms = createServerFn({ method: "GET" }).handler(async
 
 export type PublicProgramDetail = PublicProgram & {
   previewIframeUrl: string | null;
+  salesContent: ProgramSalesContent | null;
   modules: Array<{ id: string; title: string; position: number }>;
   lessons: Array<{ id: string; moduleId: string | null; title: string; summary: string | null; durationSeconds: number | null; previewFree: boolean; thumbnailUrl: string | null; position: number }>;
+};
+
+export type ProgramSalesContent = {
+  landingEyebrow?: string;
+  landingHeadline?: string;
+  landingSummary?: string;
+  landingWhyHeadline?: string;
+  landingBenefit1?: string;
+  landingBenefit2?: string;
+  landingBenefit3?: string;
+  landingAudience?: string;
+  landingReassurance?: string;
+  techniqueEyebrow?: string;
+  techniqueHeadline?: string;
+  techniqueBody?: string;
+  curriculum?: Array<{ phase: string; title: string; description: string }>;
+  finalHeadline?: string;
 };
 
 type ProgramClient = ReturnType<typeof publicClient>;
@@ -152,7 +170,7 @@ async function loadProgramDetail(
     if (modulesError || lessonsError || coverLessonsError) throw new Error(modulesError?.message || lessonsError?.message || coverLessonsError?.message || "Curriculum could not be loaded.");
     const prices = await fetchPaddlePrices(row.paddle_price_id ? [row.paddle_price_id] : []);
     const sale = (await readProgramSales(client, [row.id], true))[0];
-    let previewIframeUrl: string | null = null;
+    let salesContent: ProgramSalesContent | null = null;
     const salesPageId = SALES_PAGE_ID_BY_PROGRAM_SLUG[row.slug];
     if (salesPageId) {
       const { data: salesPage, error: salesPageError } = await client
@@ -163,16 +181,7 @@ async function loadProgramDetail(
       if (salesPageError) {
         console.error("Program sales preview unavailable:", salesPageError.message);
       } else {
-        const salesContent = salesPage?.content as Record<string, unknown> | null;
-        const streamUid = salesContent?.["previewStreamUid"];
-        if (salesContent?.["previewStreamStatus"] === "ready" && typeof streamUid === "string" && /^[a-f0-9]{32}$/.test(streamUid)) {
-          try {
-            const { getPublicSalesPreviewIframe } = await import("@/lib/stream.functions");
-            previewIframeUrl = await getPublicSalesPreviewIframe(streamUid);
-          } catch (previewError) {
-            console.error("Program sales preview player unavailable:", previewError);
-          }
-        }
+        salesContent = (salesPage?.content as ProgramSalesContent | null) ?? null;
       }
     }
 
@@ -207,7 +216,8 @@ async function loadProgramDetail(
       saleLabel: sale?.label ?? null,
       saleEndsAt: sale?.endsAt ?? null,
       paddlePriceId: row.paddle_price_id,
-      previewIframeUrl,
+      previewIframeUrl: null,
+      salesContent,
       modules: (modules ?? []).map((module) => ({ id: module.id, title: module.title, position: module.position })),
       lessons: publicLessons,
     };

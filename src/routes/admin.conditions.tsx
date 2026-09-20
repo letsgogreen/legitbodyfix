@@ -9,6 +9,7 @@ import { RecipeBlockEditor } from "@/components/admin/RecipeBlockEditor";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 import { validateRecipeBlocks } from "@/lib/recipe-blocks";
 import { AdminLoadingState, Tag } from "@/components/admin/AdminUI";
+import { setAdminContentPublished } from "@/lib/admin-content-publication.functions";
 
 export const Route = createFileRoute("/admin/conditions")({
   head: () => ({ meta: [{ title: "Conditions — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -130,6 +131,16 @@ function ConditionsAdmin() {
       .sort((a, b) => a.content.title.localeCompare(b.content.title));
   }, [entries, publicationFilter, query]);
   const publishedCount = entries.filter(entry => entry.published).length;
+  async function setAllPublished(published: boolean) {
+    if (busy || !window.confirm(`${published ? "Publish" : "Unpublish"} all condition guides?`)) return;
+    setBusy(true); setStatus("Updating all condition guides…");
+    try {
+      await setAdminContentPublished({ data: { type: "conditions", published } });
+      setEntries(current => current.map(entry => ({ ...entry, published })));
+      setStatus(`All condition guides are now ${published ? "published" : "unpublished"}.`);
+    } catch (error) { setStatus(error instanceof Error ? error.message : String(error)); }
+    finally { setBusy(false); }
+  }
   return <div className="mx-auto max-w-7xl p-5 sm:p-8">
     <h1 className="text-3xl font-bold">Conditions</h1>
     <p className="mt-2 text-muted-foreground">Write a guide. Add supporting details when you need them.</p>
@@ -137,7 +148,7 @@ function ConditionsAdmin() {
     {!ready ? loading ? <AdminLoadingState variant="editor" label="Loading conditions" /> : <div role="alert" className="border border-destructive/40 bg-destructive/5 p-5"><p className="font-bold">Conditions could not be loaded</p><p className="mt-2 text-sm text-muted-foreground">{status}</p><button type="button" onClick={() => setAttempt(value => value + 1)} className="mt-4 min-h-11 border border-border bg-background px-4 font-bold">Try again</button></div> : !draft ? <section aria-labelledby="condition-library-title">
       <div className="grid gap-3 border border-border bg-card p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
         <label className="block text-sm font-bold" htmlFor="condition-search">Search conditions<div className="relative mt-2"><Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/><input id="condition-search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search title, category, or body region" className="min-h-11 w-full border border-border bg-background py-2 pl-10 pr-3 font-normal"/></div></label>
-        <div className="flex flex-wrap gap-2" aria-label="Filter conditions by publication status">{(["all", "published", "draft"] as const).map(filter => <button key={filter} type="button" aria-pressed={publicationFilter === filter} onClick={() => setPublicationFilter(filter)} className={`min-h-11 border px-4 text-sm font-bold capitalize ${publicationFilter === filter ? "border-foreground bg-foreground text-background" : "border-border bg-background"}`}>{filter}</button>)}</div>
+        <div className="flex flex-wrap gap-2" aria-label="Filter conditions by publication status">{(["all", "published", "draft"] as const).map(filter => <button key={filter} type="button" aria-pressed={publicationFilter === filter} onClick={() => setPublicationFilter(filter)} className={`min-h-11 border px-4 text-sm font-bold capitalize ${publicationFilter === filter ? "border-foreground bg-foreground text-background" : "border-border bg-background"}`}>{filter}</button>)}<button type="button" disabled={busy} onClick={() => void setAllPublished(true)} className="min-h-11 border border-border bg-background px-4 text-sm font-bold">Publish all</button><button type="button" disabled={busy} onClick={() => void setAllPublished(false)} className="min-h-11 border border-border bg-background px-4 text-sm font-bold">Unpublish all</button></div>
       </div>
       <div className="my-5 flex flex-wrap items-end justify-between gap-3"><div><h2 id="condition-library-title" className="text-xl font-bold">Condition library</h2><p className="mt-1 text-sm text-muted-foreground">{entries.length} total · {publishedCount} published · {entries.length - publishedCount} drafts</p></div><p className="text-sm text-muted-foreground">{filteredEntries.length} shown</p></div>
       {filteredEntries.length ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{filteredEntries.map(entry => { const entryIssues = conditionIssues(entry.content); return <button key={entry.content.id} type="button" onClick={() => choose(entry)} className="group min-h-44 border border-border bg-card p-5 text-left transition hover:border-foreground hover:bg-secondary/30 focus-visible:outline focus-visible:outline-2"><div className="flex items-start justify-between gap-3"><Tag tone={entry.published ? "accent" : "muted"}>{entry.published ? "Published" : "Draft"}</Tag>{entryIssues.length > 0 && <Tag tone="warn">{entryIssues.length} {entryIssues.length === 1 ? "issue" : "issues"}</Tag>}</div><h3 className="mt-5 text-lg font-bold group-hover:underline">{entry.content.title}</h3><p className="mt-2 text-sm text-muted-foreground">{entry.content.conditionCategory || "Uncategorized"} · {entry.content.bodyRegion || "No body region"}</p><p className="mt-4 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Open editor →</p></button>; })}</div> : <div className="border border-dashed border-border px-5 py-14 text-center"><h3 className="font-bold">No matching conditions</h3><p className="mt-2 text-sm text-muted-foreground">Try a different search or publication filter.</p><button type="button" onClick={() => { setQuery(""); setPublicationFilter("all"); }} className="mt-4 min-h-11 border border-border px-4 font-bold">Clear filters</button></div>}

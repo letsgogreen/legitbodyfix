@@ -54,6 +54,21 @@ export const getAdminCurriculum = createServerFn({ method: "GET" })
     return { programs: programs ?? [], modules: moduleResult.data ?? [], lessons: lessonResult.data ?? [], selectedProgramId };
   });
 
+export const setAdminCurriculumPublished = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => z.object({ programId: z.string().uuid(), published: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
+    const [modulesResult, lessonsResult] = await Promise.all([
+      context.supabase.from("program_modules").update({ published: data.published }).eq("program_id", data.programId),
+      context.supabase.from("lessons").update({ published: data.published }).eq("program_id", data.programId),
+    ]);
+    if (modulesResult.error || lessonsResult.error) {
+      throw new Error(modulesResult.error?.message ?? lessonsResult.error?.message ?? "Could not update curriculum visibility.");
+    }
+    return { ok: true, published: data.published };
+  });
+
 export const createAdminModule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) => z.object({

@@ -4,6 +4,7 @@ import { FileDown, Plus, Search } from "lucide-react";
 import { AdminLoadingState, Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
+import { setAdminContentPublished } from "@/lib/admin-content-publication.functions";
 
 export const Route = createFileRoute("/admin/recipes/")({
   head: () => ({
@@ -62,6 +63,7 @@ function AdminRecipes() {
   const [completion, setCompletion] = useState<"all" | "complete" | "incomplete">("all");
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   useEffect(() => {
     void supabase
@@ -106,13 +108,23 @@ function AdminRecipes() {
     await navigate({ to: "/admin/recipes/$recipeId", params: { recipeId: data.id } });
   }
 
+  async function setAllPublished(published: boolean) {
+    if (bulkBusy || !window.confirm(`${published ? "Publish" : "Unpublish"} all corrective movement strategies?`)) return;
+    setBulkBusy(true); setState("");
+    try {
+      await setAdminContentPublished({ data: { type: "recipes", published } });
+      setRows((current) => current.map((row) => ({ ...row, published })));
+    } catch (error) { setState(error instanceof Error ? error.message : String(error)); }
+    finally { setBulkBusy(false); }
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
       <PageHead
         title="Corrective Movement Strategies"
         meta={loading ? "Loading corrective movement strategies…" : `${publishedCount} published · ${rows.length - publishedCount} in review · guides are the canonical content type`}
         actions={
-          <><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New content</Btn><Link
+          <><Btn disabled={bulkBusy} onClick={() => void setAllPublished(true)}>Publish all</Btn><Btn disabled={bulkBusy} onClick={() => void setAllPublished(false)}>Unpublish all</Btn><Btn variant="ink" onClick={() => void createRecipe()}><Plus className="h-3.5 w-3.5" /> New content</Btn><Link
             to="/admin/recipes/scrape"
             className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-border bg-accent px-3 py-2 text-xs font-bold text-accent-foreground"
           >
@@ -174,4 +186,3 @@ function missingFields(row: Row) {
     ["evidence", row.evidence], ["body region", row.regions.length ? "set" : ""],
   ].filter(([, value]) => !value?.trim()).map(([label]) => label);
 }
-

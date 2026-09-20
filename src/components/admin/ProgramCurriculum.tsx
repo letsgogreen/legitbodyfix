@@ -10,6 +10,7 @@ import {
   deleteAdminModule,
   getAdminCurriculum,
   saveAdminLesson,
+  setAdminCurriculumPublished,
   updateAdminModule,
 } from "@/lib/admin-curriculum.functions";
 import {
@@ -51,6 +52,7 @@ export function ProgramCurriculum({ requestedProgramId, embedded = false }: { re
   const [editingModule, setEditingModule] = useState<Module | null>(null);
   const [newModuleTitle, setNewModuleTitle] = useState("");
   const [loading, setLoading] = useState(true);
+  const [bulkPublishing, setBulkPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewing, setPreviewing] = useState<{ title: string; iframeUrl: string } | null>(null);
   const [previewLoadingId, setPreviewLoadingId] = useState<string | null>(null);
@@ -130,6 +132,22 @@ export function ProgramCurriculum({ requestedProgramId, embedded = false }: { re
       await loadCurriculum();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
+    }
+  };
+
+  const setWholeCurriculumPublished = async (published: boolean) => {
+    if (!programId || bulkPublishing) return;
+    const action = published ? "publish" : "unpublish";
+    if (!window.confirm(`${action === "publish" ? "Publish" : "Unpublish"} every module and lesson in this program?`)) return;
+    setBulkPublishing(true);
+    setError(null);
+    try {
+      await setAdminCurriculumPublished({ data: { programId, published } });
+      await loadCurriculum();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setBulkPublishing(false);
     }
   };
 
@@ -292,9 +310,13 @@ export function ProgramCurriculum({ requestedProgramId, embedded = false }: { re
 
       {programId && (
         <Panel className="mt-5 p-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            Add curriculum module
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Add curriculum module</p>
+            <div className="flex flex-wrap gap-2" aria-label="Whole curriculum visibility">
+              <Btn disabled={bulkPublishing || (!modules.length && !lessons.length)} onClick={() => void setWholeCurriculumPublished(true)}>Publish all</Btn>
+              <Btn disabled={bulkPublishing || (!modules.length && !lessons.length)} onClick={() => void setWholeCurriculumPublished(false)}>Unpublish all</Btn>
+            </div>
+          </div>
           <div className="mt-2 flex max-w-xl gap-2">
             <input
               value={newModuleTitle}
