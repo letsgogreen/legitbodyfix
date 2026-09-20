@@ -1222,12 +1222,14 @@ function LessonDrawer({
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <Btn
-                            disabled={captionBusy !== null || Boolean(caption)}
-                            onClick={() => void generateCaptions(language)}
-                          >
-                            {captionBusy === language ? "Working…" : `Generate from ${name} audio`}
-                          </Btn>
+                          {language === "en" && (
+                            <Btn
+                              disabled={captionBusy !== null || Boolean(caption)}
+                              onClick={() => void generateCaptions(language)}
+                            >
+                              {captionBusy === language ? "Working…" : "Generate from English audio"}
+                            </Btn>
+                          )}
                           <label
                             className={`inline-flex items-center rounded-sm border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
                           >

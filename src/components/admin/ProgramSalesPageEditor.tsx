@@ -578,12 +578,14 @@ export function ProgramSalesPageEditor() {
                                 : "View captions"}
                             </Btn>
                           )}
-                          <Btn
-                            disabled={captionBusy !== null || Boolean(caption)}
-                            onClick={() => void generateCaptions(language)}
-                          >
-                            {captionBusy === language ? "Working…" : `Generate from ${name} audio`}
-                          </Btn>
+                          {language === "en" && (
+                            <Btn
+                              disabled={captionBusy !== null || Boolean(caption)}
+                              onClick={() => void generateCaptions(language)}
+                            >
+                              {captionBusy === language ? "Working…" : "Generate from English audio"}
+                            </Btn>
+                          )}
                           <label
                             className={`inline-flex cursor-pointer items-center border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "pointer-events-none opacity-50" : ""}`}
                           >
