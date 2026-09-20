@@ -13,17 +13,24 @@ export const getAdminCustomerAccessData = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [profileResult, entitlementResult, programResult] = await Promise.all([
+    const [profileResult, entitlementResult, programResult, authResult] = await Promise.all([
       supabaseAdmin.from("customer_profiles").select("*").order("created_at", { ascending: false }),
       supabaseAdmin.from("entitlements").select("*").order("granted_at", { ascending: false }),
       supabaseAdmin.from("programs").select("*").order("name"),
+      supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
     ]);
-    const error = profileResult.error ?? entitlementResult.error ?? programResult.error;
+    const error = profileResult.error ?? entitlementResult.error ?? programResult.error ?? authResult.error;
     if (error) throw new Error(error.message);
     return {
       profiles: profileResult.data ?? [],
       entitlements: entitlementResult.data ?? [],
       programs: programResult.data ?? [],
+      accounts: (authResult.data?.users ?? []).map((user) => ({
+        userId: user.id,
+        emailConfirmedAt: user.email_confirmed_at ?? null,
+        lastSignInAt: user.last_sign_in_at ?? null,
+        createdAt: user.created_at,
+      })),
     };
   });
 export const setAdminCustomerAccess = createServerFn({ method: "POST" })
