@@ -411,47 +411,35 @@ export const refreshSalesPreviewVideo = createServerFn({ method: "POST" })
     };
   });
 
-const SALES_PREVIEW_ALLOWED_ORIGINS = [
-  "legitbodyfix.com",
-  "www.legitbodyfix.com",
-  "*.legitbodyfix.com",
-  "*.vercel.app",
-  "localhost",
-];
-
-function sameOrigins(current: string[] | undefined, expected: string[]) {
-  if (!current || current.length !== expected.length) return false;
-  const actual = new Set(current.map((origin) => origin.trim().toLowerCase()));
-  return expected.every((origin) => actual.has(origin.toLowerCase()));
-}
-
 export async function getPublicSalesPreviewIframe(streamUid: string) {
   if (!/^[a-f0-9]{32}$/.test(streamUid)) throw new Error("Invalid preview video.");
   const video = await cloudflare<{ readyToStream?: boolean; allowedOrigins?: string[]; preview?: string }>(
     "/" + streamUid,
   );
   if (!video.readyToStream) throw new Error("Preview is not ready.");
-  if (!sameOrigins(video.allowedOrigins, SALES_PREVIEW_ALLOWED_ORIGINS)) {
+  // This is a public sales sample. A short-lived signed token protects the
+  // asset, while an origin restriction would make playback depend on browser
+  // referrer behavior and on every deployment hostname staying in sync.
+  if (video.allowedOrigins?.length) {
     await cloudflare("/" + streamUid, {
       method: "POST",
       body: JSON.stringify({
         uid: streamUid,
         requireSignedURLs: true,
-        allowedOrigins: SALES_PREVIEW_ALLOWED_ORIGINS,
+        allowedOrigins: [],
       }),
     });
   }
   const { customerCode } = streamConfig();
-  let deliveryOrigin = "";
-  if (video.preview) {
+  let deliveryOrigin = customerCode
+    ? "https://customer-" + customerCode + ".cloudflarestream.com"
+    : "";
+  if (!deliveryOrigin && video.preview) {
     try {
       deliveryOrigin = new URL(video.preview).origin;
     } catch {
-      // Fall back to the configured customer code below.
+      // The explicit configuration error below is more useful than a bad URL.
     }
-  }
-  if (!deliveryOrigin && customerCode) {
-    deliveryOrigin = "https://customer-" + customerCode + ".cloudflarestream.com";
   }
   if (!deliveryOrigin) throw new Error("Cloudflare Stream customer code is not configured.");
   const signed = await cloudflare<{ token: string }>("/" + streamUid + "/token", { method: "POST" });

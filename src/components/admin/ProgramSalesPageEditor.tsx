@@ -118,6 +118,7 @@ export function ProgramSalesPageEditor() {
     [processingProgress, setProcessingProgress] = useState(0),
     [message, setMessage] = useState("");
   const [previewIframeUrl, setPreviewIframeUrl] = useState("");
+  const [previewPlayerError, setPreviewPlayerError] = useState("");
   const [previewCaptions, setPreviewCaptions] = useState<StreamCaption[]>([]);
   const [previewReloading, setPreviewReloading] = useState(false);
   const [captionBusy, setCaptionBusy] = useState<"en" | "ko" | null>(null);
@@ -157,13 +158,16 @@ export function ProgramSalesPageEditor() {
   }, [video, records]);
   const loadPreviewPlayer = useCallback(async () => {
     setPreviewIframeUrl("");
+    setPreviewPlayerError("");
     if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
     setPreviewReloading(true);
     try {
       const { iframeUrl } = await getAdminSalesPreviewIframe({ data: { streamUid: draft.previewStreamUid } });
       setPreviewIframeUrl(iframeUrl);
     } catch (e) {
-      setMessage(e instanceof Error ? `Could not load the secure preview: ${e.message}` : "Could not load the secure preview.");
+      const errorMessage = e instanceof Error ? e.message : "Unknown playback error.";
+      setPreviewPlayerError(errorMessage);
+      setMessage(`Could not load the secure preview: ${errorMessage}`);
     } finally {
       setPreviewReloading(false);
     }
@@ -480,6 +484,7 @@ export function ProgramSalesPageEditor() {
                   src={previewIframeUrl}
                   title={`${video?.title || "Sales"} preview video`}
                   allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
+                  referrerPolicy="origin"
                   allowFullScreen
                 />
               ) : draft.previewStreamStatus === "processing" ? (
@@ -502,8 +507,8 @@ export function ProgramSalesPageEditor() {
                   Video processing failed. Replace the video or refresh its status.
                 </div>
               ) : draft.previewStreamStatus === "ready" ? (
-                <div className="grid h-full place-items-center text-sm text-muted-foreground">
-                  Loading secure player…
+                <div className={`grid h-full place-items-center px-6 text-center text-sm ${previewPlayerError ? "text-destructive" : "text-muted-foreground"}`}>
+                  {previewPlayerError ? "The secure player could not be created." : "Loading secure player…"}
                 </div>
               ) : (
                 <div className="grid h-full place-items-center text-sm text-muted-foreground">
@@ -511,6 +516,11 @@ export function ProgramSalesPageEditor() {
                 </div>
               )}
             </div>
+            {previewPlayerError && (
+              <p className="mt-3 border border-destructive/40 bg-destructive/5 p-3 text-xs text-destructive lg:col-start-2">
+                Preview playback failed: {previewPlayerError}
+              </p>
+            )}
             {draft.previewStreamStatus === "ready" && draft.previewStreamUid && (
               <div className="border-t border-border pt-5 lg:col-span-2">
                 <div className="flex flex-wrap items-start justify-between gap-3">
