@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDownRight, ArrowUpRight, RefreshCw } from "lucide-react";
 import { AdminLoadingState, Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
-import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { getAdminAnalytics } from "@/lib/admin-analytics.functions";
 
 type View = Database["public"]["Tables"]["page_views"]["Row"];
 type Range = 7 | 30 | 90;
@@ -86,21 +86,14 @@ function AnalyticsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const since = new Date(Date.now() - range * 2 * 86_400_000).toISOString();
-    let result = await supabase
-      .from("page_views")
-      .select("id,created_at,session_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type,country_code,region_code")
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(10000);
-    if (result.error) {
-      const fallback = await supabase.from("page_views").select("id,created_at,session_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type").gte("created_at", since).order("created_at", { ascending: false }).limit(10000);
-      result = { data: (fallback.data || []).map((view) => ({ ...view, country_code: null, region_code: null })), error: fallback.error };
+    try {
+      const result = await getAdminAnalytics({ data: { range } });
+      setRawViews(result.views);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setLoading(false);
     }
-    const { data, error: queryError } = result;
-    if (queryError) setError(queryError.message);
-    else setRawViews(data || []);
-    setLoading(false);
   }, [range]);
 
   useEffect(() => { void load(); }, [load]);
