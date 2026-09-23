@@ -17,7 +17,6 @@ import {
   attachStreamVideo,
   createStreamTusUpload,
   deleteStreamCaptions,
-  generateStreamCaptions,
   getStreamConfigurationStatus,
   getStreamPlayback,
   listStreamCaptions,
@@ -740,20 +739,6 @@ function LessonDrawer({
     void refreshStreamThumbnail();
   }, [lesson, refreshStreamThumbnail, streamStatus, streamUid, thumbnailUrl]);
 
-  const generateCaptions = async (language: "en" | "ko") => {
-    if (!lesson) return;
-    setCaptionBusy(language);
-    setError(null);
-    try {
-      await generateStreamCaptions({ data: { lessonId: lesson.id, language } });
-      await refreshCaptions();
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
-    } finally {
-      setCaptionBusy(null);
-    }
-  };
-
   const uploadCaptions = async (language: "en" | "ko", file: File) => {
     if (!lesson) return;
     setCaptionBusy(language);
@@ -1196,8 +1181,8 @@ function LessonDrawer({
                   <div>
                     <p className="text-sm font-bold">Captions</p>
                     <p className="mt-1 text-[11px] leading-4 text-muted-foreground">
-                      AI generation transcribes the language spoken in the video. For a translation,
-                      upload a reviewed WebVTT file.
+                      Upload the final reviewed English and Korean WebVTT files. Captions stay off by
+                      default until a viewer chooses a language from the player’s CC menu.
                     </p>
                   </div>
                   <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
@@ -1222,18 +1207,10 @@ function LessonDrawer({
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {language === "en" && (
-                            <Btn
-                              disabled={captionBusy !== null || Boolean(caption)}
-                              onClick={() => void generateCaptions(language)}
-                            >
-                              {captionBusy === language ? "Working…" : "Generate from English audio"}
-                            </Btn>
-                          )}
                           <label
                             className={`inline-flex items-center rounded-sm border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
                           >
-                            Upload WebVTT
+                            {caption ? "Replace WebVTT" : "Upload WebVTT"}
                             <input
                               type="file"
                               accept=".vtt,text/vtt"

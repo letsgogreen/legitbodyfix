@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ExternalLink, Loader2, Save, Upload } from "lucide-react";
 import { Btn, PageHead } from "@/components/admin/AdminUI";
-import { CaptionWorkspaceEditor } from "@/components/admin/CaptionWorkspaceEditor";
 import { getAdminPrograms } from "@/lib/admin-programs.functions";
 import {
   getAdminProgramSalesPages,
@@ -10,7 +9,6 @@ import {
 import {
   createSalesPreviewTusUpload,
   deleteSalesPreviewCaptions,
-  generateSalesPreviewCaptions,
   getAdminSalesPreviewIframe,
   listSalesPreviewCaptions,
   refreshSalesPreviewVideo,
@@ -283,22 +281,6 @@ export function ProgramSalesPageEditor() {
       setUploading(false);
     }
   }
-  async function generateCaptions(language: "en" | "ko") {
-    if (!draft?.previewStreamUid) return;
-    setCaptionBusy(language);
-    setMessage("");
-    try {
-      await generateSalesPreviewCaptions({
-        data: { streamUid: draft.previewStreamUid, language },
-      });
-      await refreshCaptions();
-      setMessage("Caption generation started. Refresh shortly to check its status.");
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : String(e));
-    } finally {
-      setCaptionBusy(null);
-    }
-  }
   async function uploadCaptions(language: "en" | "ko", file: File) {
     if (!draft?.previewStreamUid) return;
     setCaptionBusy(language);
@@ -537,10 +519,10 @@ export function ProgramSalesPageEditor() {
               <div className="border-t border-border pt-5 lg:col-span-2">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-bold">Create or replace captions</p>
+                    <p className="text-sm font-bold">English and Korean captions</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Generate a source transcript or upload an existing WebVTT file. Ready captions
-                      can then be reviewed in the workspace below.
+                      Upload the final reviewed WebVTT file for each language. Captions are off by
+                      default; viewers can choose English or 한국어 from the player’s CC menu.
                     </p>
                   </div>
                   <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
@@ -578,18 +560,10 @@ export function ProgramSalesPageEditor() {
                                 : "View captions"}
                             </Btn>
                           )}
-                          {language === "en" && (
-                            <Btn
-                              disabled={captionBusy !== null || Boolean(caption)}
-                              onClick={() => void generateCaptions(language)}
-                            >
-                              {captionBusy === language ? "Working…" : "Generate from English audio"}
-                            </Btn>
-                          )}
                           <label
                             className={`inline-flex cursor-pointer items-center border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "pointer-events-none opacity-50" : ""}`}
                           >
-                            Upload WebVTT
+                            {caption ? "Replace WebVTT" : "Upload WebVTT"}
                             <input
                               className="sr-only"
                               type="file"
@@ -615,20 +589,10 @@ export function ProgramSalesPageEditor() {
                     );
                   })}
                 </div>
-                {previewCaptions.some((caption) => caption.status === "ready") ? (
-                  <CaptionWorkspaceEditor
-                    streamUid={draft.previewStreamUid}
-                    onPreview={(language, startTime) => {
-                      setPreviewCaptionLanguage(language);
-                      void loadPreviewPlayer(language, startTime);
-                    }}
-                  />
-                ) : (
-                  <p className="mt-4 border border-border bg-secondary/30 p-4 text-xs leading-5 text-muted-foreground">
-                    Add at least one caption above. The review workspace will appear when Cloudflare
-                    reports it as ready.
-                  </p>
-                )}
+                <p className="mt-4 border border-border bg-secondary/30 p-4 text-xs leading-5 text-muted-foreground">
+                  Uploading or replacing a file updates the caption track stored with this preview
+                  video. Use “View captions” to verify the selected language before opening the live page.
+                </p>
               </div>
             )}
           </section>

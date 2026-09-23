@@ -94,8 +94,7 @@ function ProgramLibrary() {
     if (lesson.stream_status !== "ready") return;
     setPlaybackLoading(true); setError(null); setPlaying(lesson); setPlaybackUrl(null);
     try {
-      const preferredLanguage = navigator.language.toLowerCase().startsWith("ko") ? "ko" : "en";
-      const result = await getStreamPlayback({ data: { lessonId: lesson.id, preferredLanguage } });
+      const result = await getStreamPlayback({ data: { lessonId: lesson.id } });
       setPlaybackUrl(result.iframeUrl);
     }
     catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); setPlaying(null); }
