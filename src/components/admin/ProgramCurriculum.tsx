@@ -1147,6 +1147,7 @@ function LessonDrawer({
                 <StreamPlayer
                   iframeUrl={previewUrl}
                   title={`${title || "Lesson"} preview`}
+                  defaultTextTrack={previewCaptionLanguage}
                   onTimeChange={(time) => setThumbnailTime(time.toFixed(2))}
                   seekRequest={previewSeek}
                 />
@@ -1325,6 +1326,7 @@ function LessonDrawer({
 
 type StreamPlayerApi = {
   currentTime: number;
+  defaultTextTrack: string;
   addEventListener: (event: string, listener: () => void) => void;
   removeEventListener: (event: string, listener: () => void) => void;
 };
@@ -1338,11 +1340,13 @@ declare global {
 function StreamPlayer({
   iframeUrl,
   title,
+  defaultTextTrack,
   onTimeChange,
   seekRequest,
 }: {
   iframeUrl: string;
   title: string;
+  defaultTextTrack?: "en" | "ko" | null;
   onTimeChange?: (time: number) => void;
   seekRequest?: { time: number; request: number } | null;
 }) {
@@ -1363,6 +1367,7 @@ function StreamPlayer({
       if (cancelled || !iframeRef.current || !window.Stream) return;
       player = window.Stream(iframeRef.current);
       playerRef.current = player;
+      if (defaultTextTrack) player.defaultTextTrack = defaultTextTrack;
       handleTimeUpdate = () =>
         onTimeChangeRef.current?.(Math.max(0, Number(player?.currentTime) || 0));
       player.addEventListener("timeupdate", handleTimeUpdate);
@@ -1392,7 +1397,7 @@ function StreamPlayer({
       }
       playerRef.current = null;
     };
-  }, [iframeUrl]);
+  }, [defaultTextTrack, iframeUrl]);
 
   useEffect(() => {
     if (seekRequest && playerRef.current)
@@ -1402,6 +1407,7 @@ function StreamPlayer({
   return (
     <div className="aspect-video">
       <iframe
+        key={`${iframeUrl}:${defaultTextTrack ?? "off"}`}
         ref={iframeRef}
         src={iframeUrl}
         title={title}
