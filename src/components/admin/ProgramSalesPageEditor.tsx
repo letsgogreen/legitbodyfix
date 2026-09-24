@@ -49,6 +49,7 @@ type Video = Partial<SalesDraft> & {
   description?: string;
   curriculum?: Step[];
 };
+type EditorSession = { videoId: string; draft: SalesDraft };
 const SALES_PAGE_ID_BY_PROGRAM_SLUG: Record<string, string> = {
   "neck-shoulder-reset": "neck-alignment",
   "ankle-recovery": "ankle-sprain-rehabilitation",
@@ -156,9 +157,9 @@ function EditorCard({
 export function ProgramSalesPageEditor() {
   const [videos, setVideos] = useState<Video[]>([]),
     [records, setRecords] = useState<Record<string, Partial<SalesDraft>>>({});
-  const [videoId, setVideoId] = useState(""),
-    [draft, setDraft] = useState<SalesDraft | null>(null);
-  const [draftVideoId, setDraftVideoId] = useState("");
+  const [editor, setEditor] = useState<EditorSession | null>(null);
+  const videoId = editor?.videoId || "";
+  const draft = editor?.draft || null;
   const [loading, setLoading] = useState(true),
     [saving, setSaving] = useState(false),
     [uploading, setUploading] = useState(false),
@@ -204,9 +205,11 @@ export function ProgramSalesPageEditor() {
         const firstVideo = list[0];
         setRecords(savedById);
         activeVideoIdRef.current = firstVideo?.id || "";
-        setVideoId(firstVideo?.id || "");
-        setDraftVideoId(firstVideo?.id || "");
-        setDraft(firstVideo ? makeDraft(firstVideo, savedById[firstVideo.id]) : null);
+        setEditor(
+          firstVideo
+            ? { videoId: firstVideo.id, draft: makeDraft(firstVideo, savedById[firstVideo.id]) }
+            : null,
+        );
       })
       .catch((e) => setMessage(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
@@ -217,9 +220,11 @@ export function ProgramSalesPageEditor() {
     activeVideoIdRef.current = nextVideoId;
     previewRequestRef.current += 1;
     captionRequestRef.current += 1;
-    setVideoId(nextVideoId);
-    setDraftVideoId(nextVideoId);
-    setDraft(nextVideo ? makeDraft(nextVideo, records[nextVideoId]) : null);
+    setEditor(
+      nextVideo
+        ? { videoId: nextVideoId, draft: makeDraft(nextVideo, records[nextVideoId]) }
+        : null,
+    );
     setPreviewIframeUrl("");
     setPreviewPlayerError("");
     setPreviewCaptions([]);
@@ -231,12 +236,7 @@ export function ProgramSalesPageEditor() {
       const requestId = ++previewRequestRef.current;
       setPreviewIframeUrl("");
       setPreviewPlayerError("");
-      if (
-        !videoId ||
-        draftVideoId !== videoId ||
-        draft?.previewStreamStatus !== "ready" ||
-        !draft.previewStreamUid
-      )
+      if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid)
         return;
       setPreviewReloading(true);
       try {
@@ -258,13 +258,7 @@ export function ProgramSalesPageEditor() {
         if (requestId === previewRequestRef.current) setPreviewReloading(false);
       }
     },
-    [
-      videoId,
-      draftVideoId,
-      draft?.previewStreamStatus,
-      draft?.previewStreamUid,
-      previewCaptionLanguage,
-    ],
+    [videoId, draft?.previewStreamStatus, draft?.previewStreamUid, previewCaptionLanguage],
   );
   useEffect(() => {
     void loadPreviewPlayer();
@@ -278,11 +272,7 @@ export function ProgramSalesPageEditor() {
   }, [draft?.previewStreamStatus, draft?.previewStreamUid, videoId]);
   const refreshCaptions = useCallback(async () => {
     const requestId = ++captionRequestRef.current;
-    if (
-      draftVideoId !== videoId ||
-      draft?.previewStreamStatus !== "ready" ||
-      !draft.previewStreamUid
-    )
+    if (draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid)
       return;
     try {
       const captions = await listSalesPreviewCaptions({
@@ -293,27 +283,33 @@ export function ProgramSalesPageEditor() {
       if (requestId === captionRequestRef.current)
         setMessage(e instanceof Error ? e.message : String(e));
     }
-  }, [videoId, draftVideoId, draft?.previewStreamStatus, draft?.previewStreamUid]);
+  }, [videoId, draft?.previewStreamStatus, draft?.previewStreamUid]);
   useEffect(() => {
     setPreviewCaptions([]);
     setPreviewCaptionLanguage(null);
     void refreshCaptions();
   }, [refreshCaptions]);
+  const updateDraft = (update: (current: SalesDraft) => SalesDraft) =>
+    setEditor((current) => (current ? { ...current, draft: update(current.draft) } : current));
   const set = (key: keyof SalesDraft, value: string) =>
-    setDraft((d) => (d ? { ...d, [key]: value } : d));
+    updateDraft((current) => ({ ...current, [key]: value }));
   const setStep = (i: number, key: keyof Step, value: string) =>
-    setDraft((d) =>
-      d
-        ? { ...d, curriculum: d.curriculum.map((x, n) => (n === i ? { ...x, [key]: value } : x)) }
-        : d,
-    );
+    updateDraft((current) => ({
+      ...current,
+      curriculum: current.curriculum.map((item, index) =>
+        index === i ? { ...item, [key]: value } : item,
+      ),
+    }));
   async function save() {
-    if (!draft || !videoId || draftVideoId !== videoId) return;
+    if (!editor) return;
+    const target = editor;
     setSaving(true);
     setMessage("");
     try {
-      const r = await saveAdminProgramSalesPage({ data: { videoId, content: draft } });
-      setRecords((x) => ({ ...x, [videoId]: r.content as Partial<SalesDraft> }));
+      const r = await saveAdminProgramSalesPage({
+        data: { videoId: target.videoId, content: target.draft },
+      });
+      setRecords((x) => ({ ...x, [target.videoId]: r.content as Partial<SalesDraft> }));
       setMessage("Sales page published. The public page will update automatically.");
     } catch (e) {
       setMessage(e instanceof Error ? e.message : String(e));
@@ -323,21 +319,17 @@ export function ProgramSalesPageEditor() {
   }
   async function refreshPreview(uid = draft?.previewStreamUid, quiet = false) {
     const targetVideoId = videoId;
-    if (!draft || !uid || draftVideoId !== targetVideoId) return;
+    if (!draft || !uid) return;
     try {
       const r = await refreshSalesPreviewVideo({ data: { videoId: targetVideoId, streamUid: uid } });
       if (activeVideoIdRef.current !== targetVideoId) return;
       setProcessingProgress(r.progress);
-      setDraft((d) =>
-        d
-          ? {
-              ...d,
-              previewStreamUid: uid,
-              previewStreamStatus: r.status,
-              previewThumbnailUrl: r.thumbnailUrl,
-            }
-          : d,
-      );
+      updateDraft((current) => ({
+        ...current,
+        previewStreamUid: uid,
+        previewStreamStatus: r.status,
+        previewThumbnailUrl: r.thumbnailUrl,
+      }));
       if (!quiet || r.status === "ready" || r.status === "error")
         setMessage(
           r.status === "ready"
@@ -356,7 +348,7 @@ export function ProgramSalesPageEditor() {
   }
   async function uploadPreview(file: File) {
     const targetVideoId = videoId;
-    if (!draft || draftVideoId !== targetVideoId) return;
+    if (!draft) return;
     setUploading(true);
     setUploadProgress(0);
     setProcessingProgress(0);
@@ -366,12 +358,14 @@ export function ProgramSalesPageEditor() {
         data: { videoId: targetVideoId, fileName: file.name, fileSize: file.size },
       });
       if (activeVideoIdRef.current !== targetVideoId) return;
-      setDraft((d) =>
-        d ? { ...d, previewStreamUid: upload.uid, previewStreamStatus: "uploading" } : d,
-      );
+      updateDraft((current) => ({
+        ...current,
+        previewStreamUid: upload.uid,
+        previewStreamStatus: "uploading",
+      }));
       await uploadTusFile(upload.uploadURL, file, setUploadProgress);
       if (activeVideoIdRef.current !== targetVideoId) return;
-      setDraft((d) => (d ? { ...d, previewStreamStatus: "processing" } : d));
+      updateDraft((current) => ({ ...current, previewStreamStatus: "processing" }));
       await refreshPreview(upload.uid);
     } catch (e) {
       setMessage(e instanceof Error ? e.message : String(e));
@@ -460,7 +454,7 @@ export function ProgramSalesPageEditor() {
             const saved = records[item.id];
             const selected = item.id === videoId;
             const status =
-              selected && draftVideoId === item.id
+              selected
                 ? draft?.previewStreamStatus || "not_uploaded"
                 : saved?.previewStreamStatus || "not_uploaded";
             return (
