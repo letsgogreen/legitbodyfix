@@ -264,6 +264,7 @@ function ModeToggle({ value, onChange }: { value: AcquisitionMode; onChange: (va
 const SERIES_COLORS = ["#17c98b", "#3478f6", "#ff6078", "#e9b949", "#19bfd0"];
 
 function AcquisitionTrend({ views, range, mode }: { views: View[]; range: Range; mode: AcquisitionMode }) {
+  const [activePoint, setActivePoint] = useState<{ label: string; date: string; count: number; x: number; y: number; color: string } | null>(null);
   const width = 1000;
   const height = 180;
   const inset = 12;
@@ -276,28 +277,39 @@ function AcquisitionTrend({ views, range, mode }: { views: View[]; range: Range;
   if (!series.length) return <div className="mt-6 grid h-44 place-items-center border border-dashed border-border text-center text-sm text-muted-foreground">No {mode === "source" ? "source" : "campaign"} trend data yet.</div>;
 
   return <>
-    <div className="mt-6 h-44 w-full" aria-label={`${mode} traffic trend`}><svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img">
+    <div className="relative mt-6 h-44 w-full" aria-label={`${mode} traffic trend`}><svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img" onPointerLeave={() => setActivePoint(null)}>
       {[0, 1, 2].map((lineIndex) => <line key={lineIndex} x1={inset} x2={width - inset} y1={inset + lineIndex * (height - inset * 2) / 2} y2={inset + lineIndex * (height - inset * 2) / 2} className="stroke-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
       {series.map((item, seriesIndex) => {
-        const points = item.values.map((count, index) => ({ count, x: inset + index / Math.max(1, labels.length - 1) * (width - inset * 2), y: height - inset - count / max * (height - inset * 2) }));
-        return <g key={item.label}><polyline points={points.map(({ x, y }) => `${x},${y}`).join(" ")} fill="none" stroke={SERIES_COLORS[seriesIndex]} strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />{points.filter(({ count }) => count > 0).map(({ count, x, y }, index) => <circle key={index} cx={x} cy={y} r="3" fill={SERIES_COLORS[seriesIndex]} vectorEffect="non-scaling-stroke"><title>{item.label} · {count} views</title></circle>)}</g>;
+        const color = SERIES_COLORS[seriesIndex];
+        const points = item.values.map((count, index) => ({ count, date: labels[index], x: inset + index / Math.max(1, labels.length - 1) * (width - inset * 2), y: height - inset - count / max * (height - inset * 2) }));
+        return <g key={item.label}><polyline points={points.map(({ x, y }) => `${x},${y}`).join(" ")} fill="none" stroke={color} strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />{points.map(({ count, date, x, y }) => <g key={date}><circle cx={x} cy={y} r={count > 0 ? "3" : "2"} fill={color} opacity={count > 0 ? 1 : 0.35} vectorEffect="non-scaling-stroke" /><circle cx={x} cy={y} r="12" fill="transparent" className="cursor-crosshair" tabIndex={0} onPointerEnter={() => setActivePoint({ label: item.label, date, count, x, y, color })} onPointerDown={() => setActivePoint({ label: item.label, date, count, x, y, color })} onFocus={() => setActivePoint({ label: item.label, date, count, x, y, color })} onBlur={() => setActivePoint(null)}><title>{date} · {item.label} · {count} views</title></circle></g>)}</g>;
       })}
-    </svg></div>
+    </svg>{activePoint && <ChartTooltip x={activePoint.x / width * 100} y={activePoint.y / height * 100} accent={activePoint.color} title={activePoint.label} detail={`${activePoint.date} · ${activePoint.count.toLocaleString()} ${activePoint.count === 1 ? "view" : "views"}`} />}</div>
     <div className="mt-4 flex flex-wrap gap-2">{series.map((item, index) => <span key={item.label} className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[11px] font-medium"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: SERIES_COLORS[index] }} />{item.label}</span>)}</div>
   </>;
 }
 
 function HourlyLine({ rows }: { rows: readonly (readonly [number, number])[] }) {
+  const [activePoint, setActivePoint] = useState<{ hour: number; count: number; x: number; y: number } | null>(null);
   const width = 1000;
   const height = 160;
   const inset = 12;
   const max = Math.max(1, ...rows.map(([, count]) => count));
   const points = rows.map(([hour, count], index) => ({ hour, count, x: inset + index / Math.max(1, rows.length - 1) * (width - inset * 2), y: height - inset - count / max * (height - inset * 2) }));
-  return <div className="mt-6 h-40 w-full" aria-label="Visits by local hour"><svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img">
+  return <div className="relative mt-6 h-40 w-full" aria-label="Visits by local hour"><svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="h-full w-full overflow-visible" role="img" onPointerLeave={() => setActivePoint(null)}>
     {[0, 1, 2].map((lineIndex) => <line key={lineIndex} x1={inset} x2={width - inset} y1={inset + lineIndex * (height - inset * 2) / 2} y2={inset + lineIndex * (height - inset * 2) / 2} className="stroke-border" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
     <polyline points={points.map(({ x, y }) => `${x},${y}`).join(" ")} fill="none" className="stroke-accent" strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
-    {points.filter(({ count }) => count > 0).map(({ hour, count, x, y }) => <circle key={hour} cx={x} cy={y} r="4" className="fill-card stroke-ink" strokeWidth="2" vectorEffect="non-scaling-stroke"><title>{String(hour).padStart(2, "0")}:00 · {count} views</title></circle>)}
-  </svg></div>;
+    {points.map(({ hour, count, x, y }) => <g key={hour}><circle cx={x} cy={y} r={count > 0 ? "4" : "2"} className={count > 0 ? "fill-card stroke-ink" : "fill-accent"} opacity={count > 0 ? 1 : 0.45} strokeWidth={count > 0 ? "2" : "0"} vectorEffect="non-scaling-stroke" /><circle cx={x} cy={y} r="13" fill="transparent" className="cursor-crosshair" tabIndex={0} onPointerEnter={() => setActivePoint({ hour, count, x, y })} onPointerDown={() => setActivePoint({ hour, count, x, y })} onFocus={() => setActivePoint({ hour, count, x, y })} onBlur={() => setActivePoint(null)}><title>{String(hour).padStart(2, "0")}:00 · {count} views</title></circle></g>)}
+  </svg>{activePoint && <ChartTooltip x={activePoint.x / width * 100} y={activePoint.y / height * 100} accent="hsl(var(--accent))" title={`${String(activePoint.hour).padStart(2, "0")}:00–${String((activePoint.hour + 1) % 24).padStart(2, "0")}:00`} detail={`${activePoint.count.toLocaleString()} ${activePoint.count === 1 ? "view" : "views"}`} />}</div>;
+}
+
+function ChartTooltip({ x, y, accent, title, detail }: { x: number; y: number; accent: string; title: string; detail: string }) {
+  const horizontal = x < 18 ? "translateX(0)" : x > 82 ? "translateX(-100%)" : "translateX(-50%)";
+  const vertical = y < 30 ? "translateY(12px)" : "translateY(calc(-100% - 12px))";
+  return <div className="pointer-events-none absolute z-10 min-w-max border border-ink bg-ink px-3 py-2 text-left text-ink-foreground shadow-lg" style={{ left: `${x}%`, top: `${y}%`, transform: `${horizontal} ${vertical}` }} role="status">
+    <p className="flex items-center gap-2 text-xs font-bold"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: accent }} />{title}</p>
+    <p className="mt-1 font-mono text-[10px] text-ink-foreground/70">{detail}</p>
+  </div>;
 }
 
 function DevicePanel({ rows }: { rows: [string, number][] }) {
