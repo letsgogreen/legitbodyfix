@@ -6,6 +6,35 @@ type CloudflareEnvelope<T> = { success: boolean; result?: T; errors?: { message?
 
 const captionLanguage = z.enum(["en", "ko"]);
 
+export function normalizeCaptionToWebVtt(fileName: string, source: string) {
+  const content = source.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n").trim();
+  if (content.startsWith("WEBVTT")) return `${content}\n`;
+
+  const isSrt = fileName.toLowerCase().endsWith(".srt");
+  const hasSrtTiming = /(?:^|\n)\d{2}:\d{2}:\d{2},\d{3}\s+-->\s+\d{2}:\d{2}:\d{2},\d{3}(?:\s|$)/.test(content);
+  if (!isSrt || !hasSrtTiming) {
+    throw new Error("Caption file must be a valid .vtt or .srt file.");
+  }
+
+  const cues = content
+    .split(/\n{2,}/)
+    .map((block) => block.split("\n"))
+    .map((lines) => (/^\d+$/.test(lines[0]?.trim() || "") ? lines.slice(1) : lines))
+    .filter((lines) => lines.some((line) => line.includes("-->")))
+    .map((lines) =>
+      lines
+        .map((line) =>
+          line.includes("-->")
+            ? line.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, "$1.$2")
+            : line,
+        )
+        .join("\n"),
+    );
+
+  if (!cues.length) throw new Error("The SRT file does not contain any valid caption cues.");
+  return `WEBVTT\n\n${cues.join("\n\n")}\n`;
+}
+
 export type StreamCaption = {
   language: "en" | "ko";
   label: string;
@@ -540,10 +569,9 @@ export const uploadSalesPreviewCaptions = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    if (!data.content.trimStart().startsWith("WEBVTT"))
-      throw new Error("Caption file must be valid WebVTT and begin with WEBVTT.");
+    const webVtt = normalizeCaptionToWebVtt(data.fileName, data.content);
     const form = new FormData();
-    form.append("file", new Blob([data.content], { type: "text/vtt" }), data.fileName);
+    form.append("file", new Blob([webVtt], { type: "text/vtt" }), data.fileName.replace(/\.srt$/i, ".vtt"));
     await cloudflareMultipart<Record<string, unknown>>(
       `/${data.streamUid}/captions/${data.language}`,
       form,
@@ -727,8 +755,7 @@ export const uploadStreamCaptions = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    if (!data.content.trimStart().startsWith("WEBVTT"))
-      throw new Error("Caption file must be valid WebVTT and begin with WEBVTT.");
+    const webVtt = normalizeCaptionToWebVtt(data.fileName, data.content);
     const { data: lesson, error } = await context.supabase
       .from("lessons")
       .select("stream_uid,stream_status")
@@ -739,7 +766,7 @@ export const uploadStreamCaptions = createServerFn({ method: "POST" })
     if (lesson.stream_status !== "ready")
       throw new Error("Wait until the video is ready before uploading captions.");
     const form = new FormData();
-    form.append("file", new Blob([data.content], { type: "text/vtt" }), data.fileName);
+    form.append("file", new Blob([webVtt], { type: "text/vtt" }), data.fileName.replace(/\.srt$/i, ".vtt"));
     await cloudflareMultipart<Record<string, unknown>>(
       `/${lesson.stream_uid}/captions/${data.language}`,
       form,

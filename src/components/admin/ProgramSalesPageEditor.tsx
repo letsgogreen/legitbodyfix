@@ -521,7 +521,8 @@ export function ProgramSalesPageEditor() {
                   <div>
                     <p className="text-sm font-bold">English and Korean captions</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Upload the final reviewed WebVTT file for each language. Captions are off by
+                      Upload the final reviewed SRT or WebVTT file for each language. SRT files are
+                      converted automatically. Captions are off by
                       default; viewers can choose English or 한국어 from the player’s CC menu.
                     </p>
                   </div>
@@ -563,11 +564,11 @@ export function ProgramSalesPageEditor() {
                           <label
                             className={`inline-flex cursor-pointer items-center border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "pointer-events-none opacity-50" : ""}`}
                           >
-                            {caption ? "Replace WebVTT" : "Upload WebVTT"}
+                            {caption ? "Replace SRT / VTT" : "Upload SRT / VTT"}
                             <input
                               className="sr-only"
                               type="file"
-                              accept=".vtt,text/vtt"
+                              accept=".srt,.vtt,application/x-subrip,text/srt,text/vtt"
                               disabled={captionBusy !== null}
                               onChange={(event) => {
                                 const file = event.target.files?.[0];

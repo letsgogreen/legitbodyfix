@@ -1181,8 +1181,9 @@ function LessonDrawer({
                   <div>
                     <p className="text-sm font-bold">Captions</p>
                     <p className="mt-1 text-[11px] leading-4 text-muted-foreground">
-                      Upload the final reviewed English and Korean WebVTT files. Captions stay off by
-                      default until a viewer chooses a language from the player’s CC menu.
+                      Upload the final reviewed English and Korean SRT or WebVTT files. SRT files are
+                      converted automatically. Captions stay off by default until a viewer chooses a
+                      language from the player’s CC menu.
                     </p>
                   </div>
                   <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
@@ -1210,10 +1211,10 @@ function LessonDrawer({
                           <label
                             className={`inline-flex items-center rounded-sm border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
                           >
-                            {caption ? "Replace WebVTT" : "Upload WebVTT"}
+                            {caption ? "Replace SRT / VTT" : "Upload SRT / VTT"}
                             <input
                               type="file"
-                              accept=".vtt,text/vtt"
+                              accept=".srt,.vtt,application/x-subrip,text/srt,text/vtt"
                               disabled={captionBusy !== null}
                               onChange={(event) => {
                                 const file = event.target.files?.[0];
