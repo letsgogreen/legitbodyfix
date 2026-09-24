@@ -295,6 +295,30 @@
     setText("sequenceIntro", "A guided " + String(video.durationMinutes) + "-minute progression from reducing excess tension to activating key muscles and integrating them into coordinated movement.");
   }
 
+  function renderFeedback(video) {
+    var entries = [1, 2, 3].map(function (number) {
+      return {
+        quote: text(video["feedback" + number + "Quote"], ""),
+        name: text(video["feedback" + number + "Name"], "")
+      };
+    }).filter(function (entry) { return entry.quote; });
+    if (!entries.length) return;
+
+    setText("feedbackHeadline", text(video.feedbackHeadline, "What people noticed after practising."));
+    var cards = entries.map(function (entry, index) {
+      var card = createElement("article", "feedback-card");
+      card.append(
+        createElement("span", "feedback-number", String(index + 1).padStart(2, "0")),
+        createElement("blockquote", "", entry.quote),
+        createElement("p", "", entry.name || "Customer feedback")
+      );
+      return card;
+    });
+    var grid = document.getElementById("feedbackGrid");
+    grid.replaceChildren.apply(grid, cards);
+    document.getElementById("feedbackSection").hidden = false;
+  }
+
   function render(video) {
     document.getElementById("anteriorHumeralGuide").hidden = video.id !== "shoulder-movement";
     var title = text(video.title, "Movement session");
@@ -342,6 +366,7 @@
     var recipeProgramMeta = document.getElementById("recipeProgramMeta");
     if (recipeProgramMeta) recipeProgramMeta.textContent = "Best for guided practice · " + String(video.durationMinutes) + " min · " + displayPrice.replace(" USD", "") + " one-time";
     renderSessionSequence(video);
+    renderFeedback(video);
 
     document.querySelectorAll(".checkout-link").forEach(function (link) { link.href = checkoutUrl; });
 

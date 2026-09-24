@@ -32,6 +32,13 @@ type SalesDraft = {
   techniqueBody: string;
   curriculum: Step[];
   finalHeadline: string;
+  feedbackHeadline: string;
+  feedback1Quote: string;
+  feedback1Name: string;
+  feedback2Quote: string;
+  feedback2Name: string;
+  feedback3Quote: string;
+  feedback3Name: string;
   previewStreamUid: string;
   previewStreamStatus: "not_uploaded" | "uploading" | "processing" | "ready" | "error";
   previewThumbnailUrl: string;
@@ -88,6 +95,13 @@ function makeDraft(v: Video, s?: Partial<SalesDraft>): SalesDraft {
       "Work through each phase at a comfortable range and pace. The session moves from reducing unnecessary effort to building control, then applying it to coordinated movement. Pause, repeat, or stop whenever the movement does not feel right.",
     curriculum: v.curriculum?.length === 3 ? v.curriculum : fallbackSteps,
     finalHeadline: "Put the method into practice.",
+    feedbackHeadline: "What people noticed after practising.",
+    feedback1Quote: "",
+    feedback1Name: "",
+    feedback2Quote: "",
+    feedback2Name: "",
+    feedback3Quote: "",
+    feedback3Name: "",
     previewStreamUid: "",
     previewStreamStatus: "not_uploaded",
     previewThumbnailUrl: "",
@@ -744,6 +758,53 @@ export function ProgramSalesPageEditor() {
                   onChange={(e) => set("finalHeadline", e.target.value)}
                 />
               </Field>
+            </div>
+          </section>
+          <section className="border-t border-border p-6 lg:p-10">
+            <div className="mb-6 border-b border-border pb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+                Customer feedback
+              </p>
+              <h3 className="mt-2 text-xl font-black">Add real feedback when it is ready</h3>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+                The entire section stays hidden on the live sales page until at least one quote is
+                entered. Use only feedback you have permission to publish.
+              </p>
+            </div>
+            <Field label="Section headline">
+              <input
+                className={`${control} text-xl font-bold`}
+                value={draft.feedbackHeadline}
+                onChange={(e) => set("feedbackHeadline", e.target.value)}
+              />
+            </Field>
+            <div className="grid gap-4 lg:grid-cols-3">
+              {([1, 2, 3] as const).map((number) => {
+                const quoteKey = `feedback${number}Quote` as const;
+                const nameKey = `feedback${number}Name` as const;
+                return (
+                  <div key={number} className="border border-border bg-secondary/20 p-4">
+                    <p className="mb-4 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+                      Feedback 0{number}
+                    </p>
+                    <Field label="Quote">
+                      <textarea
+                        className={`${textarea} min-h-40`}
+                        value={draft[quoteKey]}
+                        onChange={(e) => set(quoteKey, e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Name or attribution">
+                      <input
+                        className={control}
+                        value={draft[nameKey]}
+                        onChange={(e) => set(nameKey, e.target.value)}
+                        placeholder="Optional"
+                      />
+                    </Field>
+                  </div>
+                );
+              })}
             </div>
           </section>
         </div>
