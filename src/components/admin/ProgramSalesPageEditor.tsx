@@ -58,7 +58,7 @@ const SALES_PAGE_ID_BY_PROGRAM_SLUG: Record<string, string> = {
 };
 
 const control =
-  "min-h-12 w-full border border-border bg-background px-4 py-3 text-sm leading-6 text-foreground caret-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ink focus:ring-1 focus:ring-ink/10";
+  "min-h-12 w-full border-0 border-b border-border bg-transparent px-0 py-3 text-sm leading-6 text-current caret-current outline-none transition-colors placeholder:text-muted-foreground hover:border-foreground focus:border-foreground focus:ring-0";
 const textarea = `${control} min-h-32 resize-y`;
 const fallbackSteps: Step[] = [
   {
@@ -452,8 +452,11 @@ export function ProgramSalesPageEditor() {
       </div>
       {draft && (
         <div className="mt-5 overflow-hidden border border-border bg-card">
-          <section className="grid bg-ink text-ink-foreground lg:grid-cols-[1.15fr_.85fr]">
-            <div className="p-6 lg:p-10">
+          <section className="grid border-b border-border bg-background lg:grid-cols-[1.15fr_.85fr]">
+            <div className="p-6 lg:p-12">
+              <p className="mb-8 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-muted-foreground">
+                Available now · On-demand
+              </p>
               <Field label="Eyebrow">
                 <input
                   className={control}
@@ -463,16 +466,19 @@ export function ProgramSalesPageEditor() {
               </Field>
               <Field label="Main headline">
                 <textarea
-                  className={`${textarea} min-h-32 text-2xl font-black`}
+                  className={`${textarea} min-h-52 text-4xl font-black uppercase leading-[.95] tracking-[-.04em] sm:text-6xl`}
                   value={draft.landingHeadline}
                   onChange={(e) => set("landingHeadline", e.target.value)}
                 />
               </Field>
             </div>
-            <div className="p-6 lg:p-10">
+            <div className="border-t border-border p-6 lg:border-l lg:border-t-0 lg:p-12">
+              <p className="mb-8 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-muted-foreground">
+                Session overview
+              </p>
               <Field label="Opening summary">
                 <textarea
-                  className={`${textarea} min-h-40`}
+                  className={`${textarea} min-h-52 text-lg leading-8 text-muted-foreground`}
                   value={draft.landingSummary}
                   onChange={(e) => set("landingSummary", e.target.value)}
                 />
@@ -694,26 +700,28 @@ export function ProgramSalesPageEditor() {
               </div>
             )}
           </section>
-          <section className="p-6 lg:p-10">
+          <section className="p-6 lg:p-12">
             <div className="mb-6 border-b border-border pb-4">
               <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
                 Session value
               </p>
-              <h3 className="mt-2 text-xl font-black">Why someone should choose this session</h3>
+              <h3 className="mt-2 max-w-3xl text-3xl font-black uppercase leading-tight tracking-tight sm:text-4xl">
+                Why someone should choose this session
+              </h3>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
                 Keep the headline concise, then give each outcome one clear job.
               </p>
             </div>
-            <Field label="Why this session">
+            <Field label="Why this session · public headline">
               <input
-                className={`${control} text-xl font-bold`}
+                className={`${control} text-2xl font-black uppercase leading-tight sm:text-3xl`}
                 value={draft.landingWhyHeadline}
                 onChange={(e) => set("landingWhyHeadline", e.target.value)}
               />
             </Field>
             <div className="mt-5 grid gap-4 lg:grid-cols-3">
               {(["landingBenefit1", "landingBenefit2", "landingBenefit3"] as const).map((k, i) => (
-                <div key={k} className="border border-border bg-secondary/20 p-4">
+                <div key={k} className="min-h-52 border border-border bg-background p-5">
                   <Field label={`Outcome 0${i + 1}`}>
                     <textarea
                       className={`${textarea} min-h-36`}
@@ -725,12 +733,14 @@ export function ProgramSalesPageEditor() {
               ))}
             </div>
           </section>
-          <section className="border-y border-border bg-secondary/50 p-6 lg:p-10">
+          <section className="border-y border-border bg-ink p-6 text-ink-foreground lg:p-12">
             <div className="mb-6 border-b border-border pb-4">
-              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
-                Method story
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-ink-foreground/60">
+                Inside the session
               </p>
-              <h3 className="mt-2 text-xl font-black">Explain how the session works</h3>
+              <h3 className="mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+                Three phases. One integrated movement strategy.
+              </h3>
             </div>
             <Field label="Technique eyebrow">
               <input
@@ -741,32 +751,32 @@ export function ProgramSalesPageEditor() {
             </Field>
             <Field label="Technique headline">
               <input
-                className={`${control} text-xl font-bold`}
+                className={`${control} text-2xl font-black uppercase leading-tight`}
                 value={draft.techniqueHeadline}
                 onChange={(e) => set("techniqueHeadline", e.target.value)}
               />
             </Field>
             <Field label="Technique explanation">
               <textarea
-                className={`${textarea} min-h-40`}
+                className={`${textarea} min-h-40 text-base leading-8 text-ink-foreground/75`}
                 value={draft.techniqueBody}
                 onChange={(e) => set("techniqueBody", e.target.value)}
               />
             </Field>
           </section>
-          <section className="p-6 lg:p-10">
-            <div className="mb-6 border-b border-border pb-4">
-              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+          <section className="bg-ink p-6 text-ink-foreground lg:p-12 lg:pt-0">
+            <div className="mb-6 border-b border-ink-foreground/20 pb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-ink-foreground/60">
                 Program structure
               </p>
               <h3 className="mt-2 text-xl font-black">Three-phase curriculum</h3>
-              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              <p className="mt-1 text-sm leading-6 text-ink-foreground/65">
                 Name each phase, state its purpose, then describe what the customer will practise.
               </p>
             </div>
             <div className="grid gap-4 lg:grid-cols-3">
               {draft.curriculum.map((s, i) => (
-                <div key={i} className="border border-border bg-secondary/20 p-5">
+                <div key={i} className="border border-ink-foreground/20 bg-background p-5 text-foreground">
                   <p className="mb-4 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
                     Phase 0{i + 1}
                   </p>
