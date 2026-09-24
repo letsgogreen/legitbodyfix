@@ -1217,16 +1217,19 @@ function LessonDrawer({
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {caption?.status === "ready" && (
-                            <Btn
-                              disabled={captionBusy !== null}
-                              onClick={() => void togglePreviewCaptions(language)}
-                            >
-                              {previewCaptionLanguage === language
-                                ? "Hide captions"
-                                : `View ${name}`}
-                            </Btn>
-                          )}
+                          <Btn
+                            disabled={captionBusy !== null || caption?.status !== "ready"}
+                            title={
+                              caption?.status === "ready"
+                                ? `Preview ${name} captions`
+                                : `Upload a ready ${name} caption file to enable preview`
+                            }
+                            onClick={() => void togglePreviewCaptions(language)}
+                          >
+                            {previewCaptionLanguage === language
+                              ? "Hide captions"
+                              : `View ${name}`}
+                          </Btn>
                           <label
                             className={`inline-flex items-center rounded-sm border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
                           >

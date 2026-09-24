@@ -446,14 +446,17 @@ export async function getPublicSalesPreviewIframe(
   startTime?: number,
 ) {
   if (!/^[a-f0-9]{32}$/.test(streamUid)) throw new Error("Invalid preview video.");
-  const video = await cloudflare<{ readyToStream?: boolean; allowedOrigins?: string[]; preview?: string }>(
-    "/" + streamUid,
-  );
+  const video = await cloudflare<{
+    readyToStream?: boolean;
+    requireSignedURLs?: boolean;
+    allowedOrigins?: string[];
+    preview?: string;
+  }>("/" + streamUid);
   if (!video.readyToStream) throw new Error("Preview is not ready.");
   // This is a public sales sample. A short-lived signed token protects the
   // asset, while an origin restriction would make playback depend on browser
   // referrer behavior and on every deployment hostname staying in sync.
-  if (video.allowedOrigins?.length) {
+  if (!video.requireSignedURLs || video.allowedOrigins?.length) {
     await cloudflare("/" + streamUid, {
       method: "POST",
       body: JSON.stringify({
@@ -465,16 +468,19 @@ export async function getPublicSalesPreviewIframe(
     // Stream metadata updates can take a moment to reach the playback edge.
     // Do not mint a token against the previous origin policy: that produces a
     // valid-looking iframe which renders Cloudflare's generic player error.
-    let originRestrictionCleared = false;
+    let playbackPolicyReady = false;
     for (let attempt = 0; attempt < 5; attempt += 1) {
-      const updated = await cloudflare<{ allowedOrigins?: string[] }>("/" + streamUid);
-      if (!updated.allowedOrigins?.length) {
-        originRestrictionCleared = true;
+      const updated = await cloudflare<{
+        requireSignedURLs?: boolean;
+        allowedOrigins?: string[];
+      }>("/" + streamUid);
+      if (updated.requireSignedURLs === true && !updated.allowedOrigins?.length) {
+        playbackPolicyReady = true;
         break;
       }
       await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
     }
-    if (!originRestrictionCleared) {
+    if (!playbackPolicyReady) {
       throw new Error("Preview playback settings are still updating. Reload the secure player.");
     }
   }

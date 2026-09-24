@@ -50,3 +50,15 @@ test("customer, curriculum, and anatomy workspaces share stable loading states",
   assert.match(curriculum, /variant="list" label="Loading curriculum"/);
   assert.match(anatomy, /variant="editor" label="Loading the existing muscle library"/);
 });
+
+test("sales preview waits for the complete Cloudflare playback policy before minting a token", async () => {
+  const stream = await read("src/lib/stream.functions.ts");
+
+  assert.match(stream, /!video\.requireSignedURLs \|\| video\.allowedOrigins\?\.length/);
+  assert.match(stream, /requireSignedURLs: true/);
+  assert.match(
+    stream,
+    /updated\.requireSignedURLs === true && !updated\.allowedOrigins\?\.length/,
+  );
+  assert.match(stream, /if \(!playbackPolicyReady\)/);
+});
