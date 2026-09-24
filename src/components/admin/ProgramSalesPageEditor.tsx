@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown, ExternalLink, Loader2, Save, Upload } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronDown, ExternalLink, Loader2, Save, Upload } from "lucide-react";
 import { Btn, PageHead } from "@/components/admin/AdminUI";
 import { getAdminPrograms } from "@/lib/admin-programs.functions";
 import {
@@ -158,6 +158,7 @@ export function ProgramSalesPageEditor() {
     [records, setRecords] = useState<Record<string, Partial<SalesDraft>>>({});
   const [videoId, setVideoId] = useState(""),
     [draft, setDraft] = useState<SalesDraft | null>(null);
+  const [draftVideoId, setDraftVideoId] = useState("");
   const [loading, setLoading] = useState(true),
     [saving, setSaving] = useState(false),
     [uploading, setUploading] = useState(false),
@@ -170,6 +171,9 @@ export function ProgramSalesPageEditor() {
   const [previewCaptionLanguage, setPreviewCaptionLanguage] = useState<"en" | "ko" | null>(null);
   const [previewReloading, setPreviewReloading] = useState(false);
   const [captionBusy, setCaptionBusy] = useState<"en" | "ko" | null>(null);
+  const activeVideoIdRef = useRef("");
+  const previewRequestRef = useRef(0);
+  const captionRequestRef = useRef(0);
   useEffect(() => {
     void Promise.all([
       fetch("/assets/data/videos.json", { cache: "no-store" }).then((r) => r.json()),
@@ -194,23 +198,46 @@ export function ProgramSalesPageEditor() {
           ];
         });
         setVideos(list);
-        setRecords(
-          Object.fromEntries(saved.map((r) => [r.video_id, r.content as Partial<SalesDraft>])),
+        const savedById = Object.fromEntries(
+          saved.map((r) => [r.video_id, r.content as Partial<SalesDraft>]),
         );
-        setVideoId(list[0]?.id || "");
+        const firstVideo = list[0];
+        setRecords(savedById);
+        activeVideoIdRef.current = firstVideo?.id || "";
+        setVideoId(firstVideo?.id || "");
+        setDraftVideoId(firstVideo?.id || "");
+        setDraft(firstVideo ? makeDraft(firstVideo, savedById[firstVideo.id]) : null);
       })
       .catch((e) => setMessage(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }, []);
   const video = useMemo(() => videos.find((v) => v.id === videoId), [videos, videoId]);
-  useEffect(() => {
-    if (video) setDraft(makeDraft(video, records[video.id]));
-  }, [video, records]);
+  const selectVideo = (nextVideoId: string) => {
+    const nextVideo = videos.find((item) => item.id === nextVideoId);
+    activeVideoIdRef.current = nextVideoId;
+    previewRequestRef.current += 1;
+    captionRequestRef.current += 1;
+    setVideoId(nextVideoId);
+    setDraftVideoId(nextVideoId);
+    setDraft(nextVideo ? makeDraft(nextVideo, records[nextVideoId]) : null);
+    setPreviewIframeUrl("");
+    setPreviewPlayerError("");
+    setPreviewCaptions([]);
+    setPreviewCaptionLanguage(null);
+    setMessage("");
+  };
   const loadPreviewPlayer = useCallback(
     async (language: "en" | "ko" | null = previewCaptionLanguage, startTime?: number) => {
+      const requestId = ++previewRequestRef.current;
       setPreviewIframeUrl("");
       setPreviewPlayerError("");
-      if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
+      if (
+        !videoId ||
+        draftVideoId !== videoId ||
+        draft?.previewStreamStatus !== "ready" ||
+        !draft.previewStreamUid
+      )
+        return;
       setPreviewReloading(true);
       try {
         const { iframeUrl } = await getAdminSalesPreviewIframe({
@@ -220,16 +247,24 @@ export function ProgramSalesPageEditor() {
             startTime,
           },
         });
-        setPreviewIframeUrl(iframeUrl);
+        if (requestId === previewRequestRef.current) setPreviewIframeUrl(iframeUrl);
       } catch (e) {
         const errorMessage = e instanceof Error ? e.message : "Unknown playback error.";
-        setPreviewPlayerError(errorMessage);
-        setMessage(`Could not load the secure preview: ${errorMessage}`);
+        if (requestId === previewRequestRef.current) {
+          setPreviewPlayerError(errorMessage);
+          setMessage(`Could not load the secure preview: ${errorMessage}`);
+        }
       } finally {
-        setPreviewReloading(false);
+        if (requestId === previewRequestRef.current) setPreviewReloading(false);
       }
     },
-    [videoId, draft?.previewStreamStatus, draft?.previewStreamUid, previewCaptionLanguage],
+    [
+      videoId,
+      draftVideoId,
+      draft?.previewStreamStatus,
+      draft?.previewStreamUid,
+      previewCaptionLanguage,
+    ],
   );
   useEffect(() => {
     void loadPreviewPlayer();
@@ -242,15 +277,23 @@ export function ProgramSalesPageEditor() {
     return () => window.clearInterval(timer);
   }, [draft?.previewStreamStatus, draft?.previewStreamUid, videoId]);
   const refreshCaptions = useCallback(async () => {
-    if (draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
+    const requestId = ++captionRequestRef.current;
+    if (
+      draftVideoId !== videoId ||
+      draft?.previewStreamStatus !== "ready" ||
+      !draft.previewStreamUid
+    )
+      return;
     try {
-      setPreviewCaptions(
-        await listSalesPreviewCaptions({ data: { streamUid: draft.previewStreamUid } }),
-      );
+      const captions = await listSalesPreviewCaptions({
+        data: { streamUid: draft.previewStreamUid },
+      });
+      if (requestId === captionRequestRef.current) setPreviewCaptions(captions);
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : String(e));
+      if (requestId === captionRequestRef.current)
+        setMessage(e instanceof Error ? e.message : String(e));
     }
-  }, [draft?.previewStreamStatus, draft?.previewStreamUid]);
+  }, [videoId, draftVideoId, draft?.previewStreamStatus, draft?.previewStreamUid]);
   useEffect(() => {
     setPreviewCaptions([]);
     setPreviewCaptionLanguage(null);
@@ -265,7 +308,7 @@ export function ProgramSalesPageEditor() {
         : d,
     );
   async function save() {
-    if (!draft || !videoId) return;
+    if (!draft || !videoId || draftVideoId !== videoId) return;
     setSaving(true);
     setMessage("");
     try {
@@ -279,9 +322,11 @@ export function ProgramSalesPageEditor() {
     }
   }
   async function refreshPreview(uid = draft?.previewStreamUid, quiet = false) {
-    if (!draft || !uid) return;
+    const targetVideoId = videoId;
+    if (!draft || !uid || draftVideoId !== targetVideoId) return;
     try {
-      const r = await refreshSalesPreviewVideo({ data: { videoId, streamUid: uid } });
+      const r = await refreshSalesPreviewVideo({ data: { videoId: targetVideoId, streamUid: uid } });
+      if (activeVideoIdRef.current !== targetVideoId) return;
       setProcessingProgress(r.progress);
       setDraft((d) =>
         d
@@ -310,19 +355,22 @@ export function ProgramSalesPageEditor() {
     }
   }
   async function uploadPreview(file: File) {
-    if (!draft) return;
+    const targetVideoId = videoId;
+    if (!draft || draftVideoId !== targetVideoId) return;
     setUploading(true);
     setUploadProgress(0);
     setProcessingProgress(0);
     setMessage("");
     try {
       const upload = await createSalesPreviewTusUpload({
-        data: { videoId, fileName: file.name, fileSize: file.size },
+        data: { videoId: targetVideoId, fileName: file.name, fileSize: file.size },
       });
+      if (activeVideoIdRef.current !== targetVideoId) return;
       setDraft((d) =>
         d ? { ...d, previewStreamUid: upload.uid, previewStreamStatus: "uploading" } : d,
       );
       await uploadTusFile(upload.uploadURL, file, setUploadProgress);
+      if (activeVideoIdRef.current !== targetVideoId) return;
       setDraft((d) => (d ? { ...d, previewStreamStatus: "processing" } : d));
       await refreshPreview(upload.uid);
     } catch (e) {
@@ -401,19 +449,45 @@ export function ProgramSalesPageEditor() {
           </div>
         }
       />
-      <div className="mt-5 border border-border bg-card p-4">
-        <label className="text-xs font-bold uppercase tracking-widest">Program sales page</label>
-        <select
-          className={`${control} mt-2 max-w-md`}
-          value={videoId}
-          onChange={(e) => setVideoId(e.target.value)}
-        >
-          {videos.map((v) => (
-            <option key={v.id} value={v.id}>
-              {v.title}
-            </option>
-          ))}
-        </select>
+      <div className="mt-5 border border-border bg-card p-4 lg:p-5">
+        <p className="text-xs font-bold uppercase tracking-widest">Program sales page</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          Choose a program card before editing or uploading. The selected program stays locked to
+          its own draft and preview video.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {videos.map((item) => {
+            const saved = records[item.id];
+            const selected = item.id === videoId;
+            const status =
+              selected && draftVideoId === item.id
+                ? draft?.previewStreamStatus || "not_uploaded"
+                : saved?.previewStreamStatus || "not_uploaded";
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`relative min-h-28 border p-4 text-left transition-colors ${
+                  selected
+                    ? "border-ink bg-ink text-ink-foreground"
+                    : "border-border bg-background hover:border-ink"
+                }`}
+                aria-pressed={selected}
+                onClick={() => selectVideo(item.id)}
+              >
+                <span className="block pr-7 text-sm font-black leading-5">{item.title}</span>
+                <span
+                  className={`mt-4 block font-mono text-[10px] uppercase tracking-wider ${
+                    selected ? "text-ink-foreground/65" : "text-muted-foreground"
+                  }`}
+                >
+                  Preview · {status.replace("_", " ")}
+                </span>
+                {selected && <Check className="absolute right-4 top-4 h-4 w-4" />}
+              </button>
+            );
+          })}
+        </div>
         {message && <p className="mt-3 text-sm">{message}</p>}
       </div>
       {draft && (
