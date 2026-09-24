@@ -771,6 +771,7 @@ export type Database = {
           id: string
           image_alt: string | null
           image_url: string | null
+          learning_content: Json
           level: string | null
           name: string
           outcome: string | null
@@ -796,6 +797,7 @@ export type Database = {
           id?: string
           image_alt?: string | null
           image_url?: string | null
+          learning_content?: Json
           level?: string | null
           name: string
           outcome?: string | null
@@ -821,6 +823,7 @@ export type Database = {
           id?: string
           image_alt?: string | null
           image_url?: string | null
+          learning_content?: Json
           level?: string | null
           name?: string
           outcome?: string | null
