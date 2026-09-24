@@ -80,7 +80,7 @@ const emptyDraft: ProgramDraft = {
 };
 
 export const Route = createFileRoute("/admin/programs")({
-  validateSearch: (search: Record<string, unknown>): { action?: "new"; edit?: string; view?: "curriculum" | "sales"; program?: string } => ({ action: search["action"] === "new" ? "new" : undefined, edit: typeof search["edit"] === "string" ? search["edit"] : undefined, view: search.view === "curriculum" || search.view === "sales" ? search.view : undefined, program: typeof search.program === "string" ? search.program : undefined }),
+  validateSearch: (search: Record<string, unknown>): { action?: "new"; edit?: string; view?: "curriculum" | "sales" | "customer"; program?: string; section?: ProgramEditorSection } => ({ action: search["action"] === "new" ? "new" : undefined, edit: typeof search["edit"] === "string" ? search["edit"] : undefined, view: search.view === "curriculum" || search.view === "sales" || search.view === "customer" ? search.view : undefined, program: typeof search.program === "string" ? search.program : undefined, section: search.section === "overview" || search.section === "presentation" || search.section === "content" || search.section === "learning" || search.section === "commerce" ? search.section : undefined }),
   head: () => ({
     meta: [
       { title: "Programs — LegitBodyFix Admin" },
@@ -97,13 +97,41 @@ function ProgramsWorkspace() {
     <nav aria-label="Program workspace" className="flex flex-wrap gap-2 border-b border-border px-5 py-3">
       <Link to="/admin/programs" search={{}} aria-current={!view ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${!view ? "bg-ink text-ink-foreground" : "border border-border"}`}>Programs & details</Link>
       <Link to="/admin/programs" search={{ view: "sales" }} aria-current={view === "sales" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "sales" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Sales page</Link>
+      <Link to="/admin/programs" search={{ view: "customer" }} aria-current={view === "customer" ? "page" : undefined} className={`min-h-11 px-4 py-3 text-sm font-bold ${view === "customer" ? "bg-ink text-ink-foreground" : "border border-border"}`}>Customer page</Link>
     </nav>
-    {view === "curriculum" ? <ProgramCurriculum key={program ?? "default"} requestedProgramId={program}/> : view === "sales" ? <ProgramSalesPageEditor/> : <ProgramsView/>}
+    {view === "curriculum" ? <ProgramCurriculum key={program ?? "default"} requestedProgramId={program}/> : view === "sales" ? <ProgramSalesPageEditor/> : view === "customer" ? <CustomerPageWorkspace requestedProgramId={program} /> : <ProgramsView/>}
   </>;
 }
 
+function CustomerPageWorkspace({ requestedProgramId }: { requestedProgramId?: string }) {
+  const navigate = useNavigate({ from: "/admin/programs" });
+  const [programs, setPrograms] = useState<ProgramRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getAdminPrograms()
+      .then((items) => { if (!cancelled) setPrograms(items); })
+      .catch((cause) => { if (!cancelled) setError(cause instanceof Error ? cause.message : String(cause)); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const selected = programs.find((program) => program.id === requestedProgramId) ?? programs[0];
+
+  useEffect(() => {
+    if (!requestedProgramId && selected) void navigate({ search: { view: "customer", program: selected.id }, replace: true });
+  }, [navigate, requestedProgramId, selected]);
+
+  return <main className="mx-auto max-w-7xl px-5 py-6 lg:px-8"><PageHead title="Customer page" meta="Preview and edit the experience customers receive after purchase." />
+    <section className="mt-5 border border-border bg-card p-4 sm:p-5"><div className="grid gap-4 lg:grid-cols-[minmax(260px,.7fr)_1fr]"><label><Label>Program</Label><select value={selected?.id ?? ""} disabled={loading || !programs.length} onChange={(event) => void navigate({ search: { view: "customer", program: event.target.value } })} className="min-h-11 w-full border border-border bg-background px-3 text-sm font-bold">{loading ? <option>Loading programs…</option> : programs.map((program) => <option key={program.id} value={program.id}>{program.name}</option>)}</select></label><div className="flex flex-wrap items-end gap-2">{selected ? <><Link to="/admin/programs" search={{ edit: selected.id, section: "learning" }} className="inline-flex min-h-11 items-center border border-border bg-background px-4 text-sm font-bold">Edit learning page</Link><Link to="/admin/programs" search={{ edit: selected.id, section: "content" }} className="inline-flex min-h-11 items-center border border-border bg-background px-4 text-sm font-bold">Edit videos & curriculum</Link><Link to="/library/$programSlug" params={{ programSlug: selected.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex min-h-11 items-center bg-ink px-4 text-sm font-bold text-ink-foreground">Open in new tab <ExternalLink className="ml-2 h-4 w-4" /></Link></> : null}</div></div></section>
+    {error ? <p className="mt-5 border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{error}</p> : selected ? <section className="mt-5 overflow-hidden border border-border bg-background"><div className="flex items-center justify-between border-b border-border px-4 py-3"><div><p className="font-mono text-[10px] uppercase tracking-[.14em] text-muted-foreground">Live customer experience</p><h2 className="mt-1 text-lg font-extrabold">{selected.name}</h2></div><Tag tone={selected.published ? "accent" : "muted"}>{selected.published ? "Published" : "Draft"}</Tag></div><iframe key={selected.id} src={`/library/${encodeURIComponent(selected.slug)}?preview=admin`} title={`${selected.name} customer page preview`} className="h-[78vh] min-h-[720px] w-full border-0 bg-background" /></section> : !loading ? <p className="mt-5 border border-border p-8 text-center text-sm text-muted-foreground">Create a program before previewing the customer page.</p> : null}
+  </main>;
+}
+
 function ProgramsView() {
-  const { action, edit } = Route.useSearch();
+  const { action, edit, section } = Route.useSearch();
   const navigate = useNavigate({ from: "/admin/programs" });
   const [programs, setPrograms] = useState<ProgramRow[]>([]);
   const [editing, setEditing] = useState<ProgramDraft | null>(null);
@@ -135,8 +163,8 @@ function ProgramsView() {
     handledSearchRef.current = searchKey;
     if (action === "new") { setEditing({ ...emptyDraft }); return; }
     const selected = programs.find((program) => program.id === edit);
-    if (selected) setEditing(rowToDraft(selected));
-  }, [action, edit, editing, loading, programs]);
+    if (selected) { setEditingSection(section ?? "overview"); setEditing(rowToDraft(selected)); }
+  }, [action, edit, editing, loading, programs, section]);
 
   const liveCount = useMemo(
     () => programs.filter((program) => program.published).length,
@@ -145,7 +173,7 @@ function ProgramsView() {
 
   const closeEditor = () => {
     setEditing(null);
-    if (action || edit) void navigate({ search: { action: undefined, edit: undefined } });
+    if (action || edit) void navigate({ search: { action: undefined, edit: undefined, section: undefined } });
   };
 
   const togglePublished = async (program: ProgramRow) => {
