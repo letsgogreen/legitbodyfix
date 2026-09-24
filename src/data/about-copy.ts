@@ -8,7 +8,7 @@ export const aboutCopyDefaults = {
   about_scope_body: "LegitBodyFix provides educational movement content, not medical diagnosis or treatment.",
   about_operator_title: "Operator",
   about_operator_body: "LegitBodyFix is operated by Song J.",
-  about_credentials_title: "Professional credentials",
+  about_credentials_title: "Credentials",
   about_credentials_body: "NASM Corrective Exercise Specialization (CES)\nNational Academy of Sports Medicine (NASM)\n\nNASM Corrective Exercise Specialists focus on movement using their skills to assess and correct muscle imbalances and movement compensations. They develop customized plans that enhance mobility and performance, as well as proactive and preventive programs that reduce the risk of future injuries.",
 } as const;
 
