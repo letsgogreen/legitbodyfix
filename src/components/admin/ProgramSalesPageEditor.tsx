@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, ExternalLink, Loader2, Save, Upload } from "lucide-react";
+import { Check, ExternalLink, Loader2, Save, Upload } from "lucide-react";
 import { Btn, PageHead } from "@/components/admin/AdminUI";
 import { getAdminPrograms } from "@/lib/admin-programs.functions";
 import {
@@ -117,40 +117,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       </span>
       {children}
     </label>
-  );
-}
-
-function EditorCard({
-  number,
-  title,
-  description,
-  defaultOpen = false,
-  children,
-}: {
-  number: string;
-  title: string;
-  description: string;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <details className="group overflow-hidden border border-border bg-card" open={defaultOpen}>
-      <summary className="flex min-h-24 cursor-pointer list-none items-center gap-4 px-5 py-4 marker:hidden hover:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink lg:px-7 [&::-webkit-details-marker]:hidden">
-        <span className="font-mono text-sm font-bold text-muted-foreground">{number}</span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-lg font-black">{title}</span>
-          <span className="mt-1 block text-sm leading-5 text-muted-foreground">
-            {description}
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          <span className="hidden sm:inline group-open:hidden">Edit</span>
-          <span className="hidden sm:group-open:inline">Close</span>
-          <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
-        </span>
-      </summary>
-      <div className="border-t border-border">{children}</div>
-    </details>
   );
 }
 
@@ -485,13 +451,7 @@ export function ProgramSalesPageEditor() {
         {message && <p className="mt-3 text-sm">{message}</p>}
       </div>
       {draft && (
-        <div className="mt-5 grid gap-4">
-          <EditorCard
-            number="01"
-            title="Hero copy"
-            description="Edit the eyebrow, main headline, and opening summary."
-            defaultOpen
-          >
+        <div className="mt-5 overflow-hidden border border-border bg-card">
           <section className="grid bg-ink text-ink-foreground lg:grid-cols-[1.15fr_.85fr]">
             <div className="p-6 lg:p-10">
               <Field label="Eyebrow">
@@ -519,12 +479,6 @@ export function ProgramSalesPageEditor() {
               </Field>
             </div>
           </section>
-          </EditorCard>
-          <EditorCard
-            number="02"
-            title="Preview video & captions"
-            description="Upload, verify, and caption the short video shown on the sales page."
-          >
           <section className="grid gap-6 border-b border-border p-6 lg:grid-cols-[.8fr_1.2fr] lg:p-10">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[.18em] text-muted-foreground">
@@ -740,12 +694,6 @@ export function ProgramSalesPageEditor() {
               </div>
             )}
           </section>
-          </EditorCard>
-          <EditorCard
-            number="03"
-            title="Session value"
-            description="Define the main reason to choose the session and its three outcomes."
-          >
           <section className="p-6 lg:p-10">
             <div className="mb-6 border-b border-border pb-4">
               <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
@@ -777,12 +725,6 @@ export function ProgramSalesPageEditor() {
               ))}
             </div>
           </section>
-          </EditorCard>
-          <EditorCard
-            number="04"
-            title="Method story"
-            description="Explain the technique and how the session progresses."
-          >
           <section className="border-y border-border bg-secondary/50 p-6 lg:p-10">
             <div className="mb-6 border-b border-border pb-4">
               <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
@@ -812,12 +754,6 @@ export function ProgramSalesPageEditor() {
               />
             </Field>
           </section>
-          </EditorCard>
-          <EditorCard
-            number="05"
-            title="Three-phase curriculum"
-            description="Edit the phase names, outcomes, and practice descriptions."
-          >
           <section className="p-6 lg:p-10">
             <div className="mb-6 border-b border-border pb-4">
               <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
@@ -859,12 +795,6 @@ export function ProgramSalesPageEditor() {
               ))}
             </div>
           </section>
-          </EditorCard>
-          <EditorCard
-            number="06"
-            title="Audience & closing"
-            description="Clarify who the program is for and the final purchase message."
-          >
           <section className="grid border-t border-border lg:grid-cols-2">
             <div className="p-6 lg:border-r lg:border-border lg:p-10">
               <p className="mb-5 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
@@ -898,12 +828,6 @@ export function ProgramSalesPageEditor() {
               </Field>
             </div>
           </section>
-          </EditorCard>
-          <EditorCard
-            number="07"
-            title="Customer feedback"
-            description="Add approved testimonials when they are ready to publish."
-          >
           <section className="border-t border-border p-6 lg:p-10">
             <div className="mb-6 border-b border-border pb-4">
               <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
@@ -951,7 +875,6 @@ export function ProgramSalesPageEditor() {
               })}
             </div>
           </section>
-          </EditorCard>
         </div>
       )}
     </div>
