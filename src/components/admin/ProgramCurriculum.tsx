@@ -689,6 +689,7 @@ function LessonDrawer({
   const [thumbnailRevision, setThumbnailRevision] = useState(0);
   const [refreshingThumbnail, setRefreshingThumbnail] = useState(false);
   const [captions, setCaptions] = useState<StreamCaption[]>([]);
+  const [previewCaptionLanguage, setPreviewCaptionLanguage] = useState<"en" | "ko" | null>(null);
   const [captionBusy, setCaptionBusy] = useState<"en" | "ko" | null>(null);
 
   const refreshCaptions = useCallback(async () => {
@@ -830,14 +831,22 @@ function LessonDrawer({
     setUploading(false);
   };
 
-  const previewVideo = async () => {
+  const previewVideo = async (preferredLanguage: "en" | "ko" | null = previewCaptionLanguage) => {
     if (!lesson || !streamUid) return;
     try {
-      const playback = await getStreamPlayback({ data: { lessonId: lesson.id } });
+      const playback = await getStreamPlayback({
+        data: { lessonId: lesson.id, preferredLanguage: preferredLanguage || undefined },
+      });
       setPreviewUrl(playback.iframeUrl);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     }
+  };
+
+  const togglePreviewCaptions = async (language: "en" | "ko") => {
+    const nextLanguage = previewCaptionLanguage === language ? null : language;
+    setPreviewCaptionLanguage(nextLanguage);
+    await previewVideo(nextLanguage);
   };
 
   useEffect(() => {
@@ -1208,6 +1217,16 @@ function LessonDrawer({
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
+                          {caption?.status === "ready" && (
+                            <Btn
+                              disabled={captionBusy !== null}
+                              onClick={() => void togglePreviewCaptions(language)}
+                            >
+                              {previewCaptionLanguage === language
+                                ? "Hide captions"
+                                : `View ${name}`}
+                            </Btn>
+                          )}
                           <label
                             className={`inline-flex items-center rounded-sm border border-border px-3 py-2 text-xs font-bold ${captionBusy !== null ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
                           >
@@ -1237,6 +1256,10 @@ function LessonDrawer({
                     );
                   })}
                 </div>
+                <p className="mt-3 text-[11px] leading-4 text-muted-foreground">
+                  “View English” or “View 한국어” reloads the preview with that caption track enabled.
+                  Select the active language again to hide captions.
+                </p>
               </div>
             )}
           </div>
