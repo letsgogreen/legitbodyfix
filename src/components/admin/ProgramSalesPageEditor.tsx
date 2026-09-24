@@ -466,7 +466,7 @@ export function ProgramSalesPageEditor() {
               </Field>
               <Field label="Main headline">
                 <textarea
-                  className={`${textarea} min-h-52 text-4xl font-black uppercase leading-[.95] tracking-[-.04em] sm:text-6xl`}
+                  className={`${textarea} min-h-40 text-3xl font-semibold leading-tight tracking-[-.02em] sm:text-4xl`}
                   value={draft.landingHeadline}
                   onChange={(e) => set("landingHeadline", e.target.value)}
                 />
