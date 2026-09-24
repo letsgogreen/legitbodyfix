@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import { Btn, PageHead, Panel, Tag, Td, Th } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { LearningContentEditor } from "@/components/admin/LearningContentEditor";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { defaultLearningContent, learningContentFor, type LearningContent } from "@/lib/learning-content";
 import { getProgramPrice, updateProgramPrice } from "@/lib/paddle.functions";
 
 type ProgramRow = Database["public"]["Tables"]["programs"]["Row"];
@@ -47,6 +49,7 @@ type ProgramDraft = {
   featured: boolean;
   featured_rank: string;
   published: boolean;
+  learning_content: LearningContent;
 };
 
 const emptyDraft: ProgramDraft = {
@@ -67,6 +70,7 @@ const emptyDraft: ProgramDraft = {
   featured: false,
   featured_rank: "",
   published: false,
+  learning_content: defaultLearningContent,
 };
 
 export const Route = createFileRoute("/admin/programs")({
@@ -243,6 +247,7 @@ function rowToDraft(program: ProgramRow): ProgramDraft {
     featured: program.featured,
     featured_rank: program.featured_rank?.toString() ?? "",
     published: program.published,
+    learning_content: learningContentFor(program.slug, program.name, program.learning_content),
   };
 }
 
@@ -417,6 +422,7 @@ function ProgramDrawer({
       featured: draft.featured,
       featured_rank: draft.featured_rank ? Number(draft.featured_rank) : null,
       published: draft.published,
+      learning_content: draft.learning_content,
     };
     const result = draft.id
       ? await supabase.from("programs").update(payload).eq("id", draft.id)
@@ -458,7 +464,7 @@ function ProgramDrawer({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-ink/40" role="dialog" aria-modal="true">
-      <div className="flex h-full w-full max-w-xl flex-col border-l border-border bg-background">
+      <div className="flex h-full w-full max-w-5xl flex-col border-l border-border bg-background">
         <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
@@ -550,6 +556,7 @@ function ProgramDrawer({
             value={draft.who_its_for}
             onChange={(value) => update("who_its_for", value)}
           />
+          <LearningContentEditor value={draft.learning_content} onChange={(value) => update("learning_content", value)} />
           <div className="grid grid-cols-2 gap-3">
             <Field
               label="Format"

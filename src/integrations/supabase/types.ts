@@ -730,6 +730,7 @@ export type Database = {
           image_alt: string | null
           image_url: string | null
           level: string | null
+          learning_content: Json
           name: string
           outcome: string | null
           paddle_price_id: string | null
@@ -755,6 +756,7 @@ export type Database = {
           image_alt?: string | null
           image_url?: string | null
           level?: string | null
+          learning_content?: Json
           name: string
           outcome?: string | null
           paddle_price_id?: string | null
@@ -780,6 +782,7 @@ export type Database = {
           image_alt?: string | null
           image_url?: string | null
           level?: string | null
+          learning_content?: Json
           name?: string
           outcome?: string | null
           paddle_price_id?: string | null
