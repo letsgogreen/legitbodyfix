@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 import { removeStoredContentImages } from "@/lib/content-images.functions";
+import type { LearningContent } from "@/lib/learning-content";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 export type AdminProgram = Program & { fallback_image_url: string | null };
@@ -30,6 +31,7 @@ const programInput = z.object({
   featured: z.boolean(),
   featuredRank: z.number().int().min(1).max(9999).nullable().optional(),
   published: z.boolean(),
+  learningContent: z.custom<LearningContent>((value) => Boolean(value) && typeof value === "object" && !Array.isArray(value)),
 });
 
 export const getAdminPrograms = createServerFn({ method: "GET" })
@@ -87,6 +89,7 @@ export const saveAdminProgram = createServerFn({ method: "POST" })
       featured: data.featured,
       featured_rank: data.featuredRank || null,
       published: data.published,
+      learning_content: data.learningContent,
     };
     const query = data.id
       ? context.supabase.from("programs").update(payload).eq("id", data.id)

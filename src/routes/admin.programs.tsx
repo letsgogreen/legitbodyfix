@@ -14,12 +14,14 @@ import {
 } from "lucide-react";
 import { Btn, PageHead, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { LearningContentEditor } from "@/components/admin/LearningContentEditor";
 import { ProgramCurriculum } from "@/components/admin/ProgramCurriculum";
 import { ProgramSalesPageEditor } from "@/components/admin/ProgramSalesPageEditor";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { deleteAdminProgram, getAdminPrograms, getProgramDeleteImpact, saveAdminProgram, setAdminProgramPublished, type AdminProgram } from "@/lib/admin-programs.functions";
 import { getProgramPrice, updateProgramPrice } from "@/lib/paddle.functions";
+import { defaultLearningContent, learningContentFor, type LearningContent } from "@/lib/learning-content";
 import { getAdminProgramSale, removeAdminProgramSale, saveAdminProgramSale } from "@/lib/program-sales-events.functions";
 
 type ProgramRow = AdminProgram;
@@ -52,6 +54,7 @@ type ProgramDraft = {
   featured: boolean;
   featured_rank: string;
   published: boolean;
+  learning_content: LearningContent;
 };
 
 const emptyDraft: ProgramDraft = {
@@ -73,6 +76,7 @@ const emptyDraft: ProgramDraft = {
   featured: false,
   featured_rank: "",
   published: false,
+  learning_content: defaultLearningContent,
 };
 
 export const Route = createFileRoute("/admin/programs")({
@@ -281,6 +285,7 @@ function rowToDraft(program: ProgramRow): ProgramDraft {
     featured: program.featured,
     featured_rank: program.featured_rank?.toString() ?? "",
     published: program.published,
+    learning_content: learningContentFor(program.slug, program.name, program.learning_content),
   };
 }
 
@@ -322,10 +327,11 @@ function draftToPayload(draft: ProgramDraft) {
     featured: draft.featured,
     featuredRank: draft.featured_rank ? Number(draft.featured_rank) : null,
     published: draft.published,
+    learningContent: draft.learning_content,
   };
 }
 
-type ProgramEditorSection = "overview" | "presentation" | "content" | "commerce";
+type ProgramEditorSection = "overview" | "presentation" | "content" | "learning" | "commerce";
 
 const programEditorSections: Array<{
   id: ProgramEditorSection;
@@ -335,6 +341,7 @@ const programEditorSections: Array<{
   { id: "overview", label: "Overview", description: "What customers see first" },
   { id: "presentation", label: "Presentation", description: "Cover and storefront details" },
   { id: "content", label: "Content", description: "Videos and related guidance" },
+  { id: "learning", label: "Learning page", description: "What customers see after purchase" },
   { id: "commerce", label: "Publish", description: "Price, access, and visibility" },
 ];
 
@@ -694,7 +701,11 @@ function ProgramDrawer({
               <div className="mt-3 space-y-2">{recipeLinks.map((link, index) => { const recipe = recipes.find((item) => item.id === link.recipe_id); return <div key={link.recipe_id} className="flex items-center gap-2 border border-border px-3 py-2"><span className="min-w-0 flex-1 text-xs font-bold">{recipe?.title ?? link.recipe_id}</span><Tag tone={recipe?.published ? "accent" : "muted"}>{recipe?.published ? "live" : "draft"}</Tag>{!recipe?.image_url && <Tag tone="warn">no image</Tag>}<Btn disabled={index === 0} onClick={() => void moveRecipe(index, -1)}><ArrowUp className="h-3 w-3" /></Btn><Btn disabled={index === recipeLinks.length - 1} onClick={() => void moveRecipe(index, 1)}><ArrowDown className="h-3 w-3" /></Btn><Btn onClick={() => void removeRecipe(link.recipe_id)}><Trash2 className="h-3 w-3" /></Btn></div>; })}{!recipeLinks.length && <p className="py-3 text-center text-xs text-muted-foreground">No supporting content linked yet.</p>}</div>
             </div>
           )}</section>
-          <section id="program-commerce" className="scroll-mt-28 space-y-5 border border-border bg-background p-5 sm:p-7"><SectionHeading index="04" title="Publish" description="Review readiness, pricing, access, and visibility." />
+          <section id="program-learning" className="scroll-mt-28 space-y-5 border border-border bg-background p-5 sm:p-7">
+            <SectionHeading index="04" title="Learning page" description="Edit the guidance customers receive after purchase." />
+            <LearningContentEditor value={draft.learning_content} onChange={(value) => update("learning_content", value)} />
+          </section>
+          <section id="program-commerce" className="scroll-mt-28 space-y-5 border border-border bg-background p-5 sm:p-7"><SectionHeading index="05" title="Publish" description="Review readiness, pricing, access, and visibility." />
           {draft.id && <div className={`border p-4 ${launchBlockers.length ? "border-amber-500/50 bg-amber-50/40" : "border-lime-500/50 bg-lime-50/40"}`}><div className="flex items-start gap-3">{launchBlockers.length ? <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" /> : <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />}<div><p className="text-sm font-extrabold">{launchBlockers.length ? `${launchBlockers.length} readiness suggestions` : "All readiness suggestions complete"}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">These checks are editorial guidance. Review them before publishing.</p></div></div><div className="mt-4 grid gap-2 sm:grid-cols-2">{launchChecks.map((check) => <span key={check.label} className={`inline-flex items-center gap-1.5 text-xs font-bold ${check.ready ? "text-foreground" : "text-amber-800"}`}>{check.ready ? <Check className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}{check.label}</span>)}</div></div>}
           <details className="border border-border bg-card p-4">
             <summary className="cursor-pointer text-sm font-extrabold">Paddle and access settings</summary>
