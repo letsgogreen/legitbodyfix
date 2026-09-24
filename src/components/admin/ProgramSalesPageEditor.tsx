@@ -50,8 +50,8 @@ const SALES_PAGE_ID_BY_PROGRAM_SLUG: Record<string, string> = {
 };
 
 const control =
-  "min-h-11 w-full border border-border bg-background px-3 py-2 text-sm leading-relaxed text-foreground caret-foreground outline-none placeholder:text-muted-foreground focus:border-ink";
-const textarea = `${control} min-h-24 resize-y`;
+  "min-h-12 w-full border border-border bg-background px-4 py-3 text-sm leading-6 text-foreground caret-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ink focus:ring-1 focus:ring-ink/10";
+const textarea = `${control} min-h-32 resize-y`;
 const fallbackSteps: Step[] = [
   {
     phase: "Inhibit",
@@ -97,7 +97,7 @@ function makeDraft(v: Video, s?: Partial<SalesDraft>): SalesDraft {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="mb-4 block">
-      <span className="mb-2 block font-mono text-[10px] uppercase tracking-[.18em] opacity-70">
+      <span className="mb-2 block font-mono text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">
         {label}
       </span>
       {children}
@@ -136,12 +136,14 @@ export function ProgramSalesPageEditor() {
           const salesPageId = SALES_PAGE_ID_BY_PROGRAM_SLUG[program.slug];
           const base = salesPageId ? catalogById.get(salesPageId) : undefined;
           if (!salesPageId || !base) return [];
-          return [{
-            ...base,
-            id: salesPageId,
-            title: program.name,
-            description: program.outcome || base.description,
-          }];
+          return [
+            {
+              ...base,
+              id: salesPageId,
+              title: program.name,
+              description: program.outcome || base.description,
+            },
+          ];
         });
         setVideos(list);
         setRecords(
@@ -156,31 +158,31 @@ export function ProgramSalesPageEditor() {
   useEffect(() => {
     if (video) setDraft(makeDraft(video, records[video.id]));
   }, [video, records]);
-  const loadPreviewPlayer = useCallback(async (
-    language: "en" | "ko" | null = previewCaptionLanguage,
-    startTime?: number,
-  ) => {
-    setPreviewIframeUrl("");
-    setPreviewPlayerError("");
-    if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
-    setPreviewReloading(true);
-    try {
-      const { iframeUrl } = await getAdminSalesPreviewIframe({
-        data: {
-          streamUid: draft.previewStreamUid,
-          preferredLanguage: language || undefined,
-          startTime,
-        },
-      });
-      setPreviewIframeUrl(iframeUrl);
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : "Unknown playback error.";
-      setPreviewPlayerError(errorMessage);
-      setMessage(`Could not load the secure preview: ${errorMessage}`);
-    } finally {
-      setPreviewReloading(false);
-    }
-  }, [videoId, draft?.previewStreamStatus, draft?.previewStreamUid, previewCaptionLanguage]);
+  const loadPreviewPlayer = useCallback(
+    async (language: "en" | "ko" | null = previewCaptionLanguage, startTime?: number) => {
+      setPreviewIframeUrl("");
+      setPreviewPlayerError("");
+      if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
+      setPreviewReloading(true);
+      try {
+        const { iframeUrl } = await getAdminSalesPreviewIframe({
+          data: {
+            streamUid: draft.previewStreamUid,
+            preferredLanguage: language || undefined,
+            startTime,
+          },
+        });
+        setPreviewIframeUrl(iframeUrl);
+      } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : "Unknown playback error.";
+        setPreviewPlayerError(errorMessage);
+        setMessage(`Could not load the secure preview: ${errorMessage}`);
+      } finally {
+        setPreviewReloading(false);
+      }
+    },
+    [videoId, draft?.previewStreamStatus, draft?.previewStreamUid, previewCaptionLanguage],
+  );
   useEffect(() => {
     void loadPreviewPlayer();
   }, [loadPreviewPlayer]);
@@ -467,7 +469,15 @@ export function ProgramSalesPageEditor() {
                 </div>
               )}
               {draft.previewStreamStatus === "ready" && (
-                <div className="mt-2 flex flex-wrap items-center gap-3"><p className="text-xs text-muted-foreground">Preview ready. The player on the right is what customers will see on the sales page.</p><Btn disabled={previewReloading} onClick={() => void loadPreviewPlayer()}>{previewReloading ? "Refreshing player…" : "Reload secure player"}</Btn></div>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <p className="text-xs text-muted-foreground">
+                    Preview ready. The player on the right is what customers will see on the sales
+                    page.
+                  </p>
+                  <Btn disabled={previewReloading} onClick={() => void loadPreviewPlayer()}>
+                    {previewReloading ? "Refreshing player…" : "Reload secure player"}
+                  </Btn>
+                </div>
               )}
             </div>
             <div className="aspect-video overflow-hidden border border-border bg-secondary">
@@ -501,8 +511,12 @@ export function ProgramSalesPageEditor() {
                   Video processing failed. Replace the video or refresh its status.
                 </div>
               ) : draft.previewStreamStatus === "ready" ? (
-                <div className={`grid h-full place-items-center px-6 text-center text-sm ${previewPlayerError ? "text-destructive" : "text-muted-foreground"}`}>
-                  {previewPlayerError ? "The secure player could not be created." : "Loading secure player…"}
+                <div
+                  className={`grid h-full place-items-center px-6 text-center text-sm ${previewPlayerError ? "text-destructive" : "text-muted-foreground"}`}
+                >
+                  {previewPlayerError
+                    ? "The secure player could not be created."
+                    : "Loading secure player…"}
                 </div>
               ) : (
                 <div className="grid h-full place-items-center text-sm text-muted-foreground">
@@ -522,8 +536,8 @@ export function ProgramSalesPageEditor() {
                     <p className="text-sm font-bold">English and Korean captions</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Upload the final reviewed SRT or WebVTT file for each language. SRT files are
-                      converted automatically. Captions are off by
-                      default; viewers can choose English or 한국어 from the player’s CC menu.
+                      converted automatically. Captions are off by default; viewers can choose
+                      English or 한국어 from the player’s CC menu.
                     </p>
                   </div>
                   <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
@@ -592,12 +606,22 @@ export function ProgramSalesPageEditor() {
                 </div>
                 <p className="mt-4 border border-border bg-secondary/30 p-4 text-xs leading-5 text-muted-foreground">
                   Uploading or replacing a file updates the caption track stored with this preview
-                  video. Use “View captions” to verify the selected language before opening the live page.
+                  video. Use “View captions” to verify the selected language before opening the live
+                  page.
                 </p>
               </div>
             )}
           </section>
           <section className="p-6 lg:p-10">
+            <div className="mb-6 border-b border-border pb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+                Session value
+              </p>
+              <h3 className="mt-2 text-xl font-black">Why someone should choose this session</h3>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+                Keep the headline concise, then give each outcome one clear job.
+              </p>
+            </div>
             <Field label="Why this session">
               <input
                 className={`${control} text-xl font-bold`}
@@ -605,19 +629,27 @@ export function ProgramSalesPageEditor() {
                 onChange={(e) => set("landingWhyHeadline", e.target.value)}
               />
             </Field>
-            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            <div className="mt-5 grid gap-4 lg:grid-cols-3">
               {(["landingBenefit1", "landingBenefit2", "landingBenefit3"] as const).map((k, i) => (
-                <Field key={k} label={`Benefit ${i + 1}`}>
-                  <textarea
-                    className={textarea}
-                    value={draft[k]}
-                    onChange={(e) => set(k, e.target.value)}
-                  />
-                </Field>
+                <div key={k} className="border border-border bg-secondary/20 p-4">
+                  <Field label={`Outcome 0${i + 1}`}>
+                    <textarea
+                      className={`${textarea} min-h-36`}
+                      value={draft[k]}
+                      onChange={(e) => set(k, e.target.value)}
+                    />
+                  </Field>
+                </div>
               ))}
             </div>
           </section>
-          <section className="border-y border-border bg-secondary p-6 lg:p-10">
+          <section className="border-y border-border bg-secondary/50 p-6 lg:p-10">
+            <div className="mb-6 border-b border-border pb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+                Method story
+              </p>
+              <h3 className="mt-2 text-xl font-black">Explain how the session works</h3>
+            </div>
             <Field label="Technique eyebrow">
               <input
                 className={control}
@@ -634,52 +666,73 @@ export function ProgramSalesPageEditor() {
             </Field>
             <Field label="Technique explanation">
               <textarea
-                className={textarea}
+                className={`${textarea} min-h-40`}
                 value={draft.techniqueBody}
                 onChange={(e) => set("techniqueBody", e.target.value)}
               />
             </Field>
           </section>
           <section className="p-6 lg:p-10">
-            <p className="mb-4 text-xs font-bold uppercase tracking-widest">
-              Three-phase curriculum
-            </p>
-            <div className="grid gap-3 lg:grid-cols-3">
+            <div className="mb-6 border-b border-border pb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+                Program structure
+              </p>
+              <h3 className="mt-2 text-xl font-black">Three-phase curriculum</h3>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Name each phase, state its purpose, then describe what the customer will practise.
+              </p>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-3">
               {draft.curriculum.map((s, i) => (
-                <div key={i} className="border border-border p-4">
-                  <input
-                    className={control}
-                    value={s.phase}
-                    onChange={(e) => setStep(i, "phase", e.target.value)}
-                  />
-                  <input
-                    className={`${control} mt-2 font-bold`}
-                    value={s.title}
-                    onChange={(e) => setStep(i, "title", e.target.value)}
-                  />
-                  <textarea
-                    className={`${textarea} mt-2`}
-                    value={s.description}
-                    onChange={(e) => setStep(i, "description", e.target.value)}
-                  />
+                <div key={i} className="border border-border bg-secondary/20 p-5">
+                  <p className="mb-4 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+                    Phase 0{i + 1}
+                  </p>
+                  <Field label="Phase name">
+                    <input
+                      className={control}
+                      value={s.phase}
+                      onChange={(e) => setStep(i, "phase", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Outcome">
+                    <input
+                      className={`${control} font-bold`}
+                      value={s.title}
+                      onChange={(e) => setStep(i, "title", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Description">
+                    <textarea
+                      className={`${textarea} min-h-36`}
+                      value={s.description}
+                      onChange={(e) => setStep(i, "description", e.target.value)}
+                    />
+                  </Field>
                 </div>
               ))}
             </div>
           </section>
           <section className="grid border-t border-border lg:grid-cols-2">
-            <div className="p-6 lg:p-10">
+            <div className="p-6 lg:border-r lg:border-border lg:p-10">
+              <p className="mb-5 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+                Audience
+              </p>
               <Field label="Who this is for">
                 <textarea
-                  className={textarea}
+                  className={`${textarea} min-h-40`}
                   value={draft.landingAudience}
                   onChange={(e) => set("landingAudience", e.target.value)}
                 />
               </Field>
             </div>
-            <div className="bg-accent p-6 text-accent-foreground lg:p-10">
+            <div className="bg-accent/20 p-6 lg:p-10">
+              <p className="mb-5 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+                Closing message
+              </p>
               <Field label="Purchase reassurance">
                 <textarea
-                  className={textarea}
+                  className={`${textarea} min-h-32`}
                   value={draft.landingReassurance}
                   onChange={(e) => set("landingReassurance", e.target.value)}
                 />
