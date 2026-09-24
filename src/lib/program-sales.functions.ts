@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { normalizeProgramSalesCopy } from "@/lib/program-sales-copy";
 
 const step = z.object({
   phase: z.string().trim().max(80),
@@ -57,7 +58,13 @@ export const getAdminProgramSalesPages = createServerFn({ method: "GET" })
       .from("program_sales_pages")
       .select("video_id,content,updated_at");
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []).map((record) => ({
+      ...record,
+      content: normalizeProgramSalesCopy(
+        record.video_id,
+        record.content as Record<string, unknown>,
+      ),
+    }));
   });
 
 export const saveAdminProgramSalesPage = createServerFn({ method: "POST" })

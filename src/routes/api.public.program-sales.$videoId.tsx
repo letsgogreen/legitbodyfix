@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { normalizeProgramSalesCopy } from "@/lib/program-sales-copy";
 
 export const Route = createFileRoute("/api/public/program-sales/$videoId")({
   server: { handlers: { GET: async ({ params }) => {
@@ -14,7 +15,10 @@ export const Route = createFileRoute("/api/public/program-sales/$videoId")({
       });
       const { data, error } = await supabase.from("program_sales_pages").select("content").eq("video_id", params.videoId).maybeSingle();
       if (error) throw error;
-      const content = (data?.content as Record<string, unknown> | null) ?? {};
+      const content = normalizeProgramSalesCopy(
+        params.videoId,
+        (data?.content as Record<string, unknown> | null) ?? {},
+      );
       let previewIframeUrl = "";
       if (content.previewStreamStatus === "ready" && typeof content.previewStreamUid === "string") {
         try {

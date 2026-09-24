@@ -4,6 +4,7 @@ import { fetchPaddlePrices } from "@/lib/paddle.functions";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { readProgramSales } from "@/lib/program-sales-events.functions";
+import { normalizeProgramSalesCopy } from "@/lib/program-sales-copy";
 
 export type PublicProgram = {
   id: string;
@@ -181,7 +182,12 @@ async function loadProgramDetail(
       if (salesPageError) {
         console.error("Program sales preview unavailable:", salesPageError.message);
       } else {
-        salesContent = (salesPage?.content as ProgramSalesContent | null) ?? null;
+        salesContent = salesPage?.content
+          ? (normalizeProgramSalesCopy(
+              salesPageId,
+              salesPage.content as Record<string, unknown>,
+            ) as ProgramSalesContent)
+          : null;
       }
     }
 
