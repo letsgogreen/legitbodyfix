@@ -9,6 +9,7 @@ import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 import { getPublishedRecipe } from "@/lib/recipes.functions";
 import { blocksFromLegacyInstructions, normalizeRecipeBlocks } from "@/lib/recipe-blocks";
 import { learningContentFor, type LearningContent } from "@/lib/learning-content";
+import { getAdminPrograms } from "@/lib/admin-programs.functions";
 
 type Program = Database["public"]["Tables"]["programs"]["Row"];
 type Module = Database["public"]["Tables"]["program_modules"]["Row"];
@@ -17,10 +18,16 @@ type RelatedRecipe = { slug: string; title: string; summary: string | null; goal
 type RelatedGuide = { slug: string; title: string; summary: string | null };
 type EmbeddedRecipe = NonNullable<Awaited<ReturnType<typeof getPublishedRecipe>>>;
 
-export const Route = createFileRoute("/library/$programSlug")({ component: ProgramLibrary });
+export const Route = createFileRoute("/library/$programSlug")({
+  validateSearch: (search: Record<string, unknown>): { preview?: "admin" } => ({
+    preview: search.preview === "admin" ? "admin" : undefined,
+  }),
+  component: ProgramLibrary,
+});
 
 function ProgramLibrary() {
   const { programSlug } = Route.useParams();
+  const { preview } = Route.useSearch();
   const [program, setProgram] = useState<Program | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -36,9 +43,17 @@ function ProgramLibrary() {
   useEffect(() => {
     void (async () => {
       setLoading(true); setProgram(null); setModules([]); setLessons([]); setRecipes([]); setGuides([]); setEmbeddedRecipes([]); setPlaying(null); setPlaybackUrl(null); setError(null);
-      const { programIds: ids } = await getCustomerAccess();
-      if (!ids.length) { setLoading(false); return; }
-      const { data: selected, error: programError } = await supabase.from("programs").select("*").eq("slug", programSlug).in("id", ids).maybeSingle();
+      let selected: Program | null = null;
+      let programError: { message: string } | null = null;
+      if (preview === "admin") {
+        selected = (await getAdminPrograms()).find((item) => item.slug === programSlug) ?? null;
+      } else {
+        const { programIds: ids } = await getCustomerAccess();
+        if (!ids.length) { setLoading(false); return; }
+        const result = await supabase.from("programs").select("*").eq("slug", programSlug).in("id", ids).maybeSingle();
+        selected = result.data;
+        programError = result.error;
+      }
       if (programError || !selected) { setError(programError?.message || "This program is not in your library."); setLoading(false); return; }
       setProgram(selected);
       const [{ data: moduleRows, error: moduleError }, { data: lessonRows, error: lessonError }, recipeResult, guideResult] = await Promise.all([
@@ -67,7 +82,7 @@ function ProgramLibrary() {
       }
       setLoading(false);
     })().catch(() => { setError("Could not load your access. Please try again."); setLoading(false); });
-  }, [programSlug]);
+  }, [preview, programSlug]);
 
   const sections = useMemo(() => {
     const grouped = modules.map((module) => ({ module, lessons: lessons.filter((lesson) => lesson.module_id === module.id) }));
