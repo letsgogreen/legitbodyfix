@@ -240,6 +240,7 @@ function ProgramsView() {
                     <Btn variant="ink" onClick={() => { setEditingSection("overview"); setEditing(rowToDraft(program)); }}>Edit program</Btn>
                     <Btn onClick={() => { setEditingSection("content"); setEditing(rowToDraft(program)); }}><FileVideo className="mr-1.5 h-3.5 w-3.5" /> Curriculum</Btn>
                     <Link to="/programs/$programSlug" params={{ programSlug: program.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex min-h-9 items-center rounded-sm border border-border bg-background px-3 text-xs font-bold">Preview <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link>
+                    <Link to="/library/$programSlug" params={{ programSlug: program.slug }} search={{ preview: "admin" }} target="_blank" className="inline-flex min-h-9 items-center rounded-sm border border-border bg-background px-3 text-xs font-bold">Customer page <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link>
                     <div className="ml-auto">
                       <Btn
                         disabled={publishingId === program.id}
@@ -600,7 +601,7 @@ function ProgramDrawer({
               {draft.name || "Untitled program"}
             </h2>
           </div>
-          <div className="flex items-center gap-2">{draft.id && <Link to="/programs/$programSlug" params={{ programSlug: draft.slug }} search={{ preview: "admin" }} target="_blank" className="hidden min-h-10 items-center border border-border px-3 text-xs font-bold sm:inline-flex">Preview <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link>}<Btn variant="ink" disabled={saving || deleting || !isDirty} onClick={() => void save()}>{saving ? "Saving…" : isDirty ? "Save changes" : "Saved"}</Btn></div>
+          <div className="flex items-center gap-2">{draft.id && <><Link to="/programs/$programSlug" params={{ programSlug: draft.slug }} search={{ preview: "admin" }} target="_blank" className="hidden min-h-10 items-center border border-border px-3 text-xs font-bold sm:inline-flex">Sales page <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link><Link to="/library/$programSlug" params={{ programSlug: draft.slug }} search={{ preview: "admin" }} target="_blank" className="hidden min-h-10 items-center border border-border px-3 text-xs font-bold sm:inline-flex">Customer page <ExternalLink className="ml-1.5 h-3.5 w-3.5" /></Link></>}<Btn variant="ink" disabled={saving || deleting || !isDirty} onClick={() => void save()}>{saving ? "Saving…" : isDirty ? "Save changes" : "Saved"}</Btn></div>
         </div>
         <div className="grid lg:grid-cols-[220px_minmax(0,1fr)]">
         <nav aria-label="Program editor sections" className="grid grid-cols-2 border-b border-border bg-card lg:sticky lg:top-[85px] lg:block lg:self-start lg:border-b-0 lg:border-r">
