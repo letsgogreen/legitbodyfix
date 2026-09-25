@@ -18,7 +18,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: views, error } = await supabaseAdmin
       .from("page_views")
-      .select("id,created_at,session_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type,country_code,region_code")
+      .select("id,created_at,session_id,visitor_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type,country_code,region_code,city,network_hash")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(10000);

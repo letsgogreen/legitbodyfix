@@ -3,6 +3,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
 const SESSION_KEY = "lbf_analytics_session";
+const VISITOR_KEY = "lbf_analytics_visitor";
 const CAMPAIGN_KEY = "lbf_analytics_campaign";
 
 type Campaign = {
@@ -21,6 +22,15 @@ function getSessionId() {
   if (!id) {
     id = crypto.randomUUID();
     sessionStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+}
+
+function getVisitorId() {
+  let id = localStorage.getItem(VISITOR_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(VISITOR_KEY, id);
   }
   return id;
 }
@@ -72,6 +82,7 @@ export function PageViewTracker() {
         keepalive: true,
         body: JSON.stringify({
           session_id: getSessionId(),
+          visitor_id: getVisitorId(),
           path,
           referrer_host: clean(referrerHost, 255),
           utm_source: campaign.source,

@@ -11,6 +11,8 @@ type AcquisitionMode = "source" | "campaign";
 
 type RecentSession = {
   sessionId: string;
+  visitorId: string | null;
+  visitorSessionNumber: number | null;
   startedAt: string;
   lastSeenAt: string;
   entryPath: string;
@@ -20,7 +22,10 @@ type RecentSession = {
   campaign: string | null;
   countryCode: string | null;
   regionCode: string | null;
+  city: string | null;
+  networkHash: string | null;
   observedDurationSeconds: number | null;
+  journey: Array<{ path: string; visitedAt: string; secondsFromPrevious: number | null }>;
 };
 
 export const Route = createFileRoute("/admin/analytics")({
@@ -55,12 +60,14 @@ function groupRecentSessions(views: View[]): RecentSession[] {
   const sessions = new Map<string, View[]>();
   views.forEach((view) => sessions.set(view.session_id, [...(sessions.get(view.session_id) || []), view]));
 
-  return [...sessions.entries()].map(([sessionId, sessionViews]) => {
+  const grouped: RecentSession[] = [...sessions.entries()].map(([sessionId, sessionViews]) => {
     const chronological = [...sessionViews].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     const entry = chronological[0];
     const latest = chronological.at(-1) || entry;
     return {
       sessionId,
+      visitorId: entry.visitor_id,
+      visitorSessionNumber: null,
       startedAt: entry.created_at,
       lastSeenAt: latest.created_at,
       entryPath: entry.path,
@@ -70,9 +77,28 @@ function groupRecentSessions(views: View[]): RecentSession[] {
       campaign: entry.utm_campaign,
       countryCode: entry.country_code,
       regionCode: entry.region_code,
+      city: entry.city,
+      networkHash: entry.network_hash,
       observedDurationSeconds: sessionViews.length > 1 ? Math.max(0, (Date.parse(latest.created_at) - Date.parse(entry.created_at)) / 1000) : null,
+      journey: chronological.map((view, index) => ({
+        path: view.path,
+        visitedAt: view.created_at,
+        secondsFromPrevious: index ? Math.max(0, (Date.parse(view.created_at) - Date.parse(chronological[index - 1].created_at)) / 1000) : null,
+      })),
     };
-  }).sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
+  });
+
+  const visitsByVisitor = new Map<string, RecentSession[]>();
+  grouped.forEach((session) => {
+    if (!session.visitorId) return;
+    visitsByVisitor.set(session.visitorId, [...(visitsByVisitor.get(session.visitorId) || []), session]);
+  });
+  visitsByVisitor.forEach((visitorSessions) => {
+    visitorSessions.sort((a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt));
+    visitorSessions.forEach((session, index) => { session.visitorSessionNumber = index + 1; });
+  });
+
+  return grouped.sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
 }
 
 function AnalyticsPage() {
@@ -111,6 +137,7 @@ function AnalyticsPage() {
     const acquiredCount = (rows: View[]) => new Set(rows.filter((view) => view.referrer_host || view.utm_source).map((view) => view.session_id)).size;
     const sessions = sessionCount(views);
     const previousSessions = sessionCount(previous);
+    const uniqueVisitors = new Set(views.map((view) => view.visitor_id).filter(Boolean)).size;
     const acquired = acquiredCount(views);
     const previousAcquired = acquiredCount(previous);
     const pagesPerSession = sessions ? views.length / sessions : 0;
@@ -127,6 +154,7 @@ function AnalyticsPage() {
       views,
       previous,
       sessions,
+      uniqueVisitors,
       acquired,
       pagesPerSession,
       acquisitionRate,
@@ -158,6 +186,7 @@ function AnalyticsPage() {
     { label: "Avg. estimated duration", value: formatSessionDuration(averageDuration), note: measuredSessions.length + " of " + recentSessions.length + " sessions measurable", delta: undefined },
     { label: "Page views", value: report.views.length.toLocaleString(), note: `Last ${range} days`, delta: report.changes.views },
     { label: "Sessions", value: report.sessions.toLocaleString(), note: "Approximate visits", delta: report.changes.sessions },
+    { label: "Anonymous visitors", value: report.uniqueVisitors ? report.uniqueVisitors.toLocaleString() : "—", note: "Recognized browsers", delta: undefined },
     { label: "Pages / session", value: report.sessions ? report.pagesPerSession.toFixed(1) : "—", note: "Browsing depth", delta: report.changes.depth },
     { label: "Acquired visits", value: report.sessions ? `${Math.round(report.acquisitionRate)}%` : "—", note: "Referrer or UTM found", delta: report.changes.acquisition },
   ];
@@ -180,7 +209,7 @@ function AnalyticsPage() {
           <p className="text-xs text-muted-foreground">Latest real event: <strong className="text-foreground">{latestView ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(latestView)) : "None"}</strong></p>
         </section>
 
-        <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {statCards.map((stat) => <Panel key={stat.label} className="p-5"><div className="flex items-start justify-between gap-3"><p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{stat.label}</p><Delta value={stat.delta} /></div><p className="mt-3 text-4xl font-extrabold tracking-tight">{stat.value}</p><p className="mt-1 text-xs text-muted-foreground">{stat.note}</p></Panel>)}
         </section>
 
@@ -217,13 +246,32 @@ function AnalyticsPage() {
         </div>
 
         <Panel className="mt-4 overflow-hidden">
-          <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between"><div><h2 className="text-lg font-extrabold">Recent sessions</h2><p className="mt-1 text-xs text-muted-foreground">Each browser session appears once. Duration is estimated from its first to last page view within the selected period. Time on the final page and whether the tab was visible are unknown. Single-page sessions are not measurable and are excluded from the average.</p></div><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest first · {timeZone}</span></div>
-          <div className="divide-y divide-border">{recentSessions.slice(0, 15).map((session) => <div key={session.sessionId} className="grid gap-2 px-5 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] sm:items-center sm:gap-5"><div className="min-w-0"><p className="truncate font-bold">{session.entryPath === "/" ? "Homepage" : session.entryPath}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">{session.source}{session.campaign ? " · " + session.campaign : ""} · Entry page</p></div><span className="text-xs font-bold text-muted-foreground">{session.pageViews} {session.pageViews === 1 ? "page" : "pages"}</span><div className="text-xs text-muted-foreground"><p className="font-bold" title="Estimated time from first to last page view. Time on the final page is not measured.">{formatSessionDuration(session.observedDurationSeconds)}{session.observedDurationSeconds !== null ? " · estimated" : ""}</p><p className="mt-1">{formatLocation(session.countryCode, session.regionCode)}</p></div><Tag tone="muted">{session.deviceType}</Tag><time dateTime={session.lastSeenAt} title={"Started " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.startedAt))} className="font-mono text-[11px] text-muted-foreground sm:text-right">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.lastSeenAt))}</time></div>)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
+          <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between"><div><h2 className="text-lg font-extrabold">Recent sessions</h2><p className="mt-1 text-xs text-muted-foreground">Open a session to see its page-by-page journey. A random browser ID groups repeat visits without using names, email addresses, or precise location.</p></div><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest first · {timeZone}</span></div>
+          <div className="divide-y divide-border">{recentSessions.slice(0, 15).map((session) => <SessionJourney key={session.sessionId} session={session} />)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
         </Panel>
-        <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Privacy note: analytics stores a random per-tab session ID, page path, device category, referrer domain, UTM tags, and coarse country/region codes. It does not store IP addresses, names, email addresses, city-level or precise location, or full referrer URLs. Administrator pages and automated browser checks are excluded.</p>
+        <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Privacy note: analytics stores random browser and per-tab session IDs, page path, device category, referrer domain, UTM tags, and coarse country/region codes. The browser ID is not linked to a customer account. It does not store IP addresses, names, email addresses, city-level or precise location, or full referrer URLs. Administrator pages and automated browser checks are excluded.</p>
       </>}
     </div>
   );
+}
+
+function SessionJourney({ session }: { session: RecentSession }) {
+  const visitorLabel = session.visitorId ? `Visitor ${session.visitorId.slice(0, 6).toUpperCase()}` : "Legacy session";
+  const visitLabel = session.visitorSessionNumber && session.visitorSessionNumber > 1 ? `Visit ${session.visitorSessionNumber}` : "First seen";
+  return <details className="group">
+    <summary className="grid cursor-pointer list-none gap-2 px-5 py-4 text-sm hover:bg-secondary/35 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] sm:items-center sm:gap-5">
+      <div className="min-w-0"><p className="truncate font-bold">{session.entryPath === "/" ? "Homepage" : session.entryPath}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">{visitorLabel} · {visitLabel} · {session.source}{session.campaign ? " · " + session.campaign : ""}</p></div>
+      <span className="text-xs font-bold text-muted-foreground">{session.pageViews} {session.pageViews === 1 ? "page" : "pages"}</span>
+      <div className="text-xs text-muted-foreground"><p className="font-bold" title="Estimated time from first to last page view. Time on the final page is not measured.">{formatSessionDuration(session.observedDurationSeconds)}{session.observedDurationSeconds !== null ? " · estimated" : ""}</p><p className="mt-1">{formatLocation(session.countryCode, session.regionCode, session.city)}</p></div>
+      <Tag tone="muted">{session.deviceType}</Tag>
+      <time dateTime={session.lastSeenAt} title={"Started " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.startedAt))} className="font-mono text-[11px] text-muted-foreground sm:text-right">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(session.lastSeenAt))}<span className="ml-2 inline-block transition-transform group-open:rotate-180">⌄</span></time>
+    </summary>
+    <div className="border-t border-border bg-secondary/20 px-5 py-4">
+      <div className="mb-4 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground"><span>{visitorLabel}</span><span>{session.networkHash ? `Network ${session.networkHash.slice(0, 8).toUpperCase()}` : "Network unavailable"}</span><span>{formatLocation(session.countryCode, session.regionCode, session.city)}</span></div>
+      <ol className="space-y-0">{session.journey.map((step, index) => <li key={`${step.visitedAt}-${index}`} className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] gap-3 text-sm"><div className="flex flex-col items-center"><span className="grid h-6 w-6 place-items-center rounded-full bg-ink font-mono text-[10px] text-ink-foreground">{index + 1}</span>{index < session.journey.length - 1 ? <span className="h-7 w-px bg-border" /> : null}</div><div className="min-w-0 pt-0.5"><p className="truncate font-medium">{step.path === "/" ? "Homepage" : step.path}</p>{step.secondsFromPrevious !== null ? <p className="mt-0.5 text-[11px] text-muted-foreground">{formatSessionDuration(step.secondsFromPrevious)} after previous page</p> : null}</div><time dateTime={step.visitedAt} className="pt-0.5 font-mono text-[10px] text-muted-foreground">{new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date(step.visitedAt))}</time></li>)}</ol>
+      {session.journey.length === 1 ? <p className="mt-3 text-xs text-muted-foreground">No next page was recorded, so time on this page cannot be estimated.</p> : null}
+    </div>
+  </details>;
 }
 
 const KOREA_REGIONS: Record<string, string> = {
@@ -231,12 +279,12 @@ const KOREA_REGIONS: Record<string, string> = {
   "41": "Gyeonggi", "42": "Gangwon", "43": "North Chungcheong", "44": "South Chungcheong", "45": "North Jeolla", "46": "South Jeolla", "47": "North Gyeongsang", "48": "South Gyeongsang", "49": "Jeju",
 };
 
-function formatLocation(countryCode: string | null, regionCode: string | null) {
+function formatLocation(countryCode: string | null, regionCode: string | null, city?: string | null) {
   if (!countryCode) return "Location unknown";
   let country = countryCode;
   try { country = new Intl.DisplayNames(["en"], { type: "region" }).of(countryCode) || countryCode; } catch { /* use the code */ }
   const region = countryCode === "KR" && regionCode ? KOREA_REGIONS[regionCode] || regionCode : regionCode;
-  return region ? country + " · " + region : country;
+  return [country, region, city].filter(Boolean).join(" · ");
 }
 function formatSessionDuration(seconds: number | null) {
   if (seconds === null) return "Not measurable";
