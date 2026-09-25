@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { HomepageFeedback } from "@/components/site/HomepageFeedback";
 import { ArrowRight, Route as RouteIcon, ScanSearch, Waypoints } from "lucide-react";
 import { BodyRegionGrid } from "@/components/site/BodyRegionGrid";
 import { FeaturedPrograms } from "@/components/site/FeaturedPrograms";
@@ -64,7 +65,10 @@ const differentiators = [
 function PhaseOneHomepage() {
   const { regionData, programs, regionLoadFailed, programLoadFailed } = Route.useLoaderData();
   const copy = regionData?.copy ?? homepageCopyDefaults;
-  const heroLines = copy.hero_title.split("\n").map((line) => line.trim()).filter(Boolean);
+  const heroLines = copy.hero_title
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -79,7 +83,12 @@ function PhaseOneHomepage() {
               </p>
               <h1 className="original-hero-title mt-5 max-w-[620px] text-[clamp(2.75rem,13vw,5rem)] font-black uppercase leading-[0.9] tracking-[-0.06em] sm:mt-[26px]">
                 {heroLines.map((line, index) => (
-                  <span key={`${line}-${index}`} className={index >= 2 ? "original-outline block" : "block"}>{line}</span>
+                  <span
+                    key={`${line}-${index}`}
+                    className={index >= 2 ? "original-outline block" : "block"}
+                  >
+                    {line}
+                  </span>
                 ))}
               </h1>
               <p className="mt-5 max-w-[550px] text-base leading-7 text-muted-foreground sm:mt-6 sm:text-lg sm:leading-[1.65]">
@@ -236,6 +245,8 @@ function PhaseOneHomepage() {
             </div>
           </div>
         </section>
+
+        <HomepageFeedback />
 
         <section className="bg-accent text-accent-foreground">
           <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-5 sm:py-24 lg:px-8">

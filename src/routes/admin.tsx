@@ -8,6 +8,7 @@ import {
   NotebookPen,
   ExternalLink,
   ChartNoAxesCombined,
+  MessageSquareText,
   type LucideIcon,
 } from "lucide-react";
 import { AdminAuthGate } from "@/components/admin/AdminAuthGate";
@@ -41,6 +42,7 @@ const nav: NavItem[] = [
   { to: "/admin/recipes", label: "Corrective Movement Strategies", icon: NotebookPen },
   { to: "/admin/conditions", label: "Conditions", icon: NotebookPen },
   { to: "/admin/customers", label: "Customers & access", icon: Users },
+  { to: "/admin/feedback", label: "Website feedback", icon: MessageSquareText },
   { to: "/admin/content", label: "Website content", icon: PanelsTopLeft },
 ];
 
@@ -57,28 +59,41 @@ function AdminShell() {
             </span>
           </div>
 
-          <nav aria-label="Admin navigation" className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+          <nav
+            aria-label="Admin navigation"
+            className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2"
+          >
             {[
               { label: "Workspace", paths: ["/admin", "/admin/analytics", "/admin/programs"] },
-              { label: "Content", paths: ["/admin/recipes", "/admin/conditions", "/admin/muscles", "/admin/content"] },
-              { label: "Operations", paths: ["/admin/customers"] },
-            ].map((group) => <div key={group.label} className="mb-4">
-              <p className="px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{group.label}</p>
-            {group.paths.map((path) => nav.find((item) => item.to === path)!).map((item) => (
-              <Link
-                key={item.to}
-                to={item.to as never}
-                activeOptions={{ exact: item.exact ?? false }}
-                activeProps={{ className: "bg-ink text-ink-foreground" }}
-                inactiveProps={{
-                  className: "text-muted-foreground hover:bg-secondary hover:text-foreground",
-                }}
-                className="flex min-h-11 items-center gap-2.5 rounded-sm px-3 py-2 text-sm font-medium transition-colors"
-              >
-                <item.icon className="h-4 w-4 shrink-0" />
-                {item.label}
-              </Link>
-            ))}</div>)}
+              {
+                label: "Content",
+                paths: ["/admin/recipes", "/admin/conditions", "/admin/muscles", "/admin/content"],
+              },
+              { label: "Operations", paths: ["/admin/customers", "/admin/feedback"] },
+            ].map((group) => (
+              <div key={group.label} className="mb-4">
+                <p className="px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {group.label}
+                </p>
+                {group.paths
+                  .map((path) => nav.find((item) => item.to === path)!)
+                  .map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to as never}
+                      activeOptions={{ exact: item.exact ?? false }}
+                      activeProps={{ className: "bg-ink text-ink-foreground" }}
+                      inactiveProps={{
+                        className: "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                      }}
+                      className="flex min-h-11 items-center gap-2.5 rounded-sm px-3 py-2 text-sm font-medium transition-colors"
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      {item.label}
+                    </Link>
+                  ))}
+              </div>
+            ))}
           </nav>
 
           <div className="border-t border-border p-3">
