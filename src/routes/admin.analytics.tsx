@@ -8,6 +8,7 @@ import { getAdminAnalytics } from "@/lib/admin-analytics.functions";
 type View = Database["public"]["Tables"]["page_views"]["Row"];
 type Range = 7 | 30 | 90;
 type AcquisitionMode = "source" | "campaign";
+const SESSION_PAGE_SIZE = 15;
 
 type RecentSession = {
   sessionId: string;
@@ -105,6 +106,7 @@ function AnalyticsPage() {
   const [range, setRange] = useState<Range>(30);
   const [rawViews, setRawViews] = useState<View[]>([]);
   const [showVerification, setShowVerification] = useState(false);
+  const [visibleSessionCount, setVisibleSessionCount] = useState(SESSION_PAGE_SIZE);
   const [acquisitionMode, setAcquisitionMode] = useState<AcquisitionMode>("source");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -197,9 +199,9 @@ function AnalyticsPage() {
 
       <div className="mt-5 flex flex-col gap-3 border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2" aria-label="Date range">
-          {([7, 30, 90] as Range[]).map((days) => <button key={days} onClick={() => setRange(days)} className={`min-h-10 border px-4 font-mono text-xs font-bold uppercase tracking-wider ${range === days ? "border-ink bg-ink text-ink-foreground" : "border-border bg-background"}`}>{days} days</button>)}
+          {([7, 30, 90] as Range[]).map((days) => <button key={days} onClick={() => { setRange(days); setVisibleSessionCount(SESSION_PAGE_SIZE); }} className={`min-h-10 border px-4 font-mono text-xs font-bold uppercase tracking-wider ${range === days ? "border-ink bg-ink text-ink-foreground" : "border-border bg-background"}`}>{days} days</button>)}
         </div>
-        {report.excluded > 0 && <label className="flex min-h-10 items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={showVerification} onChange={(event) => setShowVerification(event.target.checked)} className="h-4 w-4 accent-lime" />Show {report.excluded} verification {report.excluded === 1 ? "event" : "events"}</label>}
+        {report.excluded > 0 && <label className="flex min-h-10 items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={showVerification} onChange={(event) => { setShowVerification(event.target.checked); setVisibleSessionCount(SESSION_PAGE_SIZE); }} className="h-4 w-4 accent-lime" />Show {report.excluded} verification {report.excluded === 1 ? "event" : "events"}</label>}
       </div>
 
       {error && <div className="mt-5 border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">Could not load analytics: {error}</div>}
@@ -247,7 +249,8 @@ function AnalyticsPage() {
 
         <Panel className="mt-4 overflow-hidden">
           <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between"><div><h2 className="text-lg font-extrabold">Recent sessions</h2><p className="mt-1 text-xs text-muted-foreground">Open a session to see its page-by-page journey. A random browser ID groups repeat visits without using names, email addresses, or precise location.</p></div><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest first · {timeZone}</span></div>
-          <div className="divide-y divide-border">{recentSessions.slice(0, 15).map((session) => <SessionJourney key={session.sessionId} session={session} />)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
+          <div className="divide-y divide-border">{recentSessions.slice(0, visibleSessionCount).map((session) => <SessionJourney key={session.sessionId} session={session} />)}{!recentSessions.length && <p className="px-5 py-12 text-center text-sm text-muted-foreground">Real visitor activity will appear here.</p>}</div>
+          {recentSessions.length > 0 && <div className="flex flex-col gap-3 border-t border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Showing {Math.min(visibleSessionCount, recentSessions.length)} of {recentSessions.length} sessions</p>{visibleSessionCount < recentSessions.length ? <button type="button" onClick={() => setVisibleSessionCount((count) => count + SESSION_PAGE_SIZE)} className="min-h-10 border border-border bg-background px-5 text-xs font-bold hover:border-foreground">Load more</button> : null}</div>}
         </Panel>
         <p className="mt-5 text-xs leading-relaxed text-muted-foreground">Privacy note: analytics stores random browser and per-tab session IDs, page path, device category, referrer domain, UTM tags, and coarse country/region codes. The browser ID is not linked to a customer account. It does not store IP addresses, names, email addresses, city-level or precise location, or full referrer URLs. Administrator pages and automated browser checks are excluded.</p>
       </>}
