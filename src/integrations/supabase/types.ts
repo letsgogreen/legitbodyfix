@@ -16,10 +16,12 @@ export type Database = {
     Tables: {
       page_views: {
         Row: {
+          city: string | null
           country_code: string | null
           created_at: string
           device_type: string
           id: string
+          network_hash: string | null
           path: string
           region_code: string | null
           referrer_host: string | null
@@ -27,12 +29,15 @@ export type Database = {
           utm_campaign: string | null
           utm_medium: string | null
           utm_source: string | null
+          visitor_id: string | null
         }
         Insert: {
+          city?: string | null
           country_code?: string | null
           created_at?: string
           device_type?: string
           id?: string
+          network_hash?: string | null
           path: string
           region_code?: string | null
           referrer_host?: string | null
@@ -40,12 +45,15 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+          visitor_id?: string | null
         }
         Update: {
+          city?: string | null
           country_code?: string | null
           created_at?: string
           device_type?: string
           id?: string
+          network_hash?: string | null
           path?: string
           region_code?: string | null
           referrer_host?: string | null
@@ -53,6 +61,7 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+          visitor_id?: string | null
         }
         Relationships: []
       }
