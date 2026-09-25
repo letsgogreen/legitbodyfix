@@ -16,16 +16,25 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
 
     const since = new Date(Date.now() - data.range * 2 * 86_400_000).toISOString();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: views, error } = await supabaseAdmin
+    const enriched = await supabaseAdmin
       .from("page_views")
       .select("id,created_at,session_id,visitor_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type,country_code,region_code,city,network_hash")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(10000);
 
-    if (error) {
-      console.error("Admin analytics query failed", { message: error.message, range: data.range });
-      throw new Error(`Analytics query failed: ${error.message}`);
+    if (!enriched.error) return { views: enriched.data ?? [] };
+
+    const legacy = await supabaseAdmin
+      .from("page_views")
+      .select("id,created_at,session_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type,country_code,region_code")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(10000);
+
+    if (legacy.error) {
+      console.error("Admin analytics query failed", { message: legacy.error.message, range: data.range });
+      throw new Error(`Analytics query failed: ${legacy.error.message}`);
     }
-    return { views: views ?? [] };
+    return { views: (legacy.data ?? []).map((view) => ({ ...view, visitor_id: null, city: null, network_hash: null })) };
   });
