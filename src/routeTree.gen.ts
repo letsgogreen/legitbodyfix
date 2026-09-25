@@ -29,11 +29,13 @@ import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminConditionsRouteImport } from './routes/admin.conditions'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
+import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminGuidesRouteImport } from './routes/admin.guides'
 import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
 import { Route as ApiCloudflareStreamWebhookRouteImport } from './routes/api/cloudflare-stream-webhook'
+import { Route as ApiFeedbackRouteImport } from './routes/api.feedback'
 import { Route as CheckoutCompleteRouteImport } from './routes/checkout.complete'
 import { Route as ConditionsIndexRouteImport } from './routes/conditions.index'
 import { Route as ConditionsSlugRouteImport } from './routes/conditions.$slug'
@@ -164,6 +166,11 @@ const AdminCustomersRoute = AdminCustomersRouteImport.update({
   path: '/customers',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminGuidesRoute = AdminGuidesRouteImport.update({
   id: '/guides',
   path: '/guides',
@@ -190,6 +197,11 @@ const ApiCloudflareStreamWebhookRoute =
     path: '/api/cloudflare-stream-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiFeedbackRoute = ApiFeedbackRouteImport.update({
+  id: '/api/feedback',
+  path: '/api/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CheckoutCompleteRoute = CheckoutCompleteRouteImport.update({
   id: '/checkout/complete',
   path: '/checkout/complete',
@@ -358,11 +370,13 @@ export interface FileRoutesByFullPath {
   '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/guides': typeof AdminGuidesRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -410,11 +424,13 @@ export interface FileRoutesByTo {
   '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/guides': typeof AdminGuidesRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -467,11 +483,13 @@ export interface FileRoutesById {
   '/admin/conditions': typeof AdminConditionsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/guides': typeof AdminGuidesRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
+  '/api/feedback': typeof ApiFeedbackRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -525,11 +543,13 @@ export interface FileRouteTypes {
     | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
+    | '/admin/feedback'
     | '/admin/guides'
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
+    | '/api/feedback'
     | '/checkout/complete'
     | '/conditions/$slug'
     | '/guides/$slug'
@@ -577,11 +597,13 @@ export interface FileRouteTypes {
     | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
+    | '/admin/feedback'
     | '/admin/guides'
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
+    | '/api/feedback'
     | '/checkout/complete'
     | '/conditions/$slug'
     | '/guides/$slug'
@@ -633,11 +655,13 @@ export interface FileRouteTypes {
     | '/admin/conditions'
     | '/admin/content'
     | '/admin/customers'
+    | '/admin/feedback'
     | '/admin/guides'
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
     | '/api/cloudflare-stream-webhook'
+    | '/api/feedback'
     | '/checkout/complete'
     | '/conditions/$slug'
     | '/guides/$slug'
@@ -687,6 +711,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   Ver1Route: typeof Ver1RouteWithChildren
   ApiCloudflareStreamWebhookRoute: typeof ApiCloudflareStreamWebhookRoute
+  ApiFeedbackRoute: typeof ApiFeedbackRoute
   CheckoutCompleteRoute: typeof CheckoutCompleteRoute
   ConditionsSlugRoute: typeof ConditionsSlugRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
@@ -845,6 +870,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCustomersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/feedback': {
+      id: '/admin/feedback'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/guides': {
       id: '/admin/guides'
       path: '/guides'
@@ -878,6 +910,13 @@ declare module '@tanstack/react-router' {
       path: '/api/cloudflare-stream-webhook'
       fullPath: '/api/cloudflare-stream-webhook'
       preLoaderRoute: typeof ApiCloudflareStreamWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/feedback': {
+      id: '/api/feedback'
+      path: '/api/feedback'
+      fullPath: '/api/feedback'
+      preLoaderRoute: typeof ApiFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout/complete': {
@@ -1091,6 +1130,7 @@ interface AdminRouteChildren {
   AdminConditionsRoute: typeof AdminConditionsRoute
   AdminContentRoute: typeof AdminContentRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
+  AdminFeedbackRoute: typeof AdminFeedbackRoute
   AdminGuidesRoute: typeof AdminGuidesRoute
   AdminLessonsRoute: typeof AdminLessonsRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
@@ -1110,6 +1150,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminConditionsRoute: AdminConditionsRoute,
   AdminContentRoute: AdminContentRoute,
   AdminCustomersRoute: AdminCustomersRoute,
+  AdminFeedbackRoute: AdminFeedbackRoute,
   AdminGuidesRoute: AdminGuidesRoute,
   AdminLessonsRoute: AdminLessonsRoute,
   AdminOrdersRoute: AdminOrdersRoute,
@@ -1195,6 +1236,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   Ver1Route: Ver1RouteWithChildren,
   ApiCloudflareStreamWebhookRoute: ApiCloudflareStreamWebhookRoute,
+  ApiFeedbackRoute: ApiFeedbackRoute,
   CheckoutCompleteRoute: CheckoutCompleteRoute,
   ConditionsSlugRoute: ConditionsSlugRoute,
   GuidesSlugRoute: GuidesSlugRoute,
