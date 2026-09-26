@@ -58,6 +58,7 @@ import { Route as AdminRecipesRecipeIdRouteImport } from './routes/admin.recipes
 import { Route as AdminRecipesImportRouteImport } from './routes/admin.recipes.import'
 import { Route as AdminRecipesScrapeRouteImport } from './routes/admin.recipes.scrape'
 import { Route as ApiAnalyticsPageViewRouteImport } from './routes/api.analytics.page-view'
+import { Route as ApiAnalyticsProgramFunnelRouteImport } from './routes/api.analytics.program-funnel'
 import { Route as ApiPaypalConfigRouteImport } from './routes/api.paypal.config'
 import { Route as ApiPublicPaddleWebhookRouteImport } from './routes/api.public.paddle-webhook'
 import { Route as Ver1AdminSplatRouteImport } from './routes/ver1.admin.$'
@@ -312,6 +313,12 @@ const ApiAnalyticsPageViewRoute = ApiAnalyticsPageViewRouteImport.update({
   path: '/api/analytics/page-view',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAnalyticsProgramFunnelRoute =
+  ApiAnalyticsProgramFunnelRouteImport.update({
+    id: '/api/analytics/program-funnel',
+    path: '/api/analytics/program-funnel',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPaypalConfigRoute = ApiPaypalConfigRouteImport.update({
   id: '/api/paypal/config',
   path: '/api/paypal/config',
@@ -398,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/admin/recipes/import': typeof AdminRecipesImportRoute
   '/admin/recipes/scrape': typeof AdminRecipesScrapeRoute
   '/api/analytics/page-view': typeof ApiAnalyticsPageViewRoute
+  '/api/analytics/program-funnel': typeof ApiAnalyticsProgramFunnelRoute
   '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
@@ -452,6 +460,7 @@ export interface FileRoutesByTo {
   '/admin/recipes/import': typeof AdminRecipesImportRoute
   '/admin/recipes/scrape': typeof AdminRecipesScrapeRoute
   '/api/analytics/page-view': typeof ApiAnalyticsPageViewRoute
+  '/api/analytics/program-funnel': typeof ApiAnalyticsProgramFunnelRoute
   '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
@@ -511,6 +520,7 @@ export interface FileRoutesById {
   '/admin/recipes/import': typeof AdminRecipesImportRoute
   '/admin/recipes/scrape': typeof AdminRecipesScrapeRoute
   '/api/analytics/page-view': typeof ApiAnalyticsPageViewRoute
+  '/api/analytics/program-funnel': typeof ApiAnalyticsProgramFunnelRoute
   '/api/paypal/config': typeof ApiPaypalConfigRoute
   '/api/public/paddle-webhook': typeof ApiPublicPaddleWebhookRoute
   '/ver1/admin/$': typeof Ver1AdminSplatRoute
@@ -571,6 +581,7 @@ export interface FileRouteTypes {
     | '/admin/recipes/import'
     | '/admin/recipes/scrape'
     | '/api/analytics/page-view'
+    | '/api/analytics/program-funnel'
     | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
@@ -625,6 +636,7 @@ export interface FileRouteTypes {
     | '/admin/recipes/import'
     | '/admin/recipes/scrape'
     | '/api/analytics/page-view'
+    | '/api/analytics/program-funnel'
     | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
@@ -683,6 +695,7 @@ export interface FileRouteTypes {
     | '/admin/recipes/import'
     | '/admin/recipes/scrape'
     | '/api/analytics/page-view'
+    | '/api/analytics/program-funnel'
     | '/api/paypal/config'
     | '/api/public/paddle-webhook'
     | '/ver1/admin/$'
@@ -720,6 +733,7 @@ export interface RootRouteChildren {
   ConditionsIndexRoute: typeof ConditionsIndexRoute
   RecipesIndexRoute: typeof RecipesIndexRoute
   ApiAnalyticsPageViewRoute: typeof ApiAnalyticsPageViewRoute
+  ApiAnalyticsProgramFunnelRoute: typeof ApiAnalyticsProgramFunnelRoute
   ApiPaypalConfigRoute: typeof ApiPaypalConfigRoute
   ApiPublicPaddleWebhookRoute: typeof ApiPublicPaddleWebhookRoute
   ApiPaypalOrdersCaptureRoute: typeof ApiPaypalOrdersCaptureRoute
@@ -1073,6 +1087,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAnalyticsPageViewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/analytics/program-funnel': {
+      id: '/api/analytics/program-funnel'
+      path: '/api/analytics/program-funnel'
+      fullPath: '/api/analytics/program-funnel'
+      preLoaderRoute: typeof ApiAnalyticsProgramFunnelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/paypal/config': {
       id: '/api/paypal/config'
       path: '/api/paypal/config'
@@ -1245,6 +1266,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConditionsIndexRoute: ConditionsIndexRoute,
   RecipesIndexRoute: RecipesIndexRoute,
   ApiAnalyticsPageViewRoute: ApiAnalyticsPageViewRoute,
+  ApiAnalyticsProgramFunnelRoute: ApiAnalyticsProgramFunnelRoute,
   ApiPaypalConfigRoute: ApiPaypalConfigRoute,
   ApiPublicPaddleWebhookRoute: ApiPublicPaddleWebhookRoute,
   ApiPaypalOrdersCaptureRoute: ApiPaypalOrdersCaptureRoute,

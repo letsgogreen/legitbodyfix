@@ -20,6 +20,14 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
 
     const since = new Date(Date.now() - data.range * 2 * 86_400_000).toISOString();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const funnelRequest = supabaseAdmin
+      .from("program_funnel_events")
+      .select(
+        "id,created_at,session_id,visitor_id,program_slug,program_name,event_type,source_path,device_type",
+      )
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(10000);
     const enriched = await supabaseAdmin
       .from("page_views")
       .select(
@@ -29,7 +37,11 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(10000);
 
-    if (!enriched.error) return { views: enriched.data ?? [] };
+    if (!enriched.error) {
+      const funnel = await funnelRequest;
+      if (funnel.error) console.warn("Program funnel analytics unavailable", funnel.error.message);
+      return { views: enriched.data ?? [], funnelEvents: funnel.data ?? [] };
+    }
 
     const legacy = await supabaseAdmin
       .from("page_views")
@@ -47,6 +59,8 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       });
       throw new Error(`Analytics query failed: ${legacy.error.message}`);
     }
+    const funnel = await funnelRequest;
+    if (funnel.error) console.warn("Program funnel analytics unavailable", funnel.error.message);
     return {
       views: (legacy.data ?? []).map((view) => ({
         ...view,
@@ -55,5 +69,6 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
         administrative_area: null,
         network_hash: null,
       })),
+      funnelEvents: funnel.data ?? [],
     };
   });

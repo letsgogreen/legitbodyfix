@@ -5,6 +5,37 @@
   var unavailable = document.getElementById("unavailableState");
   var page = document.getElementById("salesPage");
 
+  function analyticsId(storage, key) {
+    var value = storage.getItem(key);
+    if (!value) {
+      value = crypto.randomUUID();
+      storage.setItem(key, value);
+    }
+    return value;
+  }
+
+  function trackProgramFunnel(eventType, video) {
+    if (navigator.webdriver) return;
+    try {
+      fetch("/api/analytics/program-funnel", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        keepalive: true,
+        body: JSON.stringify({
+          session_id: analyticsId(sessionStorage, "lbf_analytics_session"),
+          visitor_id: analyticsId(localStorage, "lbf_analytics_visitor"),
+          program_slug: text(video.programId, video.id),
+          program_name: text(video.title, "Movement session"),
+          event_type: eventType,
+          source_path: (window.location.pathname + window.location.search).slice(0, 500),
+          device_type: window.innerWidth < 768 ? "mobile" : window.innerWidth < 1100 ? "tablet" : "desktop"
+        })
+      }).catch(function () {});
+    } catch (error) {
+      // Analytics must never interrupt browsing or checkout.
+    }
+  }
+
   function setText(id, value) {
     document.getElementById(id).textContent = value;
   }
@@ -368,7 +399,10 @@
     renderSessionSequence(video);
     renderFeedback(video);
 
-    document.querySelectorAll(".checkout-link").forEach(function (link) { link.href = checkoutUrl; });
+    document.querySelectorAll(".checkout-link").forEach(function (link) {
+      link.href = checkoutUrl;
+      link.addEventListener("click", function () { trackProgramFunnel("checkout_click", video); });
+    });
 
     var thumbnailUrl = safeImageUrl(video.thumbnailUrl);
     var previewIframeUrl = safeImageUrl(video.previewIframeUrl);
@@ -393,6 +427,7 @@
     loading.hidden = true;
     unavailable.hidden = true;
     page.hidden = false;
+    trackProgramFunnel("sales_view", video);
     setupMobileCheckout();
     loadSalesKnowledge(video);
   }
