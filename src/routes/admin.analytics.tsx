@@ -6,6 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { getAdminAnalytics } from "@/lib/admin-analytics.functions";
 
 type View = Database["public"]["Tables"]["page_views"]["Row"];
+type FunnelEvent = Database["public"]["Tables"]["program_funnel_events"]["Row"];
 type Range = 7 | 30 | 90;
 type AcquisitionMode = "source" | "campaign";
 const SESSION_PAGE_SIZE = 15;
@@ -133,6 +134,7 @@ function groupRecentSessions(views: View[]): RecentSession[] {
 function AnalyticsPage() {
   const [range, setRange] = useState<Range>(30);
   const [rawViews, setRawViews] = useState<View[]>([]);
+  const [rawFunnelEvents, setRawFunnelEvents] = useState<FunnelEvent[]>([]);
   const [showVerification, setShowVerification] = useState(false);
   const [visibleSessionCount, setVisibleSessionCount] = useState(SESSION_PAGE_SIZE);
   const [acquisitionMode, setAcquisitionMode] = useState<AcquisitionMode>("source");
@@ -145,6 +147,7 @@ function AnalyticsPage() {
     try {
       const result = await getAdminAnalytics({ data: { range } });
       setRawViews(result.views);
+      setRawFunnelEvents(result.funnelEvents);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -163,6 +166,15 @@ function AnalyticsPage() {
       ? rawViews
       : rawViews.filter((view) => !isVerificationEvent(view));
     const views = cleaned.filter((view) => new Date(view.created_at).getTime() >= boundary);
+    const funnelEvents = rawFunnelEvents.filter(
+      (event) => new Date(event.created_at).getTime() >= boundary,
+    );
+    const funnelCount = (eventType: string) =>
+      new Set(
+        funnelEvents
+          .filter((event) => event.event_type === eventType)
+          .map((event) => `${event.session_id}:${event.program_slug}`),
+      ).size;
     const previous = cleaned.filter((view) => {
       const time = new Date(view.created_at).getTime();
       return time < boundary;
@@ -211,6 +223,12 @@ function AnalyticsPage() {
       devices: countBy(views, (view) => view.device_type),
       daily,
       hourly,
+      funnel: {
+        impressions: funnelCount("card_impression"),
+        clicks: funnelCount("card_click"),
+        salesViews: funnelCount("sales_view"),
+        checkoutClicks: funnelCount("checkout_click"),
+      },
       changes: {
         views: change(views.length, previous.length),
         sessions: change(sessions, previousSessions),
@@ -218,7 +236,7 @@ function AnalyticsPage() {
         acquisition: change(acquisitionRate, previousAcquisitionRate),
       },
     };
-  }, [rawViews, range, showVerification]);
+  }, [rawViews, rawFunnelEvents, range, showVerification]);
 
   const latestView = report.views[0]?.created_at;
   const recentSessions = useMemo(() => groupRecentSessions(report.views), [report.views]);
@@ -414,6 +432,38 @@ function AnalyticsPage() {
                     : "No sessions yet"}
                 </p>
               </div>
+            </div>
+          </Panel>
+
+          <Panel className="mt-4 overflow-hidden">
+            <div className="border-b border-border px-5 py-4">
+              <h2 className="text-lg font-extrabold">Program sales funnel</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Unique program visits per browser session. This shows where people stop before
+                checkout.
+              </p>
+            </div>
+            <div className="grid gap-px bg-border sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                ["Card shown", report.funnel.impressions, null],
+                ["Card opened", report.funnel.clicks, report.funnel.impressions],
+                ["Sales page reached", report.funnel.salesViews, report.funnel.clicks],
+                ["Checkout started", report.funnel.checkoutClicks, report.funnel.salesViews],
+              ].map(([label, count, previous]) => (
+                <div key={String(label)} className="bg-card p-5">
+                  <p className="font-mono text-[10px] uppercase tracking-[.14em] text-muted-foreground">
+                    {label}
+                  </p>
+                  <p className="mt-3 text-3xl font-extrabold">{Number(count).toLocaleString()}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {typeof previous === "number" && previous > 0
+                      ? `${Math.round((Number(count) / previous) * 100)}% from previous step`
+                      : previous === null
+                        ? "Homepage program cards in view"
+                        : "Waiting for traffic"}
+                  </p>
+                </div>
+              ))}
             </div>
           </Panel>
 

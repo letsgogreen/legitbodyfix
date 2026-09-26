@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
 import { getAdminProgramPreview, getPublicProgramDetail, type ProgramSalesContent, type PublicProgramDetail } from "@/lib/public-programs.functions";
 import { legacySalesPageId } from "@/lib/program-sales-links";
+import { ProgramSalesView } from "@/lib/program-funnel";
 
 export const Route = createFileRoute("/programs/$programSlug")({
   validateSearch: (search: Record<string, unknown>) => ({ preview: search["preview"] === "admin" ? "admin" as const : undefined }),
@@ -69,7 +70,7 @@ function ProgramSalesPage() {
   const totalMinutes = Math.max(1, Math.round(program.lessons.reduce((sum, lesson) => sum + (lesson.durationSeconds ?? 0), 0) / 60));
   const curriculumSummary = program.lessons.length ? `${program.lessons.length} ${program.lessons.length === 1 ? "lesson" : "lessons"} · about ${totalMinutes} minutes total. Preview lessons are identified below.` : "Curriculum details are being prepared.";
 
-  return <div className="min-h-screen bg-background text-foreground"><SiteNav /><main>
+  return <div className="min-h-screen bg-background text-foreground"><ProgramSalesView program={program} /><SiteNav /><main>
     {preview === "admin" ? <div className="border-b border-border bg-accent px-5 py-3 text-center font-mono text-[11px] font-bold uppercase tracking-[.14em] text-accent-foreground">Administrator draft preview · checkout remains live when a Paddle price is connected</div> : null}
     <section className="border-b border-border"><div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-5 sm:py-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,.8fr)] lg:gap-10 lg:px-8 lg:py-20">
       <div><Link to="/" hash="programs" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold"><ArrowLeft className="h-4 w-4" />All programs</Link><p className="mt-6 font-mono text-[11px] font-bold uppercase tracking-[.16em] text-muted-foreground sm:mt-10 sm:text-xs">{sales?.landingEyebrow || program.regions.join(" · ") || "Guided movement program"}</p><h1 className="mt-4 max-w-4xl text-4xl font-black uppercase leading-[.95] tracking-[-.04em] sm:text-7xl">{sales?.landingHeadline || program.name}</h1><p className="mt-5 max-w-2xl whitespace-pre-line text-base leading-7 text-muted-foreground sm:mt-7 sm:text-lg sm:leading-8">{sales?.landingSummary || program.outcome || "Follow a focused progression built around a clear movement goal."}</p><div className="mt-6 flex flex-wrap gap-2 sm:mt-8">{[program.duration, program.format, program.level].filter(Boolean).map((item) => <span key={item} className="border border-border bg-card px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[.12em] sm:text-[11px]">{item}</span>)}</div></div>

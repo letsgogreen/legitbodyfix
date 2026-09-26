@@ -8,6 +8,42 @@ export type Database = {
   };
   public: {
     Tables: {
+      program_funnel_events: {
+        Row: {
+          created_at: string;
+          device_type: string;
+          event_type: string;
+          id: string;
+          program_name: string;
+          program_slug: string;
+          session_id: string;
+          source_path: string;
+          visitor_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          device_type: string;
+          event_type: string;
+          id?: string;
+          program_name: string;
+          program_slug: string;
+          session_id: string;
+          source_path?: string;
+          visitor_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          device_type?: string;
+          event_type?: string;
+          id?: string;
+          program_name?: string;
+          program_slug?: string;
+          session_id?: string;
+          source_path?: string;
+          visitor_id?: string | null;
+        };
+        Relationships: [];
+      };
       site_feedback: {
         Row: {
           created_at: string;
