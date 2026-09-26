@@ -20,12 +20,17 @@ function headerCode(request: Request, name: string, max: number) {
 function headerText(request: Request, name: string, max: number) {
   const value = request.headers.get(name)?.trim();
   if (!value) return null;
-  try { return decodeURIComponent(value).slice(0, max); }
-  catch { return value.slice(0, max); }
+  try {
+    return decodeURIComponent(value).slice(0, max);
+  } catch {
+    return value.slice(0, max);
+  }
 }
 
 async function networkHash(request: Request) {
-  const ip = request.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip")?.trim();
+  const ip =
+    request.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip")?.trim();
   const salt = process.env.ANALYTICS_HASH_SALT;
   if (!ip || !salt) return null;
   const { createHmac } = await import("node:crypto");
@@ -37,15 +42,30 @@ export const Route = createFileRoute("/api/analytics/page-view")({
     handlers: {
       POST: async ({ request }) => {
         let parsed: z.infer<typeof PageView>;
-        try { parsed = PageView.parse(await request.json()); }
-        catch { return new Response("Invalid analytics event", { status: 400 }); }
+        try {
+          parsed = PageView.parse(await request.json());
+        } catch {
+          return new Response("Invalid analytics event", { status: 400 });
+        }
 
-        const countryCode = headerCode(request, "x-vercel-ip-country", 2) || headerCode(request, "cf-ipcountry", 2);
+        const countryCode =
+          headerCode(request, "x-vercel-ip-country", 2) || headerCode(request, "cf-ipcountry", 2);
         const regionCode = headerCode(request, "x-vercel-ip-country-region", 80);
         const city = headerText(request, "x-vercel-ip-city", 120);
-        const hashedNetwork = await networkHash(request);
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const located = await supabaseAdmin.from("page_views").insert({ ...parsed, country_code: countryCode, region_code: regionCode, city, network_hash: hashedNetwork });
+        const { resolveAdministrativeArea } = await import("@/lib/analytics-location.server");
+        const [hashedNetwork, administrativeArea] = await Promise.all([
+          networkHash(request),
+          resolveAdministrativeArea(request, countryCode, supabaseAdmin),
+        ]);
+        const located = await supabaseAdmin.from("page_views").insert({
+          ...parsed,
+          country_code: countryCode,
+          region_code: regionCode,
+          city,
+          administrative_area: administrativeArea,
+          network_hash: hashedNetwork,
+        });
         if (located.error) {
           const { visitor_id: _visitorId, ...legacyEvent } = parsed;
           const fallback = await supabaseAdmin.from("page_views").insert(legacyEvent);

@@ -37,10 +37,29 @@ export const Route = createFileRoute("/api/feedback")({
         }
 
         const { website: _website, ...feedback } = parsed;
-        const result = await supabaseAdmin.from("site_feedback").insert(feedback);
+        const result = await supabaseAdmin
+          .from("site_feedback")
+          .insert(feedback)
+          .select("id,created_at")
+          .single();
         if (result.error) {
           console.error("Site feedback insert failed", { message: result.error.message });
           return new Response("Feedback unavailable", { status: 503 });
+        }
+        try {
+          const { sendFeedbackEmail } = await import("@/lib/feedback-email.server");
+          await sendFeedbackEmail({
+            id: result.data.id,
+            sentiment: parsed.sentiment,
+            message: parsed.message,
+            pagePath: parsed.page_path,
+            deviceType: parsed.device_type,
+            createdAt: result.data.created_at,
+          });
+        } catch (error) {
+          console.error("Feedback saved but email notification failed", {
+            message: error instanceof Error ? error.message : "Unknown error",
+          });
         }
         return new Response(null, { status: 204 });
       },
