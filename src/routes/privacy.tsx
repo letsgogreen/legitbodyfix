@@ -20,11 +20,13 @@ function PrivacyPage() {
         <p>
           Our first-party analytics records the page visited, random browser and per-tab session
           identifiers, general device category, referring website domain, campaign tags included in
-          a link, and approximate country, region, and city supplied by our hosting provider. We
-          also store a keyed, non-reversible representation of the public IP address to recognize
-          repeat networks without retaining the raw address. These analytics identifiers are not
-          connected to a customer account. We do not store names, email addresses, precise GPS
-          location, raw IP addresses, or full referring URLs in analytics.
+          a link, and approximate country, region, city, and administrative area. Hosting-edge
+          coordinates may be sent to OpenStreetMap's Nominatim service to derive a city, county,
+          district, town, or township label; the coordinates themselves are not retained. We also
+          store a keyed, non-reversible representation of the public IP address to recognize repeat
+          networks without retaining the raw address. These analytics identifiers are not connected
+          to a customer account. We do not store names, email addresses, precise GPS location, raw
+          IP addresses, or full referring URLs in analytics.
         </p>
       </section>
       <section>
@@ -42,9 +44,9 @@ function PrivacyPage() {
         <p>
           We use service providers to operate LegitBodyFix, including Supabase for authentication,
           database, and file storage; Paddle for checkout, payments, tax, receipts, and transaction
-          support; Cloudflare for video delivery and infrastructure; and Vercel for application
-          hosting and deployment. These providers process data under their own terms and privacy
-          notices.
+          support; Cloudflare for video delivery and infrastructure; Vercel for application hosting
+          and deployment; and OpenStreetMap's Nominatim service for approximate administrative-area
+          labels. These providers process data under their own terms and privacy notices.
         </p>
       </section>
       <section>

@@ -43,6 +43,7 @@ export type Database = {
       };
       page_views: {
         Row: {
+          administrative_area: string | null;
           city: string | null;
           country_code: string | null;
           created_at: string;
@@ -59,6 +60,7 @@ export type Database = {
           visitor_id: string | null;
         };
         Insert: {
+          administrative_area?: string | null;
           city?: string | null;
           country_code?: string | null;
           created_at?: string;
@@ -75,6 +77,7 @@ export type Database = {
           visitor_id?: string | null;
         };
         Update: {
+          administrative_area?: string | null;
           city?: string | null;
           country_code?: string | null;
           created_at?: string;
@@ -89,6 +92,24 @@ export type Database = {
           utm_medium?: string | null;
           utm_source?: string | null;
           visitor_id?: string | null;
+        };
+        Relationships: [];
+      };
+      analytics_location_cache: {
+        Row: {
+          administrative_area: string;
+          coordinate_hash: string;
+          updated_at: string;
+        };
+        Insert: {
+          administrative_area: string;
+          coordinate_hash: string;
+          updated_at?: string;
+        };
+        Update: {
+          administrative_area?: string;
+          coordinate_hash?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };
