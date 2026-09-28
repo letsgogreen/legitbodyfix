@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, Eye, Plus, Save, X } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  ExternalLink,
+  Eye,
+  Plus,
+  Save,
+  X,
+} from "lucide-react";
 import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RecipeBlockEditor } from "@/components/admin/RecipeBlockEditor";
@@ -175,6 +184,23 @@ function RecipeReview() {
   const [previewWidth, setPreviewWidth] = useState<"desktop" | "mobile">("desktop");
   const saveInFlight = useRef(false);
   const editVersion = useRef(0);
+
+  const ensureAdminSession = useCallback(async () => {
+    const isApprovedAdmin = (
+      user?: {
+        email?: string | null;
+        app_metadata?: Record<string, unknown>;
+      } | null,
+    ) =>
+      user?.app_metadata?.["is_admin"] === true &&
+      user.email?.trim().toLowerCase() === "thriveinside@protonmail.com";
+
+    const { data: verified } = await supabase.auth.getUser();
+    if (isApprovedAdmin(verified.user)) return true;
+
+    const { data: refreshed } = await supabase.auth.refreshSession();
+    return isApprovedAdmin(refreshed.session?.user);
+  }, []);
 
   const load = useCallback(async () => {
     const { data, error } = await supabase.from("recipes").select("*").eq("id", recipeId).single();
@@ -359,18 +385,39 @@ function RecipeReview() {
         image_alt: record.image_alt,
       };
       if (publish === undefined) {
-        const { error } = await supabase.from("recipe_drafts").upsert(
-          {
-            recipe_id: record.id,
-            data: contentPatch,
-            updated_at: new Date().toISOString(),
-          } as never,
-          { onConflict: "recipe_id" },
-        );
+        if (!(await ensureAdminSession())) {
+          setBusy(false);
+          saveInFlight.current = false;
+          setStatus(
+            "Draft save paused: your administrator session expired. Sign in again, then save without leaving this page.",
+          );
+          return;
+        }
+
+        const draftPayload = {
+          recipe_id: record.id,
+          data: contentPatch,
+          updated_at: new Date().toISOString(),
+        } as never;
+        let { error } = await supabase
+          .from("recipe_drafts")
+          .upsert(draftPayload, { onConflict: "recipe_id" });
+
+        // A token can expire between the validation request and the write. Refresh
+        // once and retry the same idempotent upsert before surfacing an error.
+        if (error?.code === "42501" && (await ensureAdminSession())) {
+          ({ error } = await supabase
+            .from("recipe_drafts")
+            .upsert(draftPayload, { onConflict: "recipe_id" }));
+        }
         setBusy(false);
         saveInFlight.current = false;
         if (error) {
-          setStatus(`Draft save failed: ${error.message}`);
+          setStatus(
+            error.code === "42501"
+              ? "Draft save failed: administrator authentication was not accepted. Sign in again, then retry."
+              : `Draft save failed: ${error.message}`,
+          );
           return;
         }
         if (editVersion.current === requestVersion) {
@@ -428,7 +475,7 @@ function RecipeReview() {
               : `Saved as version ${data.version}. Still unpublished.`,
       );
     },
-    [record],
+    [ensureAdminSession, record],
   );
 
   useEffect(() => {
@@ -566,7 +613,9 @@ function RecipeReview() {
             <div className="mb-2 border-y border-border py-2">
               <div className="space-y-1">
                 <label className="block border-b border-border py-2">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Title</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    Title
+                  </span>
                   <input
                     value={record.title}
                     onChange={(event) => setField("title", event.target.value)}
@@ -575,7 +624,9 @@ function RecipeReview() {
                   />
                 </label>
                 <label className="block border-b border-border py-2">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Goal</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    Goal
+                  </span>
                   <textarea
                     value={record.goal ?? ""}
                     onChange={(event) => setField("goal", event.target.value)}
@@ -585,7 +636,9 @@ function RecipeReview() {
                   />
                 </label>
                 <label className="block py-2">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Summary</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                    Summary
+                  </span>
                   <textarea
                     value={record.summary ?? ""}
                     onChange={(event) => setField("summary", event.target.value)}
