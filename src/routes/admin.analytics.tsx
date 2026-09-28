@@ -11,6 +11,13 @@ type Range = 7 | 30 | 90;
 type AcquisitionMode = "source" | "campaign";
 const SESSION_PAGE_SIZE = 15;
 
+const FUNNEL_STAGES = [
+  { type: "card_impression", label: "Card shown", color: "#3478f6" },
+  { type: "card_click", label: "Card opened", color: "#17c98b" },
+  { type: "sales_view", label: "Sales page reached", color: "#e9b949" },
+  { type: "checkout_click", label: "Checkout started", color: "#ff6078" },
+] as const;
+
 type RecentSession = {
   sessionId: string;
   visitorId: string | null;
@@ -229,6 +236,7 @@ function AnalyticsPage() {
         salesViews: funnelCount("sales_view"),
         checkoutClicks: funnelCount("checkout_click"),
       },
+      funnelEvents,
       changes: {
         views: change(views.length, previous.length),
         sessions: change(sessions, previousSessions),
@@ -445,13 +453,36 @@ function AnalyticsPage() {
             </div>
             <div className="grid gap-px bg-border sm:grid-cols-2 xl:grid-cols-4">
               {[
-                ["Card shown", report.funnel.impressions, null],
-                ["Card opened", report.funnel.clicks, report.funnel.impressions],
-                ["Sales page reached", report.funnel.salesViews, report.funnel.clicks],
-                ["Checkout started", report.funnel.checkoutClicks, report.funnel.salesViews],
-              ].map(([label, count, previous]) => (
-                <div key={String(label)} className="bg-card p-5">
-                  <p className="font-mono text-[10px] uppercase tracking-[.14em] text-muted-foreground">
+                ["Card shown", report.funnel.impressions, null, FUNNEL_STAGES[0].color],
+                [
+                  "Card opened",
+                  report.funnel.clicks,
+                  report.funnel.impressions,
+                  FUNNEL_STAGES[1].color,
+                ],
+                [
+                  "Sales page reached",
+                  report.funnel.salesViews,
+                  report.funnel.clicks,
+                  FUNNEL_STAGES[2].color,
+                ],
+                [
+                  "Checkout started",
+                  report.funnel.checkoutClicks,
+                  report.funnel.salesViews,
+                  FUNNEL_STAGES[3].color,
+                ],
+              ].map(([label, count, previous, color]) => (
+                <div key={String(label)} className="relative bg-card p-5">
+                  <span
+                    className="absolute inset-x-0 top-0 h-1"
+                    style={{ backgroundColor: String(color) }}
+                  />
+                  <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[.14em] text-muted-foreground">
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: String(color) }}
+                    />
                     {label}
                   </p>
                   <p className="mt-3 text-3xl font-extrabold">{Number(count).toLocaleString()}</p>
@@ -464,6 +495,9 @@ function AnalyticsPage() {
                   </p>
                 </div>
               ))}
+            </div>
+            <div className="border-t border-border px-5 py-5">
+              <ProgramFunnelTrend events={report.funnelEvents} range={range} />
             </div>
           </Panel>
 
@@ -798,6 +832,187 @@ function ModeToggle({
 }
 
 const SERIES_COLORS = ["#17c98b", "#3478f6", "#ff6078", "#e9b949", "#19bfd0"];
+
+function ProgramFunnelTrend({ events, range }: { events: FunnelEvent[]; range: Range }) {
+  const [activePoint, setActivePoint] = useState<{
+    label: string;
+    date: string;
+    count: number;
+    x: number;
+    y: number;
+    color: string;
+  } | null>(null);
+  const width = 1000;
+  const height = 190;
+  const inset = 12;
+  const labels = Array.from({ length: range }, (_, index) =>
+    localDateKey(new Date(Date.now() - (range - index - 1) * 86_400_000)),
+  );
+  const series = FUNNEL_STAGES.map((stage) => ({
+    ...stage,
+    values: labels.map(
+      (date) =>
+        new Set(
+          events
+            .filter(
+              (event) => event.event_type === stage.type && localDateKey(event.created_at) === date,
+            )
+            .map((event) => `${event.session_id}:${event.program_slug}`),
+        ).size,
+    ),
+  }));
+  const max = Math.max(1, ...series.flatMap((item) => item.values));
+  const hasData = events.length > 0;
+
+  return (
+    <div>
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+        <div>
+          <h3 className="text-sm font-extrabold">Daily funnel trend</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Compare each step over the selected date range.
+          </p>
+        </div>
+        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+          Unique session + program
+        </span>
+      </div>
+      {hasData ? (
+        <>
+          <div className="relative mt-5 h-48 w-full" aria-label="Daily program sales funnel trend">
+            <svg
+              viewBox={`0 0 ${width} ${height}`}
+              preserveAspectRatio="none"
+              className="h-full w-full overflow-visible"
+              role="img"
+              onPointerLeave={() => setActivePoint(null)}
+            >
+              {[0, 1, 2, 3].map((lineIndex) => (
+                <line
+                  key={lineIndex}
+                  x1={inset}
+                  x2={width - inset}
+                  y1={inset + (lineIndex * (height - inset * 2)) / 3}
+                  y2={inset + (lineIndex * (height - inset * 2)) / 3}
+                  className="stroke-border"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
+              {series.map((item) => {
+                const points = item.values.map((count, index) => ({
+                  count,
+                  date: labels[index],
+                  x: inset + (index / Math.max(1, labels.length - 1)) * (width - inset * 2),
+                  y: height - inset - (count / max) * (height - inset * 2),
+                }));
+                return (
+                  <g key={item.type}>
+                    <polyline
+                      points={points.map(({ x, y }) => `${x},${y}`).join(" ")}
+                      fill="none"
+                      stroke={item.color}
+                      strokeWidth="3"
+                      vectorEffect="non-scaling-stroke"
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                    />
+                    {points.map(({ count, date, x, y }) => (
+                      <g key={date}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r={count ? "3.5" : "2"}
+                          fill={item.color}
+                          opacity={count ? 1 : 0.25}
+                          vectorEffect="non-scaling-stroke"
+                        />
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="12"
+                          fill="transparent"
+                          className="cursor-crosshair"
+                          tabIndex={0}
+                          onPointerEnter={() =>
+                            setActivePoint({
+                              label: item.label,
+                              date,
+                              count,
+                              x,
+                              y,
+                              color: item.color,
+                            })
+                          }
+                          onPointerDown={() =>
+                            setActivePoint({
+                              label: item.label,
+                              date,
+                              count,
+                              x,
+                              y,
+                              color: item.color,
+                            })
+                          }
+                          onFocus={() =>
+                            setActivePoint({
+                              label: item.label,
+                              date,
+                              count,
+                              x,
+                              y,
+                              color: item.color,
+                            })
+                          }
+                          onBlur={() => setActivePoint(null)}
+                        >
+                          <title>
+                            {date} · {item.label} · {count}
+                          </title>
+                        </circle>
+                      </g>
+                    ))}
+                  </g>
+                );
+              })}
+            </svg>
+            {activePoint ? (
+              <ChartTooltip
+                x={(activePoint.x / width) * 100}
+                y={(activePoint.y / height) * 100}
+                accent={activePoint.color}
+                title={activePoint.label}
+                detail={`${activePoint.date} · ${activePoint.count.toLocaleString()}`}
+              />
+            ) : null}
+          </div>
+          <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground">
+            <span>{labels[0]}</span>
+            <span>{labels.at(-1)}</span>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {FUNNEL_STAGES.map((stage) => (
+              <span
+                key={stage.type}
+                className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[11px] font-medium"
+              >
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: stage.color }}
+                />
+                {stage.label}
+              </span>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="mt-5 grid h-40 place-items-center border border-dashed border-border px-5 text-center text-sm text-muted-foreground">
+          Funnel lines will appear after visitors view a program card.
+        </div>
+      )}
+    </div>
+  );
+}
 
 function AcquisitionTrend({
   views,
