@@ -1,12 +1,27 @@
 import { type FormEvent, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AuthCard, authButtonClass, authInputClass } from "@/components/auth/AuthCard";
+import { Eye, EyeOff } from "lucide-react";
+import {
+  AuthCard,
+  authButtonClass,
+  authInputClass,
+  authLabelClass,
+} from "@/components/auth/AuthCard";
 import { supabase } from "@/integrations/supabase/client";
 import { setAuthPersistence } from "@/integrations/supabase/previewAuthStorage";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search: Record<string, unknown>) => ({ next: typeof search.next === "string" && search.next.startsWith("/") && !search.next.startsWith("//") ? search.next : "/library" }),
-  head: () => ({ meta: [{ title: "Log in — LegitBodyFix" }, { name: "robots", content: "noindex, nofollow" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    next:
+      typeof search.next === "string" &&
+      search.next.startsWith("/") &&
+      !search.next.startsWith("//")
+        ? search.next
+        : "/library",
+  }),
+  head: () => ({
+    meta: [{ title: "Log in — LegitBodyFix" }, { name: "robots", content: "noindex, nofollow" }],
+  }),
   component: LoginPage,
 });
 
@@ -16,6 +31,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -29,14 +45,89 @@ function LoginPage() {
     else window.location.assign(next);
   }
 
-  return <AuthCard eyebrow="Existing customer" title="Log in" body="Open your programs and continue where you left off.">
-    <form onSubmit={submit} className="grid gap-4">
-      <label className="grid gap-2 font-mono text-[10px] uppercase tracking-[0.14em]">Email<input className={authInputClass} type="email" required autoComplete="email" autoCapitalize="none" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
-      <label className="grid gap-2 font-mono text-[10px] uppercase tracking-[0.14em]">Password<input className={authInputClass} type="password" required autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
-      <div className="flex flex-wrap items-center justify-between gap-3"><label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} disabled={busy} className="h-4 w-4 accent-ink" />Remember me</label><Link to="/forgot-password" className="text-xs font-bold underline underline-offset-4">Forgot password?</Link></div>
-      <button className={authButtonClass} disabled={busy}>{busy ? "Logging in…" : "Log in"}</button>
-    </form>
-    {message && <p role="alert" className="mt-4 text-sm text-destructive">{message}</p>}
-    <p className="mt-7 border-t border-border pt-5 text-center text-sm text-muted-foreground">New here? <Link to="/signup" className="font-bold text-foreground underline underline-offset-4">Create an account</Link></p>
-  </AuthCard>;
+  return (
+    <AuthCard
+      eyebrow="Member access"
+      title="Log in"
+      body="Continue to your personal movement library."
+    >
+      <form onSubmit={submit} className="grid gap-5">
+        <label className={authLabelClass}>
+          Email
+          <input
+            className={authInputClass}
+            type="email"
+            required
+            autoComplete="email"
+            autoCapitalize="none"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </label>
+        <label className={authLabelClass}>
+          Password
+          <span className="relative block">
+            <input
+              className={`${authInputClass} pr-12`}
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((visible) => !visible)}
+              className="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-xl text-muted-foreground hover:text-foreground"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <Eye className="h-5 w-5" aria-hidden="true" />
+              )}
+            </button>
+          </span>
+        </label>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <label className="flex cursor-pointer items-start gap-3 text-sm">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(event) => setRemember(event.target.checked)}
+              disabled={busy}
+              className="mt-0.5 h-5 w-5 rounded accent-ink"
+            />
+            <span>
+              <span className="block font-bold">Keep me signed in</span>
+              <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
+                Use only on a trusted device.
+              </span>
+            </span>
+          </label>
+          <Link to="/forgot-password" className="text-sm font-bold underline underline-offset-4">
+            Forgot password?
+          </Link>
+        </div>
+        <button className={authButtonClass} disabled={busy}>
+          {busy ? "Logging in…" : "Log in"}
+        </button>
+      </form>
+      {message ? (
+        <p
+          role="alert"
+          className="mt-4 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {message}
+        </p>
+      ) : null}
+      <p className="mt-8 border-t border-border pt-6 text-center text-sm text-muted-foreground">
+        New to LegitBodyFix?{" "}
+        <Link to="/signup" className="font-bold text-foreground underline underline-offset-4">
+          Create an account
+        </Link>
+      </p>
+    </AuthCard>
+  );
 }
