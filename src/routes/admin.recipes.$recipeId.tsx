@@ -179,6 +179,7 @@ function RecipeReview() {
   const [status, setStatus] = useState("Loading recipe…");
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [legacyPreview, setLegacyPreview] = useState<RecipeContentBlock[]>([]);
   const [previewWidth, setPreviewWidth] = useState<"desktop" | "mobile">("desktop");
@@ -216,6 +217,7 @@ function RecipeReview() {
     const databaseRecord = data as RecipeRow;
     const draftData =
       draft?.data && typeof draft.data === "object" ? (draft.data as Partial<RecipeRow>) : null;
+    setHasDraft(Boolean(draftData));
     const loadedRecord = draftData ? { ...databaseRecord, ...draftData } : databaseRecord;
     const contentBlocks = parseRecipeBlocks(loadedRecord.content_blocks);
     const embeddedLegacyBlocks =
@@ -422,12 +424,13 @@ function RecipeReview() {
         }
         if (editVersion.current === requestVersion) {
           setDirty(false);
+          setHasDraft(true);
           setLastSavedAt(new Date());
           setLegacyPreview([]);
         }
         setStatus(
           source === "autosave"
-            ? "Draft autosaved."
+            ? "Draft autosaved. Published content is unchanged until you publish changes."
             : "Draft saved. Published content is unchanged.",
         );
         return;
@@ -454,8 +457,10 @@ function RecipeReview() {
         setStatus(`Save failed: ${error?.message ?? "unknown error"}`);
         return;
       }
-      if (publish === true)
+      if (publish === true) {
         await supabase.from("recipe_drafts").delete().eq("recipe_id", record.id);
+        setHasDraft(false);
+      }
       if (editVersion.current === requestVersion) {
         setRecord({
           ...(data as RecipeRow),
@@ -538,7 +543,7 @@ function RecipeReview() {
             >
               <Save className="h-3.5 w-3.5" aria-hidden="true" /> Save draft
             </button>
-            {record.published ? (
+            {record.published && (
               <button
                 type="button"
                 onClick={() => void save(false)}
@@ -547,16 +552,16 @@ function RecipeReview() {
               >
                 Unpublish
               </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => void save(true)}
-                disabled={busy || blockers.length > 0}
-                className="inline-flex min-h-10 items-center gap-2 rounded-sm bg-accent px-4 py-2 text-xs font-bold text-accent-foreground disabled:opacity-40"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> Publish
-              </button>
             )}
+            <button
+              type="button"
+              onClick={() => void save(true)}
+              disabled={busy || blockers.length > 0 || (record.published && !dirty && !hasDraft)}
+              className="inline-flex min-h-10 items-center gap-2 rounded-sm bg-accent px-4 py-2 text-xs font-bold text-accent-foreground disabled:opacity-40"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />{" "}
+              {record.published ? "Publish changes" : "Publish"}
+            </button>
           </div>
         }
       />
@@ -570,9 +575,11 @@ function RecipeReview() {
             ? "Saving…"
             : dirty
               ? "Unsaved changes"
-              : lastSavedAt
-                ? `Saved ${lastSavedAt.toLocaleTimeString()}`
-                : "No local changes"}
+              : hasDraft
+                ? "Draft saved · not public"
+                : lastSavedAt
+                  ? `Saved ${lastSavedAt.toLocaleTimeString()}`
+                  : "No local changes"}
         </span>
       </p>
 
