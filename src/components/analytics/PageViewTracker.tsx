@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { isInternalAnalyticsBrowser } from "@/lib/internal-analytics";
 
 const SESSION_KEY = "lbf_analytics_session";
 const VISITOR_KEY = "lbf_analytics_visitor";
@@ -69,7 +70,8 @@ export function PageViewTracker() {
       let referrerHost: string | null = null;
       try {
         const referrer = document.referrer ? new URL(document.referrer) : null;
-        if (referrer && referrer.hostname !== window.location.hostname) referrerHost = referrer.hostname;
+        if (referrer && referrer.hostname !== window.location.hostname)
+          referrerHost = referrer.hostname;
       } catch {
         referrerHost = null;
       }
@@ -89,6 +91,7 @@ export function PageViewTracker() {
           utm_medium: campaign.medium,
           utm_campaign: campaign.campaign,
           device_type: deviceType(),
+          is_internal: isInternalAnalyticsBrowser(),
         }),
       })
         .then((response) => {

@@ -9,6 +9,7 @@ const ProgramFunnelEvent = z.object({
   event_type: z.enum(["card_impression", "card_click", "sales_view", "checkout_click"]),
   source_path: z.string().startsWith("/").max(500),
   device_type: z.enum(["desktop", "tablet", "mobile"]),
+  is_internal: z.boolean().default(false),
 });
 
 export const Route = createFileRoute("/api/analytics/program-funnel")({
@@ -27,8 +28,18 @@ export const Route = createFileRoute("/api/analytics/program-funnel")({
           ignoreDuplicates: true,
         });
         if (result.error) {
-          console.error("Program funnel insert failed", result.error.message);
-          return new Response("Analytics unavailable", { status: 503 });
+          const { is_internal: _isInternal, ...legacyEvent } = event;
+          const fallback = await supabaseAdmin.from("program_funnel_events").upsert(legacyEvent, {
+            onConflict: "session_id,program_slug,event_type",
+            ignoreDuplicates: true,
+          });
+          if (fallback.error) {
+            console.error("Program funnel insert failed", {
+              current: result.error.message,
+              fallback: fallback.error.message,
+            });
+            return new Response("Analytics unavailable", { status: 503 });
+          }
         }
         return new Response(null, { status: 204 });
       },
