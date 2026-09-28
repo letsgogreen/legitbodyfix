@@ -26,7 +26,10 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
 
     const syncUser = (nextUser?: User) => {
       if (!nextUser) setState("signed-out");
-      else if (nextUser.app_metadata?.["is_admin"] === true && isApprovedAdminEmail(nextUser.email)) {
+      else if (
+        nextUser.app_metadata?.["is_admin"] === true &&
+        isApprovedAdminEmail(nextUser.email)
+      ) {
         cleanConsumedAuthFragment();
         setState("ready");
       } else setState("forbidden");
@@ -36,9 +39,25 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
       if (session?.user) syncUser(session.user);
       else if (!window.location.hash.includes("access_token")) syncUser();
     });
-    void client.auth.getSession().then(({ data: sessionData }) => {
-      if (sessionData.session?.user) syncUser(sessionData.session.user);
-      else if (!window.location.hash.includes("access_token")) syncUser();
+    // Validate the cached session with Supabase before rendering the control room.
+    // getSession() only reads browser storage and can return a user whose access
+    // token is no longer accepted by PostgREST, leaving the editor visible while
+    // every protected write is performed as anon.
+    void client.auth.getUser().then(async ({ data: userData, error }) => {
+      if (userData.user) {
+        syncUser(userData.user);
+        return;
+      }
+
+      if (error) {
+        const { data: refreshed } = await client.auth.refreshSession();
+        if (refreshed.session?.user) {
+          syncUser(refreshed.session.user);
+          return;
+        }
+      }
+
+      if (!window.location.hash.includes("access_token")) syncUser();
     });
 
     return () => data.subscription.unsubscribe();
@@ -119,7 +138,9 @@ function AdminSignIn() {
       body="Send a secure, one-time sign-in link to the approved administrator email. The link returns directly to this control room."
       action={
         <div className="mt-6 grid gap-3">
-          <p className="text-xs text-muted-foreground">For security, administrator access ends when you close the browser.</p>
+          <p className="text-xs text-muted-foreground">
+            For security, administrator access ends when you close the browser.
+          </p>
           <button
             type="button"
             onClick={() => void requestSignInLink()}
@@ -128,7 +149,11 @@ function AdminSignIn() {
           >
             {submitting ? "Sending…" : "Send secure sign-in link"}
           </button>
-          {message && <p aria-live="polite" className="text-sm text-muted-foreground">{message}</p>}
+          {message && (
+            <p aria-live="polite" className="text-sm text-muted-foreground">
+              {message}
+            </p>
+          )}
         </div>
       }
     />
