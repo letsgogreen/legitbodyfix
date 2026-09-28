@@ -1,4 +1,5 @@
 import type { PublicProgram } from "@/lib/public-programs.functions";
+import { isInternalAnalyticsBrowser } from "@/lib/internal-analytics";
 
 const SESSION_KEY = "lbf_analytics_session";
 const VISITOR_KEY = "lbf_analytics_visitor";
@@ -43,6 +44,7 @@ export function trackProgramFunnel(
         event_type: eventType,
         source_path: `${window.location.pathname}${window.location.search}`.slice(0, 500),
         device_type: deviceType(),
+        is_internal: isInternalAnalyticsBrowser(),
       }),
     }).catch(() => undefined);
   } catch {

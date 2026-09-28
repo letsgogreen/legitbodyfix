@@ -14,6 +14,7 @@ export type Database = {
           device_type: string;
           event_type: string;
           id: string;
+          is_internal: boolean;
           program_name: string;
           program_slug: string;
           session_id: string;
@@ -25,6 +26,7 @@ export type Database = {
           device_type: string;
           event_type: string;
           id?: string;
+          is_internal?: boolean;
           program_name: string;
           program_slug: string;
           session_id: string;
@@ -36,6 +38,7 @@ export type Database = {
           device_type?: string;
           event_type?: string;
           id?: string;
+          is_internal?: boolean;
           program_name?: string;
           program_slug?: string;
           session_id?: string;
@@ -85,6 +88,7 @@ export type Database = {
           created_at: string;
           device_type: string;
           id: string;
+          is_internal: boolean;
           network_hash: string | null;
           path: string;
           region_code: string | null;
@@ -102,6 +106,7 @@ export type Database = {
           created_at?: string;
           device_type?: string;
           id?: string;
+          is_internal?: boolean;
           network_hash?: string | null;
           path: string;
           region_code?: string | null;
@@ -119,6 +124,7 @@ export type Database = {
           created_at?: string;
           device_type?: string;
           id?: string;
+          is_internal?: boolean;
           network_hash?: string | null;
           path?: string;
           region_code?: string | null;

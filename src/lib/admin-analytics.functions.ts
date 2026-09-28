@@ -23,7 +23,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const funnelRequest = supabaseAdmin
       .from("program_funnel_events")
       .select(
-        "id,created_at,session_id,visitor_id,program_slug,program_name,event_type,source_path,device_type",
+        "id,created_at,session_id,visitor_id,program_slug,program_name,event_type,source_path,device_type,is_internal",
       )
       .gte("created_at", since)
       .order("created_at", { ascending: false })
@@ -31,7 +31,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const enriched = await supabaseAdmin
       .from("page_views")
       .select(
-        "id,created_at,session_id,visitor_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type,country_code,region_code,city,administrative_area,network_hash",
+        "id,created_at,session_id,visitor_id,path,referrer_host,utm_source,utm_medium,utm_campaign,device_type,country_code,region_code,city,administrative_area,network_hash,is_internal",
       )
       .gte("created_at", since)
       .order("created_at", { ascending: false })
@@ -39,8 +39,23 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
 
     if (!enriched.error) {
       const funnel = await funnelRequest;
-      if (funnel.error) console.warn("Program funnel analytics unavailable", funnel.error.message);
-      return { views: enriched.data ?? [], funnelEvents: funnel.data ?? [] };
+      if (!funnel.error) return { views: enriched.data ?? [], funnelEvents: funnel.data ?? [] };
+
+      const legacyFunnel = await supabaseAdmin
+        .from("program_funnel_events")
+        .select(
+          "id,created_at,session_id,visitor_id,program_slug,program_name,event_type,source_path,device_type",
+        )
+        .gte("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(10000);
+      return {
+        views: enriched.data ?? [],
+        funnelEvents: (legacyFunnel.data ?? []).map((event) => ({
+          ...event,
+          is_internal: false,
+        })),
+      };
     }
 
     const legacy = await supabaseAdmin
@@ -59,7 +74,14 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       });
       throw new Error(`Analytics query failed: ${legacy.error.message}`);
     }
-    const funnel = await funnelRequest;
+    const funnel = await supabaseAdmin
+      .from("program_funnel_events")
+      .select(
+        "id,created_at,session_id,visitor_id,program_slug,program_name,event_type,source_path,device_type",
+      )
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(10000);
     if (funnel.error) console.warn("Program funnel analytics unavailable", funnel.error.message);
     return {
       views: (legacy.data ?? []).map((view) => ({
@@ -68,7 +90,8 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
         city: null,
         administrative_area: null,
         network_hash: null,
+        is_internal: false,
       })),
-      funnelEvents: funnel.data ?? [],
+      funnelEvents: (funnel.data ?? []).map((event) => ({ ...event, is_internal: false })),
     };
   });

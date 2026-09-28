@@ -34,6 +34,7 @@ type RecentSession = {
   city: string | null;
   administrativeArea: string | null;
   networkHash: string | null;
+  isInternal: boolean;
   observedDurationSeconds: number | null;
   journey: Array<{ path: string; visitedAt: string; secondsFromPrevious: number | null }>;
 };
@@ -100,6 +101,7 @@ function groupRecentSessions(views: View[]): RecentSession[] {
       city: entry.city,
       administrativeArea: entry.administrative_area,
       networkHash: entry.network_hash,
+      isInternal: sessionViews.some((view) => view.is_internal),
       observedDurationSeconds:
         sessionViews.length > 1
           ? Math.max(0, (Date.parse(latest.created_at) - Date.parse(entry.created_at)) / 1000)
@@ -143,6 +145,7 @@ function AnalyticsPage() {
   const [rawViews, setRawViews] = useState<View[]>([]);
   const [rawFunnelEvents, setRawFunnelEvents] = useState<FunnelEvent[]>([]);
   const [showVerification, setShowVerification] = useState(false);
+  const [includeInternal, setIncludeInternal] = useState(false);
   const [visibleSessionCount, setVisibleSessionCount] = useState(SESSION_PAGE_SIZE);
   const [acquisitionMode, setAcquisitionMode] = useState<AcquisitionMode>("source");
   const [loading, setLoading] = useState(true);
@@ -169,12 +172,16 @@ function AnalyticsPage() {
   const report = useMemo(() => {
     const now = Date.now();
     const boundary = now - range * 86_400_000;
-    const cleaned = showVerification
+    const verificationCleaned = showVerification
       ? rawViews
       : rawViews.filter((view) => !isVerificationEvent(view));
+    const cleaned = includeInternal
+      ? verificationCleaned
+      : verificationCleaned.filter((view) => !view.is_internal);
     const views = cleaned.filter((view) => new Date(view.created_at).getTime() >= boundary);
     const funnelEvents = rawFunnelEvents.filter(
-      (event) => new Date(event.created_at).getTime() >= boundary,
+      (event) =>
+        new Date(event.created_at).getTime() >= boundary && (includeInternal || !event.is_internal),
     );
     const funnelCount = (eventType: string) =>
       new Set(
@@ -224,6 +231,11 @@ function AnalyticsPage() {
       pagesPerSession,
       acquisitionRate,
       excluded: rawViews.filter(isVerificationEvent).length,
+      internalSessions: new Set(
+        verificationCleaned
+          .filter((view) => view.is_internal && new Date(view.created_at).getTime() >= boundary)
+          .map((view) => view.session_id),
+      ).size,
       pages: countBy(views, (view) => view.path),
       sources: countBy(views, (view) => view.utm_source || view.referrer_host || "Direct"),
       campaigns: countBy(views, (view) => view.utm_campaign),
@@ -244,7 +256,7 @@ function AnalyticsPage() {
         acquisition: change(acquisitionRate, previousAcquisitionRate),
       },
     };
-  }, [rawViews, rawFunnelEvents, range, showVerification]);
+  }, [rawViews, rawFunnelEvents, range, showVerification, includeInternal]);
 
   const latestView = report.views[0]?.created_at;
   const recentSessions = useMemo(() => groupRecentSessions(report.views), [report.views]);
@@ -331,20 +343,34 @@ function AnalyticsPage() {
             </button>
           ))}
         </div>
-        {report.excluded > 0 && (
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <label className="flex min-h-10 items-center gap-2 text-xs text-muted-foreground">
             <input
               type="checkbox"
-              checked={showVerification}
+              checked={includeInternal}
               onChange={(event) => {
-                setShowVerification(event.target.checked);
+                setIncludeInternal(event.target.checked);
                 setVisibleSessionCount(SESSION_PAGE_SIZE);
               }}
               className="h-4 w-4 accent-lime"
             />
-            Show {report.excluded} verification {report.excluded === 1 ? "event" : "events"}
+            Include my visits ({report.internalSessions})
           </label>
-        )}
+          {report.excluded > 0 ? (
+            <label className="flex min-h-10 items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={showVerification}
+                onChange={(event) => {
+                  setShowVerification(event.target.checked);
+                  setVisibleSessionCount(SESSION_PAGE_SIZE);
+                }}
+                className="h-4 w-4 accent-lime"
+              />
+              Show {report.excluded} verification {report.excluded === 1 ? "event" : "events"}
+            </label>
+          ) : null}
+        </div>
       </div>
 
       {error && (
@@ -613,7 +639,9 @@ function AnalyticsPage() {
             are not retained. The browser ID is not linked to a customer account. It does not store
             IP addresses, names, email addresses, neighbourhood-level or precise location, or full
             referrer URLs. Administrative-area data © OpenStreetMap contributors. Administrator
-            pages and automated browser checks are excluded.
+            pages and automated browser checks are excluded. A browser that successfully opens the
+            administrator area is marked as an internal browser; its visits are excluded by default
+            and can be included with the control above.
           </p>
         </>
       )}
@@ -635,6 +663,11 @@ function SessionJourney({ session }: { session: RecentSession }) {
         <div className="min-w-0">
           <p className="truncate font-bold">
             {session.entryPath === "/" ? "Homepage" : session.entryPath}
+            {session.isInternal ? (
+              <span className="ml-2 inline-flex border border-accent/60 bg-accent/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-foreground">
+                My visit
+              </span>
+            ) : null}
           </p>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">
             {visitorLabel} · {visitLabel} · {session.source}

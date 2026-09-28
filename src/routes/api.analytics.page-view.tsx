@@ -10,6 +10,7 @@ const PageView = z.object({
   utm_medium: z.string().max(120).nullable(),
   utm_campaign: z.string().max(180).nullable(),
   device_type: z.enum(["desktop", "tablet", "mobile"]),
+  is_internal: z.boolean().default(false),
 });
 
 function headerCode(request: Request, name: string, max: number) {
@@ -67,7 +68,7 @@ export const Route = createFileRoute("/api/analytics/page-view")({
           network_hash: hashedNetwork,
         });
         if (located.error) {
-          const { visitor_id: _visitorId, ...legacyEvent } = parsed;
+          const { visitor_id: _visitorId, is_internal: _isInternal, ...legacyEvent } = parsed;
           const fallback = await supabaseAdmin.from("page_views").insert(legacyEvent);
           if (fallback.error) {
             console.error("Analytics page-view insert failed", {
@@ -76,6 +77,17 @@ export const Route = createFileRoute("/api/analytics/page-view")({
             });
             return new Response("Analytics unavailable", { status: 503 });
           }
+        } else if (parsed.is_internal) {
+          await Promise.all([
+            supabaseAdmin
+              .from("page_views")
+              .update({ is_internal: true })
+              .eq("visitor_id", parsed.visitor_id),
+            supabaseAdmin
+              .from("program_funnel_events")
+              .update({ is_internal: true })
+              .eq("visitor_id", parsed.visitor_id),
+          ]);
         }
         return new Response(null, { status: 204 });
       },

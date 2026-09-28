@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { setAuthPersistence } from "@/integrations/supabase/previewAuthStorage";
+import { markCurrentBrowserAsInternal } from "@/lib/internal-analytics";
 
 type AuthState = "loading" | "signed-out" | "forbidden" | "ready";
 
@@ -31,6 +32,7 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
         isApprovedAdminEmail(nextUser.email)
       ) {
         cleanConsumedAuthFragment();
+        markCurrentBrowserAsInternal();
         setState("ready");
       } else setState("forbidden");
     };
