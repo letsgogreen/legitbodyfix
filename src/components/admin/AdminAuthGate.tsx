@@ -137,23 +137,40 @@ function AdminSignIn() {
       title="Administrator sign-in"
       body="Send a secure, one-time sign-in link to the approved administrator email. The link returns directly to this control room."
       action={
-        <div className="mt-6 grid gap-3">
-          <p className="text-xs text-muted-foreground">
-            For security, administrator access ends when you close the browser.
-          </p>
+        <div className="mt-7 grid gap-5">
+          <ol className="grid gap-3 text-sm" aria-label="Administrator sign-in steps">
+            {[
+              "Send the secure link",
+              "Open it from your approved inbox",
+              "Return here automatically",
+            ].map((step, index) => (
+              <li key={step} className="flex items-center gap-3">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-secondary font-mono text-xs font-bold">
+                  {index + 1}
+                </span>
+                {step}
+              </li>
+            ))}
+          </ol>
           <button
             type="button"
             onClick={() => void requestSignInLink()}
             disabled={submitting}
-            className="min-h-11 rounded-sm bg-ink px-4 text-sm font-bold text-ink-foreground disabled:opacity-50"
+            className="min-h-12 rounded-xl bg-ink px-5 text-base font-bold text-ink-foreground disabled:opacity-50"
           >
             {submitting ? "Sending…" : "Send secure sign-in link"}
           </button>
-          {message && (
-            <p aria-live="polite" className="text-sm text-muted-foreground">
+          {message ? (
+            <p
+              aria-live="polite"
+              className="rounded-xl bg-secondary px-4 py-3 text-sm leading-6 text-muted-foreground"
+            >
               {message}
             </p>
-          )}
+          ) : null}
+          <p className="text-xs leading-5 text-muted-foreground">
+            Administrator access ends when you close the browser.
+          </p>
         </div>
       }
     />
@@ -182,13 +199,13 @@ function AuthMessage({
   action?: ReactNode;
 }) {
   return (
-    <main className="grid min-h-screen place-items-center bg-background px-5 py-12 text-foreground">
-      <section className="w-full max-w-lg rounded-sm border border-border bg-card p-6 shadow-sm sm:p-9">
-        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+    <main className="grid min-h-screen place-items-center bg-secondary/40 px-4 py-8 text-foreground sm:px-6 sm:py-14">
+      <section className="w-full max-w-[30rem] rounded-[1.75rem] border border-border/80 bg-card p-6 shadow-[0_24px_80px_rgba(20,20,20,0.10)] sm:p-11">
+        <p className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
           LegitBodyFix / Control room
         </p>
-        <h1 className="mt-4 text-3xl font-extrabold tracking-tight">{title}</h1>
-        {body && <p className="mt-3 text-sm leading-6 text-muted-foreground">{body}</p>}
+        <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h1>
+        {body ? <p className="mt-3 text-base leading-7 text-muted-foreground">{body}</p> : null}
         {action}
       </section>
     </main>
