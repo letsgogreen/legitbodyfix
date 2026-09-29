@@ -228,6 +228,8 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .model-plan p { margin: 0 0 8px; font-size: 15px; line-height: 1.58; }
 .model-plan small { max-width: 650px; color: var(--muted); font-size: 13px; line-height: 1.58; }
 .model-plan article:nth-of-type(1) small { color: #b9b8b2; }
+.model-plan-summary article { padding: 30px 32px; }
+.model-plan-summary article::before { content: none; }
 
 .featured-recipe { display: grid; gap: clamp(42px, 6vw, 82px); background: var(--paper-deep); }
 .featured-recipe[hidden] { display: none; }

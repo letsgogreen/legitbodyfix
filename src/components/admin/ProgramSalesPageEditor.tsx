@@ -65,12 +65,12 @@ const fallbackSteps: Step[] = [
     phase: "Inhibit",
     title: "Carefully designed inhibition techniques",
     description:
-      "Apply targeted inhibition techniques with the muscle choice and intensity adapted to the individual response.",
+      "Learn how to select an appropriate target and adjust the pressure based on your own response.",
   },
   {
     phase: "Activate",
     title: "Build local control",
-    description: "Practise deliberate control without unnecessary substitution.",
+    description: "Practice deliberate control without unnecessary substitution.",
   },
   {
     phase: "Integrate",
@@ -772,7 +772,7 @@ export function ProgramSalesPageEditor() {
               </p>
               <h3 className="mt-2 text-xl font-black">Three-phase curriculum</h3>
               <p className="mt-1 text-sm leading-6 text-ink-foreground/65">
-                Name each phase, state its purpose, then describe what the customer will practise.
+                Name each phase, state its purpose, then describe what the customer will practice.
               </p>
             </div>
             <div className="grid gap-4 lg:grid-cols-3">

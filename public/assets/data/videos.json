@@ -9,17 +9,17 @@
     "description": "A forward head position can increase the muscular demand of supporting the head, but posture alone does not establish injury. This session uses a Janda-inspired tonic and phasic framework as a practical teaching model—not a diagnosis—to organize a three-phase practice.",
     "landingEyebrow": "Targeted neck session",
     "landingHeadline": "A guided session for neck and shoulder control.",
-    "landingSummary": "Knowing which muscles may need less effort or more control is one thing. Applying that idea in the right order is another. Follow a structured progression from inhibition to activation and integration.",
+    "landingSummary": "Follow a structured sequence of inhibition, activation, and integration to practice neck control and connect it with coordinated scapular movement.",
     "landingWhyHeadline": "Turn the theory into a sequence you can follow.",
     "landingBenefit1": "Understand how a sustained head-forward position may increase the work required from the neck and upper-back muscles.",
     "landingBenefit2": "Use a Janda-inspired lens to explore overactive tonic strategies and under-recruited phasic muscles without treating the model as a diagnosis.",
-    "landingBenefit3": "Practise the full progression: settle overactive strategies, recruit the deep neck flexors, then integrate lower-trapezius and scapular control.",
+    "landingBenefit3": "Practice the full progression: settle overactive strategies, recruit the deep neck flexors, then integrate lower-trapezius and scapular control.",
     "landingAudience": "For people with desk-related stiffness or recurring postural discomfort who want a structured practice and do not have symptoms that require assessment first.",
     "landingReassurance": "One payment gives you protected access through your personal movement library—no subscription required.",
     "featuredGuide": { "id": "forward-head-posture", "durationMinutes": 8 },
     "curriculum": [
-      { "phase": "Inhibit", "title": "Carefully designed inhibition techniques", "description": "Apply targeted inhibition techniques with the muscle choice and intensity adapted to the individual response." },
-      { "phase": "Activate", "title": "Recruit the deep neck flexors", "description": "Practise deep-neck-flexor control without letting larger surface muscles dominate the movement." },
+      { "phase": "Inhibit", "title": "Carefully designed inhibition techniques", "description": "Learn how to select an appropriate target and adjust the pressure based on your own response." },
+      { "phase": "Activate", "title": "Recruit the deep neck flexors", "description": "Practice deep-neck-flexor control without letting larger surface muscles dominate the movement." },
       { "phase": "Integrate", "title": "Connect neck and scapular control", "description": "Combine neck control with coordinated lower-trapezius and scapular movement, then reassess the full pattern." }
     ],
     "relatedMuscleGroupIds": [
