@@ -552,27 +552,6 @@ export const listSalesPreviewCaptions = createServerFn({ method: "POST" })
       }));
   });
 
-export const generateSalesPreviewCaptions = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((input) =>
-    previewCaptionInput.extend({ replaceExisting: z.boolean().optional() }).parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    const video = await cloudflare<{ readyToStream?: boolean }>(`/${data.streamUid}`);
-    if (!video.readyToStream) throw new Error("Wait until the preview is ready.");
-    if (data.replaceExisting) {
-      await cloudflare<string>(`/${data.streamUid}/captions/${data.language}`, {
-        method: "DELETE",
-      });
-    }
-    await cloudflare<Record<string, unknown>>(
-      `/${data.streamUid}/captions/${data.language}/generate`,
-      { method: "POST" },
-    );
-    return { language: data.language, status: "inprogress" };
-  });
-
 export const uploadSalesPreviewCaptions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) =>
