@@ -63,8 +63,9 @@ const textarea = `${control} min-h-32 resize-y`;
 const fallbackSteps: Step[] = [
   {
     phase: "Inhibit",
-    title: "Reduce unnecessary tension",
-    description: "Use targeted techniques for muscles that are working harder than needed.",
+    title: "Carefully designed inhibition techniques",
+    description:
+      "Apply targeted inhibition techniques with the muscle choice and intensity adapted to the individual response.",
   },
   {
     phase: "Activate",
