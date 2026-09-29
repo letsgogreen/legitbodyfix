@@ -370,13 +370,20 @@ export function ProgramSalesPageEditor() {
       setCaptionBusy(null);
     }
   }
-  async function generateCaptions(language: "en" | "ko") {
+  async function generateCaptions(language: "en" | "ko", replaceExisting = false) {
     if (!draft?.previewStreamUid) return;
+    if (
+      replaceExisting &&
+      !window.confirm(
+        `Replace the current ${language === "ko" ? "Korean" : "English"} captions with a new AI draft? The existing caption track will be removed.`,
+      )
+    )
+      return;
     setCaptionBusy(language);
     setMessage("");
     try {
       await generateSalesPreviewCaptions({
-        data: { streamUid: draft.previewStreamUid, language },
+        data: { streamUid: draft.previewStreamUid, language, replaceExisting },
       });
       setPreviewCaptions((current) => [
         ...current.filter((caption) => caption.language !== language),
@@ -653,7 +660,9 @@ export function ProgramSalesPageEditor() {
                 Preview playback failed: {previewPlayerError}
               </p>
             )}
-            {draft.previewStreamStatus === "ready" && draft.previewStreamUid && (
+            {draft.previewStreamStatus === "ready" &&
+              draft.previewStreamUid &&
+              videoId !== "neck-alignment" && (
               <div className="border-t border-border pt-5 lg:col-span-2">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -687,15 +696,20 @@ export function ProgramSalesPageEditor() {
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {!caption && (
+                          {(!caption || caption.generated) && (
                             <Btn
-                              disabled={captionBusy !== null}
-                              onClick={() => void generateCaptions(language)}
+                              disabled={
+                                captionBusy !== null ||
+                                ["inprogress", "queued", "pending"].includes(
+                                  caption?.status.toLowerCase() || "",
+                                )
+                              }
+                              onClick={() => void generateCaptions(language, Boolean(caption))}
                             >
                               {captionBusy === language ? (
                                 <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
                               ) : null}
-                              Generate AI draft
+                              {caption ? "Regenerate AI" : "Generate AI draft"}
                             </Btn>
                           )}
                           {caption?.status === "ready" && (
