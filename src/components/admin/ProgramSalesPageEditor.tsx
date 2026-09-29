@@ -63,9 +63,8 @@ const textarea = `${control} min-h-32 resize-y`;
 const fallbackSteps: Step[] = [
   {
     phase: "Inhibit",
-    title: "Carefully designed inhibition techniques",
-    description:
-      "Apply targeted inhibition techniques with the muscle choice and intensity adapted to the individual response.",
+    title: "Reduce unnecessary tension",
+    description: "Use targeted techniques for muscles that are working harder than needed.",
   },
   {
     phase: "Activate",
@@ -203,7 +202,8 @@ export function ProgramSalesPageEditor() {
       const requestId = ++previewRequestRef.current;
       setPreviewIframeUrl("");
       setPreviewPlayerError("");
-      if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
+      if (!videoId || draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid)
+        return;
       setPreviewReloading(true);
       try {
         const { iframeUrl } = await getAdminSalesPreviewIframe({
@@ -238,7 +238,8 @@ export function ProgramSalesPageEditor() {
   }, [draft?.previewStreamStatus, draft?.previewStreamUid, videoId]);
   const refreshCaptions = useCallback(async () => {
     const requestId = ++captionRequestRef.current;
-    if (draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid) return;
+    if (draft?.previewStreamStatus !== "ready" || !draft.previewStreamUid)
+      return;
     try {
       const captions = await listSalesPreviewCaptions({
         data: { streamUid: draft.previewStreamUid },
@@ -286,9 +287,7 @@ export function ProgramSalesPageEditor() {
     const targetVideoId = videoId;
     if (!draft || !uid) return;
     try {
-      const r = await refreshSalesPreviewVideo({
-        data: { videoId: targetVideoId, streamUid: uid },
-      });
+      const r = await refreshSalesPreviewVideo({ data: { videoId: targetVideoId, streamUid: uid } });
       if (activeVideoIdRef.current !== targetVideoId) return;
       setProcessingProgress(r.progress);
       updateDraft((current) => ({
@@ -420,9 +419,10 @@ export function ProgramSalesPageEditor() {
           {videos.map((item) => {
             const saved = records[item.id];
             const selected = item.id === videoId;
-            const status = selected
-              ? draft?.previewStreamStatus || "not_uploaded"
-              : saved?.previewStreamStatus || "not_uploaded";
+            const status =
+              selected
+                ? draft?.previewStreamStatus || "not_uploaded"
+                : saved?.previewStreamStatus || "not_uploaded";
             return (
               <button
                 key={item.id}
@@ -776,10 +776,7 @@ export function ProgramSalesPageEditor() {
             </div>
             <div className="grid gap-4 lg:grid-cols-3">
               {draft.curriculum.map((s, i) => (
-                <div
-                  key={i}
-                  className="border border-ink-foreground/20 bg-background p-5 text-foreground"
-                >
+                <div key={i} className="border border-ink-foreground/20 bg-background p-5 text-foreground">
                   <p className="mb-4 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">
                     Phase 0{i + 1}
                   </p>
