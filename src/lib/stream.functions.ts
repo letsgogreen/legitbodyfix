@@ -531,6 +531,21 @@ const previewCaptionInput = z.object({
   language: captionLanguage,
 });
 
+async function replaceCaptionTrack(
+  streamUid: string,
+  language: "en" | "ko",
+  fileName: string,
+  webVtt: string,
+) {
+  const existing = await cloudflare<Array<{ language?: string }>>(`/${streamUid}/captions`);
+  if (existing.some((caption) => caption.language === language)) {
+    await cloudflare<string>(`/${streamUid}/captions/${language}`, { method: "DELETE" });
+  }
+  const form = new FormData();
+  form.append("file", new Blob([webVtt], { type: "text/vtt" }), fileName.replace(/\.srt$/i, ".vtt"));
+  await cloudflareMultipart<Record<string, unknown>>(`/${streamUid}/captions/${language}`, form);
+}
+
 export const listSalesPreviewCaptions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) => z.object({ streamUid: z.string().regex(/^[a-f0-9]{32}$/) }).parse(input))
@@ -562,12 +577,7 @@ export const uploadSalesPreviewCaptions = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
     const webVtt = normalizeCaptionToWebVtt(data.fileName, data.content);
-    const form = new FormData();
-    form.append("file", new Blob([webVtt], { type: "text/vtt" }), data.fileName.replace(/\.srt$/i, ".vtt"));
-    await cloudflareMultipart<Record<string, unknown>>(
-      `/${data.streamUid}/captions/${data.language}`,
-      form,
-    );
+    await replaceCaptionTrack(data.streamUid, data.language, data.fileName, webVtt);
     return { language: data.language, status: "ready" };
   });
 
@@ -710,29 +720,6 @@ export const listStreamCaptions = createServerFn({ method: "POST" })
       }));
   });
 
-export const generateStreamCaptions = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((input) =>
-    z.object({ lessonId: z.string().uuid(), language: captionLanguage }).parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    const { data: lesson, error } = await context.supabase
-      .from("lessons")
-      .select("stream_uid,stream_status")
-      .eq("id", data.lessonId)
-      .single();
-    if (error || !lesson?.stream_uid)
-      throw new Error(error?.message || "This lesson has no Stream video.");
-    if (lesson.stream_status !== "ready")
-      throw new Error("Wait until the video is ready before generating captions.");
-    await cloudflare<Record<string, unknown>>(
-      `/${lesson.stream_uid}/captions/${data.language}/generate`,
-      { method: "POST" },
-    );
-    return { language: data.language, status: "inprogress" };
-  });
-
 export const uploadStreamCaptions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input) =>
@@ -757,12 +744,7 @@ export const uploadStreamCaptions = createServerFn({ method: "POST" })
       throw new Error(error?.message || "This lesson has no Stream video.");
     if (lesson.stream_status !== "ready")
       throw new Error("Wait until the video is ready before uploading captions.");
-    const form = new FormData();
-    form.append("file", new Blob([webVtt], { type: "text/vtt" }), data.fileName.replace(/\.srt$/i, ".vtt"));
-    await cloudflareMultipart<Record<string, unknown>>(
-      `/${lesson.stream_uid}/captions/${data.language}`,
-      form,
-    );
+    await replaceCaptionTrack(lesson.stream_uid, data.language, data.fileName, webVtt);
     return { language: data.language, status: "ready" };
   });
 
