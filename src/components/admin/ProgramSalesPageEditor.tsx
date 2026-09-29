@@ -653,7 +653,9 @@ export function ProgramSalesPageEditor() {
                 Preview playback failed: {previewPlayerError}
               </p>
             )}
-            {draft.previewStreamStatus === "ready" && draft.previewStreamUid && (
+            {draft.previewStreamStatus === "ready" &&
+              draft.previewStreamUid &&
+              videoId !== "neck-alignment" && (
               <div className="border-t border-border pt-5 lg:col-span-2">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
