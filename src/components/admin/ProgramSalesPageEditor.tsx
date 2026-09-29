@@ -9,7 +9,6 @@ import {
 import {
   createSalesPreviewTusUpload,
   deleteSalesPreviewCaptions,
-  generateSalesPreviewCaptions,
   getAdminSalesPreviewIframe,
   listSalesPreviewCaptions,
   refreshSalesPreviewVideo,
@@ -257,14 +256,6 @@ export function ProgramSalesPageEditor() {
     setPreviewCaptionLanguage(null);
     void refreshCaptions();
   }, [refreshCaptions]);
-  useEffect(() => {
-    const generating = previewCaptions.some((caption) =>
-      ["inprogress", "queued", "pending"].includes(caption.status.toLowerCase()),
-    );
-    if (!generating) return;
-    const timer = window.setInterval(() => void refreshCaptions(), 5000);
-    return () => window.clearInterval(timer);
-  }, [previewCaptions, refreshCaptions]);
   const updateDraft = (update: (current: SalesDraft) => SalesDraft) =>
     setEditor((current) => (current ? { ...current, draft: update(current.draft) } : current));
   const set = (key: keyof SalesDraft, value: string) =>
@@ -363,40 +354,9 @@ export function ProgramSalesPageEditor() {
         },
       });
       await refreshCaptions();
-      setMessage("Preview captions uploaded.");
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : String(e));
-    } finally {
-      setCaptionBusy(null);
-    }
-  }
-  async function generateCaptions(language: "en" | "ko", replaceExisting = false) {
-    if (!draft?.previewStreamUid) return;
-    if (
-      replaceExisting &&
-      !window.confirm(
-        `Replace the current ${language === "ko" ? "Korean" : "English"} captions with a new AI draft? The existing caption track will be removed.`,
-      )
-    )
-      return;
-    setCaptionBusy(language);
-    setMessage("");
-    try {
-      await generateSalesPreviewCaptions({
-        data: { streamUid: draft.previewStreamUid, language, replaceExisting },
-      });
-      setPreviewCaptions((current) => [
-        ...current.filter((caption) => caption.language !== language),
-        {
-          language,
-          label: language === "ko" ? "한국어" : "English",
-          status: "inprogress",
-          generated: true,
-        },
-      ]);
-      setMessage(
-        `${language === "ko" ? "Korean" : "English"} AI caption generation started. Review the draft when it is ready.`,
-      );
+      setPreviewCaptionLanguage(language);
+      await loadPreviewPlayer(language);
+      setMessage("Preview captions uploaded and loaded in the player.");
     } catch (e) {
       setMessage(e instanceof Error ? e.message : String(e));
     } finally {
@@ -668,10 +628,9 @@ export function ProgramSalesPageEditor() {
                   <div>
                     <p className="text-sm font-bold">English and Korean captions</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Generate an AI draft from the spoken audio or upload a reviewed SRT or WebVTT
-                      file. AI generation transcribes the selected spoken language; it does not
-                      translate between English and Korean. Captions are off by default, and viewers
-                      can choose a language from the player’s CC menu.
+                      Upload the reviewed English and Korean SRT or WebVTT files. The player reloads
+                      with the uploaded language selected so you can verify the exact track that
+                      viewers will receive.
                     </p>
                   </div>
                   <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
@@ -696,22 +655,6 @@ export function ProgramSalesPageEditor() {
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {(!caption || caption.generated) && (
-                            <Btn
-                              disabled={
-                                captionBusy !== null ||
-                                ["inprogress", "queued", "pending"].includes(
-                                  caption?.status.toLowerCase() || "",
-                                )
-                              }
-                              onClick={() => void generateCaptions(language, Boolean(caption))}
-                            >
-                              {captionBusy === language ? (
-                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                              ) : null}
-                              {caption ? "Regenerate AI" : "Generate AI draft"}
-                            </Btn>
-                          )}
                           {caption?.status === "ready" && (
                             <Btn
                               disabled={captionBusy !== null || previewReloading}
@@ -755,9 +698,9 @@ export function ProgramSalesPageEditor() {
                   })}
                 </div>
                 <p className="mt-4 border border-border bg-secondary/30 p-4 text-xs leading-5 text-muted-foreground">
-                  AI captions are drafts and should be reviewed before use. Uploading or replacing a
-                  file updates the caption track stored with this preview video. Use “View captions”
-                  to verify the selected language before opening the live page.
+                  Uploading or replacing a file updates the caption track stored with this preview
+                  video and reloads the player with that uploaded language selected. Use “View
+                  captions” to switch between the reviewed tracks before opening the live page.
                 </p>
               </div>
             )}
