@@ -9,6 +9,7 @@ import {
 import {
   createSalesPreviewTusUpload,
   deleteSalesPreviewCaptions,
+  generateSalesPreviewCaptions,
   getAdminSalesPreviewIframe,
   listSalesPreviewCaptions,
   refreshSalesPreviewVideo,
@@ -256,6 +257,14 @@ export function ProgramSalesPageEditor() {
     setPreviewCaptionLanguage(null);
     void refreshCaptions();
   }, [refreshCaptions]);
+  useEffect(() => {
+    const generating = previewCaptions.some((caption) =>
+      ["inprogress", "queued", "pending"].includes(caption.status.toLowerCase()),
+    );
+    if (!generating) return;
+    const timer = window.setInterval(() => void refreshCaptions(), 5000);
+    return () => window.clearInterval(timer);
+  }, [previewCaptions, refreshCaptions]);
   const updateDraft = (update: (current: SalesDraft) => SalesDraft) =>
     setEditor((current) => (current ? { ...current, draft: update(current.draft) } : current));
   const set = (key: keyof SalesDraft, value: string) =>
@@ -355,6 +364,32 @@ export function ProgramSalesPageEditor() {
       });
       await refreshCaptions();
       setMessage("Preview captions uploaded.");
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCaptionBusy(null);
+    }
+  }
+  async function generateCaptions(language: "en" | "ko") {
+    if (!draft?.previewStreamUid) return;
+    setCaptionBusy(language);
+    setMessage("");
+    try {
+      await generateSalesPreviewCaptions({
+        data: { streamUid: draft.previewStreamUid, language },
+      });
+      setPreviewCaptions((current) => [
+        ...current.filter((caption) => caption.language !== language),
+        {
+          language,
+          label: language === "ko" ? "한국어" : "English",
+          status: "inprogress",
+          generated: true,
+        },
+      ]);
+      setMessage(
+        `${language === "ko" ? "Korean" : "English"} AI caption generation started. Review the draft when it is ready.`,
+      );
     } catch (e) {
       setMessage(e instanceof Error ? e.message : String(e));
     } finally {
@@ -624,9 +659,10 @@ export function ProgramSalesPageEditor() {
                   <div>
                     <p className="text-sm font-bold">English and Korean captions</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Upload the final reviewed SRT or WebVTT file for each language. SRT files are
-                      converted automatically. Captions are off by default; viewers can choose
-                      English or 한국어 from the player’s CC menu.
+                      Generate an AI draft from the spoken audio or upload a reviewed SRT or WebVTT
+                      file. AI generation transcribes the selected spoken language; it does not
+                      translate between English and Korean. Captions are off by default, and viewers
+                      can choose a language from the player’s CC menu.
                     </p>
                   </div>
                   <Btn disabled={captionBusy !== null} onClick={() => void refreshCaptions()}>
@@ -651,6 +687,17 @@ export function ProgramSalesPageEditor() {
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
+                          {!caption && (
+                            <Btn
+                              disabled={captionBusy !== null}
+                              onClick={() => void generateCaptions(language)}
+                            >
+                              {captionBusy === language ? (
+                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                              ) : null}
+                              Generate AI draft
+                            </Btn>
+                          )}
                           {caption?.status === "ready" && (
                             <Btn
                               disabled={captionBusy !== null || previewReloading}
@@ -694,9 +741,9 @@ export function ProgramSalesPageEditor() {
                   })}
                 </div>
                 <p className="mt-4 border border-border bg-secondary/30 p-4 text-xs leading-5 text-muted-foreground">
-                  Uploading or replacing a file updates the caption track stored with this preview
-                  video. Use “View captions” to verify the selected language before opening the live
-                  page.
+                  AI captions are drafts and should be reviewed before use. Uploading or replacing a
+                  file updates the caption track stored with this preview video. Use “View captions”
+                  to verify the selected language before opening the live page.
                 </p>
               </div>
             )}
