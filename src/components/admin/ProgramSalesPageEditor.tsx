@@ -212,6 +212,7 @@ export function ProgramSalesPageEditor() {
             streamUid: draft.previewStreamUid,
             preferredLanguage: language || undefined,
             startTime,
+            cacheBust: Date.now(),
           },
         });
         if (requestId === previewRequestRef.current) setPreviewIframeUrl(iframeUrl);
@@ -659,8 +660,8 @@ export function ProgramSalesPageEditor() {
                             <Btn
                               disabled={captionBusy !== null || previewReloading}
                               onClick={() => {
-                                if (previewCaptionLanguage === language) void loadPreviewPlayer();
-                                else setPreviewCaptionLanguage(language);
+                                setPreviewCaptionLanguage(language);
+                                void loadPreviewPlayer(language);
                               }}
                             >
                               {previewCaptionLanguage === language

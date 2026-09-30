@@ -512,18 +512,21 @@ export const getAdminSalesPreviewIframe = createServerFn({ method: "POST" })
         streamUid: z.string().regex(/^[a-f0-9]{32}$/),
         preferredLanguage: captionLanguage.optional(),
         startTime: z.number().min(0).max(86_400).optional(),
+        cacheBust: z.number().int().positive().optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     if (!isAdmin(context.claims)) throw new Error("Administrator access required.");
-    return {
-      iframeUrl: await getPublicSalesPreviewIframe(
+    const iframeUrl = new URL(
+      await getPublicSalesPreviewIframe(
         data.streamUid,
         data.preferredLanguage,
         data.startTime,
       ),
-    };
+    );
+    if (data.cacheBust) iframeUrl.searchParams.set("captionRevision", String(data.cacheBust));
+    return { iframeUrl: iframeUrl.toString() };
   });
 
 const previewCaptionInput = z.object({
