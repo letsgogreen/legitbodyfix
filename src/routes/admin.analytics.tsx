@@ -10,6 +10,7 @@ type FunnelEvent = Database["public"]["Tables"]["program_funnel_events"]["Row"];
 type Range = 7 | 30 | 90;
 type AcquisitionMode = "source" | "campaign";
 const SESSION_PAGE_SIZE = 15;
+const SESSION_INACTIVITY_MS = 30 * 60 * 1000;
 
 const FUNNEL_STAGES = [
   { type: "card_impression", label: "Card shown", color: "#3478f6" },
@@ -74,10 +75,29 @@ function change(current: number, previous: number) {
 }
 
 function groupRecentSessions(views: View[]): RecentSession[] {
-  const sessions = new Map<string, View[]>();
+  const rawSessions = new Map<string, View[]>();
   views.forEach((view) =>
-    sessions.set(view.session_id, [...(sessions.get(view.session_id) || []), view]),
+    rawSessions.set(view.session_id, [...(rawSessions.get(view.session_id) || []), view]),
   );
+
+  const sessions = new Map<string, View[]>();
+  rawSessions.forEach((rawViews, sessionId) => {
+    const chronological = [...rawViews].sort(
+      (a, b) => Date.parse(a.created_at) - Date.parse(b.created_at),
+    );
+    let segment = 0;
+    chronological.forEach((view, index) => {
+      if (
+        index > 0 &&
+        Date.parse(view.created_at) - Date.parse(chronological[index - 1].created_at) >=
+          SESSION_INACTIVITY_MS
+      ) {
+        segment += 1;
+      }
+      const effectiveId = `${sessionId}:${segment}`;
+      sessions.set(effectiveId, [...(sessions.get(effectiveId) || []), view]);
+    });
+  });
 
   const grouped: RecentSession[] = [...sessions.entries()].map(([sessionId, sessionViews]) => {
     const chronological = [...sessionViews].sort(
@@ -193,11 +213,9 @@ function AnalyticsPage() {
       const time = new Date(view.created_at).getTime();
       return time < boundary;
     });
-    const sessionCount = (rows: View[]) => new Set(rows.map((view) => view.session_id)).size;
+    const sessionCount = (rows: View[]) => groupRecentSessions(rows).length;
     const acquiredCount = (rows: View[]) =>
-      new Set(
-        rows.filter((view) => view.referrer_host || view.utm_source).map((view) => view.session_id),
-      ).size;
+      groupRecentSessions(rows).filter((session) => session.source !== "Direct").length;
     const sessions = sessionCount(views);
     const previousSessions = sessionCount(previous);
     const uniqueVisitors = new Set(views.map((view) => view.visitor_id).filter(Boolean)).size;
@@ -231,11 +249,11 @@ function AnalyticsPage() {
       pagesPerSession,
       acquisitionRate,
       excluded: rawViews.filter(isVerificationEvent).length,
-      internalSessions: new Set(
-        verificationCleaned
-          .filter((view) => view.is_internal && new Date(view.created_at).getTime() >= boundary)
-          .map((view) => view.session_id),
-      ).size,
+      internalSessions: groupRecentSessions(
+        verificationCleaned.filter(
+          (view) => view.is_internal && new Date(view.created_at).getTime() >= boundary,
+        ),
+      ).length,
       pages: countBy(views, (view) => view.path),
       sources: countBy(views, (view) => view.utm_source || view.referrer_host || "Direct"),
       campaigns: countBy(views, (view) => view.utm_campaign),

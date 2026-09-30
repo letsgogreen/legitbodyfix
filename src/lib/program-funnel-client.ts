@@ -1,19 +1,8 @@
 import type { PublicProgram } from "@/lib/public-programs.functions";
 import { isInternalAnalyticsBrowser } from "@/lib/internal-analytics";
-
-const SESSION_KEY = "lbf_analytics_session";
-const VISITOR_KEY = "lbf_analytics_visitor";
+import { getAnalyticsSessionId, getAnalyticsVisitorId } from "@/lib/analytics-client";
 
 export type ProgramFunnelEvent = "card_impression" | "card_click" | "sales_view" | "checkout_click";
-
-function storedId(storage: Storage, key: string) {
-  let value = storage.getItem(key);
-  if (!value) {
-    value = crypto.randomUUID();
-    storage.setItem(key, value);
-  }
-  return value;
-}
 
 function deviceType(): "desktop" | "tablet" | "mobile" {
   if (window.innerWidth < 768) return "mobile";
@@ -37,8 +26,8 @@ export function trackProgramFunnel(
       headers: { "content-type": "application/json" },
       keepalive: true,
       body: JSON.stringify({
-        session_id: storedId(sessionStorage, SESSION_KEY),
-        visitor_id: storedId(localStorage, VISITOR_KEY),
+        session_id: getAnalyticsSessionId(),
+        visitor_id: getAnalyticsVisitorId(),
         program_slug: program.slug,
         program_name: program.name,
         event_type: eventType,

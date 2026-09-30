@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
 import { isInternalAnalyticsBrowser } from "@/lib/internal-analytics";
+import {
+  getAnalyticsSessionId,
+  getAnalyticsVisitorId,
+  isAnalyticsSessionExpired,
+} from "@/lib/analytics-client";
 
-const SESSION_KEY = "lbf_analytics_session";
-const VISITOR_KEY = "lbf_analytics_visitor";
 const CAMPAIGN_KEY = "lbf_analytics_campaign";
 
 type Campaign = {
@@ -16,24 +18,6 @@ type Campaign = {
 function clean(value: string | null, max: number) {
   const trimmed = value?.trim();
   return trimmed ? trimmed.slice(0, max) : null;
-}
-
-function getSessionId() {
-  let id = sessionStorage.getItem(SESSION_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    sessionStorage.setItem(SESSION_KEY, id);
-  }
-  return id;
-}
-
-function getVisitorId() {
-  let id = localStorage.getItem(VISITOR_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(VISITOR_KEY, id);
-  }
-  return id;
 }
 
 function getCampaign(search: string): Campaign {
@@ -64,7 +48,7 @@ function deviceType(): "desktop" | "tablet" | "mobile" {
 export function PageViewTracker() {
   const location = useRouterState({ select: (state) => state.location });
 
-  useEffect(() => {
+  function recordPageView() {
     if (location.pathname.startsWith("/admin") || navigator.webdriver) return;
     try {
       let referrerHost: string | null = null;
@@ -76,15 +60,15 @@ export function PageViewTracker() {
         referrerHost = null;
       }
 
-      const campaign = getCampaign(location.searchStr);
-      const path = location.pathname.slice(0, 500);
+      const campaign = getCampaign(window.location.search);
+      const path = window.location.pathname.slice(0, 500);
       void fetch("/api/analytics/page-view", {
         method: "POST",
         headers: { "content-type": "application/json" },
         keepalive: true,
         body: JSON.stringify({
-          session_id: getSessionId(),
-          visitor_id: getVisitorId(),
+          session_id: getAnalyticsSessionId(),
+          visitor_id: getAnalyticsVisitorId(),
           path,
           referrer_host: clean(referrerHost, 255),
           utm_source: campaign.source,
@@ -101,6 +85,22 @@ export function PageViewTracker() {
     } catch {
       console.warn("Analytics page-view collection is unavailable.");
     }
+  }
+
+  useEffect(() => {
+    recordPageView();
+  }, [location.pathname, location.searchStr]);
+
+  useEffect(() => {
+    const recordResumedSession = () => {
+      if (document.visibilityState === "visible" && isAnalyticsSessionExpired()) recordPageView();
+    };
+    window.addEventListener("focus", recordResumedSession);
+    document.addEventListener("visibilitychange", recordResumedSession);
+    return () => {
+      window.removeEventListener("focus", recordResumedSession);
+      document.removeEventListener("visibilitychange", recordResumedSession);
+    };
   }, [location.pathname, location.searchStr]);
 
   return null;

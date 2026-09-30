@@ -77,17 +77,6 @@ export const Route = createFileRoute("/api/analytics/page-view")({
             });
             return new Response("Analytics unavailable", { status: 503 });
           }
-        } else if (parsed.is_internal) {
-          await Promise.all([
-            supabaseAdmin
-              .from("page_views")
-              .update({ is_internal: true })
-              .eq("visitor_id", parsed.visitor_id),
-            supabaseAdmin
-              .from("program_funnel_events")
-              .update({ is_internal: true })
-              .eq("visitor_id", parsed.visitor_id),
-          ]);
         }
         return new Response(null, { status: 204 });
       },
