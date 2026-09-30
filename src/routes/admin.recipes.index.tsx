@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { FileDown, Plus, Search } from "lucide-react";
+import { FileDown, ImageIcon, Plus, Search } from "lucide-react";
 import { AdminLoadingState, Btn, PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { detectKoreanText } from "@/lib/recipe-import";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +38,11 @@ type Row = {
   published: boolean;
   updated_at: string;
 };
+
+function resolveRecipeImageUrl(imageUrl: string) {
+  if (/^(?:https?:)?\/\//i.test(imageUrl) || imageUrl.startsWith("/")) return imageUrl;
+  return `/${imageUrl.replace(/^\.\//, "")}`;
+}
 
 export function koreanFieldsOf(row: {
   title: string;
@@ -161,21 +166,66 @@ function AdminRecipes() {
       <div className="my-5 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-xl font-bold">Corrective Movement Strategies library</h2>{loading ? <div className="mt-2 h-4 w-72 animate-pulse bg-secondary" aria-hidden="true" /> : <p className="mt-1 text-sm text-muted-foreground">{rows.length} total · {publishedCount} published · {rows.length - publishedCount} drafts · {incompleteCount} need work</p>}</div>{!loading && <p className="text-sm text-muted-foreground">{visible.length} shown</p>}</div>
 
       {loading ? <AdminLoadingState label="Loading corrective movement strategies" rows={6} /> : state ? <Panel className="border-l-4 border-l-destructive p-5 text-sm">{state}</Panel> : visible.length ? (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{visible.map((row) => {
-          const missing = missingFields(row);
-          const korean = koreanFieldsOf(row);
-          const issueCount = missing.length + (korean.length ? 1 : 0);
-          return <Link key={row.id} to="/admin/recipes/$recipeId" params={{ recipeId: row.id }} className="group flex min-h-52 flex-col border border-border bg-card p-5 transition hover:border-foreground hover:bg-secondary/30 focus-visible:outline focus-visible:outline-2">
-            <div className="flex items-start justify-between gap-3"><Tag tone={row.published ? "accent" : "muted"}>{row.published ? "Published" : "Draft"}</Tag>{issueCount > 0 ? <Tag tone="warn">{issueCount} {issueCount === 1 ? "issue" : "issues"}</Tag> : <Tag tone="accent">Complete</Tag>}</div>
-            <h3 className="mt-5 text-lg font-bold leading-tight group-hover:underline">{row.title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{row.regions.join(" · ") || "No body region"}{row.progression_level ? ` · ${row.progression_level.replaceAll("_", " ")}` : ""}</p>
-            {missing.length > 0 && <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted-foreground">Missing: {missing.join(", ")}</p>}
-            {korean.length > 0 && <p className="mt-1 text-xs text-destructive">Korean text needs review</p>}
-            <p className="mt-auto pt-5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Open editor →</p>
-          </Link>;
-        })}</div>
+        <div className="grid gap-px border border-border bg-border md:grid-cols-2 xl:grid-cols-3">
+          {visible.map((row, index) => <AdminRecipeCard key={row.id} row={row} index={index} />)}
+        </div>
       ) : <div className="border border-dashed border-border px-5 py-14 text-center"><h3 className="font-bold">No matching corrective movement strategies</h3><p className="mt-2 text-sm text-muted-foreground">Try a different search or filter.</p><button type="button" onClick={() => { setQuery(""); setPublication("all"); setCompletion("all"); }} className="mt-4 min-h-11 border border-border px-4 font-bold">Clear filters</button></div>}
     </div>
+  );
+}
+
+function AdminRecipeCard({ row, index }: { row: Row; index: number }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const missing = missingFields(row);
+  const korean = koreanFieldsOf(row);
+  const issueCount = missing.length + (korean.length ? 1 : 0);
+  const showImage = Boolean(row.image_url) && !imageFailed;
+
+  return (
+    <Link
+      to="/admin/recipes/$recipeId"
+      params={{ recipeId: row.id }}
+      className="group flex min-h-0 flex-col bg-card outline-none transition hover:bg-secondary/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+    >
+      <span className="relative block aspect-[16/9] overflow-hidden border-b border-border bg-secondary">
+        {!showImage && (
+          <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,hsl(var(--secondary))_0%,hsl(var(--background))_100%)] text-muted-foreground" aria-hidden="true">
+            <ImageIcon className="h-6 w-6 opacity-50" strokeWidth={1.5} />
+            <span className="font-mono text-[9px] uppercase tracking-[0.18em]">Visual coming soon</span>
+          </span>
+        )}
+        {showImage && (
+          <img
+            src={resolveRecipeImageUrl(row.image_url!)}
+            alt=""
+            loading="lazy"
+            className="relative h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
+            onError={() => setImageFailed(true)}
+          />
+        )}
+        <span className="absolute left-3 top-3 border border-foreground/20 bg-background/90 px-2 py-1 font-mono text-[9px] font-bold tracking-[0.16em] backdrop-blur-sm">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className="absolute right-3 top-3 flex flex-wrap justify-end gap-1.5">
+          <Tag tone={row.published ? "accent" : "muted"}>{row.published ? "Published" : "Draft"}</Tag>
+          {issueCount > 0 ? <Tag tone="warn">{issueCount} {issueCount === 1 ? "issue" : "issues"}</Tag> : <Tag tone="accent">Complete</Tag>}
+        </span>
+      </span>
+
+      <span className="flex flex-1 flex-col p-5">
+        <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
+          {row.regions.join(" · ") || "No body region"}
+          {row.progression_level ? ` · ${row.progression_level.replaceAll("_", " ")}` : ""}
+        </span>
+        <span className="mt-3 text-xl font-extrabold leading-tight transition-colors group-hover:text-muted-foreground">{row.title}</span>
+        <span className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{row.goal || row.summary || "Add a goal or summary for this guide."}</span>
+        {missing.length > 0 && <span className="mt-3 line-clamp-2 text-xs leading-5 text-muted-foreground">Missing: {missing.join(", ")}</span>}
+        {korean.length > 0 && <span className="mt-1 text-xs text-destructive">Korean text needs review</span>}
+        <span className="mt-auto flex items-center justify-between border-t border-border pt-5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+          <span>Open editor</span><span aria-hidden="true">→</span>
+        </span>
+      </span>
+    </Link>
   );
 }
 
