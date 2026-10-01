@@ -53,6 +53,26 @@ function LibraryNavLink({
   );
 }
 
+function SignupNavLink({
+  nativeNavigation,
+  mobile = false,
+  onNavigate,
+}: {
+  nativeNavigation: boolean;
+  mobile?: boolean;
+  onNavigate?: () => void;
+}) {
+  const className = mobile
+    ? "mt-3 inline-flex min-h-11 items-center justify-center rounded-sm bg-ink px-4 py-3.5 text-center text-sm font-bold text-ink-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    : "inline-flex min-h-11 items-center rounded-sm bg-ink px-4 py-2.5 text-sm font-bold text-ink-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+  if (nativeNavigation) {
+    return <a href="/signup" onClick={onNavigate} className={className}>Create free account</a>;
+  }
+
+  return <RouterLink to="/signup" onClick={onNavigate} className={className}>Create free account</RouterLink>;
+}
+
 export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boolean } = {}) {
   const Link = nativeNavigation ? NativeLink : RouterLink;
   const [open, setOpen] = useState(false);
@@ -100,7 +120,6 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          <LibraryNavLink nativeNavigation={nativeNavigation} signedIn={signedIn} />
           {links.map((l) => (
             l.href === "/movement-check" ? <Link
               key={l.label}
@@ -120,10 +139,12 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
           <Link
             to="/start"
             search={{ region: undefined, intent: undefined }}
-            className="inline-flex min-h-11 items-center rounded-sm bg-accent px-4 py-2.5 text-sm font-bold text-accent-foreground outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="inline-flex min-h-11 items-center rounded-sm border border-border px-4 py-2.5 text-sm font-bold outline-none transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Find my starting point
           </Link>
+          <LibraryNavLink nativeNavigation={nativeNavigation} signedIn={signedIn} />
+          {!signedIn && <SignupNavLink nativeNavigation={nativeNavigation} />}
           {user?.email && <span title={user.email} className="max-w-36 truncate text-xs text-muted-foreground">{user.email}</span>}
           {signedIn && (
             <button
@@ -182,6 +203,13 @@ export function SiteNav({ nativeNavigation = false }: { nativeNavigation?: boole
             >
               Find my starting point
             </Link>
+            {!signedIn && (
+              <SignupNavLink
+                nativeNavigation={nativeNavigation}
+                mobile
+                onNavigate={() => setOpen(false)}
+              />
+            )}
             {signedIn && (
               <><p className="mt-4 truncate text-xs text-muted-foreground" title={user?.email}>{user?.email}</p><button
                 type="button"
