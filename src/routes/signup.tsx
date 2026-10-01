@@ -33,18 +33,21 @@ function SignupPage() {
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
 
-  async function continueWithGoogle() {
+  async function continueWithGoogle(credential: string, nonce: string) {
     if (busy) return;
     setBusy(true);
     setMessage("");
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithIdToken({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/library` },
+      token: credential,
+      nonce,
     });
     if (error) {
-      setMessage("Google sign-in could not be started. Please try again.");
+      setMessage("Google sign-in could not be completed. Please try again or use email.");
       setBusy(false);
+      return;
     }
+    window.location.assign("/library");
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -134,7 +137,13 @@ function SignupPage() {
         </div>
       ) : (
         <>
-          <GoogleAuthButton busy={busy} onClick={() => void continueWithGoogle()} />
+          <GoogleAuthButton
+            busy={busy}
+            onCredential={(credential, nonce) => void continueWithGoogle(credential, nonce)}
+            onUnavailable={() =>
+              setMessage("Google sign-in is unavailable in this browser. Open the page in Chrome or use email.")
+            }
+          />
           <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
             By continuing, you agree to the{" "}
             <Link to="/terms" className="font-bold text-foreground underline">
