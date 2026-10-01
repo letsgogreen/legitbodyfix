@@ -63,9 +63,9 @@ const textarea = `${control} min-h-32 resize-y`;
 const fallbackSteps: Step[] = [
   {
     phase: "Inhibit",
-    title: "Carefully designed inhibition techniques",
+    title: "Response-guided inhibition techniques",
     description:
-      "Learn how to select an appropriate target and adjust the pressure based on your own response.",
+      "Choose an appropriate target and adjust the pressure based on how your body responds.",
   },
   {
     phase: "Activate",
@@ -96,8 +96,8 @@ function makeDraft(v: Video, s?: Partial<SalesDraft>): SalesDraft {
     techniqueBody:
       "Work through each phase at a comfortable range and pace. The session moves from reducing unnecessary effort to building control, then applying it to coordinated movement. Pause, repeat, or stop whenever the movement does not feel right.",
     curriculum: v.curriculum?.length === 3 ? v.curriculum : fallbackSteps,
-    finalHeadline: "Put the method into practice.",
-    feedbackHeadline: "What people noticed after practising.",
+    finalHeadline: "Start the guided session.",
+    feedbackHeadline: "What people noticed after practicing.",
     feedback1Quote: "",
     feedback1Name: "",
     feedback2Quote: "",

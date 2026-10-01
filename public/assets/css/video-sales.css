@@ -95,7 +95,7 @@ main { max-width: var(--content); margin: 0 auto; }
 .session-status span { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 4px rgba(0,111,104,.12); }
 .eyebrow { margin: 0; color: var(--teal); font: 500 10px "DM Mono", monospace; letter-spacing: .19em; text-transform: uppercase; }
 h1, h2 { font-family: "Archivo Black", sans-serif; letter-spacing: -.057em; }
-h1 { max-width: 900px; margin: 16px 0 24px; font-size: clamp(50px, 5.8vw, 88px); line-height: .92; }
+h1 { max-width: 900px; margin: 16px 0 24px; font-size: clamp(46px, 5vw, 76px); line-height: .96; }
 h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97; }
 .hero-summary { max-width: 720px; margin: 0; color: var(--muted); font-size: clamp(16px, 1.25vw, 20px); line-height: 1.62; }
 
@@ -406,6 +406,8 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .is-neck-sales .model-plan article:nth-of-type(1) small { color: var(--muted); }
 .is-neck-sales .section-dark { background: var(--paper); color: var(--ink); }
 .is-neck-sales .section-dark .eyebrow { color: var(--teal); }
+.is-neck-sales .technique-bridge { color: white; }
+.is-neck-sales .technique-bridge .eyebrow { color: var(--lime); }
 .is-neck-sales .included-heading > p,
 .is-neck-sales .included-grid p,
 .is-neck-sales .access-strip { color: var(--muted) !important; }
@@ -414,6 +416,16 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 .is-neck-sales .included-grid span,
 .is-neck-sales .access-strip strong { color: var(--teal); }
 .is-neck-sales .fit-card { border-color: var(--line); box-shadow: none; }
+.is-neck-sales .hero-copy { justify-content: flex-start; padding-top: clamp(34px, 4vw, 58px); }
+.is-neck-sales .back-link { margin-bottom: clamp(24px, 3vh, 40px); }
+.is-neck-sales h1 { max-width: 760px; font-size: clamp(44px, 4.6vw, 68px); line-height: .98; }
+.is-neck-sales .hero-summary { max-width: 650px; font-size: clamp(15px, 1.1vw, 18px); }
+.is-neck-sales .purchase-card-hero { margin-top: 28px; }
+.is-neck-sales .quick-facts { margin: 28px 0 0; }
+.is-neck-sales .featured-recipe { padding-top: clamp(58px, 6vw, 82px); padding-bottom: clamp(58px, 6vw, 82px); }
+.is-neck-sales .featured-recipe .recipe-story { grid-template-columns: minmax(260px, .7fr) minmax(360px, 1.3fr); }
+.is-neck-sales .featured-recipe .recipe-story h2 { font-size: clamp(34px, 3.7vw, 54px); }
+.is-neck-sales .featured-recipe .recipe-path { display: none; }
 .is-neck-sales .muscles-section { background: var(--card); }
 .is-neck-sales .anatomy-disclosure { border-color: var(--line); }
 .is-neck-sales .final-cta { background: var(--ink); color: white; }
@@ -453,6 +465,15 @@ footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7v
   .purchase-card-hero { grid-template-columns: 1fr; box-shadow: 6px 6px 0 var(--ink); }
   .purchase-card-hero .button { width: 100%; }
   .purchase-assurance { display: grid; }
+  .is-neck-sales .hero-copy { padding-top: 28px; }
+  .is-neck-sales h1 { font-size: clamp(37px, 10.5vw, 46px); line-height: 1; }
+  .is-neck-sales .hero-summary { font-size: 15px; line-height: 1.55; }
+  .is-neck-sales .purchase-card-hero { margin-top: 24px; }
+  .is-neck-sales .quick-facts { grid-template-columns: repeat(3, 1fr); margin-top: 25px; }
+  .is-neck-sales .quick-facts div,
+  .is-neck-sales .quick-facts div + div { padding: 12px 8px 12px 0; border-top: 1px solid var(--line); border-left: 0; }
+  .is-neck-sales .quick-facts div + div { padding-left: 10px; border-left: 1px solid var(--line); }
+  .is-neck-sales .featured-recipe .recipe-story { display: block; }
   .preview-panel { min-height: 0; padding: 24px 20px 42px; }
   .preview-frame { box-shadow: 8px 8px 0 var(--lime); }
   .preview-play { width: 56px; height: 56px; }

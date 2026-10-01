@@ -7,6 +7,7 @@ import {
   authInputClass,
   authLabelClass,
 } from "@/components/auth/AuthCard";
+import { AuthDivider, GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { supabase } from "@/integrations/supabase/client";
 import { setAuthPersistence } from "@/integrations/supabase/previewAuthStorage";
 
@@ -34,6 +35,21 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
 
+  async function continueWithGoogle() {
+    if (busy) return;
+    setBusy(true);
+    setMessage("");
+    setAuthPersistence(remember);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/library` },
+    });
+    if (error) {
+      setMessage("Google sign-in could not be started. Please try again.");
+      setBusy(false);
+    }
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -51,6 +67,8 @@ function LoginPage() {
       title="Log in"
       body="Continue to your personal movement library."
     >
+      <GoogleAuthButton busy={busy} onClick={() => void continueWithGoogle()} />
+      <AuthDivider />
       <form onSubmit={submit} className="grid gap-5">
         <label className={authLabelClass}>
           Email

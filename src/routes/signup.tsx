@@ -6,6 +6,7 @@ import {
   authInputClass,
   authLabelClass,
 } from "@/components/auth/AuthCard";
+import { AuthDivider, GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { supabase } from "@/integrations/supabase/client";
 import { isAuthError } from "@supabase/supabase-js";
 
@@ -31,6 +32,20 @@ function SignupPage() {
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
+
+  async function continueWithGoogle() {
+    if (busy) return;
+    setBusy(true);
+    setMessage("");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/library` },
+    });
+    if (error) {
+      setMessage("Google sign-in could not be started. Please try again.");
+      setBusy(false);
+    }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -118,7 +133,21 @@ function SignupPage() {
           </Link>
         </div>
       ) : (
-        <form onSubmit={submit} className="grid gap-4">
+        <>
+          <GoogleAuthButton busy={busy} onClick={() => void continueWithGoogle()} />
+          <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
+            By continuing, you agree to the{" "}
+            <Link to="/terms" className="font-bold text-foreground underline">
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="font-bold text-foreground underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+          <AuthDivider />
+          <form onSubmit={submit} className="grid gap-4">
           <label className={authLabelClass}>
             Nickname
             <input
@@ -189,7 +218,8 @@ function SignupPage() {
           <button className={authButtonClass} disabled={busy}>
             {busy ? "Creating account…" : "Create account"}
           </button>
-        </form>
+          </form>
+        </>
       )}
       {message && (
         <p role="alert" className="mt-4 text-sm text-destructive">

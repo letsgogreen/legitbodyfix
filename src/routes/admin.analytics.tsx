@@ -47,7 +47,7 @@ export const Route = createFileRoute("/admin/analytics")({
   component: AnalyticsPage,
 });
 
-function countBy(rows: View[], value: (row: View) => string | null) {
+function countBy<T>(rows: T[], value: (row: T) => string | null) {
   const counts = new Map<string, number>();
   rows.forEach((row) => {
     const key = value(row);
@@ -213,14 +213,15 @@ function AnalyticsPage() {
       const time = new Date(view.created_at).getTime();
       return time < boundary;
     });
-    const sessionCount = (rows: View[]) => groupRecentSessions(rows).length;
-    const acquiredCount = (rows: View[]) =>
-      groupRecentSessions(rows).filter((session) => session.source !== "Direct").length;
-    const sessions = sessionCount(views);
-    const previousSessions = sessionCount(previous);
+    const groupedSessions = groupRecentSessions(views);
+    const previousGroupedSessions = groupRecentSessions(previous);
+    const acquiredCount = (sessions: RecentSession[]) =>
+      sessions.filter((session) => session.source !== "Direct").length;
+    const sessions = groupedSessions.length;
+    const previousSessions = previousGroupedSessions.length;
     const uniqueVisitors = new Set(views.map((view) => view.visitor_id).filter(Boolean)).size;
-    const acquired = acquiredCount(views);
-    const previousAcquired = acquiredCount(previous);
+    const acquired = acquiredCount(groupedSessions);
+    const previousAcquired = acquiredCount(previousGroupedSessions);
     const pagesPerSession = sessions ? views.length / sessions : 0;
     const previousPagesPerSession = previousSessions ? previous.length / previousSessions : 0;
     const acquisitionRate = sessions ? (acquired / sessions) * 100 : 0;
@@ -237,7 +238,7 @@ function AnalyticsPage() {
       (_, hour) =>
         [
           hour,
-          views.filter((view) => new Date(view.created_at).getHours() === hour).length,
+          groupedSessions.filter((session) => new Date(session.startedAt).getHours() === hour).length,
         ] as const,
     );
     return {
@@ -255,9 +256,10 @@ function AnalyticsPage() {
         ),
       ).length,
       pages: countBy(views, (view) => view.path),
-      sources: countBy(views, (view) => view.utm_source || view.referrer_host || "Direct"),
-      campaigns: countBy(views, (view) => view.utm_campaign),
-      devices: countBy(views, (view) => view.device_type),
+      acquisitionSessions: groupedSessions,
+      sources: countBy(groupedSessions, (session) => session.source),
+      campaigns: countBy(groupedSessions, (session) => session.campaign),
+      devices: countBy(groupedSessions, (session) => session.deviceType),
       daily,
       hourly,
       funnel: {
@@ -472,7 +474,7 @@ function AnalyticsPage() {
                 <p className="text-xs text-ink-foreground/55">Most active hour</p>
                 <p className="mt-1 text-sm font-bold">
                   {bestHour?.[1]
-                    ? `${String(bestHour[0]).padStart(2, "0")}:00–${String((bestHour[0] + 1) % 24).padStart(2, "0")}:00 · ${bestHour[1]} views`
+                    ? `${String(bestHour[0]).padStart(2, "0")}:00–${String((bestHour[0] + 1) % 24).padStart(2, "0")}:00 · ${bestHour[1]} visits`
                     : "No pattern yet"}
                 </p>
               </div>
@@ -552,12 +554,16 @@ function AnalyticsPage() {
                   <div>
                     <h2 className="text-lg font-extrabold">Acquisition trend</h2>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Compare how each source changes over time.
+                      One count per visit, based on the first page in each session.
                     </p>
                   </div>
                   <ModeToggle value={acquisitionMode} onChange={setAcquisitionMode} />
                 </div>
-                <AcquisitionTrend views={report.views} range={range} mode={acquisitionMode} />
+                <AcquisitionTrend
+                  sessions={report.acquisitionSessions}
+                  range={range}
+                  mode={acquisitionMode}
+                />
                 <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground">
                   <span>{report.daily[0]?.[0]}</span>
                   <span>{report.daily.at(-1)?.[0]}</span>
@@ -587,6 +593,9 @@ function AnalyticsPage() {
                   </h2>
                   <ModeToggle value={acquisitionMode} onChange={setAcquisitionMode} />
                 </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  One visit is assigned to the source or campaign on its entry page.
+                </p>
                 <RankList
                   rows={acquisitionMode === "source" ? report.sources : report.campaigns}
                   empty={
@@ -1066,11 +1075,11 @@ function ProgramFunnelTrend({ events, range }: { events: FunnelEvent[]; range: R
 }
 
 function AcquisitionTrend({
-  views,
+  sessions,
   range,
   mode,
 }: {
-  views: View[];
+  sessions: RecentSession[];
   range: Range;
   mode: AcquisitionMode;
 }) {
@@ -1088,16 +1097,18 @@ function AcquisitionTrend({
   const labels = Array.from({ length: range }, (_, index) =>
     localDateKey(new Date(Date.now() - (range - index - 1) * 86_400_000)),
   );
-  const getKey = (view: View) =>
-    mode === "source" ? view.utm_source || view.referrer_host || "Direct" : view.utm_campaign;
-  const leaders = countBy(views, getKey)
+  const getKey = (session: RecentSession) =>
+    mode === "source" ? session.source : session.campaign;
+  const leaders = countBy(sessions, getKey)
     .slice(0, 5)
     .map(([label]) => label);
   const series = leaders.map((label) => ({
     label,
     values: labels.map(
       (date) =>
-        views.filter((view) => localDateKey(view.created_at) === date && getKey(view) === label)
+        sessions.filter(
+          (session) => localDateKey(session.startedAt) === date && getKey(session) === label,
+        )
           .length,
     ),
   }));
@@ -1180,7 +1191,7 @@ function AcquisitionTrend({
                       onBlur={() => setActivePoint(null)}
                     >
                       <title>
-                        {date} · {item.label} · {count} views
+                        {date} · {item.label} · {count} sessions
                       </title>
                     </circle>
                   </g>
@@ -1195,7 +1206,7 @@ function AcquisitionTrend({
             y={(activePoint.y / height) * 100}
             accent={activePoint.color}
             title={activePoint.label}
-            detail={`${activePoint.date} · ${activePoint.count.toLocaleString()} ${activePoint.count === 1 ? "view" : "views"}`}
+            detail={`${activePoint.date} · ${activePoint.count.toLocaleString()} ${activePoint.count === 1 ? "session" : "sessions"}`}
           />
         )}
       </div>
@@ -1288,7 +1299,7 @@ function HourlyLine({ rows }: { rows: readonly (readonly [number, number])[] }) 
               onBlur={() => setActivePoint(null)}
             >
               <title>
-                {String(hour).padStart(2, "0")}:00 · {count} views
+                {String(hour).padStart(2, "0")}:00 · {count} visits
               </title>
             </circle>
           </g>
@@ -1300,7 +1311,7 @@ function HourlyLine({ rows }: { rows: readonly (readonly [number, number])[] }) 
           y={(activePoint.y / height) * 100}
           accent="hsl(var(--accent))"
           title={`${String(activePoint.hour).padStart(2, "0")}:00–${String((activePoint.hour + 1) % 24).padStart(2, "0")}:00`}
-          detail={`${activePoint.count.toLocaleString()} ${activePoint.count === 1 ? "view" : "views"}`}
+          detail={`${activePoint.count.toLocaleString()} ${activePoint.count === 1 ? "visit" : "visits"}`}
         />
       )}
     </div>

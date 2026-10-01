@@ -288,6 +288,28 @@
     if (faq && anatomy) faq.after(anatomy);
   }
 
+  function normalizeNeckSalesCopy(video) {
+    if (!video || video.id !== "neck-alignment") return video;
+
+    var normalized = Object.assign({}, video, {
+      title: "Neck Control Session",
+      landingEyebrow: "Guided neck session",
+      landingHeadline: "A guided session for better neck control.",
+      landingSummary: "Follow an 11-minute sequence to reduce unnecessary neck tension, practice deep-neck control, and connect it to coordinated shoulder-blade movement.",
+      durationMinutes: 11
+    });
+    normalized.curriculum = Array.isArray(video.curriculum) ? video.curriculum.map(function (step, index) {
+      if (index === 0) return Object.assign({}, step, {
+        title: "Response-guided inhibition techniques",
+        description: "Choose an appropriate target and adjust the pressure based on how your body responds."
+      });
+      return Object.assign({}, step, {
+        description: text(step.description, "").replace(/\bPractise\b/g, "Practice").replace(/\bpractise\b/g, "practice")
+      });
+    }) : video.curriculum;
+    return normalized;
+  }
+
   function setupMobileCheckout() {
     var mobileCheckout = document.getElementById("mobileCheckout");
     var heroPurchase = page.querySelector(".purchase-card-hero");
@@ -335,7 +357,7 @@
     }).filter(function (entry) { return entry.quote; });
     if (!entries.length) return;
 
-    setText("feedbackHeadline", text(video.feedbackHeadline, "What people noticed after practising."));
+    setText("feedbackHeadline", text(video.feedbackHeadline, "What people noticed after practicing."));
     var cards = entries.map(function (entry, index) {
       var card = createElement("article", "feedback-card");
       card.append(
@@ -351,6 +373,7 @@
   }
 
   function render(video) {
+    video = normalizeNeckSalesCopy(video);
     document.getElementById("anteriorHumeralGuide").hidden = video.id !== "shoulder-movement";
     var title = text(video.title, "Movement session");
     var hasOwnPrice = isPurchasablePrice(video.price);
@@ -386,9 +409,9 @@
     setText("techniqueBody", techniqueBody === legacyTechniqueBody ? "Work through each phase at a comfortable range and pace. The session moves from reducing unnecessary effort to building control, then applying it to coordinated movement. Pause, repeat, or stop whenever the movement does not feel right." : techniqueBody);
     document.getElementById("upperCrossedModel").hidden = video.id !== "neck-alignment";
     document.getElementById("neckRelationshipFigure").hidden = video.id !== "neck-alignment";
-    setText("finalHeadline", text(video.finalHeadline, video.id === "neck-alignment"
-      ? "Put the three-phase method into practice."
-      : "Put " + title.toLowerCase() + " into practice."));
+    setText("finalHeadline", video.id === "neck-alignment"
+      ? "Start the guided neck session."
+      : text(video.finalHeadline, "Put " + title.toLowerCase() + " into practice."));
     var displayPrice = hasOwnPrice ? formatPrice(video.price) : "Complete program";
     setText("price", displayPrice);
     setText("finalPrice", displayPrice);
