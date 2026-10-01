@@ -35,19 +35,22 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
 
-  async function continueWithGoogle() {
+  async function continueWithGoogle(credential: string, nonce: string) {
     if (busy) return;
     setBusy(true);
     setMessage("");
     setAuthPersistence(remember);
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithIdToken({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/library` },
+      token: credential,
+      nonce,
     });
     if (error) {
-      setMessage("Google sign-in could not be started. Please try again.");
+      setMessage("Google sign-in could not be completed. Please try again or use email.");
       setBusy(false);
+      return;
     }
+    window.location.assign(next);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -67,7 +70,13 @@ function LoginPage() {
       title="Log in"
       body="Continue to your personal movement library."
     >
-      <GoogleAuthButton busy={busy} onClick={() => void continueWithGoogle()} />
+      <GoogleAuthButton
+        busy={busy}
+        onCredential={(credential, nonce) => void continueWithGoogle(credential, nonce)}
+        onUnavailable={() =>
+          setMessage("Google sign-in is unavailable in this browser. Open the page in Chrome or use email.")
+        }
+      />
       <AuthDivider />
       <form onSubmit={submit} className="grid gap-5">
         <label className={authLabelClass}>
