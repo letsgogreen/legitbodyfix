@@ -162,6 +162,8 @@ h2 { margin: 15px 0 24px; font-size: clamp(38px, 4.2vw, 66px); line-height: .97;
 }
 .preview-kicker { width: min(100%, 820px); margin: 0 auto 16px; display: flex; justify-content: space-between; color: #aaa9a3; font: 500 9px "DM Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
 .preview-frame { width: min(100%, 820px); margin: 0 auto; position: relative; z-index: 1; background: var(--card); border: 1px solid #3d3d39; box-shadow: 14px 14px 0 var(--lime); }
+.preview-frame-portrait { width: min(100%, 420px); }
+.preview-frame-portrait .preview-art { aspect-ratio: 4 / 5; }
 .preview-art { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: var(--lime); }
 .preview-art img { width: 100%; height: 100%; display: block; object-fit: cover; filter: saturate(.9) contrast(1.03); }
 .preview-art iframe { position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%; border: 0; background: #000; }
@@ -476,6 +478,7 @@ footer { max-width: var(--content); margin: 0 auto; padding: 28px clamp(24px, 7v
   .is-neck-sales .featured-recipe .recipe-story { display: block; }
   .preview-panel { min-height: 0; padding: 24px 20px 42px; }
   .preview-frame { box-shadow: 8px 8px 0 var(--lime); }
+  .preview-frame-portrait { width: min(100%, 340px); }
   .preview-play { width: 56px; height: 56px; }
   .preview-caption { grid-template-columns: 1fr; }
   .preview-caption p + p { border-left: 0; border-top: 1px solid var(--line); }
