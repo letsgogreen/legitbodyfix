@@ -10,6 +10,71 @@ function isAdmin(claims: unknown) {
   );
 }
 
+type AnalyticsView = {
+  id: string;
+  created_at: string;
+  session_id: string;
+  visitor_id: string | null;
+  referrer_host: string | null;
+  utm_source: string | null;
+  device_type: string;
+  country_code: string | null;
+  region_code: string | null;
+  city: string | null;
+};
+
+const SPLIT_IDENTITY_INCIDENT_START = Date.parse("2026-10-02T00:00:00.000Z");
+const SPLIT_IDENTITY_INCIDENT_END = Date.parse("2026-10-03T00:00:00.000Z");
+const SESSION_WINDOW_MS = 30 * 60 * 1000;
+
+function repairHistoricalSplitIdentities<T extends AnalyticsView>(views: T[]) {
+  const candidates = views
+    .filter((view) => {
+      const time = Date.parse(view.created_at);
+      return (
+        time >= SPLIT_IDENTITY_INCIDENT_START &&
+        time < SPLIT_IDENTITY_INCIDENT_END &&
+        view.country_code === "US" &&
+        view.region_code === "CO" &&
+        view.city === "Denver" &&
+        view.device_type === "desktop" &&
+        !view.referrer_host &&
+        !view.utm_source
+      );
+    })
+    .sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
+
+  const repaired = new Map<string, { visitorId: string | null; sessionId: string }>();
+  let cluster: T[] = [];
+  const commitCluster = () => {
+    if (cluster.length < 2 || new Set(cluster.map((view) => view.visitor_id)).size < 2) return;
+    const first = cluster[0];
+    cluster.forEach((view) =>
+      repaired.set(view.id, { visitorId: first.visitor_id, sessionId: first.session_id }),
+    );
+  };
+
+  candidates.forEach((view) => {
+    const previous = cluster.at(-1);
+    if (
+      previous &&
+      Date.parse(view.created_at) - Date.parse(previous.created_at) >= SESSION_WINDOW_MS
+    ) {
+      commitCluster();
+      cluster = [];
+    }
+    cluster.push(view);
+  });
+  commitCluster();
+
+  return views.map((view) => {
+    const identity = repaired.get(view.id);
+    return identity
+      ? { ...view, visitor_id: identity.visitorId, session_id: identity.sessionId }
+      : view;
+  });
+}
+
 export const getAdminAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input) =>
@@ -39,7 +104,11 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
 
     if (!enriched.error) {
       const funnel = await funnelRequest;
-      if (!funnel.error) return { views: enriched.data ?? [], funnelEvents: funnel.data ?? [] };
+      if (!funnel.error)
+        return {
+          views: repairHistoricalSplitIdentities(enriched.data ?? []),
+          funnelEvents: funnel.data ?? [],
+        };
 
       const legacyFunnel = await supabaseAdmin
         .from("program_funnel_events")
@@ -50,7 +119,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false })
         .limit(10000);
       return {
-        views: enriched.data ?? [],
+        views: repairHistoricalSplitIdentities(enriched.data ?? []),
         funnelEvents: (legacyFunnel.data ?? []).map((event) => ({
           ...event,
           is_internal: false,
