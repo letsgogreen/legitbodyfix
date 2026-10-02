@@ -22,20 +22,13 @@ export const Route = createFileRoute("/api/analytics/program-funnel")({
         } catch {
           return new Response("Invalid analytics event", { status: 400 });
         }
-        const { resolveAnalyticsIdentity } = await import("@/lib/analytics-identity.server");
-        const identity = resolveAnalyticsIdentity(request, event);
-        const identifiedEvent = {
-          ...event,
-          session_id: identity.sessionId,
-          visitor_id: identity.visitorId,
-        };
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const result = await supabaseAdmin.from("program_funnel_events").upsert(identifiedEvent, {
+        const result = await supabaseAdmin.from("program_funnel_events").upsert(event, {
           onConflict: "session_id,program_slug,event_type",
           ignoreDuplicates: true,
         });
         if (result.error) {
-          const { is_internal: _isInternal, ...legacyEvent } = identifiedEvent;
+          const { is_internal: _isInternal, ...legacyEvent } = event;
           const fallback = await supabaseAdmin.from("program_funnel_events").upsert(legacyEvent, {
             onConflict: "session_id,program_slug,event_type",
             ignoreDuplicates: true,
@@ -48,7 +41,7 @@ export const Route = createFileRoute("/api/analytics/program-funnel")({
             return new Response("Analytics unavailable", { status: 503 });
           }
         }
-        return new Response(null, { status: 204, headers: identity.responseHeaders });
+        return new Response(null, { status: 204 });
       },
     },
   },

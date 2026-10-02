@@ -11,7 +11,6 @@ type Range = 7 | 30 | 90;
 type AcquisitionMode = "source" | "campaign";
 const SESSION_PAGE_SIZE = 15;
 const SESSION_INACTIVITY_MS = 30 * 60 * 1000;
-const IDENTITY_HANDOFF_MS = SESSION_INACTIVITY_MS;
 
 const FUNNEL_STAGES = [
   { type: "card_impression", label: "Card shown", color: "#3478f6" },
@@ -100,7 +99,7 @@ function groupRecentSessions(views: View[]): RecentSession[] {
     });
   });
 
-  let grouped: RecentSession[] = [...sessions.entries()].map(([sessionId, sessionViews]) => {
+  const grouped: RecentSession[] = [...sessions.entries()].map(([sessionId, sessionViews]) => {
     const chronological = [...sessionViews].sort(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     );
@@ -140,59 +139,6 @@ function groupRecentSessions(views: View[]): RecentSession[] {
       })),
     };
   });
-
-  const chronologicalSessions = [...grouped].sort(
-    (a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt),
-  );
-  const coalesced: RecentSession[] = [];
-  chronologicalSessions.forEach((session) => {
-    const previous = coalesced.at(-1);
-    const gap = previous ? Date.parse(session.startedAt) - Date.parse(previous.lastSeenAt) : Infinity;
-    const sameLocation = Boolean(
-      previous &&
-        previous.countryCode === session.countryCode &&
-        previous.regionCode === session.regionCode &&
-        previous.city === session.city &&
-        previous.administrativeArea === session.administrativeArea,
-    );
-    const sameNetwork = Boolean(
-      previous?.networkHash &&
-        session.networkHash &&
-        previous.networkHash === session.networkHash,
-    );
-    const looksLikeIdentityHandoff = Boolean(
-      previous &&
-        previous.visitorId !== session.visitorId &&
-        gap >= 0 &&
-        gap <= IDENTITY_HANDOFF_MS &&
-        previous.deviceType === session.deviceType &&
-        previous.source === session.source &&
-        (sameNetwork || sameLocation),
-    );
-
-    if (!previous || !looksLikeIdentityHandoff) {
-      coalesced.push(session);
-      return;
-    }
-
-    const journey = [...previous.journey, ...session.journey]
-      .sort((a, b) => Date.parse(a.visitedAt) - Date.parse(b.visitedAt))
-      .map((step, index, steps) => ({
-        ...step,
-        secondsFromPrevious: index
-          ? Math.max(0, (Date.parse(step.visitedAt) - Date.parse(steps[index - 1].visitedAt)) / 1000)
-          : null,
-      }));
-    previous.lastSeenAt = session.lastSeenAt;
-    previous.pageViews += session.pageViews;
-    previous.isInternal ||= session.isInternal;
-    previous.journey = journey;
-    previous.observedDurationSeconds = Math.max(
-      0,
-      (Date.parse(previous.lastSeenAt) - Date.parse(previous.startedAt)) / 1000,
-    );
-  });
-  grouped = coalesced;
 
   const visitsByVisitor = new Map<string, RecentSession[]>();
   grouped.forEach((session) => {
@@ -273,9 +219,7 @@ function AnalyticsPage() {
       sessions.filter((session) => session.source !== "Direct").length;
     const sessions = groupedSessions.length;
     const previousSessions = previousGroupedSessions.length;
-    const uniqueVisitors = new Set(
-      groupedSessions.map((session) => session.visitorId || session.sessionId),
-    ).size;
+    const uniqueVisitors = new Set(views.map((view) => view.visitor_id).filter(Boolean)).size;
     const acquired = acquiredCount(groupedSessions);
     const previousAcquired = acquiredCount(previousGroupedSessions);
     const pagesPerSession = sessions ? views.length / sessions : 0;

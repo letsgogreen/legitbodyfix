@@ -55,19 +55,12 @@ export const Route = createFileRoute("/api/analytics/page-view")({
         const city = headerText(request, "x-vercel-ip-city", 120);
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { resolveAdministrativeArea } = await import("@/lib/analytics-location.server");
-        const { resolveAnalyticsIdentity } = await import("@/lib/analytics-identity.server");
-        const identity = resolveAnalyticsIdentity(request, parsed);
-        const identifiedEvent = {
-          ...parsed,
-          session_id: identity.sessionId,
-          visitor_id: identity.visitorId,
-        };
         const [hashedNetwork, administrativeArea] = await Promise.all([
           networkHash(request),
           resolveAdministrativeArea(request, countryCode, supabaseAdmin),
         ]);
         const located = await supabaseAdmin.from("page_views").insert({
-          ...identifiedEvent,
+          ...parsed,
           country_code: countryCode,
           region_code: regionCode,
           city,
@@ -76,7 +69,7 @@ export const Route = createFileRoute("/api/analytics/page-view")({
         });
         if (located.error) {
           const { visitor_id: _visitorId, is_internal: _isInternal, ...legacyEvent } =
-            identifiedEvent;
+            parsed;
           const fallback = await supabaseAdmin.from("page_views").insert(legacyEvent);
           if (fallback.error) {
             console.error("Analytics page-view insert failed", {
@@ -86,7 +79,7 @@ export const Route = createFileRoute("/api/analytics/page-view")({
             return new Response("Analytics unavailable", { status: 503 });
           }
         }
-        return new Response(null, { status: 204, headers: identity.responseHeaders });
+        return new Response(null, { status: 204 });
       },
     },
   },
