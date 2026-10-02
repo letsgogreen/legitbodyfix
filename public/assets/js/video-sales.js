@@ -431,6 +431,7 @@
     var previewIframeUrl = safeImageUrl(video.previewIframeUrl);
     if (previewIframeUrl) {
       var previewVideo = document.getElementById("previewVideo");
+      document.querySelector(".preview-frame").classList.add("preview-frame-portrait");
       previewVideo.src = previewIframeUrl;
       previewVideo.hidden = false;
       document.getElementById("thumbnail").hidden = true;
