@@ -11,7 +11,7 @@ type Range = 7 | 30 | 90;
 type AcquisitionMode = "source" | "campaign";
 const SESSION_PAGE_SIZE = 15;
 const SESSION_INACTIVITY_MS = 30 * 60 * 1000;
-const IDENTITY_HANDOFF_MS = 60 * 1000;
+const IDENTITY_HANDOFF_MS = SESSION_INACTIVITY_MS;
 
 const FUNNEL_STAGES = [
   { type: "card_impression", label: "Card shown", color: "#3478f6" },
