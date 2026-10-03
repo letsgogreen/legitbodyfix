@@ -19,6 +19,7 @@ function Start() {
   const { region: slug, intent } = Route.useSearch();
   const navigate = Route.useNavigate();
   const region = findBodyRegion(slug);
+  const relatedPrograms = region?.programs.filter((program) => program.available) ?? [];
   const step = !region ? 1 : !intent ? 2 : 3;
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousStep = useRef(step);
@@ -47,7 +48,27 @@ function Start() {
           </button>)}
         </div>}
         {step === 2 && <div className="mt-9 grid gap-4 sm:grid-cols-2">
-          {[{ id: "learn" as const, icon: BookOpen, title: "Learn at my own pace", description: "Explore free articles and anatomy references for this area." }, { id: "program" as const, icon: Dumbbell, title: "Follow a guided program", description: "See available sessions and what each program includes before buying." }].map((choice) => <button type="button" key={choice.id} onClick={() => void navigate({ search: { region: slug, intent: choice.id } })} className="border border-border bg-card p-7 text-left hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4"><choice.icon size={26} /><span className="mt-8 block text-2xl font-bold">{choice.title}</span><span className="mt-3 block leading-7 text-muted-foreground">{choice.description}</span><span className="mt-8 inline-flex items-center gap-2 text-sm font-bold">Choose this approach <ArrowRight size={16} /></span></button>)}
+          <a href={`/movement-check?region=${encodeURIComponent(region!.slug)}`} className="group flex flex-col border border-border bg-card p-7 text-left hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4">
+            <BookOpen size={26} />
+            <span className="mt-8 block text-2xl font-bold">{region!.title} learning resources</span>
+            <span className="mt-3 block flex-1 leading-7 text-muted-foreground">Browse the articles, muscle references, conditions, and related resources for this area.</span>
+            <span className="mt-8 inline-flex items-center gap-2 text-sm font-bold">Explore this area <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
+          </a>
+          {relatedPrograms.length ? relatedPrograms.map((program) => <a key={program.href} href={program.href} className="group flex flex-col border border-border bg-card p-7 text-left hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4">
+            <div className="flex items-start justify-between gap-4">
+              <Dumbbell size={26} />
+              <span className="bg-accent px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-accent-foreground">Available program</span>
+            </div>
+            <span className="mt-8 block text-2xl font-bold">{program.title}</span>
+            <span className="mt-3 block flex-1 leading-7 text-muted-foreground">{program.description}</span>
+            {program.meta && <span className="mt-5 border-t border-border pt-4 font-mono text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{program.meta}</span>}
+            <span className="mt-6 inline-flex items-center gap-2 text-sm font-bold">View program details <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
+          </a>) : <button type="button" onClick={() => void navigate({ search: { region: slug, intent: "program" } })} className="border border-border bg-card p-7 text-left hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4">
+            <Dumbbell size={26} />
+            <span className="mt-8 block text-2xl font-bold">Follow a guided program</span>
+            <span className="mt-3 block leading-7 text-muted-foreground">See available sessions and what each program includes before buying.</span>
+            <span className="mt-8 inline-flex items-center gap-2 text-sm font-bold">Check availability <ArrowRight size={16} /></span>
+          </button>}
         </div>}
         {step === 3 && region && <div className="mt-9 space-y-4" aria-live="polite">
           <p className="text-sm font-bold">{region.title} · {intent === "program" ? "Guided programs" : "Learn at your own pace"}</p>
