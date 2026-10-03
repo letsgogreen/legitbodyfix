@@ -11,6 +11,7 @@ type Range = 7 | 30 | 90;
 type AcquisitionMode = "source" | "campaign";
 const SESSION_PAGE_SIZE = 15;
 const SESSION_INACTIVITY_MS = 30 * 60 * 1000;
+const RAPID_DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 
 const FUNNEL_STAGES = [
   { type: "card_impression", label: "Card shown", color: "#3478f6" },
@@ -74,9 +75,55 @@ function change(current: number, previous: number) {
   return Math.round(((current - previous) / previous) * 100);
 }
 
+function normalizeRapidDuplicateViews(views: View[]) {
+  const chronological = [...views].sort(
+    (a, b) => Date.parse(a.created_at) - Date.parse(b.created_at),
+  );
+  const latestBySignature = new Map<string, View>();
+  const identities = new Map<string, { visitorId: string | null; sessionId: string }>();
+
+  chronological.forEach((view) => {
+    const source = view.utm_source || view.referrer_host || "Direct";
+    const signature = [
+      view.path,
+      view.device_type,
+      view.country_code || "",
+      view.region_code || "",
+      view.city || "",
+      source,
+    ].join("|");
+    const previous = latestBySignature.get(signature);
+    const elapsed = previous
+      ? Date.parse(view.created_at) - Date.parse(previous.created_at)
+      : Infinity;
+
+    if (
+      previous &&
+      previous.visitor_id !== view.visitor_id &&
+      elapsed >= 0 &&
+      elapsed <= RAPID_DUPLICATE_WINDOW_MS
+    ) {
+      const inherited = identities.get(previous.id) || {
+        visitorId: previous.visitor_id,
+        sessionId: previous.session_id,
+      };
+      identities.set(view.id, inherited);
+    }
+    latestBySignature.set(signature, view);
+  });
+
+  return views.map((view) => {
+    const identity = identities.get(view.id);
+    return identity
+      ? { ...view, visitor_id: identity.visitorId, session_id: identity.sessionId }
+      : view;
+  });
+}
+
 function groupRecentSessions(views: View[]): RecentSession[] {
+  const normalizedViews = normalizeRapidDuplicateViews(views);
   const rawSessions = new Map<string, View[]>();
-  views.forEach((view) =>
+  normalizedViews.forEach((view) =>
     rawSessions.set(view.session_id, [...(rawSessions.get(view.session_id) || []), view]),
   );
 
@@ -198,7 +245,9 @@ function AnalyticsPage() {
     const cleaned = includeInternal
       ? verificationCleaned
       : verificationCleaned.filter((view) => !view.is_internal);
-    const views = cleaned.filter((view) => new Date(view.created_at).getTime() >= boundary);
+    const views = normalizeRapidDuplicateViews(
+      cleaned.filter((view) => new Date(view.created_at).getTime() >= boundary),
+    );
     const funnelEvents = rawFunnelEvents.filter(
       (event) =>
         new Date(event.created_at).getTime() >= boundary && (includeInternal || !event.is_internal),
@@ -209,10 +258,12 @@ function AnalyticsPage() {
           .filter((event) => event.event_type === eventType)
           .map((event) => `${event.session_id}:${event.program_slug}`),
       ).size;
-    const previous = cleaned.filter((view) => {
-      const time = new Date(view.created_at).getTime();
-      return time < boundary;
-    });
+    const previous = normalizeRapidDuplicateViews(
+      cleaned.filter((view) => {
+        const time = new Date(view.created_at).getTime();
+        return time < boundary;
+      }),
+    );
     const groupedSessions = groupRecentSessions(views);
     const previousGroupedSessions = groupRecentSessions(previous);
     const acquiredCount = (sessions: RecentSession[]) =>
