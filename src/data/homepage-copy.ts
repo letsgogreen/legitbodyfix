@@ -25,8 +25,8 @@ export const homepageCopyDefaults = {
   programs_intro: "Compare the focus and contents before you buy. Each program page shows its current price and what is included. Purchased sessions live in your private library.",
   method_eyebrow: "How it works",
   method_heading: "Three steps. One clear direction.",
-  why_eyebrow: "Why LegitBodyFix",
-  why_heading: "More structure than another exercise list.",
+  why_eyebrow: "How it works",
+  why_heading: "Understand the pattern. Practice with intent. Return to movement.",
   final_heading: "Not sure where to begin?",
   final_body: "Choose an area and how you prefer to learn. We will show you where to go next.",
   final_cta: "Find my starting point",
@@ -38,6 +38,19 @@ export type HomepageCopy = Record<HomepageCopyKey, string>;
 export function normalizeHomepageCopyValue(key: HomepageCopyKey, value: string) {
   if (key === "hero_secondary_cta" && value === "Explore free resources") {
     return homepageCopyDefaults.hero_secondary_cta;
+  }
+  if (
+    key === "why_eyebrow" &&
+    (value === "Why LegitBodyFix" || value === "How to use LegitBodyFix")
+  ) {
+    return homepageCopyDefaults.why_eyebrow;
+  }
+  if (
+    key === "why_heading" &&
+    (value === "More structure than another exercise list." ||
+      value === "Choose a starting point. Follow a progression. Return to movement.")
+  ) {
+    return homepageCopyDefaults.why_heading;
   }
   return value;
 }
@@ -107,8 +120,8 @@ export const homepageCopyGroups: Array<{
     fields: [
       { key: "method_eyebrow", label: "Method eyebrow" },
       { key: "method_heading", label: "Method heading" },
-      { key: "why_eyebrow", label: "Positioning eyebrow" },
-      { key: "why_heading", label: "Positioning heading" },
+      { key: "why_eyebrow", label: "Method eyebrow" },
+      { key: "why_heading", label: "Method heading" },
     ],
   },
   {
