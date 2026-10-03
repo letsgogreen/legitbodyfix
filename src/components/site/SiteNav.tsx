@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 const links = [
   { label: "Learn", href: "/movement-check" },
   { label: "Programs", href: "/#programs" },
-  { label: "How to use", href: "/#method" },
+  { label: "How it works", href: "/#method" },
   { label: "About", href: "/about" },
 ];
 

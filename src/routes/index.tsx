@@ -45,20 +45,21 @@ export const Route = createFileRoute("/")({
 const differentiators = [
   {
     icon: ScanSearch,
-    title: "Choose a starting point",
-    description: "Find a useful starting point instead of collecting another random routine.",
+    title: "Understand the pattern",
+    description:
+      "Connect what you notice in movement with relevant anatomy and context, without treating a posture label as a diagnosis.",
   },
   {
     icon: Waypoints,
-    title: "Follow a real progression",
+    title: "Practice with intent",
     description:
-      "Build movement through an intentional sequence, not a list of isolated exercises.",
+      "Use a deliberate sequence to reduce unnecessary effort, build control, and connect the pieces together.",
   },
   {
     icon: RouteIcon,
-    title: "Return to real movement",
+    title: "Return to movement",
     description:
-      "Connect the work back to training, daily activity, and the goals that matter to you.",
+      "Carry the result back into training, daily activity, and the movement goal that brought you here.",
   },
 ];
 

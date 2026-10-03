@@ -33,7 +33,7 @@ export function SiteFooter({ showOperatorContact = true }: { showOperatorContact
                   href="/#method"
                   className="rounded-sm hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  How to use
+                  How it works
                 </a>
               </li>
               <li><Link to="/about" className="rounded-sm hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">About us</Link></li>
