@@ -12,6 +12,7 @@ function isAdmin(claims: unknown) {
 
 type AnalyticsView = {
   id: string;
+  path: string;
   created_at: string;
   session_id: string;
   visitor_id: string | null;
@@ -66,6 +67,31 @@ function repairHistoricalSplitIdentities<T extends AnalyticsView>(views: T[]) {
     cluster.push(view);
   });
   commitCluster();
+
+  // Explicit administrator-requested merge of the two /terms visits shown on Oct 3.
+  // Restrict by ID prefix, place, and the original two-minute window.
+  const approvedPair = views.filter((view) => {
+    const time = Date.parse(view.created_at);
+    const prefix = view.visitor_id?.slice(0, 6).toUpperCase();
+    return (
+      (prefix === "0D7D0D" || prefix === "FE01A5") &&
+      view.path === "/terms" &&
+      view.country_code === "US" &&
+      view.region_code === "OR" &&
+      view.city === "The Dalles" &&
+      time >= Date.parse("2026-10-02T23:23:00.000Z") &&
+      time < Date.parse("2026-10-02T23:25:00.000Z")
+    );
+  }).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
+  if (
+    approvedPair.length === 2 &&
+    new Set(approvedPair.map((view) => view.visitor_id?.slice(0, 6).toUpperCase())).size === 2
+  ) {
+    const first = approvedPair[0];
+    approvedPair.forEach((view) =>
+      repaired.set(view.id, { visitorId: first.visitor_id, sessionId: first.session_id }),
+    );
+  }
 
   return views.map((view) => {
     const identity = repaired.get(view.id);
