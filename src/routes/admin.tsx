@@ -12,6 +12,21 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AdminAuthGate } from "@/components/admin/AdminAuthGate";
+import type { CSSProperties } from "react";
+
+// A softer workspace palette, scoped to admin so public pages keep their colors.
+const workspacePalette = {
+  "--background": "oklch(0.91 0.008 85)",
+  "--card": "oklch(0.945 0.006 85)",
+  "--card-foreground": "oklch(0.24 0.008 85)",
+  "--foreground": "oklch(0.24 0.008 85)",
+  "--secondary": "oklch(0.875 0.008 85)",
+  "--secondary-foreground": "oklch(0.24 0.008 85)",
+  "--muted": "oklch(0.89 0.006 85)",
+  "--muted-foreground": "oklch(0.46 0.012 85)",
+  "--border": "oklch(0.79 0.008 85)",
+  "--input": "oklch(0.79 0.008 85)",
+} as CSSProperties;
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -49,7 +64,7 @@ const nav: NavItem[] = [
 function AdminShell() {
   return (
     <AdminAuthGate>
-      <div className="flex min-h-screen w-full bg-background text-foreground">
+      <div style={workspacePalette} className="flex min-h-screen w-full bg-background text-foreground">
         <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-secondary/40 lg:flex">
           <div className="flex items-center gap-2.5 border-b border-border px-4 py-4">
             <span className="h-3 w-3 rounded-full bg-accent" aria-hidden />
