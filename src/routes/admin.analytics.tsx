@@ -405,7 +405,7 @@ function AnalyticsPage() {
       ) : (
         <>
           <section
-            className={`mt-4 flex flex-col gap-3 border px-5 py-4 sm:flex-row sm:items-center sm:justify-between ${collectionActive ? "border-accent/70 bg-accent/10" : "border-border bg-card"}`}
+            className="mt-4 flex flex-col gap-2 border border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex items-center gap-3">
               <span
@@ -438,32 +438,32 @@ function AnalyticsPage() {
           </section>
 
           <section className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {statCards.map((stat) => (
-              <Panel key={stat.label} className="p-5">
+            {[statCards[3], statCards[2], statCards[1], statCards[4], statCards[0], statCards[5]].map((stat, index) => (
+              <Panel key={stat.label} className="p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <p className="text-xs font-semibold text-muted-foreground">
                     {stat.label}
                   </p>
                   <Delta value={stat.delta} />
                 </div>
-                <p className="mt-3 text-4xl font-extrabold tracking-tight">{stat.value}</p>
+                <p className={`mt-2 font-extrabold tracking-tight tabular-nums ${index < 3 ? "text-4xl" : "text-2xl"}`}>{stat.value}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{stat.note}</p>
               </Panel>
             ))}
           </section>
 
-          <Panel className="mt-4 bg-ink px-6 py-5 text-ink-foreground">
+          <Panel className="mt-4 px-5 py-4">
             <div className="grid gap-5 lg:grid-cols-[1.2fr_repeat(3,1fr)] lg:items-center">
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-[.16em] text-ink-foreground/55">
+                <p className="text-xs font-semibold text-muted-foreground">
                   Quick read
                 </p>
-                <h2 className="mt-2 text-xl font-extrabold">
+                <h2 className="mt-1 text-base font-bold">
                   {report.views.length ? "What changed at a glance" : "Waiting for real traffic"}
                 </h2>
               </div>
               <div>
-                <p className="text-xs text-ink-foreground/55">Most viewed</p>
+                <p className="text-xs text-muted-foreground">Most viewed</p>
                 <p className="mt-1 text-sm font-bold">
                   {topPage
                     ? `${topPage[0] === "/" ? "Homepage" : topPage[0]} · ${topPage[1]} views`
@@ -471,7 +471,7 @@ function AnalyticsPage() {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-ink-foreground/55">Most active hour</p>
+                <p className="text-xs text-muted-foreground">Most active hour</p>
                 <p className="mt-1 text-sm font-bold">
                   {bestHour?.[1]
                     ? `${String(bestHour[0]).padStart(2, "0")}:00–${String((bestHour[0] + 1) % 24).padStart(2, "0")}:00 · ${bestHour[1]} visits`
@@ -479,7 +479,7 @@ function AnalyticsPage() {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-ink-foreground/55">Acquisition</p>
+                <p className="text-xs text-muted-foreground">Acquisition</p>
                 <p className="mt-1 text-sm font-bold">
                   {report.sessions
                     ? `${report.acquired} of ${report.sessions} sessions identified`
@@ -631,7 +631,15 @@ function AnalyticsPage() {
                 Newest first · {timeZone}
               </span>
             </div>
-            <div className="divide-y divide-border">
+            <div className="max-h-[36rem] overflow-y-auto overscroll-contain" tabIndex={0} role="region" aria-label="Recent session list">
+              <div className="sticky top-0 z-10 hidden grid-cols-[minmax(0,1fr)_4rem_12rem_5rem_11rem] items-center gap-4 border-b border-border bg-secondary px-5 py-2 text-xs font-semibold text-muted-foreground lg:grid" aria-hidden="true">
+                <span>Entry page / visitor</span>
+                <span>Pages</span>
+                <span>Duration / location</span>
+                <span>Device</span>
+                <span className="text-right">Last activity</span>
+              </div>
+              <div className="divide-y divide-border">
               {recentSessions.slice(0, visibleSessionCount).map((session) => (
                 <SessionJourney key={session.sessionId} session={session} />
               ))}
@@ -640,6 +648,7 @@ function AnalyticsPage() {
                   Real visitor activity will appear here.
                 </p>
               )}
+              </div>
             </div>
             {recentSessions.length > 0 && (
               <div className="flex flex-col gap-3 border-t border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -685,8 +694,8 @@ function SessionJourney({ session }: { session: RecentSession }) {
       ? `Visit ${session.visitorSessionNumber}`
       : "First seen";
   return (
-    <details className="group">
-      <summary className="grid cursor-pointer list-none gap-2 px-5 py-4 text-sm hover:bg-secondary/35 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] sm:items-center sm:gap-5">
+    <details className="group open:bg-secondary/25" name="analytics-session">
+      <summary className="grid min-h-14 cursor-pointer list-none gap-2 px-5 py-3 text-sm transition-colors hover:bg-secondary/50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-foreground lg:grid-cols-[minmax(0,1fr)_4rem_12rem_5rem_11rem] lg:items-center lg:gap-4">
         <div className="min-w-0">
           <p className="truncate font-bold">
             {session.entryPath === "/" ? "Homepage" : session.entryPath}
@@ -701,7 +710,7 @@ function SessionJourney({ session }: { session: RecentSession }) {
             {session.campaign ? " · " + session.campaign : ""}
           </p>
         </div>
-        <span className="text-xs font-bold text-muted-foreground">
+        <span className="text-xs font-bold tabular-nums text-foreground">
           {session.pageViews} {session.pageViews === 1 ? "page" : "pages"}
         </span>
         <div className="text-xs text-muted-foreground">
@@ -712,7 +721,7 @@ function SessionJourney({ session }: { session: RecentSession }) {
             {formatSessionDuration(session.observedDurationSeconds)}
             {session.observedDurationSeconds !== null ? " · estimated" : ""}
           </p>
-          <p className="mt-1">
+          <p className="mt-0.5 truncate" title={formatLocation(session.countryCode, session.regionCode, session.city, session.administrativeArea)}>
             {formatLocation(
               session.countryCode,
               session.regionCode,
