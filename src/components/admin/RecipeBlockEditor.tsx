@@ -174,6 +174,57 @@ function AutoTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return <textarea {...props} ref={ref} rows={1} onInput={resize} />;
 }
 
+function ToggleBlockFields({
+  block,
+  onChange,
+}: {
+  block: Extract<RecipeContentBlock, { type: "toggle" }>;
+  onChange: (patch: { title?: string; text?: string }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const panelId = `recipe-toggle-fields-${block.id}`;
+
+  return (
+    <div>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((value) => !value)}
+        className="flex min-h-11 w-full items-center gap-2 rounded-sm px-1 text-left text-lg font-bold outline-none hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <ChevronDown
+          aria-hidden="true"
+          className={`h-4 w-4 shrink-0 transition-transform ${open ? "" : "-rotate-90"}`}
+        />
+        {block.title.trim() || "Untitled toggle"}
+      </button>
+      <div id={panelId} hidden={!open}>
+        {open && (
+          <div className="mt-2 space-y-2 border-l-2 border-border pl-4">
+            <label className="block text-xs font-semibold text-muted-foreground">
+              Toggle title
+              <input
+                value={block.title}
+                onChange={(event) => onChange({ title: event.target.value })}
+                placeholder="Toggle title"
+                className="mt-1 min-h-11 w-full rounded-sm border border-border bg-transparent px-2 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </label>
+            <AutoTextarea
+              aria-label={`${block.title.trim() || "Untitled toggle"} content`}
+              value={block.text}
+              onChange={(event) => onChange({ text: event.target.value })}
+              placeholder="Collapsed content…"
+              className="w-full resize-none overflow-hidden rounded-sm bg-transparent px-1 py-2 text-sm leading-6 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function qualityWarnings(blocks: RecipeContentBlock[]) {
   return blocks.flatMap((block, index) => {
     const warnings: string[] = [];
@@ -538,20 +589,7 @@ export function RecipeBlockEditor({
                   </div>
                 )}
                 {block.type === "toggle" && (
-                  <div className="space-y-2">
-                    <input
-                      value={block.title}
-                      onChange={(event) => update(index, { title: event.target.value })}
-                      placeholder="Toggle title"
-                      className="min-h-11 w-full border-0 bg-transparent px-1 text-lg font-bold outline-none placeholder:text-muted-foreground/50"
-                    />
-                    <AutoTextarea
-                      value={block.text}
-                      onChange={(event) => update(index, { text: event.target.value })}
-                      placeholder="Collapsed content…"
-                      className="w-full resize-none overflow-hidden border-l-2 border-border bg-transparent px-4 py-2 text-sm leading-6 outline-none"
-                    />
-                  </div>
+                  <ToggleBlockFields block={block} onChange={(patch) => update(index, patch)} />
                 )}
                 {block.type === "list" && (
                   <div className="space-y-3">
