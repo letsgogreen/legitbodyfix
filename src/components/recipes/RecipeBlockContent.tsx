@@ -101,7 +101,8 @@ export function RecipeBlockContent({
           );
         if (block.type === "toggle") {
           const dictionaryImages = (block.muscleIds ?? []).flatMap((id) => {const url = muscleDictionary.find((entry) => entry.id === id)?.image_url; return url ? [url] : [];});
-          const thumbnailUrls = dictionaryImages.length ? dictionaryImages : (toggleImages.byToggle.get(block.id) ?? []).map((image) => image.url);
+          const storedImages = (toggleImages.byToggle.get(block.id) ?? []).map((image) => image.url);
+          const thumbnailUrls = storedImages.length ? storedImages : dictionaryImages;
           const isMuscle = Boolean(block.muscleIds?.length || block.muscleRole || thumbnailUrls.length);
           return (
             <details key={block.id} className="group rounded-sm border border-border bg-card">

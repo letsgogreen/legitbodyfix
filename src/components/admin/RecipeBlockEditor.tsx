@@ -203,7 +203,8 @@ function ToggleBlockFields({
   const panelId = `recipe-toggle-fields-${block.id}`;
   const canonical = role && block.muscleIds?.length === 1 ? muscleDictionary.find((entry) => entry.id === block.muscleIds?.[0])?.name : undefined;
   const dictionaryImages = (block.muscleIds ?? []).flatMap((id) => {const url = muscleDictionary.find((entry) => entry.id === id)?.image_url; return url ? [url] : [];});
-  const cardImages = dictionaryImages.length ? dictionaryImages : (images ?? []).flatMap((image) => image.type === "image" ? [image.url] : []);
+  const storedImages = (images ?? []).flatMap((image) => image.type === "image" ? [image.url] : []);
+  const cardImages = storedImages.length ? storedImages : dictionaryImages;
 
   return (
     <div>
