@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ImageIcon } from "lucide-react";
 
-type RelatedRecipe = {
+export type RelatedRecipe = {
   slug: string;
   title: string;
   image_url: string | null;
@@ -10,7 +10,7 @@ type RelatedRecipe = {
   connectionReason: string;
 };
 
-function RelatedPatternCard({ recipe }: { recipe: RelatedRecipe }) {
+export function RelatedPatternCard({ recipe }: { recipe: RelatedRecipe }) {
   const [imageFailed, setImageFailed] = useState(false);
   const imageUrl = recipe.image_url;
   const resolvedImage = imageUrl && (/^(?:https?:)?\/\//i.test(imageUrl) || imageUrl.startsWith("/")

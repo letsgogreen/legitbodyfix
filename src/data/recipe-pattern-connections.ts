@@ -1,4 +1,6 @@
 /** Editorial connections, not diagnostic or causal classifications. */
+import { recipePatternArticles } from "./recipe-articles/index.ts";
+
 export const forwardLeanSlug = "excessive-forward-trunk-leaning";
 
 export const forwardLeanConnections = [
@@ -21,8 +23,20 @@ export const forwardLeanConnections = [
 ] as const;
 
 export function selectForwardLeanConnections<T extends { slug: string }>(recipes: T[]) {
-  return forwardLeanConnections.flatMap((connection) => {
+  return selectPatternConnections(forwardLeanSlug, recipes);
+}
+
+export function hasPatternArticle(slug: string) {
+  return slug === forwardLeanSlug || Object.hasOwn(recipePatternArticles, slug);
+}
+
+export function patternConnectionsFor(slug: string): ReadonlyArray<{ slug: string; reason: string }> {
+  return slug === forwardLeanSlug ? forwardLeanConnections : Object.hasOwn(recipePatternArticles, slug) ? recipePatternArticles[slug]!.connections : [];
+}
+
+export function selectPatternConnections<T extends { slug: string }>(slug: string, recipes: T[]) {
+  return patternConnectionsFor(slug).flatMap((connection) => {
     const recipe = recipes.find((candidate) => candidate.slug === connection.slug);
-    return recipe ? [{ ...recipe, connectionReason: connection.reason }] : [];
+    return recipe && recipe.slug !== slug ? [{ ...recipe, connectionReason: connection.reason }] : [];
   });
 }

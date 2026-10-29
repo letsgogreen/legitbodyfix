@@ -4,8 +4,7 @@ import { ArrowLeft, ImageIcon } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
-import { ForwardLeanContext } from "@/components/recipes/ForwardLeanContext";
-import { forwardLeanSlug } from "@/data/recipe-pattern-connections";
+import { RecipePatternContext } from "@/components/recipes/RecipePatternContext";
 import { getPublishedRecipe } from "@/lib/recipes.functions";
 import { regionNameFor } from "@/lib/notion/regions";
 import { blocksFromLegacyInstructions, normalizeRecipeBlocks } from "@/lib/recipe-blocks";
@@ -163,7 +162,7 @@ function RecipeDetail() {
             </div>
           </div>
         </section>
-        {recipe.slug === forwardLeanSlug ? <ForwardLeanContext relatedRecipes={recipe.relatedRecipes} /> : null}
+        <RecipePatternContext slug={recipe.slug} relatedRecipes={recipe.relatedRecipes} />
       </main>
 
       <SiteFooter />

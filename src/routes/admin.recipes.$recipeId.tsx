@@ -15,8 +15,8 @@ import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RecipeBlockEditor } from "@/components/admin/RecipeBlockEditor";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
-import { ForwardLeanContext } from "@/components/recipes/ForwardLeanContext";
-import { forwardLeanSlug, selectForwardLeanConnections } from "@/data/recipe-pattern-connections";
+import { RecipePatternContext } from "@/components/recipes/RecipePatternContext";
+import { hasPatternArticle, selectPatternConnections } from "@/data/recipe-pattern-connections";
 import { listPublishedRecipes } from "@/lib/recipes.functions";
 import { deriveRecipeGoal, detectKoreanText, isTagOnlyRecipeGoal } from "@/lib/recipe-import";
 import {
@@ -170,7 +170,7 @@ function RecipeReview() {
   const relatedRecipesQuery = useQuery({
     queryKey: ["admin-recipe-pattern-cards"],
     queryFn: () => listPublishedRecipes(),
-    enabled: record?.slug === forwardLeanSlug,
+    enabled: Boolean(record && hasPatternArticle(record.slug)),
     staleTime: 60_000,
   });
   const [links, setLinks] = useState<LinkRow[]>([]);
@@ -688,7 +688,7 @@ function RecipeReview() {
               issues={blockIssues}
               onChange={(blocks) => setField("content_blocks", blocks)}
             />
-            {record.slug === forwardLeanSlug ? (
+            {hasPatternArticle(record.slug) ? (
               <div className="mt-8 min-w-0 overflow-hidden border border-border">
                 <div className="border-b border-border bg-secondary/20 p-4">
                   <h2 className="text-sm font-bold">Pattern explanation &amp; related recipes</h2>
@@ -696,7 +696,7 @@ function RecipeReview() {
                   {relatedRecipesQuery.isPending ? <p role="status" className="mt-2 text-xs text-muted-foreground">Loading related recipe cards…</p> : null}
                   {relatedRecipesQuery.isError ? <button type="button" onClick={() => void relatedRecipesQuery.refetch()} className="mt-2 min-h-11 text-xs font-bold underline">Related cards could not load. Retry</button> : null}
                 </div>
-                <ForwardLeanContext relatedRecipes={selectForwardLeanConnections(relatedRecipesQuery.data ?? [])} />
+                <RecipePatternContext slug={record.slug} relatedRecipes={selectPatternConnections(record.slug, relatedRecipesQuery.data ?? [])} />
               </div>
             ) : null}
           </div>
