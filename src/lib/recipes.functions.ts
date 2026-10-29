@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { normalizeRecipeBlocks } from "@/lib/recipe-blocks";
 import { RECIPE_MUSCLE_COLUMNS, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
+import { recipeSectionMuscles } from "@/lib/recipe-muscle-sections";
 
 function publicClient() {
   return createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
@@ -132,6 +133,14 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
       ? await supabase.from("muscles").select(RECIPE_MUSCLE_COLUMNS).eq("published", true).in("id", dictionaryIds)
       : { data: [], error: null };
     if (dictionaryResult.error) console.error("recipe dictionary read failed:", dictionaryResult.error.message);
+    const sections = recipeSectionMuscles(normalizeRecipeBlocks(data.content_blocks));
+    if (sections.managedRoles.size) {
+      const entries = (dictionaryResult.data ?? []) as unknown as RecipeMuscleEntry[];
+      muscles = [...muscles.filter((entry) => !sections.managedRoles.has(entry.role)), ...sections.links.flatMap((link) => {
+        const entry = entries.find((candidate) => candidate.id === link.muscle_id);
+        return entry ? [{id: entry.id, name: entry.name, group: entry.anatomical_group, role: link.role, available: true}] : [];
+      })];
+    }
 
     return {
       ...rest,

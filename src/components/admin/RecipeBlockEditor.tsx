@@ -28,7 +28,9 @@ import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 import { recipeToggleImages } from "@/lib/recipe-toggle-images";
 import { RecipeMuscleDetails } from "@/components/recipes/RecipeMuscleDetails";
-import { muscleSearchText, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
+import { muscleSearchText, muscleSectionRole, muscleSide, MUSCLE_SIDES, type MuscleRole, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
+import { recipeSectionMuscles } from "@/lib/recipe-muscle-sections";
+import { AddRecipeMuscle } from "@/components/admin/AddRecipeMuscle";
 import {
   blockId,
   type RecipeBlockIssue,
@@ -185,17 +187,20 @@ function ToggleBlockFields({
   images,
   imageEditors,
   muscleDictionary,
+  role,
 }: {
   block: Extract<RecipeContentBlock, { type: "toggle" }>;
-  onChange: (patch: { title?: string; text?: string; muscleIds?: string[] }) => void;
+  onChange: (patch: Partial<Extract<RecipeContentBlock, {type: "toggle"}>>) => void;
   images: RecipeContentBlock[] | undefined;
   imageEditors?: ReactNode;
   muscleDictionary: RecipeMuscleEntry[];
+  role: MuscleRole | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [muscleSearch, setMuscleSearch] = useState("");
   const panelId = `recipe-toggle-fields-${block.id}`;
+  const canonical = role && block.muscleIds?.length === 1 ? muscleDictionary.find((entry) => entry.id === block.muscleIds?.[0])?.name : undefined;
 
   return (
     <div>
@@ -210,7 +215,7 @@ function ToggleBlockFields({
           aria-hidden="true"
           className={`h-4 w-4 shrink-0 transition-transform ${open ? "" : "-rotate-90"}`}
         />
-        {block.title.trim() || "Untitled toggle"}
+        <span className="flex flex-wrap items-center gap-2">{canonical || block.title.trim() || "Untitled toggle"}{role && muscleSide(block) ? <span className="rounded-sm border border-border px-2 py-1 text-xs font-normal">{muscleSide(block)}</span> : null}</span>
       </button>
       <div id={panelId} hidden={!open}>
         {open && (
@@ -228,6 +233,10 @@ function ToggleBlockFields({
             {editing ? (
               <>
                 {imageEditors}
+                {role ? <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="text-xs font-semibold">Side / position<input list={`${panelId}-sides`} value={muscleSide(block)} maxLength={120} placeholder="Not specified — choose or type" onChange={(event) => onChange({side: event.target.value, muscleRole: role})} className="mt-1 min-h-11 w-full rounded-sm border border-border bg-transparent px-2 text-sm" /><datalist id={`${panelId}-sides`}>{MUSCLE_SIDES.map((side) => <option key={side} value={side} />)}</datalist></label>
+                  <label className="text-xs font-semibold">Additional explanation<AutoTextarea value={block.note ?? ""} maxLength={10000} onChange={(event) => onChange({note: event.target.value, muscleRole: role})} placeholder="Recipe-specific context (optional)" className="mt-1 min-h-11 w-full rounded-sm border border-border bg-transparent px-2 py-2 text-sm" /></label>
+                </div> : null}
                 <fieldset className="space-y-2 rounded-sm border border-border p-3">
                   <legend className="px-1 text-sm font-semibold">Muscle dictionary</legend>
                   <p className="text-xs text-muted-foreground">Link anatomy from the dictionary. Keep side and recipe-specific instructions below. Dictionary changes appear on the next page load.</p>
@@ -243,9 +252,10 @@ function ToggleBlockFields({
                   {(block.muscleIds ?? []).filter((id) => !muscleDictionary.some((entry) => entry.id === id)).map((id) => <button key={id} type="button" onClick={() => onChange({muscleIds: (block.muscleIds ?? []).filter((candidate) => candidate !== id)})} className="block text-xs underline">Remove unavailable dictionary link</button>)}
                 </fieldset>
             <label className="block text-xs font-semibold text-muted-foreground">
-              Toggle title
+              {canonical ? "Muscle name (from dictionary)" : "Toggle title"}
               <input
-                value={block.title}
+                value={canonical || block.title}
+                readOnly={Boolean(canonical)}
                 onChange={(event) => onChange({ title: event.target.value })}
                 placeholder="Toggle title"
                 className="mt-1 min-h-11 w-full rounded-sm border border-border bg-transparent px-2 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -255,12 +265,13 @@ function ToggleBlockFields({
               aria-label={`${block.title.trim() || "Untitled toggle"} content`}
               value={block.text}
               onChange={(event) => onChange({ text: event.target.value })}
-              placeholder="Collapsed content…"
+              placeholder={role === "tight" ? "Recipe-specific application and precautions (optional)…" : role === "weak" ? "Strengthening application and precautions (optional)…" : "Collapsed content…"}
               className="w-full resize-none overflow-hidden rounded-sm bg-transparent px-1 py-2 text-sm leading-6 outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
               </>
             ) : (
               <>
+                {block.note?.trim() ? <p className="whitespace-pre-wrap text-sm leading-6">{block.note}</p> : null}
                 <RecipeMuscleDetails ids={block.muscleIds ?? []} entries={muscleDictionary} />
                 {images?.length ? <RecipeBlockContent compact blocks={images} /> : null}
                 {block.text.trim() ? (
@@ -351,6 +362,18 @@ export function RecipeBlockEditor({
         current === index ? ({ ...block, ...patch } as RecipeContentBlock) : block,
       ),
     );
+  }
+  function roleAt(index: number) {
+    return value.slice(0, index + 1).reverse().find((candidate) => candidate.type === "heading");
+  }
+  function addSectionMuscle(index: number, entry: RecipeMuscleEntry, role: MuscleRole) {
+    const next = [...value];
+    let end = index + 1;
+    while (end < next.length && next[end]?.type !== "heading") end += 1;
+    const id = blockId();
+    next.splice(end, 0, {id, type: "toggle", title: entry.name, muscleIds: [entry.id], muscleRole: role, side: "", note: "", text: ""});
+    onChange(next);
+    setSelectedId(id);
   }
   function focusEditor(id: string) {
     requestAnimationFrame(() => {
@@ -652,6 +675,7 @@ export function RecipeBlockEditor({
                       rows={1}
                       className={`${block.level === 2 ? "text-3xl" : "text-xl"} min-h-12 w-full resize-none overflow-hidden border-0 bg-transparent px-1 py-1 font-bold tracking-tight outline-none placeholder:text-muted-foreground/50`}
                     />
+                    {muscleSectionRole(block.text) ? <AddRecipeMuscle entries={muscleDictionary} existingIds={recipeSectionMuscles(value).links.filter((link) => link.role === muscleSectionRole(block.text)).map((link) => link.muscle_id)} onAdd={(entry) => addSectionMuscle(index, entry, muscleSectionRole(block.text)!)} /> : null}
                   </div>
                 )}
                 {block.type === "paragraph" && (
@@ -710,6 +734,7 @@ export function RecipeBlockEditor({
                   <ToggleBlockFields
                     block={block}
                     muscleDictionary={muscleDictionary}
+                    role={block.muscleRole ?? (() => { const heading = roleAt(index); return heading?.type === "heading" ? muscleSectionRole(heading.text) : undefined; })()}
                     onChange={(patch) => update(index, patch)}
                     images={toggleImages.byToggle.get(block.id)}
                     imageEditors={toggleImages.byToggle.get(block.id)?.map((image) => (

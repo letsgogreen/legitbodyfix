@@ -10,7 +10,7 @@ export const recipeContentBlockSchema = z.discriminatedUnion("type", [
     text: z.string(),
   }),
   z.object({ id, type: z.literal("paragraph"), text: z.string() }),
-  z.object({ id, type: z.literal("toggle"), title: z.string(), text: z.string(), muscleIds: z.array(z.string().min(1)).max(20).optional() }),
+  z.object({ id, type: z.literal("toggle"), title: z.string(), text: z.string(), muscleIds: z.array(z.string().min(1)).max(20).optional(), muscleRole: z.enum(["tight", "weak"]).optional(), side: z.string().max(120).optional(), note: z.string().max(10000).optional() }),
   z.object({
     id,
     type: z.literal("image"),

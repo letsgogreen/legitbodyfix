@@ -24,6 +24,7 @@ import {
 import { parseRecipeBlocks } from "@/lib/recipe-blocks.schema";
 import { supabase } from "@/integrations/supabase/client";
 import { RECIPE_MUSCLE_COLUMNS, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
+import { recipeSectionMuscles } from "@/lib/recipe-muscle-sections";
 
 export const Route = createFileRoute("/admin/recipes/$recipeId")({
   head: () => ({
@@ -513,6 +514,8 @@ function RecipeReview() {
   const blockers = publishBlockers(record);
   const blockIssues = validateRecipeBlocks(record.content_blocks);
   const previewBlocks = record.content_blocks;
+  const sectionMuscles = recipeSectionMuscles(record.content_blocks);
+  const visibleMuscleLinks = sectionMuscles.managedRoles.size ? sectionMuscles.links.map((link) => ({...link, muscles: muscles.find((entry) => entry.id === link.muscle_id) ?? null})) : links;
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 lg:px-8">
@@ -802,6 +805,13 @@ function RecipeReview() {
             </div>
           </Panel>
 
+          {sectionMuscles.managedRoles.size ? (
+            <Panel className="p-4">
+              <p className="text-xs font-bold">Muscles in this recipe ({visibleMuscleLinks.length})</p>
+              <p className="mt-2 text-xs text-muted-foreground">Managed in Tight muscles / Weakened muscles above. Add or remove cards there; this summary updates automatically.</p>
+              <ul className="mt-3 space-y-2 text-xs">{visibleMuscleLinks.map((link) => <li key={`${link.role}-${link.muscle_id}`}><Tag tone={link.role === "tight" ? "ink" : "muted"}>{link.role}</Tag> {link.muscles?.name ?? link.muscle_id}</li>)}</ul>
+            </Panel>
+          ) : (
           <Panel className="p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
               Muscle links ({links.length})
@@ -879,6 +889,7 @@ function RecipeReview() {
               )}
             </div>
           </Panel>
+          )}
 
           <Panel className="p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">

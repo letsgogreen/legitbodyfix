@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { ExternalLink, Info, Quote } from "lucide-react";
 import { recipeToggleImages } from "@/lib/recipe-toggle-images";
 import { RecipeMuscleDetails } from "@/components/recipes/RecipeMuscleDetails";
-import type { RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
+import { muscleSide, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 import {
   isAllowedHttpUrl,
   normalizeRecipeBlocks,
@@ -102,12 +102,14 @@ export function RecipeBlockContent({
           return (
             <details key={block.id} className="group rounded-sm border border-border bg-card">
               <summary className="cursor-pointer list-none px-5 py-4 font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                {block.title}
+                {block.muscleIds?.length === 1 ? muscleDictionary.find((entry) => entry.id === block.muscleIds?.[0])?.name || block.title : block.title}
+                {muscleSide(block) ? <span className="ml-2 text-xs font-normal text-muted-foreground">{muscleSide(block)}</span> : null}
                 <span className="float-right text-accent transition-transform group-open:rotate-45">
                   ＋
                 </span>
               </summary>
               <div className="border-t border-border px-5 py-4 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
+                {block.note?.trim() ? <p className="mb-4 whitespace-pre-wrap">{block.note}</p> : null}
                 {block.muscleIds?.length ? <div className="mb-5"><RecipeMuscleDetails ids={block.muscleIds} entries={muscleDictionary} /></div> : null}
                 {toggleImages.byToggle.has(block.id) && (
                   <div className="mb-5 whitespace-normal">
