@@ -24,6 +24,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 import {
   blockId,
   type RecipeBlockIssue,
@@ -182,6 +183,7 @@ function ToggleBlockFields({
   onChange: (patch: { title?: string; text?: string }) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const panelId = `recipe-toggle-fields-${block.id}`;
 
   return (
@@ -201,7 +203,19 @@ function ToggleBlockFields({
       </button>
       <div id={panelId} hidden={!open}>
         {open && (
-          <div className="mt-2 space-y-2 border-l-2 border-border pl-4">
+          <div className="mt-2 space-y-3 border-l-2 border-border pl-4">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                aria-pressed={editing}
+                onClick={() => setEditing((value) => !value)}
+                className="min-h-9 rounded-sm border border-border px-3 text-xs font-semibold hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {editing ? "Done editing" : "Edit content"}
+              </button>
+            </div>
+            {editing ? (
+              <>
             <label className="block text-xs font-semibold text-muted-foreground">
               Toggle title
               <input
@@ -218,6 +232,20 @@ function ToggleBlockFields({
               placeholder="Collapsed content…"
               className="w-full resize-none overflow-hidden rounded-sm bg-transparent px-1 py-2 text-sm leading-6 outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
+              </>
+            ) : block.text.trim() ? (
+              <RecipeBlockContent
+                compact
+                blocks={block.text.replace(/^(\*\*[^*\r\n]+\*\*)[ \t]*\r?$/gm, "\n\n$1\n\n").split(/\n\s*\n/).filter((text) => text.trim()).map((text, index) => {
+                  const heading = text.trim().match(/^\*\*([^*]+)\*\*$/);
+                  return heading
+                    ? { id: `${block.id}-section-${index}`, type: "heading", level: 3, text: heading[1] }
+                    : { id: `${block.id}-section-${index}`, type: "paragraph", text };
+                })}
+              />
+            ) : (
+              <p className="py-2 text-sm text-muted-foreground">No content yet. Choose Edit content to add a description.</p>
+            )}
           </div>
         )}
       </div>
