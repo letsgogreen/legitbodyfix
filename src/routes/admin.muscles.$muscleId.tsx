@@ -155,7 +155,7 @@ function MuscleEditor() {
     setSaving(false);
 
     if (error || !data) {
-      setStatus("Save failed or the record changed elsewhere. Reload before trying again.");
+      setStatus(error ? `Save failed (${error.code}): ${error.message}. Reload before trying again.` : "The record changed elsewhere. Reload before trying again.");
       return;
     }
 
