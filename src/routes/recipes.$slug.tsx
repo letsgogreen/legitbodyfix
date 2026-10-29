@@ -108,21 +108,6 @@ function MuscleList({ items, tone }: { items: RecipeMuscleLink[]; tone: "tight" 
   );
 }
 
-function TextBlock({ value }: { value: string | null }) {
-  if (!value?.trim()) return null;
-  return (
-    <div className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
-      {value
-        .split(/\n+/)
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((line, index) => (
-          <p key={index}>{line}</p>
-        ))}
-    </div>
-  );
-}
-
 function RecipeDetail() {
   const recipe = Route.useLoaderData();
   const [imageFailed, setImageFailed] = useState(false);
@@ -219,23 +204,9 @@ function RecipeDetail() {
           <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:px-8 lg:py-20">
             <div className="min-w-0">
               <RecipeBlockContent blocks={contentBlocks} muscleDictionary={recipe.muscleDictionary} />
-
-              {recipe.assessment_clues ? (
-                <div className="mt-10">
-                  <h2 className="text-2xl font-extrabold uppercase">What to look for</h2>
-                  <TextBlock value={recipe.assessment_clues} />
-                </div>
-              ) : null}
             </div>
 
             <aside className="space-y-8">
-              {recipe.dosage ? (
-                <div className="rounded-sm border border-border bg-card p-6">
-                  <Label>Dosage</Label>
-                  <p className="mt-3 text-sm leading-relaxed">{recipe.dosage}</p>
-                </div>
-              ) : null}
-
               {(recipe.equipment ?? []).length > 0 ? (
                 <div className="rounded-sm border border-border bg-card p-6">
                   <Label>Equipment</Label>
@@ -245,12 +216,6 @@ function RecipeDetail() {
                 </div>
               ) : null}
 
-              {recipe.safety_notes ? (
-                <div className="rounded-sm border-2 border-foreground bg-card p-6">
-                  <Label>Safety</Label>
-                  <TextBlock value={recipe.safety_notes} />
-                </div>
-              ) : null}
             </aside>
           </div>
         </section>

@@ -85,15 +85,6 @@ type GuideLink = {
   guides: { slug: string; title: string; published: boolean } | null;
 };
 
-const EDITABLE = [
-  ["goal", "Goal"],
-  ["summary", "Summary"],
-  ["assessment_clues", "Assessment clues"],
-  ["dosage", "Dosage"],
-  ["safety_notes", "Safety notes"],
-  ["evidence", "Evidence"],
-] as const;
-
 /** Mirrors the database publish trigger so the admin sees the blockers before saving. */
 function publishBlockers(record: RecipeRow) {
   const missing: string[] = [];
@@ -687,43 +678,6 @@ function RecipeReview() {
               issues={blockIssues}
               onChange={(blocks) => setField("content_blocks", blocks)}
             />
-          </div>
-
-          <div className="border-t border-border pt-6">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-              Supporting sections
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Complete the practical guidance that appears after and alongside the article.
-            </p>
-          </div>
-          <div className="space-y-3">
-            {EDITABLE.filter(([field]) => field !== "goal" && field !== "summary").map(
-              ([field, label]) => (
-                <label
-                  key={field}
-                  className={`block border-t px-1 py-6 ${field === "safety_notes" ? "border-foreground" : field === "dosage" ? "border-accent" : "border-border"}`}
-                >
-                  <span className="text-lg font-extrabold tracking-tight">{label}</span>
-                  <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                    {field === "assessment_clues"
-                      ? "What the reader can observe or reassess."
-                      : field === "dosage"
-                        ? "Suggested volume, duration, and stopping points."
-                        : field === "safety_notes"
-                          ? "Important precautions shown prominently on the public page."
-                          : "Sources and supporting references."}
-                  </span>
-                  <textarea
-                    value={record[field] ?? ""}
-                    onChange={(event) => setField(field, event.target.value)}
-                    rows={3}
-                    placeholder={`Write ${label.toLowerCase()}…`}
-                    className="mt-3 w-full resize-y border-0 bg-transparent px-0 py-1 text-base leading-7 outline-none placeholder:text-muted-foreground/45"
-                  />
-                </label>
-              ),
-            )}
           </div>
 
           <details className="group rounded-sm border border-border bg-secondary/20">
