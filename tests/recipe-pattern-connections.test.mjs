@@ -19,7 +19,10 @@ test('related records are publication-filtered and explanation is scoped to forw
   assert.match(server, /input.slug === forwardLeanSlug[\s\S]*?\.eq\("published", true\)/);
   assert.match(route, /recipe.slug === forwardLeanSlug \? <ForwardLeanContext/);
   assert.match(component, /md:grid-cols-2/);
-  assert.match(component, /<summary/);
+  assert.match(component, /<article/);
+  assert.doesNotMatch(component, /<details|<summary/);
+  assert.match(component, /max-w-\[70ch\]/);
+  assert.match(component, /text-\[18px\]/);
   assert.match(component, /not validated causal pathways/);
 });
 
