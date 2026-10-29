@@ -4,7 +4,7 @@ import { ArrowLeft, ImageIcon } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
-import { getPublishedRecipe, type RecipeMuscleLink } from "@/lib/recipes.functions";
+import { getPublishedRecipe } from "@/lib/recipes.functions";
 import { regionNameFor } from "@/lib/notion/regions";
 import { blocksFromLegacyInstructions, normalizeRecipeBlocks } from "@/lib/recipe-blocks";
 
@@ -71,40 +71,6 @@ function Label({ children }: { children: React.ReactNode }) {
     <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
       {children}
     </p>
-  );
-}
-
-function MuscleList({ items, tone }: { items: RecipeMuscleLink[]; tone: "tight" | "weak" }) {
-  if (items.length === 0) {
-    return (
-      <p className="mt-3 text-sm text-muted-foreground">
-        No published muscle entries linked yet for this role.
-      </p>
-    );
-  }
-
-  return (
-    <ul className="mt-3 border-t border-border">
-      {items.map((muscle) => (
-        <li key={`${tone}-${muscle.id}`} className="border-b border-border">
-          {muscle.available ? <Link
-              to="/muscles/$muscleId"
-              params={{ muscleId: muscle.id }}
-              className="flex min-h-12 items-center justify-between gap-4 py-3 outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <span className="text-sm font-bold">{muscle.name}</span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                {muscle.group ?? "—"}
-              </span>
-            </Link> : <div className="flex min-h-12 items-center justify-between gap-4 py-3">
-            <span className="text-sm font-bold">{muscle.name}</span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-              {muscle.group ?? "—"}
-            </span>
-          </div>}
-        </li>
-      ))}
-    </ul>
   );
 }
 
@@ -183,19 +149,6 @@ function RecipeDetail() {
                   </span>
                 </div>
               )}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-border bg-secondary/40">
-          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 lg:grid-cols-2 lg:px-8">
-            <div>
-              <Label>Typically overactive / tight</Label>
-              <MuscleList items={recipe.tight} tone="tight" />
-            </div>
-            <div>
-              <Label>Typically underactive / weak</Label>
-              <MuscleList items={recipe.weak} tone="weak" />
             </div>
           </div>
         </section>
