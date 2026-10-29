@@ -274,7 +274,7 @@ function ToggleBlockFields({
                 })}
               />
             ) : (
-              <p className="py-2 text-sm text-muted-foreground">No content yet. Choose Edit content to add a description.</p>
+              block.muscleIds?.length ? null : <p className="py-2 text-sm text-muted-foreground">No content yet. Choose Edit content to add a description.</p>
                 )}
               </>
             )}
