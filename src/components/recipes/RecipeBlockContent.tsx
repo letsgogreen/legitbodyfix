@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ExternalLink, Info, Quote } from "lucide-react";
 import { recipeToggleImages } from "@/lib/recipe-toggle-images";
 import { RecipeMuscleDetails } from "@/components/recipes/RecipeMuscleDetails";
+import { MuscleCardImage } from "@/components/recipes/MuscleCardImage";
 import { muscleSide, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 import {
   isAllowedHttpUrl,
@@ -98,12 +99,18 @@ export function RecipeBlockContent({
               <RichText value={block.text} />
             </p>
           );
-        if (block.type === "toggle")
+        if (block.type === "toggle") {
+          const dictionaryImages = (block.muscleIds ?? []).flatMap((id) => {const url = muscleDictionary.find((entry) => entry.id === id)?.image_url; return url ? [url] : [];});
+          const thumbnailUrls = dictionaryImages.length ? dictionaryImages : (toggleImages.byToggle.get(block.id) ?? []).map((image) => image.url);
+          const isMuscle = Boolean(block.muscleIds?.length || block.muscleRole || thumbnailUrls.length);
           return (
             <details key={block.id} className="group rounded-sm border border-border bg-card">
-              <summary className="cursor-pointer list-none px-5 py-4 font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <summary className={`cursor-pointer list-none font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring ${isMuscle ? "flex items-center gap-3 overflow-hidden pr-4" : "px-5 py-4"}`}>
+                {isMuscle ? <MuscleCardImage urls={thumbnailUrls} className="h-28 w-28 shrink-0 border-r border-border sm:w-40" /> : null}
+                <span className="min-w-0 flex-1">
                 {block.muscleIds?.length === 1 ? muscleDictionary.find((entry) => entry.id === block.muscleIds?.[0])?.name || block.title : block.title}
                 {muscleSide(block) ? <span className="ml-2 text-xs font-normal text-muted-foreground">{muscleSide(block)}</span> : null}
+                </span>
                 <span className="float-right text-accent transition-transform group-open:rotate-45">
                   ＋
                 </span>
@@ -120,6 +127,7 @@ export function RecipeBlockContent({
               </div>
             </details>
           );
+        }
         if (block.type === "image")
           return block.url && isAllowedHttpUrl(block.url) ? (
             <figure

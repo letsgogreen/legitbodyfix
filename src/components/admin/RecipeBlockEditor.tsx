@@ -31,6 +31,7 @@ import { RecipeMuscleDetails } from "@/components/recipes/RecipeMuscleDetails";
 import { muscleSearchText, muscleSectionRole, muscleSide, MUSCLE_SIDES, type MuscleRole, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 import { recipeSectionMuscles } from "@/lib/recipe-muscle-sections";
 import { AddRecipeMuscle } from "@/components/admin/AddRecipeMuscle";
+import { MuscleCardImage } from "@/components/recipes/MuscleCardImage";
 import {
   blockId,
   type RecipeBlockIssue,
@@ -201,6 +202,8 @@ function ToggleBlockFields({
   const [muscleSearch, setMuscleSearch] = useState("");
   const panelId = `recipe-toggle-fields-${block.id}`;
   const canonical = role && block.muscleIds?.length === 1 ? muscleDictionary.find((entry) => entry.id === block.muscleIds?.[0])?.name : undefined;
+  const dictionaryImages = (block.muscleIds ?? []).flatMap((id) => {const url = muscleDictionary.find((entry) => entry.id === id)?.image_url; return url ? [url] : [];});
+  const cardImages = dictionaryImages.length ? dictionaryImages : (images ?? []).flatMap((image) => image.type === "image" ? [image.url] : []);
 
   return (
     <div>
@@ -209,8 +212,9 @@ function ToggleBlockFields({
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
-        className="flex min-h-11 w-full items-center gap-2 rounded-sm px-1 text-left text-lg font-bold outline-none hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
+        className={`flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-sm text-left text-lg font-bold outline-none hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring ${role ? "border border-border bg-card pr-4" : "px-1"}`}
       >
+        {role ? <MuscleCardImage urls={cardImages} className="h-28 w-28 shrink-0 border-r border-border sm:h-36 sm:w-40" /> : null}
         <ChevronDown
           aria-hidden="true"
           className={`h-4 w-4 shrink-0 transition-transform ${open ? "" : "-rotate-90"}`}
