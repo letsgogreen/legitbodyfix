@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ExternalLink, Info, Quote } from "lucide-react";
+import { recipeToggleImages } from "@/lib/recipe-toggle-images";
 import {
   isAllowedHttpUrl,
   normalizeRecipeBlocks,
@@ -57,6 +58,7 @@ export function RecipeBlockContent({
   compact?: boolean;
 }) {
   const safeBlocks = normalizeRecipeBlocks(blocks);
+  const toggleImages = recipeToggleImages(safeBlocks);
   return (
     <article
       className={
@@ -66,6 +68,7 @@ export function RecipeBlockContent({
       }
     >
       {safeBlocks.map((block) => {
+        if (toggleImages.imageIds.has(block.id)) return null;
         if (block.type === "heading")
           return block.level === 2 ? (
             <h2
@@ -101,6 +104,11 @@ export function RecipeBlockContent({
                 </span>
               </summary>
               <div className="border-t border-border px-5 py-4 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
+                {toggleImages.byToggle.has(block.id) && (
+                  <div className="mb-5 whitespace-normal">
+                    <RecipeBlockContent compact blocks={toggleImages.byToggle.get(block.id)} />
+                  </div>
+                )}
                 <RichText value={block.text} />
               </div>
             </details>

@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type ReactNode,
   type TextareaHTMLAttributes,
 } from "react";
 import {
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
+import { recipeToggleImages } from "@/lib/recipe-toggle-images";
 import {
   blockId,
   type RecipeBlockIssue,
@@ -178,9 +180,13 @@ function AutoTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
 function ToggleBlockFields({
   block,
   onChange,
+  images,
+  imageEditors,
 }: {
   block: Extract<RecipeContentBlock, { type: "toggle" }>;
   onChange: (patch: { title?: string; text?: string }) => void;
+  images: RecipeContentBlock[] | undefined;
+  imageEditors?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -216,6 +222,7 @@ function ToggleBlockFields({
             </div>
             {editing ? (
               <>
+                {imageEditors}
             <label className="block text-xs font-semibold text-muted-foreground">
               Toggle title
               <input
@@ -233,7 +240,10 @@ function ToggleBlockFields({
               className="w-full resize-none overflow-hidden rounded-sm bg-transparent px-1 py-2 text-sm leading-6 outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
               </>
-            ) : block.text.trim() ? (
+            ) : (
+              <>
+                {images?.length ? <RecipeBlockContent compact blocks={images} /> : null}
+                {block.text.trim() ? (
               <RecipeBlockContent
                 compact
                 blocks={block.text.replace(/^(\*\*[^*\r\n]+\*\*)[ \t]*\r?$/gm, "\n\n$1\n\n").split(/\n\s*\n/).filter((text) => text.trim()).map((text, index) => {
@@ -245,6 +255,8 @@ function ToggleBlockFields({
               />
             ) : (
               <p className="py-2 text-sm text-muted-foreground">No content yet. Choose Edit content to add a description.</p>
+                )}
+              </>
             )}
           </div>
         )}
@@ -295,6 +307,7 @@ export function RecipeBlockEditor({
     [value],
   );
   const warnings = useMemo(() => qualityWarnings(value), [value]);
+  const toggleImages = useMemo(() => recipeToggleImages(value), [value]);
   useEffect(
     () => () => {
       if (undoTimer.current) clearTimeout(undoTimer.current);
@@ -419,6 +432,60 @@ export function RecipeBlockEditor({
     document.getElementById(`recipe-block-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
+  function renderImageFields(block: Extract<RecipeContentBlock, { type: "image" }>, index: number) {
+    return (
+                  <>
+                    <ImageUploadField
+                      value={block.url}
+                      alt={block.alt}
+                      folder={`recipes/${recipeId}/blocks/${block.id}`}
+                      bucket="recipe-images"
+                      label="Article image"
+                      onChange={(url) => update(index, { url })}
+                      onAltChange={(alt) => update(index, { alt })}
+                    />
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      <input
+                        value={block.caption}
+                        onChange={(event) => update(index, { caption: event.target.value })}
+                        placeholder="Caption (optional)"
+                        className="min-h-10 rounded-sm border border-border px-3 text-sm"
+                      />
+                      <input
+                        value={block.source}
+                        onChange={(event) => update(index, { source: event.target.value })}
+                        placeholder="Source / credit for external images"
+                        className="min-h-10 rounded-sm border border-border px-3 text-sm"
+                      />
+                      <select
+                        aria-label="Image fit"
+                        value={block.fit}
+                        onChange={(event) =>
+                          update(index, { fit: event.target.value as "contain" | "cover" })
+                        }
+                        className="min-h-10 rounded-sm border border-border px-2 text-xs"
+                      >
+                        <option value="contain">Fit: contain</option>
+                        <option value="cover">Fit: cover</option>
+                      </select>
+                      <select
+                        aria-label="Image ratio"
+                        value={block.aspect}
+                        onChange={(event) =>
+                          update(index, { aspect: event.target.value as typeof block.aspect })
+                        }
+                        className="min-h-10 rounded-sm border border-border px-2 text-xs"
+                      >
+                        <option value="auto">Natural ratio</option>
+                        <option value="video">16:9</option>
+                        <option value="square">1:1</option>
+                        <option value="portrait">4:5</option>
+                      </select>
+                    </div>
+                  </>
+    );
+  }
+
   return (
     <div className="min-w-0 bg-transparent py-3">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -468,6 +535,7 @@ export function RecipeBlockEditor({
       )}
       <InsertMenu compact onInsert={(type) => insert(0, type)} />
       {value.map((block, index) => {
+        if (toggleImages.imageIds.has(block.id)) return null;
         const blockIssues = issues.filter((issue) => issue.blockId === block.id);
         const selected = selectedId === block.id;
         return (
@@ -617,7 +685,14 @@ export function RecipeBlockEditor({
                   </div>
                 )}
                 {block.type === "toggle" && (
-                  <ToggleBlockFields block={block} onChange={(patch) => update(index, patch)} />
+                  <ToggleBlockFields
+                    block={block}
+                    onChange={(patch) => update(index, patch)}
+                    images={toggleImages.byToggle.get(block.id)}
+                    imageEditors={toggleImages.byToggle.get(block.id)?.map((image) => (
+                      <div key={image.id}>{renderImageFields(image, value.findIndex((candidate) => candidate.id === image.id))}</div>
+                    ))}
+                  />
                 )}
                 {block.type === "list" && (
                   <div className="space-y-3">
@@ -684,57 +759,7 @@ export function RecipeBlockEditor({
                     </button>
                   </div>
                 )}
-                {block.type === "image" && (
-                  <>
-                    <ImageUploadField
-                      value={block.url}
-                      alt={block.alt}
-                      folder={`recipes/${recipeId}/blocks/${block.id}`}
-                      bucket="recipe-images"
-                      label="Article image"
-                      onChange={(url) => update(index, { url })}
-                      onAltChange={(alt) => update(index, { alt })}
-                    />
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      <input
-                        value={block.caption}
-                        onChange={(event) => update(index, { caption: event.target.value })}
-                        placeholder="Caption (optional)"
-                        className="min-h-10 rounded-sm border border-border px-3 text-sm"
-                      />
-                      <input
-                        value={block.source}
-                        onChange={(event) => update(index, { source: event.target.value })}
-                        placeholder="Source / credit for external images"
-                        className="min-h-10 rounded-sm border border-border px-3 text-sm"
-                      />
-                      <select
-                        aria-label="Image fit"
-                        value={block.fit}
-                        onChange={(event) =>
-                          update(index, { fit: event.target.value as "contain" | "cover" })
-                        }
-                        className="min-h-10 rounded-sm border border-border px-2 text-xs"
-                      >
-                        <option value="contain">Fit: contain</option>
-                        <option value="cover">Fit: cover</option>
-                      </select>
-                      <select
-                        aria-label="Image ratio"
-                        value={block.aspect}
-                        onChange={(event) =>
-                          update(index, { aspect: event.target.value as typeof block.aspect })
-                        }
-                        className="min-h-10 rounded-sm border border-border px-2 text-xs"
-                      >
-                        <option value="auto">Natural ratio</option>
-                        <option value="video">16:9</option>
-                        <option value="square">1:1</option>
-                        <option value="portrait">4:5</option>
-                      </select>
-                    </div>
-                  </>
-                )}
+                {block.type === "image" && renderImageFields(block, index)}
                 {block.type === "youtube" && (
                   <div className="space-y-3">
                     <input
