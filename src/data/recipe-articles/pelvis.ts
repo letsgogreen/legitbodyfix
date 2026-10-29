@@ -91,50 +91,63 @@ export const pelvisArticles: Record<string, PatternArticle> = {
     ],
   },
   "asymmetric-weight-shift": {
-    title: "When a movement drifts toward one side",
+    title: "Why might your pelvis shift to one side during a squat?",
     intro: [
-      "During a squat or a step, the pelvis may travel toward one leg instead of remaining between the feet. Sometimes one side also rises or the trunk leans. Before assigning a cause, separate these visible events: shifting sideways, tilting the pelvis and bending the torso describe different movements.",
+      "As you lower into a squat, your pelvis may drift toward one foot. One side of the pelvis may also sit higher, while the trunk leans or a knee changes direction. Together these can look like one 'hip shift', but they describe different parts of the movement.",
+      "In this recipe, 'same side' means the side where the pelvis is higher; 'opposite side' means the other side. These muscle-card labels do not refer to the direction of the sideways shift. For example, a higher right pelvis and a shift to the left are two separate observations, not conflicting descriptions.",
     ],
     sections: [
       {
-        heading: "The feet can provide different starting conditions",
+        heading: "First separate shifting, hiking and turning",
         paragraphs: [
-          "A turned-out foot, a lifting heel or a changing arch can accompany a shift. These are useful observations because they describe what is happening at the base of the movement. They do not reveal how much force is under each foot; that requires a separate measurement.",
-          "Experiments that increased pronation on one side during walking found changes elsewhere in the lower limb and pelvis. This makes foot–pelvis coordination relevant, but an induced walking condition cannot explain every habitual squat shift.",
+          "A lateral shift is the pelvis travelling sideways relative to the feet. A pelvic hike is one side becoming higher. Rotation is the pelvis turning. Any two can occur together, but seeing one does not tell you the direction or size of the others.",
+          "This distinction matters when reading the muscle cards. A muscle listed on the higher side is not automatically on the side the person shifts toward. Describe the visible movement first, then use a consistent reference for the side labels.",
         ],
-        evidence: ["unilateralFoot"],
       },
       {
-        heading: "Hip motion and pelvic motion need to be separated",
+        heading: "The two hips and ankles may offer different options",
         paragraphs: [
-          "A thigh moving relative to its socket is different from the pelvis moving over the supporting leg. A sideways shift may accompany a difference in comfortable hip motion, a preferred strategy or an adjustment to the task. The direction alone does not tell you which hip is restricted.",
-          "Research in symptomatic hip impingement found task-dependent hip adduction and pelvic rise. It offers an example of coordinated adaptation, not a rule that the raised side or opposite-side piriformis must be the cause.",
+          "As a squat gets deeper, each ankle needs to accommodate shin movement while each hip accommodates the changing thigh–pelvis relationship. If the available motion differs between sides, moving the pelvis sideways is one possible way the person may organise the descent.",
+          "A university report of a 40-person overhead-squat thesis found less hip abduction and ankle dorsiflexion, and greater hip internal-rotation range, on the side shifted toward compared with the side shifted away from. The report also suggested differences in gluteus medius activation. These preliminary findings concern the shift direction, not necessarily the higher side of the pelvis.",
+          "This makes hip and ankle differences worth investigating. It does not turn the observed shift into proof that the higher-side adductors are short or that the opposite piriformis is responsible. Muscle activity measured during a task is also different from muscle strength or resting length.",
         ],
-        evidence: ["hipTask"],
+        evidence: ["lateralShiftThesis"],
       },
       {
-        heading: "Track the knee and trunk as separate companions",
+        heading: "A visible shift can accompany unequal loading",
         paragraphs: [
-          "If one knee moves inward as the pelvis shifts, the valgus-knee recipe provides a closer look at that knee-to-foot relationship. If the chest also drops, the forward-lean recipe addresses the side-view pattern. Neither companion should replace the description of the shift itself.",
-          "The most useful account says what moves, on which side and at what point in the repetition. That gives the muscle cards above a context instead of turning side labels into a diagnosis.",
+          "Pelvic position can be relevant to how the legs share the task. In 17 collegiate athletes after ACL reconstruction, medial–lateral hip position correlated with asymmetry in vertical ground-reaction forces and knee-extension moments during double-leg squats.",
+          "The finding gives a reason to pay attention to a shift, but a photograph is not a pair of force plates. It cannot tell you the percentage of load under each foot, and a more centred-looking pelvis does not guarantee equal demand at the knees. Those findings also come from a postoperative group, not every person who squats.",
         ],
+        evidence: ["squatLoadAsymmetry"],
+      },
+      {
+        heading: "Which accompanying patterns are worth exploring?",
+        paragraphs: [
+          "If one heel rises at the same stage of the descent, heel contact and ankle motion become useful companions to examine. If a knee moves inward relative to its foot, that knee path adds another observation. Neither should replace the description of where the pelvis travels or which side is higher.",
+          "These are the two related recipes selected below. They are there to clarify a feature actually seen in the movement, rather than imply that every hip shift begins at the foot or always includes an inward-moving knee.",
+        ],
+      },
+      {
+        heading: "Asymmetry is a finding, not a complete explanation",
+        paragraphs: [
+          "Small side-to-side differences are not exclusive to people with symptoms. A biplane-radiography study of 24 asymptomatic young adults documented differences in hip kinematics during walking and squatting. It did not establish an acceptable size for a visible pelvic shift.",
+          "For this recipe, the useful description is specific: which side is higher, which direction the pelvis moves, and whether that relationship changes between the descent and ascent. These details provide a better starting point than assigning a complete muscle-imbalance pattern from one image.",
+        ],
+        evidence: ["healthyHipAsymmetry"],
       },
     ],
     interpretation:
-      "A visible shift does not establish leg-length discrepancy, a named asymmetry syndrome, or a particular muscle imbalance. The links below are observation-based comparisons, not confirmed causal pathways.",
+      "The higher-side convention keeps this recipe's muscle labels consistent; it is not a research-validated diagnosis. The muscle cards describe the recipe's reference model, while the studies above support more limited observations about mobility, coordination and loading. A visible shift alone does not establish leg-length discrepancy or identify a muscle that requires treatment.",
     connections: [
       {
-        slug: "valgus-foot",
+        slug: "heel-rise",
         reason:
-          "Explore changing foot contact and arch motion as a possible companion to the shift, not an assumed root cause.",
+          "If a heel lifts as the pelvis drifts, compare the timing of heel contact and sideways movement. The higher pelvic side and the lifting heel need not be the same side.",
       },
       {
         slug: "valgus-knee-knee-collapsing-inward",
-        reason: "Distinguish inward knee movement from sideways travel of the pelvis.",
-      },
-      {
-        slug: "excessive-forward-trunk-leaning",
-        reason: "Follow a simultaneous chest drop separately from the left-to-right movement.",
+        reason: "If a knee moves inward during the shift, distinguish its path relative to the foot from the pelvis's sideways travel and height difference.",
       },
     ],
   },

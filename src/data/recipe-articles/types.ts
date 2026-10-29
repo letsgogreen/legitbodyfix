@@ -13,6 +13,21 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  lateralShiftThesis: {
+    title: "Peterson — Lateral hip shift, muscle activation and range of motion",
+    url: "https://uncexss.wordpress.com/2015/09/21/presence-of-a-lateral-hip-shift-during-squatting-is-associated-with-altered-mobility-and-neuromuscular-control/",
+    scope: "University department summary of a 2015 master's thesis involving 40 participants. Preliminary group associations, not a treatment trial or a validated muscle-by-muscle correction map.",
+  },
+  squatLoadAsymmetry: {
+    title: "Medial–lateral hip position and squat loading after ACL reconstruction",
+    url: "https://pubmed.ncbi.nlm.nih.gov/34628200/",
+    scope: "17 collegiate athletes after ACL reconstruction; hip position correlated with force and knee-moment asymmetry. Findings do not give a universal loading estimate for an uninjured person.",
+  },
+  healthyHipAsymmetry: {
+    title: "Johnson et al. — Bilateral hip kinematics in healthy adults during walking and squatting",
+    url: "https://pubmed.ncbi.nlm.nih.gov/36067648/",
+    scope: "Biplane-radiography study of 24 asymptomatic young adults. Side-to-side hip differences were present; this is not a severity threshold for visible pelvic shift.",
+  },
   pelvicLandmarks: {
     title: "Preece et al. — Pelvic morphology and measures of anterior tilt",
     url: "https://pubmed.ncbi.nlm.nih.gov/19119397/",

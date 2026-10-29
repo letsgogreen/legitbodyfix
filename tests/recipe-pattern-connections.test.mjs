@@ -57,12 +57,29 @@ test('all 14 additional articles have individually written, sourced sections', (
     assert.ok(evidence.length >= 1, `No evidence: ${slug}`);
     for (const id of evidence) {
       assert.ok(patternSources[id], `Unknown evidence ${id}: ${slug}`);
-      assert.match(patternSources[id].url, /^https:\/\/(?:pubmed|pmc)\.ncbi\.nlm\.nih\.gov\//);
+      const sourceUrl = new URL(patternSources[id].url);
+      assert.equal(sourceUrl.protocol, 'https:');
+      if (sourceUrl.hostname === 'uncexss.wordpress.com') {
+        assert.equal(id, 'lateralShiftThesis');
+        assert.match(patternSources[id].scope, /master's thesis/);
+        assert.match(patternSources[id].scope, /Preliminary/);
+      } else {
+        assert.match(sourceUrl.hostname, /^(?:pubmed|pmc)\.ncbi\.nlm\.nih\.gov$/);
+      }
       assert.ok(patternSources[id].scope.length > 35);
     }
     assert.ok(article.interpretation.length > 60, slug);
   }
   assert.equal(new Set(Object.values(recipePatternArticles).map(article => article.title)).size, 14);
+});
+
+test('hip shift draft defines higher-side labels separately from shift direction', () => {
+  const article = recipePatternArticles['asymmetric-weight-shift'];
+  assert.match(article.intro.join(' '), /'same side' means the side where the pelvis is higher/);
+  assert.match(article.intro.join(' '), /do not refer to the direction/);
+  assert.deepEqual(article.connections.map(item => item.slug), ['heel-rise', 'valgus-knee-knee-collapsing-inward']);
+  assert.ok(article.sections.some(section => section.evidence?.includes('squatLoadAsymmetry')));
+  assert.ok(article.sections.some(section => section.evidence?.includes('healthyHipAsymmetry')));
 });
 
 test('connection graph has no draft links, self-links or duplicates', () => {
