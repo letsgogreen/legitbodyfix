@@ -144,8 +144,7 @@ function RecipeDetail() {
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 pb-14 pt-10 lg:px-8 lg:pb-20 lg:pt-14">
             <Link
-              to="/"
-              hash="recipes"
+              to="/recipes"
               className="inline-flex min-h-11 items-center gap-2 text-sm font-bold"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All corrective movement strategies
