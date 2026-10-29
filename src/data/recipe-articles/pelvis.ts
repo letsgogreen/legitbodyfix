@@ -102,36 +102,29 @@ export const pelvisArticles: Record<string, PatternArticle> = {
   "asymmetric-weight-shift": {
     title: "Understanding asymmetric hip shift",
     intro: [
-      "We often work with people whose pelvis sits higher on one side or shifts sideways as they move. Some feel no discomfort and only notice the difference in a photograph taken from behind. Others come to us because everyday movement feels uncomfortable or awkward.",
-      "What first appears to be an uneven pelvis becomes more useful to understand when we look at the whole movement: how the hips turn, where the knees travel, and how each foot meets the ground.",
+      "You may first notice it in a photo taken from behind: one side of your pelvis sits higher than the other. Or you may notice it during a squat, when your hips drift to one side as you lower.",
+      "For some people, it is simply something they see. For others, it comes with an awkward squat, uneven weight transfer, or discomfort during everyday movement. To understand the pattern, follow more than the waistline: how the hips turn, where the knees travel, and how each foot meets the ground.",
     ],
     sections: [
       {
-        heading: "Repeated movements give us a starting point",
+        heading: "Different jobs, different movement histories",
         paragraphs: [
-          "Skateboarding is a useful example. The front and rear legs have different jobs, particularly in an ollie and the many tricks built around it. In the skateboarders we work with, we often notice differences in how each side moves. Their stance and repeated movement patterns are useful starting points for assessment.",
-          "That history gives the observation context. We look at the positions a person repeatedly uses, the side they prefer for support, and how the pelvis moves when the task changes.",
+          "Think about an ollie. The front foot guides the board while the rear leg delivers the pop. Across years of skating and the many tricks built around that movement, each side develops a different movement history.",
+          "In the skateboarders we work with, that history gives us something concrete to explore: how each hip turns, which leg feels more natural to stand on, and what happens to the pelvis as they squat.",
         ],
       },
       {
-        heading: "Be clear about which side is higher",
+        heading: "How the muscles around the pelvis contribute",
         paragraphs: [
-          "In this recipe, 'same side' means the side where the pelvis is higher; 'opposite side' means the other side. Movement direction is recorded separately. For example, the right side can sit higher while the pelvis travels toward the left foot.",
-          "We describe three features separately: height difference, sideways travel and rotation. Keeping these distinctions clear makes it easier to follow the muscle cards and recognise what changes during a squat or step.",
-        ],
-      },
-      {
-        heading: "The muscles we focus on",
-        paragraphs: [
-          "For this pattern, our assessment focuses on the tensor fasciae latae (TFL), adductors and quadratus lumborum (QL) on the elevated side, and the piriformis on the opposite side.",
-          "The QL connects the pelvis with the lower back and lowest rib. With the trunk held steady, it can help lift the same side of the pelvis; with the pelvis held steady, it can help bend the trunk sideways. This makes the relationship between pelvic height and trunk position worth watching together.",
+          "The muscle cards focus on the tensor fasciae latae (TFL), adductors and quadratus lumborum (QL) on the higher side of the pelvis, and the piriformis on the opposite side. Each contributes differently to the movement.",
+          "The QL helps explain why we look at the waist as well as the hips. It connects the pelvis to the lower back and lowest rib, and can help lift one side of the pelvis when the trunk stays steady. Watch whether the higher hip is accompanied by a sideways trunk bend, and how the two change as weight moves between the feet.",
           "The adductors draw the thigh toward the midline. The TFL has a different role: it contributes to hip movement and tensions the iliotibial band, helping support the hip and knee. Rather than treating them as one inward pull, we look at how the thigh moves relative to the pelvis and how that leg accepts weight.",
           "On the opposite side, the piriformis contributes to outward hip rotation and can assist abduction when the hip is flexed. Its role changes with hip position, so we compare how that hip turns and opens in standing and as the person lowers into a squat.",
-          "These are different lines of action around the same pelvis. The useful picture is how pelvic height, hip rotation and support through each leg fit together during movement.",
+          "Together, these references give you a way to read the movement: the height of the pelvis, the direction each thigh turns, and the support available through each leg.",
         ],
       },
       {
-        heading: "How the pattern can show up through the legs",
+        heading: "Follow the movement from hip to foot",
         paragraphs: [
           "On the elevated side, the thigh may move inward and rotate internally, with the knee following inward and the foot arch lowering. In some people, the opposite thigh sits farther outward and is more externally rotated. These differences can be subtle in standing and easier to recognise during movement.",
           "As the person lowers into a squat, we follow the sequence: does the pelvis begin to drift, does a knee move inward, or does one heel start to rise? The knee-valgus and heel-rise recipes below take a closer look at those accompanying movements.",
@@ -141,21 +134,27 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         heading: "How much movement is available on each side?",
         paragraphs: [
           "A squat asks both hips to bend while the ankles allow the shins to travel forward. If those movements are easier on one side, the pelvis may travel sideways as the person lowers. Comparing hip rotation, how comfortably each thigh opens, and ankle movement gives us a clearer picture of where the two sides differ.",
-          "In a preliminary study of 40 people performing an overhead squat, a lateral hip shift was associated with differences in hip and ankle range, with possible differences in gluteus medius activation. The researchers labelled the sides by the direction of the shift; the muscle cards here use the higher side of the pelvis. Keep that distinction in mind when reading the findings alongside this recipe.",
         ],
-        evidence: ["lateralShiftThesis"],
       },
       {
-        heading: "From a photograph to a movement assessment",
+        heading: "What a photograph leaves out",
         paragraphs: [
-          "A photograph helps us notice pelvic height and alignment. Watching the movement adds timing, coordination and the way the two legs share the task. In a study of 17 athletes after ACL reconstruction, sideways hip position was associated with differences in leg loading during squats.",
-          "Side-to-side hip differences have also been documented in 24 asymptomatic young adults. In practice, the question is which differences show up in the movement that feels difficult: where the pelvis goes, how the legs share the task, and when discomfort appears.",
+          "A photograph catches one position. A squat or step shows the sequence: when the pelvis drifts, how the knees respond, and whether both feet keep their support. A difference that barely shows in standing may become obvious as the task gets harder.",
+          "Return to the movement that feels difficult. Does the shift appear near the bottom of the squat, when you step onto one leg, or as you transfer weight? That moment makes the muscle references and related recipes more useful than a list of posture labels.",
         ],
-        evidence: ["squatLoadAsymmetry", "healthyHipAsymmetry"],
+      },
+      {
+        heading: "Research behind the movement connections",
+        paragraphs: [
+          "The research brings hip and ankle mobility, leg loading and natural side-to-side variation into the picture. These studies examine different groups and tasks, so each adds a different piece to the explanation.",
+          "A preliminary study of 40 people performing an overhead squat associated a lateral hip shift with differences in hip and ankle range, with possible differences in gluteus medius activation. Its side labels followed the direction of the shift, rather than pelvic height; the findings concern mobility and movement control, not the full muscle-card arrangement above.",
+          "In 17 athletes after ACL reconstruction, sideways hip position was associated with differences in leg loading during squats. A separate study of 24 asymptomatic young adults documented side-to-side hip differences during movement. Together, these findings help explain why movement and weight transfer deserve attention alongside appearance.",
+        ],
+        evidence: ["lateralShiftThesis", "squatLoadAsymmetry", "healthyHipAsymmetry"],
       },
     ],
     interpretation:
-      "Follow three things together: which side of the pelvis is higher, which way it travels, and what the thighs, knees and feet do at that moment. Then return to the movement that matters to you. An easier squat, a steadier step or more comfortable weight transfer tells you more about progress than a perfectly level photograph.",
+      "A photograph shows where your pelvis sits. Movement shows how you use it. Follow the hips, knees and feet together, then return to the task that feels difficult. The goal is to make that movement feel steadier, easier and more comfortable—not simply to make the photograph look more symmetrical.",
     connections: [
       {
         slug: "heel-rise",
