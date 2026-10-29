@@ -201,22 +201,10 @@ function RecipeDetail() {
         </section>
 
         <section className="border-b border-border">
-          <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:px-8 lg:py-20">
+          <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
             <div className="min-w-0">
               <RecipeBlockContent blocks={contentBlocks} muscleDictionary={recipe.muscleDictionary} />
             </div>
-
-            <aside className="space-y-8">
-              {(recipe.equipment ?? []).length > 0 ? (
-                <div className="rounded-sm border border-border bg-card p-6">
-                  <Label>Equipment</Label>
-                  <p className="mt-3 text-sm leading-relaxed">
-                    {(recipe.equipment as string[]).join(", ")}
-                  </p>
-                </div>
-              ) : null}
-
-            </aside>
           </div>
         </section>
       </main>

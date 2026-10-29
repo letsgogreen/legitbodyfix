@@ -69,7 +69,7 @@ export function RecipeBlockContent({
       className={
         compact
           ? "min-w-0 max-w-full space-y-5 overflow-hidden"
-          : "mx-auto min-w-0 max-w-3xl space-y-7 overflow-hidden"
+          : "mx-auto grid w-full min-w-0 max-w-6xl grid-cols-1 items-start gap-7 overflow-hidden md:grid-cols-2 [&>:not([data-muscle-card])]:col-span-full"
       }
     >
       {safeBlocks.map((block) => {
@@ -105,7 +105,7 @@ export function RecipeBlockContent({
           const thumbnailUrls = storedImages.length ? storedImages : dictionaryImages;
           const isMuscle = Boolean(block.muscleIds?.length || block.muscleRole || thumbnailUrls.length);
           return (
-            <details key={block.id} className="group rounded-sm border border-border bg-card">
+            <details key={block.id} data-muscle-card={isMuscle ? "true" : undefined} className="group min-w-0 rounded-sm border border-border bg-card">
               <summary className={`cursor-pointer list-none font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring ${isMuscle ? "flex items-center gap-3 overflow-hidden pr-4" : "px-5 py-4"}`}>
                 {isMuscle ? <MuscleCardImage urls={thumbnailUrls} className="h-28 w-28 shrink-0 border-r border-border sm:w-40" /> : null}
                 <span className="min-w-0 flex-1">
