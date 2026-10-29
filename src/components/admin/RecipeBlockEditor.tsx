@@ -595,7 +595,7 @@ export function RecipeBlockEditor({
               aria-label={`${block.type} block ${index + 1}`}
             >
               <div
-                className={`z-10 flex max-w-full flex-wrap items-center justify-end gap-1 rounded-sm border border-border bg-background/95 px-1 py-0.5 transition ${selected ? "relative opacity-100" : "absolute right-0 top-0 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"}`}
+                className={`relative z-10 flex max-w-full flex-wrap items-center justify-end gap-1 rounded-sm border border-border bg-background/95 px-1 py-0.5 transition-opacity ${selected ? "opacity-100" : "pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"}`}
               >
                 <span
                   draggable
