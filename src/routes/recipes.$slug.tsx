@@ -4,6 +4,8 @@ import { ArrowLeft, ImageIcon } from "lucide-react";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
+import { ForwardLeanContext } from "@/components/recipes/ForwardLeanContext";
+import { forwardLeanSlug } from "@/data/recipe-pattern-connections";
 import { getPublishedRecipe } from "@/lib/recipes.functions";
 import { regionNameFor } from "@/lib/notion/regions";
 import { blocksFromLegacyInstructions, normalizeRecipeBlocks } from "@/lib/recipe-blocks";
@@ -96,6 +98,7 @@ function RecipeDetail() {
           <div className="mx-auto max-w-7xl px-5 pb-14 pt-10 lg:px-8 lg:pb-20 lg:pt-14">
             <Link
               to="/recipes"
+              search={{ region: undefined }}
               className="inline-flex min-h-11 items-center gap-2 text-sm font-bold"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All corrective movement strategies
@@ -152,6 +155,8 @@ function RecipeDetail() {
             </div>
           </div>
         </section>
+
+        {recipe.slug === forwardLeanSlug ? <ForwardLeanContext relatedRecipes={recipe.relatedRecipes} /> : null}
 
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">

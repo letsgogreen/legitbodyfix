@@ -4,6 +4,7 @@ import { z } from "zod";
 import { normalizeRecipeBlocks } from "@/lib/recipe-blocks";
 import { RECIPE_MUSCLE_COLUMNS, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 import { recipeSectionMuscles } from "@/lib/recipe-muscle-sections";
+import { forwardLeanSlug, forwardLeanConnections, selectForwardLeanConnections } from "@/data/recipe-pattern-connections";
 
 function publicClient() {
   return createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
@@ -142,9 +143,20 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
       })];
     }
 
+    // Editorial links are resolved against published records only, never invented routes.
+    const relatedResult = input.slug === forwardLeanSlug
+      ? await supabase.from("recipes")
+        .select("slug,title,image_url,image_alt")
+        .eq("published", true)
+        .in("slug", forwardLeanConnections.map((connection) => connection.slug))
+        .abortSignal(AbortSignal.timeout(5000))
+      : { data: [], error: null };
+    if (relatedResult.error) console.error("related recipe read failed:", relatedResult.error.message);
+
     return {
       ...rest,
       slug,
+      relatedRecipes: selectForwardLeanConnections(relatedResult.data ?? []),
       muscleDictionary: (dictionaryResult.data ?? []) as unknown as RecipeMuscleEntry[],
       tight: muscles.filter((m) => m.role === "tight"),
       weak: muscles.filter((m) => m.role === "weak"),
