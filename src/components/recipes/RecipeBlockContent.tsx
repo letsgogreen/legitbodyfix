@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { ExternalLink, Info, Quote } from "lucide-react";
 import { recipeToggleImages } from "@/lib/recipe-toggle-images";
+import { RecipeMuscleDetails } from "@/components/recipes/RecipeMuscleDetails";
+import type { RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 import {
   isAllowedHttpUrl,
   normalizeRecipeBlocks,
@@ -53,9 +55,11 @@ function aspectClass(block: Extract<RecipeContentBlock, { type: "image" }>) {
 export function RecipeBlockContent({
   blocks,
   compact = false,
+  muscleDictionary = [],
 }: {
   blocks: unknown;
   compact?: boolean;
+  muscleDictionary?: RecipeMuscleEntry[];
 }) {
   const safeBlocks = normalizeRecipeBlocks(blocks);
   const toggleImages = recipeToggleImages(safeBlocks);
@@ -104,6 +108,7 @@ export function RecipeBlockContent({
                 </span>
               </summary>
               <div className="border-t border-border px-5 py-4 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
+                {block.muscleIds?.length ? <div className="mb-5"><RecipeMuscleDetails ids={block.muscleIds} entries={muscleDictionary} /></div> : null}
                 {toggleImages.byToggle.has(block.id) && (
                   <div className="mb-5 whitespace-normal">
                     <RecipeBlockContent compact blocks={toggleImages.byToggle.get(block.id)} />

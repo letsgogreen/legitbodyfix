@@ -23,6 +23,7 @@ import {
 } from "@/lib/recipe-blocks";
 import { parseRecipeBlocks } from "@/lib/recipe-blocks.schema";
 import { supabase } from "@/integrations/supabase/client";
+import { RECIPE_MUSCLE_COLUMNS, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 
 export const Route = createFileRoute("/admin/recipes/$recipeId")({
   head: () => ({
@@ -69,7 +70,7 @@ type LinkRow = {
   muscle_id: string;
   muscles: { name: string; published: boolean } | null;
 };
-type MuscleOption = { id: string; name: string; anatomical_group: string; published: boolean };
+type MuscleOption = RecipeMuscleEntry;
 type ProgramOption = { id: string; name: string; published: boolean };
 type ProgramLink = {
   program_id: string;
@@ -119,10 +120,12 @@ function publishBlockers(record: RecipeRow) {
 
 function DraftPreview({
   blocks,
+  muscleDictionary,
   width,
   onWidthChange,
 }: {
   blocks: RecipeContentBlock[];
+  muscleDictionary: RecipeMuscleEntry[];
   width: "desktop" | "mobile";
   onWidthChange: (width: "desktop" | "mobile") => void;
 }) {
@@ -158,7 +161,7 @@ function DraftPreview({
         <div
           className={`mx-auto bg-background p-4 transition-all ${width === "mobile" ? "max-w-[390px]" : "max-w-full"}`}
         >
-          <RecipeBlockContent blocks={blocks} compact />
+          <RecipeBlockContent blocks={blocks} muscleDictionary={muscleDictionary} compact />
         </div>
       </div>
     </>
@@ -270,14 +273,14 @@ function RecipeReview() {
         .select("guide_id, position, guides(slug, title, published)")
         .eq("recipe_id", recipeId)
         .order("position"),
-      supabase.from("muscles").select("id, name, anatomical_group, published").order("name"),
+      supabase.from("muscles").select(RECIPE_MUSCLE_COLUMNS).order("name"),
       supabase.from("programs").select("id, name, published").order("name"),
       supabase.from("guides").select("id, slug, title, published").order("title"),
     ]);
     setLinks((muscleLinksResult.data ?? []) as unknown as LinkRow[]);
     setProgramLinks((programLinksResult.data ?? []) as unknown as ProgramLink[]);
     setGuideLinks((guideLinksResult.data ?? []) as unknown as GuideLink[]);
-    setMuscles((musclesResult.data ?? []) as MuscleOption[]);
+    setMuscles((musclesResult.data ?? []) as unknown as MuscleOption[]);
     setPrograms((programsResult.data ?? []) as ProgramOption[]);
     setGuides((guidesResult.data ?? []) as GuideOption[]);
   }, [recipeId]);
@@ -667,6 +670,7 @@ function RecipeReview() {
               </summary>
               <div className="border-t border-border p-3">
                 <DraftPreview
+                  muscleDictionary={muscles}
                   blocks={previewBlocks}
                   width={previewWidth}
                   onWidthChange={setPreviewWidth}
@@ -674,6 +678,7 @@ function RecipeReview() {
               </div>
             </details>
             <RecipeBlockEditor
+              muscleDictionary={muscles}
               value={record.content_blocks}
               recipeId={record.id}
               issues={blockIssues}
@@ -765,6 +770,7 @@ function RecipeReview() {
 
           <Panel className="hidden p-4 xl:block">
             <DraftPreview
+              muscleDictionary={muscles}
               blocks={previewBlocks}
               width={previewWidth}
               onWidthChange={setPreviewWidth}

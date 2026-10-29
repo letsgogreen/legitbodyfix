@@ -1,7 +1,7 @@
 export type RecipeContentBlock =
   | { id: string; type: "heading"; level: 2 | 3; text: string }
   | { id: string; type: "paragraph"; text: string }
-  | { id: string; type: "toggle"; title: string; text: string }
+  | { id: string; type: "toggle"; title: string; text: string; muscleIds?: string[] }
   | {
       id: string;
       type: "image";
@@ -211,7 +211,7 @@ export function normalizeRecipeBlocks(value: unknown): RecipeContentBlock[] {
     if (block["type"] === "paragraph" && string("text"))
       return [block as unknown as RecipeContentBlock];
     if (block["type"] === "toggle" && string("title") && string("text"))
-      return [block as unknown as RecipeContentBlock];
+      return [{ ...block, muscleIds: Array.isArray(block["muscleIds"]) ? [...new Set(block["muscleIds"].filter((id): id is string => typeof id === "string" && Boolean(id.trim()))) ] : [] } as RecipeContentBlock];
     if (block["type"] === "image" && string("url") && string("alt") && string("caption"))
       return [
         {

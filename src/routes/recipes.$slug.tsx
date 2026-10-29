@@ -219,7 +219,7 @@ function RecipeDetail() {
         <section className="border-b border-border">
           <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:px-8 lg:py-20">
             <div className="min-w-0">
-              <RecipeBlockContent blocks={contentBlocks} />
+              <RecipeBlockContent blocks={contentBlocks} muscleDictionary={recipe.muscleDictionary} />
 
               {recipe.assessment_clues ? (
                 <div className="mt-10">

@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { normalizeRecipeBlocks } from "@/lib/recipe-blocks";
+import { RECIPE_MUSCLE_COLUMNS, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 
 function publicClient() {
   return createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
@@ -124,10 +126,17 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
     }
 
     const { slug, ...rest } = data;
+    const dictionaryIds = [...new Set(normalizeRecipeBlocks(data.content_blocks).flatMap((block) => block.type === "toggle" ? block.muscleIds ?? [] : []))];
+    // Public reads never expose draft dictionary content, including to logged-in admins.
+    const dictionaryResult = dictionaryIds.length
+      ? await supabase.from("muscles").select(RECIPE_MUSCLE_COLUMNS).eq("published", true).in("id", dictionaryIds)
+      : { data: [], error: null };
+    if (dictionaryResult.error) console.error("recipe dictionary read failed:", dictionaryResult.error.message);
 
     return {
       ...rest,
       slug,
+      muscleDictionary: (dictionaryResult.data ?? []) as unknown as RecipeMuscleEntry[],
       tight: muscles.filter((m) => m.role === "tight"),
       weak: muscles.filter((m) => m.role === "weak"),
     };

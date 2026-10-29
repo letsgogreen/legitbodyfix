@@ -27,6 +27,8 @@ import {
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
 import { recipeToggleImages } from "@/lib/recipe-toggle-images";
+import { RecipeMuscleDetails } from "@/components/recipes/RecipeMuscleDetails";
+import { muscleSearchText, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 import {
   blockId,
   type RecipeBlockIssue,
@@ -182,14 +184,17 @@ function ToggleBlockFields({
   onChange,
   images,
   imageEditors,
+  muscleDictionary,
 }: {
   block: Extract<RecipeContentBlock, { type: "toggle" }>;
-  onChange: (patch: { title?: string; text?: string }) => void;
+  onChange: (patch: { title?: string; text?: string; muscleIds?: string[] }) => void;
   images: RecipeContentBlock[] | undefined;
   imageEditors?: ReactNode;
+  muscleDictionary: RecipeMuscleEntry[];
 }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [muscleSearch, setMuscleSearch] = useState("");
   const panelId = `recipe-toggle-fields-${block.id}`;
 
   return (
@@ -223,6 +228,20 @@ function ToggleBlockFields({
             {editing ? (
               <>
                 {imageEditors}
+                <fieldset className="space-y-2 rounded-sm border border-border p-3">
+                  <legend className="px-1 text-sm font-semibold">Muscle dictionary</legend>
+                  <p className="text-xs text-muted-foreground">Link anatomy from the dictionary. Keep side and recipe-specific instructions below. Dictionary changes appear on the next page load.</p>
+                  <input aria-label="Search dictionary muscles" placeholder="Search dictionary muscles (e.g. TFL)" value={muscleSearch} onChange={(event) => setMuscleSearch(event.target.value)} className="min-h-10 w-full rounded-sm border border-border bg-transparent px-2 text-sm" />
+                  <div className="max-h-52 space-y-1 overflow-y-auto">
+                    {muscleDictionary.filter((entry) => (block.muscleIds ?? []).includes(entry.id) || (muscleSearch.trim() && muscleSearchText(entry).includes(muscleSearch.trim().toLowerCase()))).map((entry) => (
+                      <label key={entry.id} className="flex min-h-10 items-center gap-2 text-sm">
+                        <input type="checkbox" checked={(block.muscleIds ?? []).includes(entry.id)} onChange={(event) => onChange({ muscleIds: event.target.checked ? [...new Set([...(block.muscleIds ?? []), entry.id])] : (block.muscleIds ?? []).filter((id) => id !== entry.id) })} />
+                        {entry.name}{entry.published ? "" : " · Draft"}
+                      </label>
+                    ))}
+                  </div>
+                  {(block.muscleIds ?? []).filter((id) => !muscleDictionary.some((entry) => entry.id === id)).map((id) => <button key={id} type="button" onClick={() => onChange({muscleIds: (block.muscleIds ?? []).filter((candidate) => candidate !== id)})} className="block text-xs underline">Remove unavailable dictionary link</button>)}
+                </fieldset>
             <label className="block text-xs font-semibold text-muted-foreground">
               Toggle title
               <input
@@ -242,6 +261,7 @@ function ToggleBlockFields({
               </>
             ) : (
               <>
+                <RecipeMuscleDetails ids={block.muscleIds ?? []} entries={muscleDictionary} />
                 {images?.length ? <RecipeBlockContent compact blocks={images} /> : null}
                 {block.text.trim() ? (
               <RecipeBlockContent
@@ -289,11 +309,13 @@ export function RecipeBlockEditor({
   recipeId,
   issues = [],
   onChange,
+  muscleDictionary = [],
 }: {
   value: RecipeContentBlock[];
   recipeId: string;
   issues?: RecipeBlockIssue[];
   onChange: (blocks: RecipeContentBlock[]) => void;
+  muscleDictionary?: RecipeMuscleEntry[];
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [slashIndex, setSlashIndex] = useState<number | null>(null);
@@ -687,6 +709,7 @@ export function RecipeBlockEditor({
                 {block.type === "toggle" && (
                   <ToggleBlockFields
                     block={block}
+                    muscleDictionary={muscleDictionary}
                     onChange={(patch) => update(index, patch)}
                     images={toggleImages.byToggle.get(block.id)}
                     imageEditors={toggleImages.byToggle.get(block.id)?.map((image) => (
