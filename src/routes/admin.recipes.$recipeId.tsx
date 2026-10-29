@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
@@ -14,6 +15,9 @@ import { PageHead, Panel, Tag } from "@/components/admin/AdminUI";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RecipeBlockEditor } from "@/components/admin/RecipeBlockEditor";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
+import { ForwardLeanContext } from "@/components/recipes/ForwardLeanContext";
+import { forwardLeanSlug, selectForwardLeanConnections } from "@/data/recipe-pattern-connections";
+import { listPublishedRecipes } from "@/lib/recipes.functions";
 import { deriveRecipeGoal, detectKoreanText, isTagOnlyRecipeGoal } from "@/lib/recipe-import";
 import {
   blocksFromLegacyInstructions,
@@ -163,6 +167,12 @@ function DraftPreview({
 function RecipeReview() {
   const { recipeId } = Route.useParams();
   const [record, setRecord] = useState<RecipeRow | null>(null);
+  const relatedRecipesQuery = useQuery({
+    queryKey: ["admin-recipe-pattern-cards"],
+    queryFn: () => listPublishedRecipes(),
+    enabled: record?.slug === forwardLeanSlug,
+    staleTime: 60_000,
+  });
   const [links, setLinks] = useState<LinkRow[]>([]);
   const [programLinks, setProgramLinks] = useState<ProgramLink[]>([]);
   const [guideLinks, setGuideLinks] = useState<GuideLink[]>([]);
@@ -678,6 +688,17 @@ function RecipeReview() {
               issues={blockIssues}
               onChange={(blocks) => setField("content_blocks", blocks)}
             />
+            {record.slug === forwardLeanSlug ? (
+              <div className="mt-8 min-w-0 overflow-hidden border border-border">
+                <div className="border-b border-border bg-secondary/20 p-4">
+                  <h2 className="text-sm font-bold">Pattern explanation &amp; related recipes</h2>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Shared public-page preview. This section appears after the muscle cards and is currently managed in code, not in the article editor. Saving this draft does not change this shared explanation.</p>
+                  {relatedRecipesQuery.isPending ? <p role="status" className="mt-2 text-xs text-muted-foreground">Loading related recipe cards…</p> : null}
+                  {relatedRecipesQuery.isError ? <button type="button" onClick={() => void relatedRecipesQuery.refetch()} className="mt-2 min-h-11 text-xs font-bold underline">Related cards could not load. Retry</button> : null}
+                </div>
+                <ForwardLeanContext relatedRecipes={selectForwardLeanConnections(relatedRecipesQuery.data ?? [])} />
+              </div>
+            ) : null}
           </div>
 
           <details className="group rounded-sm border border-border bg-secondary/20">

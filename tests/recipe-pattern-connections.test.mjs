@@ -22,3 +22,13 @@ test('related records are publication-filtered and explanation is scoped to forw
   assert.match(component, /<summary/);
   assert.match(component, /not validated causal pathways/);
 });
+
+test('public muscles precede shared context and admin shows that same section', () => {
+  const route = readFileSync(new URL('../src/routes/recipes.$slug.tsx', import.meta.url), 'utf8');
+  const admin = readFileSync(new URL('../src/routes/admin.recipes.$recipeId.tsx', import.meta.url), 'utf8');
+  assert.ok(route.indexOf('<RecipeBlockContent') < route.indexOf('<ForwardLeanContext'));
+  assert.ok(admin.indexOf('<RecipeBlockEditor') < admin.indexOf('<ForwardLeanContext'));
+  assert.match(admin, /enabled: record\?\.slug === forwardLeanSlug/);
+  assert.match(admin, /selectForwardLeanConnections\(relatedRecipesQuery.data \?\? \[\]\)/);
+  assert.match(admin, /currently managed in code/);
+});

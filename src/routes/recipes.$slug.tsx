@@ -156,8 +156,6 @@ function RecipeDetail() {
           </div>
         </section>
 
-        {recipe.slug === forwardLeanSlug ? <ForwardLeanContext relatedRecipes={recipe.relatedRecipes} /> : null}
-
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
             <div className="min-w-0">
@@ -165,6 +163,7 @@ function RecipeDetail() {
             </div>
           </div>
         </section>
+        {recipe.slug === forwardLeanSlug ? <ForwardLeanContext relatedRecipes={recipe.relatedRecipes} /> : null}
       </main>
 
       <SiteFooter />
