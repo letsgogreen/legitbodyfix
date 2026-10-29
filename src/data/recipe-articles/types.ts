@@ -13,6 +13,26 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  pelvicStandingVariation: {
+    title: "Herrington — Pelvic tilt in an asymptomatic population",
+    url: "https://pubmed.ncbi.nlm.nih.gov/21658988/",
+    scope: "Landmark-based standing measurements in 120 healthy young adults. Anterior tilt was common; the study did not establish a pathological cutoff or assess movement control.",
+  },
+  abdominalPelvicAngle: {
+    title: "Walker et al. — Pelvic tilt, lumbar lordosis and abdominal performance",
+    url: "https://pubmed.ncbi.nlm.nih.gov/2951745/",
+    scope: "1987 study of 31 healthy adults using specific standing-angle and abdominal-performance measures. Weak correlations do not rule out all task-specific roles of the abdominal muscles.",
+  },
+  pelvicHamstringLength: {
+    title: "Mendiguchia et al. — Anterior pelvic tilt and hamstring tissue elongation",
+    url: "https://pubmed.ncbi.nlm.nih.gov/38391038/",
+    scope: "Seven fresh-frozen specimens with controlled pelvic movement and fixed leg positions. Tissue elongation was measured, not living muscle strength, symptoms or prospective injury risk.",
+  },
+  pelvicHipOrientation: {
+    title: "Effect of pelvic tilt on hip motion to bony impingement",
+    url: "https://pubmed.ncbi.nlm.nih.gov/25060073/",
+    scope: "CT-based computer modelling in a hip-impingement cohort. Describes changes in bony clearance, not a universal squat limit or a treatment result in healthy people.",
+  },
   lateralShiftThesis: {
     title: "Peterson — Lateral hip shift, muscle activation and range of motion",
     url: "https://uncexss.wordpress.com/2015/09/21/presence-of-a-lateral-hip-shift-during-squatting-is-associated-with-altered-mobility-and-neuromuscular-control/",

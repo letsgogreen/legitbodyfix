@@ -82,6 +82,18 @@ test('hip shift draft defines higher-side labels separately from shift direction
   assert.ok(article.sections.some(section => section.evidence?.includes('healthyHipAsymmetry')));
 });
 
+test('anterior tilt review separates resting anatomy, muscle properties and hip models', () => {
+  const article = recipePatternArticles['excessive-anterior-pelvic-tilt'];
+  const evidence = article.sections.flatMap(section => section.evidence ?? []);
+  for (const id of ['pelvicStandingVariation', 'abdominalPelvicAngle', 'pelvicHamstringLength', 'pelvicHipOrientation']) assert.ok(evidence.includes(id));
+  assert.ok(!evidence.includes('hipFlexorStretch'));
+  assert.doesNotMatch(JSON.stringify(article), /1\.2 degrees|23 men|hip-flexor stretching/);
+  assert.deepEqual(article.connections.map(item => item.slug), ['rib-flare', 'excessive-posterior-tilt']);
+  assert.match(patternSources.pelvicHamstringLength.scope, /specimens/);
+  assert.match(patternSources.pelvicHipOrientation.scope, /modelling/);
+  assert.match(article.interpretation, /not a diagnosis/);
+});
+
 test('connection graph has no draft links, self-links or duplicates', () => {
   for (const slug of publishedSlugs) {
     assert.ok(hasPatternArticle(slug));
