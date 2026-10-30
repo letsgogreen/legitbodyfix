@@ -20,9 +20,12 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         paragraphs: [
           "The hip flexors are an obvious place to look because they link the thigh with the pelvis or lower spine. They help bring the thigh toward the trunk. With the leg relatively fixed, their pull can also contribute to movement around the pelvis. Behind them, the back extensors help extend and support the spine. A forward-tipped pelvis and a deeper back arch can involve both regions.",
           "Now look at the other side of that relationship. The abdominal muscles help control the ribcage relative to the pelvis. The gluteals and hamstrings help extend the hip and can contribute to controlling pelvic rotation over supported legs. During a reach or step, these muscles share the job of allowing movement while controlling where it comes from.",
-          "The hamstrings add an important twist: feeling stretched is not the same as being short. As the pelvis tips forward over relatively fixed legs, their attachment at the pelvis moves and the tissue can lengthen. Keep length, tension and strength separate when reading the cards. Each answers a different question about the muscle.",
+          "In her discussion of lumbar extension syndrome, Shirley Sahrmann describes the relationship this way:",
+          "“The hip flexors are stiffer than the abdominal muscles that tilt the pelvis posteriorly.” — Shirley Sahrmann, Diagnosis and Treatment of Movement Impairment Syndromes, Chapter 3, ‘Flexibility and Stiffness Impairments’ under ‘Lumbar Extension Syndrome’.",
+          "The emphasis is on the relationship between the muscles. As the leg moves, resistance from the hip flexors and control from the abdominal muscles influence whether the pelvis tips forward with it.",
+          "The hamstrings add another part of the picture. As the pelvis tips forward over relatively fixed legs, their attachment at the pelvis moves and the tissue can lengthen. That lengthened position alone does not tell you how strong the muscle is.",
         ],
-        evidence: ["pelvicHamstringLength"],
+        evidence: ["sahrmannLumbarExtension", "pelvicHamstringLength"],
       },
       {
         heading: "The hip socket moves with the pelvis",

@@ -13,6 +13,11 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  sahrmannLumbarExtension: {
+    title: "Sahrmann — Diagnosis and Treatment of Movement Impairment Syndromes, Chapter 3",
+    url: "https://elsevier-elibrary.com/contents/fullcontent/58610/epubcontent_v2/OEBPS/xhtml/B9780801672057500061B.htm",
+    scope: "Textbook clinical framework: Lumbar Extension Syndrome, Flexibility and Stiffness Impairments. Quoted for the relationship between hip-flexor and abdominal stiffness in that syndrome, not a universal finding in every anteriorly tilted pelvis. Print page number not verified.",
+  },
   squatTiltOnset: {
     title: "Mata et al. — Hip flexion angles during supine range of motion and bodyweight squats",
     url: "https://pubmed.ncbi.nlm.nih.gov/34567352/",
