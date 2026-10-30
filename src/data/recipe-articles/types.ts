@@ -13,6 +13,11 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  jandaLayerFramework: {
+    title: "Phil Page — The Janda Approach: crossed and layer syndromes",
+    url: "https://www.smc-academy.nl/wp-content/uploads/2022/07/The-janda-approach.pdf",
+    scope: "Author-written overview of Janda's clinical framework, including layer/stratification syndrome as combined upper- and lower-crossed patterns. A conceptual clinical model, not evidence that anterior pelvic tilt causes rounded shoulders or forward head posture.",
+  },
   pelvicMotorStrategies: {
     title: "Ludwig et al. — Muscular strategies for correcting pelvic position",
     url: "https://pubmed.ncbi.nlm.nih.gov/38390925/",

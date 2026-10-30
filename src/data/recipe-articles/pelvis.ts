@@ -34,19 +34,14 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         evidence: ["iliopsoasShortnessControl", "activeLumbopelvicControl", "runningPelvicTilt"],
       },
       {
-        heading: "The hip socket moves with the pelvis",
+        heading: "Connecting the pelvis, shoulders and head",
         paragraphs: [
-          "The pelvis carries the hip sockets with it. As it rotates, it changes how each socket faces the thigh. This matters during a squat, when the thighs bend toward the trunk and the pelvis also contributes to the descent.",
-          "That is why the top and bottom of a squat can tell different stories. The pelvis may begin tipped forward, then rotate backward farther down. Follow that transition alongside the thighs: how does the pelvis change as the hips bend and the squat gets deeper?",
+          "The pelvis is one part of a larger postural pattern. A forward-tipped pelvis and a more arched lower back may appear alongside a rounded upper back, forward shoulders and a head carried farther in front of the trunk.",
+          "Janda's layer syndrome, also called stratification syndrome, brings upper- and lower-crossed patterns into one clinical framework. It describes alternating regions of muscle tightness and reduced performance across the body. Here, it gives us a way to consider the pelvic region alongside the shoulder girdle and neck, rather than treating each outline in isolation.",
+          "Follow those connections during a reach: how does the ribcage move over the pelvis, how do the shoulder blades move on the ribs, and where does the head sit as the arms rise? The rounded-shoulder and forward-head recipes explore the upper part of that picture. The framework connects observations; it does not mean that pelvic tilt caused the shoulder or neck position.",
+          "If the front ribs also lift as the lower back arches, the rib-flare recipe adds the connection through the trunk. Each region still has its own movement and muscle relationships to examine.",
         ],
-        evidence: ["pelvicHipOrientation"],
-      },
-      {
-        heading: "Where rib flare and a pelvic tuck fit in",
-        paragraphs: [
-          "If the front ribs lift as the lower back arches during a reach, the rib-flare recipe takes a closer look at the upper part of that movement. Read the two patterns together when the ribcage and pelvis both change position during the same task.",
-          "If the pelvis rolls backward near the bottom of a squat, the posterior-pelvic-tilt recipe follows the next part of the sequence. A forward-tipped starting position and a later tuck can belong to the same repetition. The related cards help you follow those changes instead of choosing one label for the whole movement.",
-        ],
+        evidence: ["jandaLayerFramework"],
       },
       {
         heading: "Research behind the movement connections",
@@ -55,9 +50,8 @@ export const pelvisArticles: Record<string, PatternArticle> = {
           "Standing posture, muscle performance and movement strategy have been studied separately. Hip-extension range was not meaningfully correlated with standing pelvic tilt in 25 healthy adults. A study of 31 adults also found weak relationships between its abdominal-performance measure and standing pelvic tilt. An exploratory study of 41 people identified four muscle-activation patterns during voluntary backward pelvic tilting, showing that the same movement direction can be achieved through different muscle combinations.",
           "The task-specific studies add detail. Among 25 people with iliopsoas shortness, stretching followed by abdominal drawing-in reduced pelvic compensation and increased gluteus maximus activity during prone hip extension. In 13 healthy adults, a learned control strategy also changed extension-exercise recruitment. These were specific exercise conditions, rather than demonstrations of one lasting correction for every anteriorly tilted posture.",
           "In 14 elite athletes, pelvic tilt and hip extension were coordinated during running, but static hip-extension flexibility did not significantly correlate with either running measure. A separate test-validation study in 29 participants showed why pelvic position needs attention even on the examination table: allowing it to move distorted the measurement of hip extension.",
-          "Computer modelling of hips with femoroacetabular impingement also found that anterior tilt reduced available internal rotation in flexed positions before bony contact. This supports considering pelvic orientation alongside hip motion; the study concerns bony clearance in that hip population, rather than a universal limit for every squat.",
         ],
-        evidence: ["pelvicStandingVariation", "pelvicLandmarks", "abdominalPelvicAngle", "pelvicHamstringLength", "pelvicHipOrientation", "hipExtensionPosture", "pelvicMotorStrategies", "iliopsoasShortnessControl", "activeLumbopelvicControl", "runningPelvicTilt", "thomasPelvicControl"],
+        evidence: ["pelvicStandingVariation", "pelvicLandmarks", "abdominalPelvicAngle", "pelvicHamstringLength", "hipExtensionPosture", "pelvicMotorStrategies", "iliopsoasShortnessControl", "activeLumbopelvicControl", "runningPelvicTilt", "thomasPelvicControl"],
       },
     ],
     interpretation:
@@ -69,9 +63,14 @@ export const pelvisArticles: Record<string, PatternArticle> = {
           "If the front ribs lift during the same reach or trunk extension, distinguish that movement from the pelvis rotating forward.",
       },
       {
-        slug: "excessive-posterior-tilt",
+        slug: "round-shoulder",
         reason:
-          "Follow how a forward-tipped starting position changes into backward pelvic rotation farther down in a squat.",
+          "Explore shoulder-blade and upper-trunk position alongside the pelvic pattern within the layer-syndrome framework.",
+      },
+      {
+        slug: "forward-head-posture",
+        reason:
+          "Follow how head and neck position relates to the upper trunk when upper- and lower-crossed patterns appear together.",
       },
     ],
   },
