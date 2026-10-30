@@ -12,16 +12,16 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         heading: "How the muscles influence pelvic tilt",
         paragraphs: [
           "The hip flexors and back extensors can contribute to a forward-tipped, more arched position. The abdominal and hip-extensor muscles help control the relationship between the trunk, pelvis and legs. The balance of that work differs between people.",
-          "This approach focuses on the TFL at the front-outside of the hip, the lateral thigh around the IT band, and the QL in the lower back. The muscle cards show their anatomy and actions; the technique work connects those references to the areas you work with.",
+          "Three areas are central to this approach: the tensor fasciae latae (TFL) at the front-outside of the hip, the lateral thigh around the iliotibial (IT) band, and the quadratus lumborum (QL) in the lower back. Together, they span the hip and waist, where the pelvis meets the legs and trunk.",
         ],
         evidence: ["pelvicMotorStrategies"],
       },
       {
         heading: "Connect soft-tissue work with abdominal control",
         paragraphs: [
-          "The technique notes bring together TFL inhibition, IT band foam rolling and QL inhibition, paired with abdominal work. The purpose is to connect attention to the hip and waist with active control of the pelvis and trunk.",
-          "The practical skill is in the details: finding the target, supporting your body, adjusting pressure and controlling movement as the arms or legs move. Those are the details that a guided demonstration can make easier to follow.",
-          "These techniques are options, not a fixed prescription for every forward-tipped pelvis. IT band rolling is presented as work around the lateral thigh—not a promise to lengthen the band or correct pelvic alignment.",
+          "This approach combines TFL inhibition, IT band foam rolling and QL inhibition with abdominal control exercises. Soft-tissue work focuses on the hip and waist; active exercises develop control of the pelvis and trunk as the arms or legs move.",
+          "Applying pressure is only one part of the technique. Finding the right area, supporting your weight and adjusting the intensity to your response all matter. The same attention carries into exercise: how you position your body and control each repetition is part of the work.",
+          "The choice of technique depends on the person and the movement. For lateral-thigh rolling, use manageable pressure rather than trying to force the IT band to lengthen. A change in how an area feels is different from a change in pelvic alignment.",
         ],
         evidence: ["activeLumbopelvicControl", "itBandRollingStiffness"],
       },
@@ -29,7 +29,7 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         heading: "Connecting the pelvis, shoulders and head",
         paragraphs: [
           "A forward-tipped pelvis may appear alongside a rounded upper back, forward shoulders and a head carried in front of the trunk. Janda’s layer syndrome brings upper- and lower-crossed patterns into one clinical framework for considering these regions together.",
-          "The related recipes explore that wider picture: the ribcage over the pelvis, the shoulder blades on the ribs, and the head above the trunk. They are connections to examine, not a claim that pelvic tilt caused the shoulder or neck position.",
+          "The ribcage sits above the pelvis, the shoulder blades move on the ribs, and the neck supports the head above the trunk. Looking at these regions together helps connect rib flare, rounded shoulders and forward head posture with the wider pattern. They can occur together without one being the cause of the others.",
         ],
         evidence: ["jandaLayerFramework"],
       },
