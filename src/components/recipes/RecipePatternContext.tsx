@@ -45,6 +45,32 @@ export function RecipePatternContext({
                     {paragraph}
                   </p>
                 ))}
+                {section.table ? (
+                  <div className="mt-6 overflow-x-auto rounded-sm border border-border" role="region" aria-label={section.table.caption} tabIndex={0}>
+                    <table className="w-full min-w-[620px] border-collapse text-left text-base leading-7">
+                      <caption className="border-b border-border px-5 py-4 text-left font-medium text-foreground/80">
+                        {section.table.caption}
+                      </caption>
+                      <thead className="bg-muted/50">
+                        <tr>
+                          {section.table.columns.map((column) => (
+                            <th key={column} scope="col" className="border-b border-border px-5 py-4 font-bold">{column}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {section.table.rows.map((row) => (
+                          <tr key={row[0]} className="border-b border-border last:border-b-0">
+                            <th scope="row" className="px-5 py-4 align-top font-semibold">{row[0]}</th>
+                            {row.slice(1).map((cell, index) => (
+                              <td key={index} className="px-5 py-4 align-top">{cell}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null}
                 {section.evidence?.length ? (
                   <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-base leading-7">
                     {section.evidence.map((id) => {

@@ -12,18 +12,26 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         heading: "How the muscles influence pelvic tilt",
         paragraphs: [
           "The hip flexors and back extensors can contribute to a forward-tipped, more arched position. The abdominal and hip-extensor muscles help control the relationship between the trunk, pelvis and legs. The balance of that work differs between people.",
-          "Three areas are central to this approach: the tensor fasciae latae (TFL) at the front-outside of the hip, the lateral thigh around the iliotibial (IT) band, and the quadratus lumborum (QL) in the lower back. Together, they span the hip and waist, where the pelvis meets the legs and trunk.",
+          "That is why addressing the pattern involves more than applying pressure to a tight area. Where movement is limited, mobility work may be useful; the next step is learning to control the pelvis and trunk while the arms and legs move, then using that control in a combined task.",
         ],
         evidence: ["pelvicMotorStrategies"],
       },
       {
-        heading: "Connect soft-tissue work with abdominal control",
+        heading: "How to approach the pattern",
         paragraphs: [
-          "This approach combines TFL inhibition, IT band foam rolling and QL inhibition with abdominal control exercises. Soft-tissue work focuses on the hip and waist; active exercises develop control of the pelvis and trunk as the arms or legs move.",
-          "Applying pressure is only one part of the technique. Finding the right area, supporting your weight and adjusting the intensity to your response all matter. The same attention carries into exercise: how you position your body and control each repetition is part of the work.",
-          "The choice of technique depends on the person and the movement. For lateral-thigh rolling, use manageable pressure rather than trying to force the IT band to lengthen. A change in how an area feels is different from a change in pelvic alignment.",
+          "A four-stage approach connects preparation with practice: inhibit, lengthen, activate and integrate. The sequence gives each part a purpose, from targeted soft-tissue work to coordinated movement. Select the areas and exercises for your needs rather than automatically working through every example.",
         ],
-        evidence: ["activeLumbopelvicControl", "itBandRollingStiffness"],
+        table: {
+          caption: "A sample progression from targeted preparation to whole-body movement",
+          columns: ["Stage", "What you practice", "Key focus", "Examples"],
+          rows: [
+            ["1. Inhibit", "Apply targeted self-myofascial techniques to selected areas.", "Find the intended area, support your weight and use manageable pressure.", "Rectus femoris; tensor fasciae latae (TFL); latissimus dorsi."],
+            ["2. Lengthen", "Use stretching where additional range is needed.", "Keep movement at the intended area rather than creating extra range through unwanted back arching or pelvic movement.", "Hip-flexor complex; latissimus dorsi; spinal extensors."],
+            ["3. Activate", "Practice focused abdominal and gluteal control.", "Begin with a manageable range and steady breathing before increasing the challenge.", "Abdominal/core stabilizers; gluteus maximus."],
+            ["4. Integrate", "Combine the legs, trunk and arms in one task.", "Carry the control into a suitable movement, then compare comfort and coordination with the starting task.", "Squat-to-row, using an appropriate variation and load."],
+          ],
+        },
+        evidence: ["anteriorTiltProgramExcerpt", "activeLumbopelvicControl"],
       },
       {
         heading: "Connecting the pelvis, shoulders and head",

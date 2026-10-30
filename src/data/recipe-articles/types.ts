@@ -2,6 +2,11 @@ export type PatternSection = {
   heading: string;
   paragraphs: string[];
   evidence?: string[];
+  table?: {
+    caption: string;
+    columns: string[];
+    rows: string[][];
+  };
 };
 
 export type PatternArticle = {
@@ -13,6 +18,11 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  anteriorTiltProgramExcerpt: {
+    title: "Uploaded textbook excerpt — Table 13-5: Sample corrective exercise program for excessive anterior pelvic tilt",
+    url: "https://app.notion.com/p/1fdeffb29211809d87b2d7a9bc92498b",
+    scope: "User-supplied photograph of Chapter 13, Table 13-5. Source of the inhibit–lengthen–activate–integrate sample framework and exercise examples, not a clinical outcome trial. Book edition and printed page number are not visible in the photograph; original photograph is not republished here.",
+  },
   itBandRollingStiffness: {
     title: "Pepper et al. — Immediate effects of foam rolling and stretching on IT band stiffness",
     url: "https://pubmed.ncbi.nlm.nih.gov/34123517/",
