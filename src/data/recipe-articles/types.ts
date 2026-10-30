@@ -13,6 +13,16 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  squatTiltOnset: {
+    title: "Mata et al. — Hip flexion angles during supine range of motion and bodyweight squats",
+    url: "https://pubmed.ncbi.nlm.nih.gov/34567352/",
+    scope: "28 participants; hip flexion at posterior-tilt onset compared across standard and heel-raised bodyweight squats and passive hip flexion. Task kinematics, not a loaded-squat injury threshold.",
+  },
+  hamstringPelvicRotation: {
+    title: "Congdon et al. — Hamstring length and posterior pelvic rotation during hip flexion",
+    url: "https://pubmed.ncbi.nlm.nih.gov/15975697/",
+    scope: "Bilateral active hip flexion with the knees held at three angles. Examines hamstring-length and knee-position influences on pelvic rotation, not a diagnosis of the cause of a deep-squat tuck.",
+  },
   pelvicStandingVariation: {
     title: "Herrington — Pelvic tilt in an asymptomatic population",
     url: "https://pubmed.ncbi.nlm.nih.gov/21658988/",
