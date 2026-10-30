@@ -137,13 +137,6 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         ],
       },
       {
-        heading: "What a photograph leaves out",
-        paragraphs: [
-          "A photograph catches one position. A squat or step shows the sequence: when the pelvis drifts, how the knees respond, and whether both feet keep their support. A difference that barely shows in standing may become obvious as the task gets harder.",
-          "Return to the movement that feels difficult. Does the shift appear near the bottom of the squat, when you step onto one leg, or as you transfer weight? That moment makes the muscle references and related recipes more useful than a list of posture labels.",
-        ],
-      },
-      {
         heading: "Research behind the movement connections",
         paragraphs: [
           "The research brings hip and ankle mobility, leg loading and natural side-to-side variation into the picture. These studies examine different groups and tasks, so each adds a different piece to the explanation.",
