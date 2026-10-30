@@ -2,46 +2,55 @@ import type { PatternArticle } from "./types.ts";
 
 export const pelvisArticles: Record<string, PatternArticle> = {
   "excessive-anterior-pelvic-tilt": {
-    title: "Anterior pelvic tilt: what is actually changing?",
+    title: "Understanding anterior pelvic tilt",
     intro: [
-      "From the side, the pelvis may appear tipped forward while the lower back looks more arched. That outline can appear in relaxed standing, or become more noticeable during a reach or a leg movement. The useful starting point is to distinguish the position you see from the movement that produces it.",
-      "Anterior pelvic tilt means the pelvis rotating forward relative to its reference position. It is not another name for lumbar extension, and it is not automatically a measurement of short hip flexors or weak abdominals.",
+      "You may notice it in a side-on photo: the pelvis tips forward and the lower back looks more arched. Or it may become clearer when you lift your arms, move a leg behind you, or settle into your usual standing position.",
+      "Should you start by stretching the hip flexors? Before choosing a muscle to work on, follow what moves with the pelvis: the lower back, the ribcage and the thighs. You will get a clearer picture of how the forward tilt happens—and where the muscle cards fit.",
     ],
     sections: [
       {
-        heading: "A resting angle is not the same as a movement problem",
+        heading: "Look beyond the arch in your lower back",
         paragraphs: [
-          "Some anterior tilt is common in people without symptoms. In a study of 120 healthy young adults, most participants had anterior tilt when assessed using pelvic landmarks. That does not make every degree of tilt unimportant; it means that the presence of tilt alone is not a useful definition of 'excessive'.",
-          "The bones also affect the measurement. Research on pelvic specimens found substantial variation in landmark angles even when the specimens were held in the same reference orientation. Comparing two people's outlines therefore mixes posture with anatomy. A change within the same person's movement answers a different question from a comparison of resting photographs.",
+          "Anterior pelvic tilt means the pelvis rotating forward. The lower-back curve may deepen with it, which makes the two easy to read as one event. Follow the waistband as well as the back: one shows the pelvis turning, while the other shows the spine changing shape.",
+          "Picture an overhead reach. As the arms rise, the chest may lift, the lower back may arch and the pelvis may tip forward. The final position looks like a posture; watching the reach reveals how you arrived there.",
         ],
-        evidence: ["pelvicStandingVariation", "pelvicLandmarks"],
       },
       {
-        heading: "Muscle length, tension and strength are different questions",
+        heading: "Why the hip flexors are only part of the story",
         paragraphs: [
-          "The muscle cards help explain which tissues may participate in the pattern, but their tight/weak categories are not test results for the reader. A study of 31 healthy adults found weak relationships between its abdominal-performance measure, standing pelvic tilt and lumbar lordosis. It does not support reading abdominal strength directly from a pelvic angle.",
-          "Hamstrings illustrate a different distinction. In a cadaver experiment with the legs fixed, increasing anterior pelvic tilt lengthened hamstring tissue. That demonstrates a mechanical length change, not weakness. A muscle's position in the movement, its passive tension and its ability to produce force need to be considered separately.",
+          "The hip flexors are an obvious place to look because they link the thigh with the pelvis or lower spine. They help bring the thigh toward the trunk. With the leg relatively fixed, their pull can also contribute to movement around the pelvis. Behind them, the back extensors help extend and support the spine. A forward-tipped pelvis and a deeper back arch can involve both regions.",
+          "Now look at the other side of that relationship. The abdominal muscles help control the ribcage relative to the pelvis. The gluteals and hamstrings help extend the hip and can contribute to controlling pelvic rotation over supported legs. During a reach or step, these muscles share the job of allowing movement while controlling where it comes from.",
+          "The hamstrings add an important twist: feeling stretched is not the same as being short. As the pelvis tips forward over relatively fixed legs, their attachment at the pelvis moves and the tissue can lengthen. Keep length, tension and strength separate when reading the cards. Each answers a different question about the muscle.",
         ],
-        evidence: ["abdominalPelvicAngle", "pelvicHamstringLength"],
+        evidence: ["pelvicHamstringLength"],
       },
       {
-        heading: "Pelvic orientation also changes the hip's starting conditions",
+        heading: "The hip socket moves with the pelvis",
         paragraphs: [
-          "The hip socket moves with the pelvis. Its orientation therefore affects the relationship between the socket and the thigh as the hip flexes or rotates. In computer models of hips with femoroacetabular impingement, increasing anterior tilt reduced available internal rotation in flexed positions before bony contact.",
-          "This provides a reason to consider pelvic orientation alongside hip motion. It does not show that every anteriorly tilted pelvis has impingement, that a photograph identifies the available range, or that everyone should tuck the pelvis to squat.",
+          "The pelvis carries the hip sockets with it. As it rotates, it changes how each socket faces the thigh. This matters during a squat, when the thighs bend toward the trunk and the pelvis also contributes to the descent.",
+          "That is why the top and bottom of a squat can tell different stories. The pelvis may begin tipped forward, then rotate backward farther down. Follow that transition alongside the thighs: how does the pelvis change as the hips bend and the squat gets deeper?",
         ],
         evidence: ["pelvicHipOrientation"],
       },
       {
-        heading: "Where the related patterns fit",
+        heading: "Where rib flare and a pelvic tuck fit in",
         paragraphs: [
-          "Rib flare is relevant when the front ribs lift as the trunk extends during the same task. It helps separate a chest-wall or trunk change from pelvic rotation, rather than assume one caused the other.",
-          "Posterior pelvic tilt provides a comparison in the other direction. A person can begin a squat in anterior tilt and rotate backward later in the descent. Describing that sequence is more useful than trying to keep the pelvis at one fixed angle throughout the movement.",
+          "If the front ribs lift as the lower back arches during a reach, the rib-flare recipe takes a closer look at the upper part of that movement. Read the two patterns together when the ribcage and pelvis both change position during the same task.",
+          "If the pelvis rolls backward near the bottom of a squat, the posterior-pelvic-tilt recipe follows the next part of the sequence. A forward-tipped starting position and a later tuck can belong to the same repetition. The related cards help you follow those changes instead of choosing one label for the whole movement.",
         ],
+      },
+      {
+        heading: "Research behind the movement connections",
+        paragraphs: [
+          "Anterior tilt was common in a study of 120 healthy young adults. Separate measurements of pelvic specimens showed that bone shape influences the angle between pelvic landmarks. Together, these findings explain why two people's standing outlines are a poor basis for choosing one ideal pelvic angle.",
+          "In 31 healthy adults, the abdominal-performance measure had weak relationships with standing pelvic tilt and lumbar lordosis. A separate experiment in seven specimens found that increasing anterior tilt lengthened hamstring tissue with the legs fixed. These studies distinguish muscle performance from the position and length of the tissues.",
+          "Computer modelling of hips with femoroacetabular impingement also found that anterior tilt reduced available internal rotation in flexed positions before bony contact. This supports considering pelvic orientation alongside hip motion; the study concerns bony clearance in that hip population, rather than a universal limit for every squat.",
+        ],
+        evidence: ["pelvicStandingVariation", "pelvicLandmarks", "abdominalPelvicAngle", "pelvicHamstringLength", "pelvicHipOrientation"],
       },
     ],
     interpretation:
-      "Here, 'excessive' is a description that needs task-specific context, not a diagnosis made from a universal angle. The muscle cards and related recipes are reference models to explore; pelvic appearance alone cannot establish a specific muscle deficit, the cause of pain or a need to correct a resting posture.",
+      "Before choosing what to stretch or strengthen, connect the pelvis to the task. During a reach, follow the ribs and lower back. During a squat, follow the thighs and the changing pelvic angle. 'Excessive' is not a diagnosis defined by one standing angle: the aim is to understand how the parts work together, not to spend the day holding your pelvis in place.",
     connections: [
       {
         slug: "rib-flare",
@@ -51,7 +60,7 @@ export const pelvisArticles: Record<string, PatternArticle> = {
       {
         slug: "excessive-posterior-tilt",
         reason:
-          "Compare a forward-tipped starting position with backward pelvic rotation later in a squat. This is a movement comparison, not a prescription to tuck the pelvis.",
+          "Follow how a forward-tipped starting position changes into backward pelvic rotation farther down in a squat.",
       },
     ],
   },
