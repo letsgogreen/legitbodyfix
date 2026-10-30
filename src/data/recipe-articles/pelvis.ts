@@ -18,14 +18,20 @@ export const pelvisArticles: Record<string, PatternArticle> = {
       {
         heading: "How the muscles influence pelvic tilt",
         paragraphs: [
-          "The hip flexors are an obvious place to look because they link the thigh with the pelvis or lower spine. They help bring the thigh toward the trunk. With the leg relatively fixed, their pull can also contribute to movement around the pelvis. Behind them, the back extensors help extend and support the spine. A forward-tipped pelvis and a deeper back arch can involve both regions.",
-          "Now look at the other side of that relationship. The abdominal muscles help control the ribcage relative to the pelvis. The gluteals and hamstrings help extend the hip and can contribute to controlling pelvic rotation over supported legs. During a reach or step, these muscles share the job of allowing movement while controlling where it comes from.",
-          "In her discussion of lumbar extension syndrome, Shirley Sahrmann describes the relationship this way:",
-          "“The hip flexors are stiffer than the abdominal muscles that tilt the pelvis posteriorly.” — Shirley Sahrmann, Diagnosis and Treatment of Movement Impairment Syndromes, Chapter 3, ‘Flexibility and Stiffness Impairments’ under ‘Lumbar Extension Syndrome’.",
-          "The emphasis is on the relationship between the muscles. As the leg moves, resistance from the hip flexors and control from the abdominal muscles influence whether the pelvis tips forward with it.",
-          "The hamstrings add another part of the picture. As the pelvis tips forward over relatively fixed legs, their attachment at the pelvis moves and the tissue can lengthen. That lengthened position alone does not tell you how strong the muscle is.",
+          "The hip flexors link the thigh with the pelvis or lower spine. They bring the thigh toward the trunk and, when the leg is relatively fixed, can contribute to forward pelvic rotation. The back extensors help extend and support the spine. From the other side, the abdominal muscles help control the ribcage relative to the pelvis, while the gluteals and hamstrings help extend the hip and control the pelvis over supported legs.",
+          "Those actions describe what the muscles can do. How they share the work differs between people. Someone may have limited hip extension; someone else may have more available movement but move the pelvis and lower back early as the leg travels behind them. Both can show a forward tilt, while the contribution from mobility and coordination differs.",
+          "The hamstrings illustrate why position matters. As the pelvis tips forward over relatively fixed legs, the tissue can lengthen. A lengthened position is different from a measurement of strength, just as a forward-tipped pelvis is different from a test of hip-flexor length.",
         ],
-        evidence: ["sahrmannLumbarExtension", "pelvicHamstringLength"],
+        evidence: ["pelvicHamstringLength", "pelvicMotorStrategies", "hipExtensionPosture"],
+      },
+      {
+        heading: "Available movement and movement strategy",
+        paragraphs: [
+          "Consider a leg moving behind the body. How much movement takes place at the hip, and how much comes from the pelvis tipping and the back arching? Keeping track of both separates the range available at the joint from the way the whole movement is performed.",
+          "In a study of people with measured iliopsoas shortness, combining stretching with abdominal control changed pelvic movement and muscle activity during a prone leg lift. In another study of healthy adults, instruction in lumbopelvic control changed muscle recruitment during extension exercises. These are two useful examples: available range and the way it is used can both matter.",
+          "The relationship also changes with the task. A hip-flexibility test on a treatment table and hip extension during running are different situations. Research in elite runners found that their static test results did not reflect pelvic tilt during running. Follow the pattern in the activity where it appears.",
+        ],
+        evidence: ["iliopsoasShortnessControl", "activeLumbopelvicControl", "runningPelvicTilt"],
       },
       {
         heading: "The hip socket moves with the pelvis",
@@ -46,14 +52,16 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         heading: "Research behind the movement connections",
         paragraphs: [
           "Anterior tilt was common in a study of 120 healthy young adults. Separate measurements of pelvic specimens showed that bone shape influences the angle between pelvic landmarks. Together, these findings explain why two people's standing outlines are a poor basis for choosing one ideal pelvic angle.",
-          "In 31 healthy adults, the abdominal-performance measure had weak relationships with standing pelvic tilt and lumbar lordosis. A separate experiment in seven specimens found that increasing anterior tilt lengthened hamstring tissue with the legs fixed. These studies distinguish muscle performance from the position and length of the tissues.",
+          "Standing posture, muscle performance and movement strategy have been studied separately. Hip-extension range was not meaningfully correlated with standing pelvic tilt in 25 healthy adults. A study of 31 adults also found weak relationships between its abdominal-performance measure and standing pelvic tilt. An exploratory study of 41 people identified four muscle-activation patterns during voluntary backward pelvic tilting, showing that the same movement direction can be achieved through different muscle combinations.",
+          "The task-specific studies add detail. Among 25 people with iliopsoas shortness, stretching followed by abdominal drawing-in reduced pelvic compensation and increased gluteus maximus activity during prone hip extension. In 13 healthy adults, a learned control strategy also changed extension-exercise recruitment. These were specific exercise conditions, rather than demonstrations of one lasting correction for every anteriorly tilted posture.",
+          "In 14 elite athletes, pelvic tilt and hip extension were coordinated during running, but static hip-extension flexibility did not significantly correlate with either running measure. A separate test-validation study in 29 participants showed why pelvic position needs attention even on the examination table: allowing it to move distorted the measurement of hip extension.",
           "Computer modelling of hips with femoroacetabular impingement also found that anterior tilt reduced available internal rotation in flexed positions before bony contact. This supports considering pelvic orientation alongside hip motion; the study concerns bony clearance in that hip population, rather than a universal limit for every squat.",
         ],
-        evidence: ["pelvicStandingVariation", "pelvicLandmarks", "abdominalPelvicAngle", "pelvicHamstringLength", "pelvicHipOrientation"],
+        evidence: ["pelvicStandingVariation", "pelvicLandmarks", "abdominalPelvicAngle", "pelvicHamstringLength", "pelvicHipOrientation", "hipExtensionPosture", "pelvicMotorStrategies", "iliopsoasShortnessControl", "activeLumbopelvicControl", "runningPelvicTilt", "thomasPelvicControl"],
       },
     ],
     interpretation:
-      "Before choosing what to stretch or strengthen, connect the pelvis to the task. During a reach, follow the ribs and lower back. During a squat, follow the thighs and the changing pelvic angle. 'Excessive' is not a diagnosis defined by one standing angle: the aim is to understand how the parts work together, not to spend the day holding your pelvis in place.",
+      "The same forward tilt can reflect different combinations of available motion and muscle coordination. Connect the muscle references to the task: the ribs and lower back during a reach, the hip during a step, and the changing pelvic angle during a squat. 'Excessive' is not a diagnosis defined by one standing angle. What matters is how the parts share the movement.",
     connections: [
       {
         slug: "rib-flare",

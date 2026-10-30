@@ -13,6 +13,36 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  pelvicMotorStrategies: {
+    title: "Ludwig et al. — Muscular strategies for correcting pelvic position",
+    url: "https://pubmed.ncbi.nlm.nih.gov/38390925/",
+    scope: "Exploratory surface-EMG study of 41 people performing voluntary pelvic retroversion. Four activation clusters, not four established causes of anterior pelvic tilt or a comparison of passive muscle stiffness.",
+  },
+  hipExtensionPosture: {
+    title: "Heino et al. — Hip extension range and postural alignment",
+    url: "https://pubmed.ncbi.nlm.nih.gov/18796868/",
+    scope: "Correlational study of 25 healthy adults. Hip-extension range showed little association with standing pelvic tilt, lordosis or abdominal performance; not a test of every symptomatic subgroup.",
+  },
+  iliopsoasShortnessControl: {
+    title: "Park et al. — Iliopsoas stretching and abdominal control during prone hip extension",
+    url: "https://pubmed.ncbi.nlm.nih.gov/34250929/",
+    scope: "Repeated-condition exercise study of 25 individuals with iliopsoas shortness. Immediate pelvic kinematics and muscle activity, not long-term standing-posture correction in a general population.",
+  },
+  activeLumbopelvicControl: {
+    title: "De Ridder et al. — Active lumbopelvic control during extension exercises",
+    url: "https://pubmed.ncbi.nlm.nih.gov/28371661/",
+    scope: "13 healthy adults trained in a control strategy, then tested during high-load prone extension exercises. Task-specific kinematics and EMG, not proof of underlying muscle weakness or passive stiffness.",
+  },
+  runningPelvicTilt: {
+    title: "Schache et al. — Pelvic tilt and clinical versus running hip extension",
+    url: "https://pubmed.ncbi.nlm.nih.gov/10953901/",
+    scope: "14 elite athletes running on a treadmill at 20 km/h. Static hip-extension flexibility was not significantly correlated with running pelvic tilt or peak hip extension; findings are task- and sample-specific.",
+  },
+  thomasPelvicControl: {
+    title: "Vigotsky et al. — Pelvic control and modified Thomas test validity",
+    url: "https://pubmed.ncbi.nlm.nih.gov/27602291/",
+    scope: "29 healthy college students. Validity of hip-extension measurement depended on accounting for pelvic tilt; does not isolate the length or stiffness of one hip-flexor muscle.",
+  },
   sahrmannLumbarExtension: {
     title: "Sahrmann — Diagnosis and Treatment of Movement Impairment Syndromes, Chapter 3",
     url: "https://elsevier-elibrary.com/contents/fullcontent/58610/epubcontent_v2/OEBPS/xhtml/B9780801672057500061B.htm",
