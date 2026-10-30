@@ -146,8 +146,7 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         evidence: ["lateralShiftThesis", "squatLoadAsymmetry", "healthyHipAsymmetry"],
       },
     ],
-    interpretation:
-      "A photograph shows where your pelvis sits. Movement shows how you use it. Follow the hips, knees and feet together, then return to the task that feels difficult. The goal is to make that movement feel steadier, easier and more comfortable—not simply to make the photograph look more symmetrical.",
+    interpretation: "",
     connections: [
       {
         slug: "heel-rise",

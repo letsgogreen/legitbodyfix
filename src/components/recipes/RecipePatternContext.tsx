@@ -65,12 +65,12 @@ export function RecipePatternContext({
               </section>
             ))}
           </div>
-          <section className="mt-10">
+          {article.interpretation && <section className="mt-10">
             <h3 className="text-2xl font-bold leading-snug text-foreground">
               Reading the connections
             </h3>
             <p className="mt-4">{article.interpretation}</p>
-          </section>
+          </section>}
           <section
             aria-labelledby={`${headingId}-sources`}
             className="mt-12 border-t border-border pt-7"
