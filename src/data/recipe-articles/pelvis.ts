@@ -16,7 +16,7 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         ],
       },
       {
-        heading: "Why the hip flexors are only part of the story",
+        heading: "How the muscles influence pelvic tilt",
         paragraphs: [
           "The hip flexors are an obvious place to look because they link the thigh with the pelvis or lower spine. They help bring the thigh toward the trunk. With the leg relatively fixed, their pull can also contribute to movement around the pelvis. Behind them, the back extensors help extend and support the spine. A forward-tipped pelvis and a deeper back arch can involve both regions.",
           "Now look at the other side of that relationship. The abdominal muscles help control the ribcage relative to the pelvis. The gluteals and hamstrings help extend the hip and can contribute to controlling pelvic rotation over supported legs. During a reach or step, these muscles share the job of allowing movement while controlling where it comes from.",
