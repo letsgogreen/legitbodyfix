@@ -5,7 +5,7 @@ export const pelvisArticles: Record<string, PatternArticle> = {
     title: "Understanding anterior pelvic tilt",
     intro: [
       "You may notice it in a side-on photo: the pelvis tips forward and the lower back looks more arched. Or it may become clearer when you lift your arms, move a leg behind you, or settle into your usual standing position.",
-      "Should you start by stretching the hip flexors? Before choosing a muscle to work on, follow what moves with the pelvis: the lower back, the ribcage and the thighs. You will get a clearer picture of how the forward tilt happens—and where the muscle cards fit.",
+      "The pelvis sits between the trunk and the thighs. When it tips forward, the movement can involve the lower back and ribcage as well as the hips. Looking at these connections helps explain the pattern beyond its appearance.",
     ],
     sections: [
       {
