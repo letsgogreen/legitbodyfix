@@ -140,7 +140,7 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         heading: "Research behind the movement connections",
         paragraphs: [
           "The research brings hip and ankle mobility, leg loading and natural side-to-side variation into the picture. These studies examine different groups and tasks, so each adds a different piece to the explanation.",
-          "A preliminary study of 40 people performing an overhead squat associated a lateral hip shift with differences in hip and ankle range, with possible differences in gluteus medius activation. Its side labels followed the direction of the shift, rather than pelvic height; the findings concern mobility and movement control, not the full muscle-card arrangement above.",
+          "A preliminary study of 40 people performing an overhead squat associated a lateral hip shift with differences in hip and ankle range, with possible differences in gluteus medius activation.",
           "In 17 athletes after ACL reconstruction, sideways hip position was associated with differences in leg loading during squats. A separate study of 24 asymptomatic young adults documented side-to-side hip differences during movement. Together, these findings help explain why movement and weight transfer deserve attention alongside appearance.",
         ],
         evidence: ["lateralShiftThesis", "squatLoadAsymmetry", "healthyHipAsymmetry"],
