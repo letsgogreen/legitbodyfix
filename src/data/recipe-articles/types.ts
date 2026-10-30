@@ -13,6 +13,11 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  itBandRollingStiffness: {
+    title: "Pepper et al. — Immediate effects of foam rolling and stretching on IT band stiffness",
+    url: "https://pubmed.ncbi.nlm.nih.gov/34123517/",
+    scope: "Randomized trial of 30 participants measuring short-term IT band and TFL stiffness after one intervention session. No significant stiffness changes; not a trial of anterior pelvic tilt correction or the full technique sequence.",
+  },
   jandaLayerFramework: {
     title: "Phil Page — The Janda Approach: crossed and layer syndromes",
     url: "https://www.smc-academy.nl/wp-content/uploads/2022/07/The-janda-approach.pdf",

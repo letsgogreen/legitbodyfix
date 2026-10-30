@@ -4,73 +4,49 @@ export const pelvisArticles: Record<string, PatternArticle> = {
   "excessive-anterior-pelvic-tilt": {
     title: "Understanding anterior pelvic tilt",
     intro: [
-      "You may notice it in a side-on photo: the pelvis tips forward and the lower back looks more arched. Or it may become clearer when you lift your arms, move a leg behind you, or settle into your usual standing position.",
-      "The pelvis sits between the trunk and the thighs. When it tips forward, the movement can involve the lower back and ribcage as well as the hips. Looking at these connections helps explain the pattern beyond its appearance.",
+      "You may notice it in a side-on photo: the pelvis tips forward and the lower back looks more arched. Or it becomes clearer when you lift your arms or move a leg behind you.",
+      "Anterior pelvic tilt describes that forward rotation. To understand the pattern, look at the hips, lower back and ribcage together—not just the angle of the pelvis.",
     ],
     sections: [
       {
-        heading: "Look beyond the arch in your lower back",
-        paragraphs: [
-          "Anterior pelvic tilt means the pelvis rotating forward. The lower-back curve may deepen with it, which makes the two easy to read as one event. Follow the waistband as well as the back: one shows the pelvis turning, while the other shows the spine changing shape.",
-          "Picture an overhead reach. As the arms rise, the chest may lift, the lower back may arch and the pelvis may tip forward. The final position looks like a posture; watching the reach reveals how you arrived there.",
-        ],
-      },
-      {
         heading: "How the muscles influence pelvic tilt",
         paragraphs: [
-          "The hip flexors link the thigh with the pelvis or lower spine. They bring the thigh toward the trunk and, when the leg is relatively fixed, can contribute to forward pelvic rotation. The back extensors help extend and support the spine. From the other side, the abdominal muscles help control the ribcage relative to the pelvis, while the gluteals and hamstrings help extend the hip and control the pelvis over supported legs.",
-          "Those actions describe what the muscles can do. How they share the work differs between people. Someone may have limited hip extension; someone else may have more available movement but move the pelvis and lower back early as the leg travels behind them. Both can show a forward tilt, while the contribution from mobility and coordination differs.",
-          "The hamstrings illustrate why position matters. As the pelvis tips forward over relatively fixed legs, the tissue can lengthen. A lengthened position is different from a measurement of strength, just as a forward-tipped pelvis is different from a test of hip-flexor length.",
+          "The hip flexors and back extensors can contribute to a forward-tipped, more arched position. The abdominal and hip-extensor muscles help control the relationship between the trunk, pelvis and legs. The balance of that work differs between people.",
+          "This approach focuses on the TFL at the front-outside of the hip, the lateral thigh around the IT band, and the QL in the lower back. The muscle cards show their anatomy and actions; the technique work connects those references to the areas you work with.",
         ],
-        evidence: ["pelvicHamstringLength", "pelvicMotorStrategies", "hipExtensionPosture"],
+        evidence: ["pelvicMotorStrategies"],
       },
       {
-        heading: "Available movement and movement strategy",
+        heading: "Connect soft-tissue work with abdominal control",
         paragraphs: [
-          "Consider a leg moving behind the body. How much movement takes place at the hip, and how much comes from the pelvis tipping and the back arching? Keeping track of both separates the range available at the joint from the way the whole movement is performed.",
-          "In a study of people with measured iliopsoas shortness, combining stretching with abdominal control changed pelvic movement and muscle activity during a prone leg lift. In another study of healthy adults, instruction in lumbopelvic control changed muscle recruitment during extension exercises. These are two useful examples: available range and the way it is used can both matter.",
-          "The relationship also changes with the task. A hip-flexibility test on a treatment table and hip extension during running are different situations. Research in elite runners found that their static test results did not reflect pelvic tilt during running. Follow the pattern in the activity where it appears.",
+          "The technique notes bring together TFL inhibition, IT band foam rolling and QL inhibition, paired with abdominal work. The purpose is to connect attention to the hip and waist with active control of the pelvis and trunk.",
+          "The practical skill is in the details: finding the target, supporting your body, adjusting pressure and controlling movement as the arms or legs move. Those are the details that a guided demonstration can make easier to follow.",
+          "These techniques are options, not a fixed prescription for every forward-tipped pelvis. IT band rolling is presented as work around the lateral thigh—not a promise to lengthen the band or correct pelvic alignment.",
         ],
-        evidence: ["iliopsoasShortnessControl", "activeLumbopelvicControl", "runningPelvicTilt"],
+        evidence: ["activeLumbopelvicControl", "itBandRollingStiffness"],
       },
       {
         heading: "Connecting the pelvis, shoulders and head",
         paragraphs: [
-          "The pelvis is one part of a larger postural pattern. A forward-tipped pelvis and a more arched lower back may appear alongside a rounded upper back, forward shoulders and a head carried farther in front of the trunk.",
-          "Janda's layer syndrome, also called stratification syndrome, brings upper- and lower-crossed patterns into one clinical framework. It describes alternating regions of muscle tightness and reduced performance across the body. Here, it gives us a way to consider the pelvic region alongside the shoulder girdle and neck, rather than treating each outline in isolation.",
-          "Follow those connections during a reach: how does the ribcage move over the pelvis, how do the shoulder blades move on the ribs, and where does the head sit as the arms rise? The rounded-shoulder and forward-head recipes explore the upper part of that picture. The framework connects observations; it does not mean that pelvic tilt caused the shoulder or neck position.",
-          "If the front ribs also lift as the lower back arches, the rib-flare recipe adds the connection through the trunk. Each region still has its own movement and muscle relationships to examine.",
+          "A forward-tipped pelvis may appear alongside a rounded upper back, forward shoulders and a head carried in front of the trunk. Janda’s layer syndrome brings upper- and lower-crossed patterns into one clinical framework for considering these regions together.",
+          "The related recipes explore that wider picture: the ribcage over the pelvis, the shoulder blades on the ribs, and the head above the trunk. They are connections to examine, not a claim that pelvic tilt caused the shoulder or neck position.",
         ],
         evidence: ["jandaLayerFramework"],
       },
-      {
-        heading: "Research behind the movement connections",
-        paragraphs: [
-          "Anterior tilt was common in a study of 120 healthy young adults. Separate measurements of pelvic specimens showed that bone shape influences the angle between pelvic landmarks. Together, these findings explain why two people's standing outlines are a poor basis for choosing one ideal pelvic angle.",
-          "Standing posture, muscle performance and movement strategy have been studied separately. Hip-extension range was not meaningfully correlated with standing pelvic tilt in 25 healthy adults. A study of 31 adults also found weak relationships between its abdominal-performance measure and standing pelvic tilt. An exploratory study of 41 people identified four muscle-activation patterns during voluntary backward pelvic tilting, showing that the same movement direction can be achieved through different muscle combinations.",
-          "The task-specific studies add detail. Among 25 people with iliopsoas shortness, stretching followed by abdominal drawing-in reduced pelvic compensation and increased gluteus maximus activity during prone hip extension. In 13 healthy adults, a learned control strategy also changed extension-exercise recruitment. These were specific exercise conditions, rather than demonstrations of one lasting correction for every anteriorly tilted posture.",
-          "In 14 elite athletes, pelvic tilt and hip extension were coordinated during running, but static hip-extension flexibility did not significantly correlate with either running measure. A separate test-validation study in 29 participants showed why pelvic position needs attention even on the examination table: allowing it to move distorted the measurement of hip extension.",
-        ],
-        evidence: ["pelvicStandingVariation", "pelvicLandmarks", "abdominalPelvicAngle", "pelvicHamstringLength", "hipExtensionPosture", "pelvicMotorStrategies", "iliopsoasShortnessControl", "activeLumbopelvicControl", "runningPelvicTilt", "thomasPelvicControl"],
-      },
     ],
-    interpretation:
-      "The same forward tilt can reflect different combinations of available motion and muscle coordination. Connect the muscle references to the task: the ribs and lower back during a reach, the hip during a step, and the changing pelvic angle during a squat. 'Excessive' is not a diagnosis defined by one standing angle. What matters is how the parts share the movement.",
+    interpretation: "",
     connections: [
       {
         slug: "rib-flare",
-        reason:
-          "If the front ribs lift during the same reach or trunk extension, distinguish that movement from the pelvis rotating forward.",
+        reason: "Explore the ribcage and lower back when the front ribs lift alongside the pelvic movement.",
       },
       {
         slug: "round-shoulder",
-        reason:
-          "Explore shoulder-blade and upper-trunk position alongside the pelvic pattern within the layer-syndrome framework.",
+        reason: "Explore shoulder-blade and upper-trunk position alongside the pelvic pattern.",
       },
       {
         slug: "forward-head-posture",
-        reason:
-          "Follow how head and neck position relates to the upper trunk when upper- and lower-crossed patterns appear together.",
+        reason: "Consider head and neck position as part of the wider upper- and lower-body pattern.",
       },
     ],
   },
