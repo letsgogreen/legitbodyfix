@@ -79,7 +79,7 @@ export const pelvisArticles: Record<string, PatternArticle> = {
         ],
       },
       {
-        heading: "Why the hamstrings are not the whole explanation",
+        heading: "How the muscles influence pelvic tilt",
         paragraphs: [
           "The hamstrings attach to the back of the pelvis and cross both the hip and knee. They help extend the hip and bend the knee; with the legs supported, they can also contribute to backward pelvic rotation. But a squat bends both joints at once. Hip flexion lengthens the hamstrings across the hip while knee flexion shortens them across the knee. Their role changes with both angles.",
           "The gluteus maximus also helps extend the hip and can contribute to pelvic control over supported legs. The abdominal muscles help control the pelvis relative to the ribcage, while the back extensors help support and extend the spine. Think of these muscles as sharing control of the movement, rather than assigning the tuck to one tight muscle.",
