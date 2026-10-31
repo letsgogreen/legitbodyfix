@@ -3,17 +3,14 @@ import type { User } from "@supabase/supabase-js";
 import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { setAuthPersistence } from "@/integrations/supabase/previewAuthStorage";
 import { markCurrentBrowserAsInternal } from "@/lib/internal-analytics";
+import { ADMIN_EMAIL, isApprovedAdminEmail, beginAdminLogin, pendingAdminLogin, clearAdminLogin, adminLoginChannel, receiveAdminLogin, sendAdminLogin } from "@/lib/admin-auth-handoff";
+export { isApprovedAdminEmail } from "@/lib/admin-auth-handoff";
 
-type AuthState = "loading" | "signed-out" | "forbidden" | "ready";
-
-const ADMIN_EMAIL = "thriveinside@protonmail.com";
-
-export function isApprovedAdminEmail(email?: string | null) {
-  return email?.trim().toLowerCase() === ADMIN_EMAIL;
-}
+type AuthState = "loading" | "signed-out" | "forbidden" | "ready" | "handoff";
 
 export function AdminAuthGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>("loading");
+  const [delivered, setDelivered] = useState(false);
 
   useEffect(() => {
     // Administrator sessions are intentionally limited to this browser session.
@@ -25,21 +22,56 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
       return;
     }
 
+    const callbackId = new URLSearchParams(window.location.search).get("admin_login");
+    let stopTransfer: (() => void) | undefined;
+    let active = true;
     const syncUser = (nextUser?: User) => {
+      if (!active) return;
       if (!nextUser) setState("signed-out");
       else if (
         nextUser.app_metadata?.["is_admin"] === true &&
         isApprovedAdminEmail(nextUser.email)
       ) {
         cleanConsumedAuthFragment();
+        if (callbackId && callbackId !== pendingAdminLogin(sessionStorage)) {
+          setState("handoff");
+          if (!stopTransfer && typeof BroadcastChannel !== "undefined") {
+            // Run outside Supabase's auth event callback/lock.
+            stopTransfer = () => {};
+            setTimeout(() => {
+              if (!active) return;
+              void client.auth.getSession().then(({ data }) => {
+                if (!active || !data.session) return;
+                stopTransfer = sendAdminLogin(new BroadcastChannel(adminLoginChannel(callbackId)), data.session, () => setDelivered(true));
+              });
+            }, 0);
+          }
+          return;
+        }
+        if (callbackId) {
+          clearAdminLogin(sessionStorage);
+          const url = new URL(window.location.href);
+          url.searchParams.delete("admin_login");
+          window.history.replaceState(window.history.state, "", url.pathname + url.search);
+        }
         markCurrentBrowserAsInternal();
         setState("ready");
       } else setState("forbidden");
     };
 
     const { data } = client.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) syncUser(session.user);
-      else if (!window.location.hash.includes("access_token")) syncUser();
+      // SDK broadcasts from another tab must not unlock this tab before its
+      // own session storage has received and validated the handoff.
+      setTimeout(() => {
+        if (!active) return;
+        void client.auth.getSession().then(async ({ data: stored }) => {
+          if (!active || stored.session?.access_token !== session?.access_token) return;
+          if (session) {
+            const verified = await client.auth.getUser();
+            if (!verified.error) syncUser(verified.data.user ?? undefined);
+          } else if (!window.location.hash.includes("access_token")) syncUser();
+        });
+      }, 0);
     });
     // Validate the cached session with Supabase before rendering the control room.
     // getSession() only reads browser storage and can return a user whose access
@@ -62,10 +94,19 @@ export function AdminAuthGate({ children }: { children: ReactNode }) {
       if (!window.location.hash.includes("access_token")) syncUser();
     });
 
-    return () => data.subscription.unsubscribe();
+    return () => { active = false; stopTransfer?.(); data.subscription.unsubscribe(); };
   }, []);
 
   if (state === "loading") return <AuthMessage title="Checking administrator access…" />;
+  if (state === "handoff") return <AuthMessage
+    title={delivered ? "Your original administrator tab is signed in" : "Email verified"}
+    body={delivered ? "Return to the tab where you requested the link. You can close this verification tab." : "Return to the tab where you requested the link. Keep both tabs open while sign-in completes. If you used a different browser, continue here instead."}
+    action={<button type="button" className="mt-6 min-h-10 rounded-sm border border-border px-4 text-sm font-bold" onClick={() => {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("admin_login");
+      window.location.replace(url.pathname + url.search);
+    }}>Continue in this tab instead</button>}
+  />;
   if (!isSupabaseConfigured) {
     return (
       <AuthMessage
@@ -110,6 +151,26 @@ function cleanConsumedAuthFragment() {
 function AdminSignIn() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [requestId, setRequestId] = useState<string | null>(() => typeof window === "undefined" ? null : pendingAdminLogin(sessionStorage));
+
+  useEffect(() => {
+    if (!requestId || typeof BroadcastChannel === "undefined") return;
+    const client = getSupabaseClient();
+    if (!client) return;
+    const channel = new BroadcastChannel(adminLoginChannel(requestId));
+    return receiveAdminLogin(channel, async (tokens) => {
+      if (pendingAdminLogin(sessionStorage) !== requestId) return false;
+      // Verify with Supabase before importing; the normal gate still checks admin metadata.
+      const verified = await client.auth.getUser(tokens.access_token);
+      if (verified.error || !isApprovedAdminEmail(verified.data.user?.email) || verified.data.user?.app_metadata?.["is_admin"] !== true) return false;
+      if (pendingAdminLogin(sessionStorage) !== requestId) return false;
+      setAuthPersistence(false);
+      const result = await client.auth.setSession(tokens);
+      if (result.error) return false;
+      clearAdminLogin(sessionStorage);
+      return true;
+    });
+  }, [requestId]);
 
   async function requestSignInLink() {
     const client = getSupabaseClient();
@@ -118,26 +179,30 @@ function AdminSignIn() {
     setSubmitting(true);
     setMessage("");
     setAuthPersistence(false);
+    const id = beginAdminLogin(sessionStorage);
+    setRequestId(id);
     const { error } = await client.auth.signInWithOtp({
       email: ADMIN_EMAIL,
       options: {
         shouldCreateUser: false,
-        emailRedirectTo: window.location.origin + "/admin?remember=0",
+        emailRedirectTo: window.location.origin + "/admin?remember=0&admin_login=" + encodeURIComponent(id),
       },
     });
     setSubmitting(false);
     if (error) {
+      clearAdminLogin(sessionStorage);
+      setRequestId(null);
       setMessage(error.message);
       return;
     }
 
-    setMessage("A secure administrator sign-in link was sent to your approved email.");
+    setMessage("Link sent. Leave this tab open and verify the email in the same browser. This tab will sign in automatically.");
   }
 
   return (
     <AuthMessage
       title="Administrator sign-in"
-      body="Send a secure, one-time sign-in link to the approved administrator email. The link returns directly to this control room."
+      body="Send a secure, one-time link to the approved administrator email. After verification, this tab will open the control room."
       action={
         <div className="mt-7 grid gap-5">
           <ol className="grid gap-3 text-sm" aria-label="Administrator sign-in steps">
