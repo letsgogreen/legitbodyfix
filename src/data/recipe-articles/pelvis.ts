@@ -148,9 +148,9 @@ export const pelvisArticles: Record<string, PatternArticle> = {
           caption: "A sample progression from targeted preparation to coordinated weight transfer",
           columns: ["Stage", "What you practice", "Key focus", "Examples"],
           rows: [
-            ["1. Inhibit", "Targeted self-myofascial work around selected hip and thigh muscles.", "Prepare the areas that need attention rather than treating both sides identically.", "Selected adductors, TFL and piriformis; biceps femoris where relevant."],
-            ["2. Lengthen", "Stretching to develop the hip movement needed for the task.", "Address the restricted direction on the relevant side rather than automatically stretching both hips the same way.", "Selected adductors, piriformis and TFL."],
-            ["3. Activate", "Focused work for hip and trunk control.", "Develop support through each leg and control of the pelvis as weight transfers.", "Gluteus medius; adductors on the side needing focused work; core stabilizers."],
+            ["1. Inhibit", "Targeted self-myofascial work around selected hip, thigh and waist muscles.", "Prepare the areas that need attention rather than treating both sides identically.", "Selected adductors, TFL and piriformis; QL on the higher side of the pelvis and biceps femoris where relevant."],
+            ["2. Lengthen", "Stretching to develop the hip and trunk movement needed for the task.", "Address the restricted direction on the relevant side rather than automatically stretching both sides the same way.", "Selected adductors, piriformis and TFL; QL on the higher side of the pelvis where relevant."],
+            ["3. Activate", "Focused work for hip and trunk control.", "Develop support through each leg and control of the pelvis as weight transfers.", "Gluteus medius; adductors on the side needing focused work; QL on the lower side of the pelvis where relevant; core stabilizers."],
             ["4. Integrate", "Combine stepping, weight transfer and an upper-body movement.", "Bring the available hip movement and trunk control into one coordinated task.", "Step-up to overhead cable press, using a suitable variation."],
           ],
         },
