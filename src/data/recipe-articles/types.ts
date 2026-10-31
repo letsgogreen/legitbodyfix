@@ -18,6 +18,11 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  posteriorTiltProgramExcerpt: {
+    title: "Uploaded textbook excerpt — Table 13-6: Sample corrective exercise program for excessive posterior pelvic tilt",
+    url: "https://app.notion.com/p/1fdeffb292118040bf41d6c6963e8bef",
+    scope: "User-supplied photograph of Chapter 13, Table 13-6. Source of the sample inhibit–lengthen–activate–integrate sequence and exercise examples, not a clinical outcome trial. The photograph is not republished; exercise dosage and detailed execution instructions are omitted.",
+  },
   anteriorTiltProgramExcerpt: {
     title: "Uploaded textbook excerpt — Table 13-5: Sample corrective exercise program for excessive anterior pelvic tilt",
     url: "https://app.notion.com/p/1fdeffb29211809d87b2d7a9bc92498b",

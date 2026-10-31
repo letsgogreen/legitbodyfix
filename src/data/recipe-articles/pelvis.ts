@@ -61,63 +61,57 @@ export const pelvisArticles: Record<string, PatternArticle> = {
   "excessive-posterior-tilt": {
     title: "Understanding posterior pelvic tilt",
     intro: [
-      "Your squat looks steady—until the last part of the descent. Then the pelvis rolls under and the lower back begins to flatten. Or you may notice a tucked-under position in standing, before you move at all.",
-      "Both can be described as posterior pelvic tilt, but they tell different stories. Before choosing a muscle to stretch or strengthen, ask when the tuck appears. The answer connects the muscle cards to the movement you are actually seeing.",
+      "You may notice your pelvis sitting tucked under in a side-on photo. Or your squat may look steady until the final part of the descent, when the pelvis rolls backward and the lower back begins to flatten.",
+      "Both involve posterior pelvic tilt. The useful starting point is when it appears: before the movement begins, or as you reach a particular depth.",
     ],
     sections: [
       {
-        heading: "A tucked position and a late-squat tuck are different stories",
-        paragraphs: [
-          "Posterior pelvic tilt means the pelvis rotating backward. The lower-back curve may flatten as it happens. In standing, you are looking at a starting position. During a squat, you are watching that position change as the hips and knees bend.",
-          "Follow the last few centimetres of the descent. Do the thighs keep moving toward the trunk as the pelvis starts to roll backward? That transition shows how the hip joints and pelvis share the movement. It is more specific than describing the whole squat as rounded.",
-        ],
-      },
-      {
         heading: "How the muscles influence pelvic tilt",
         paragraphs: [
-          "The hamstrings attach to the back of the pelvis and cross both the hip and knee. They help extend the hip and bend the knee; with the legs supported, they can also contribute to backward pelvic rotation. But a squat bends both joints at once. Hip flexion lengthens the hamstrings across the hip while knee flexion shortens them across the knee. Their role changes with both angles.",
-          "The gluteus maximus also helps extend the hip and can contribute to pelvic control over supported legs. The abdominal muscles help control the pelvis relative to the ribcage, while the back extensors help support and extend the spine. Think of these muscles as sharing control of the movement, rather than assigning the tuck to one tight muscle.",
-          "A straight-leg bend and a deep squat therefore ask different questions of the hamstrings. Use the muscle cards to understand their attachments and actions, then return to the task: when does the pelvis begin to turn, and what are the knees doing at that moment?",
+          "The hamstrings connect the back of the pelvis to the lower leg. Alongside their role in hip extension and knee flexion, they can contribute to backward pelvic rotation when the legs are supported. The abdominal muscles can also help draw the pelvis into a tucked position.",
+          "During a squat, however, the hips and knees bend together. Those joint positions change the length and influence of the hamstrings. A straight-leg bend and a deep squat therefore do not tell the same story about the back of the thighs.",
+          "Addressing the pattern involves both available movement and muscular control. The hip flexors and spinal extensors contribute to movement away from a tucked position, while the gluteus maximus helps produce hip extension. The aim is to coordinate these actions—not simply to relax every muscle capable of rotating the pelvis backward.",
         ],
         evidence: ["hamstringPelvicRotation"],
       },
       {
-        heading: "More squat depth does not always mean more hip flexion",
+        heading: "How to approach the pattern",
         paragraphs: [
-          "Your body can travel lower through a combination of hip, knee, ankle and pelvic movement. Once the pelvis begins to roll backward, the thighs can move farther relative to the room without the same increase in hip flexion relative to the pelvis. The hip socket moves with the pelvis, so the relationship between the two matters.",
-          "This is why depth alone leaves part of the story out. Stance and heel position can change how the descent is distributed. In a bodyweight-squat study, raising the heels allowed greater depth and knee flexion, while the hip-flexion angle at the onset of posterior tilt remained similar.",
+          "The progression moves from targeted preparation to coordinated movement: inhibit, lengthen, activate and integrate.",
+          "Choose the areas that need attention, then practice using the available range. The examples below are options within that progression, not a checklist everyone needs to complete.",
+        ],
+        table: {
+          caption: "A sample progression from targeted preparation to coordinated movement",
+          columns: ["Stage", "What you practice", "Key focus", "Examples"],
+          rows: [
+            ["1. Inhibit", "Targeted self-myofascial work for selected areas around the hips and thighs.", "Prepare areas that feel restricted without treating every muscle as an automatic target.", "Adductor magnus; hamstring complex; piriformis."],
+            ["2. Lengthen", "Stretching where additional range is needed.", "Develop the movement needed for the task rather than chasing the strongest stretch.", "Abdominal complex; adductor magnus; hamstring complex."],
+            ["3. Activate", "Focused work for hip and spinal control.", "Practice hip flexion, hip extension and spinal extension without forcing an exaggerated lower-back arch.", "Hip flexors; gluteus maximus; spinal extensors."],
+            ["4. Integrate", "Combine lower-body movement with an upper-body task.", "Coordinate the hips, pelvis and trunk as the movement becomes more demanding.", "Ball wall squat with overhead press, using a suitable variation."],
+          ],
+        },
+        evidence: ["posteriorTiltProgramExcerpt"],
+      },
+      {
+        heading: "Connecting the pattern to your squat",
+        paragraphs: [
+          "If the tuck appears only near the bottom, include squat depth and setup in the picture. Greater depth can come from different combinations of hip, knee, ankle and pelvic movement. In one study, raising the heels increased squat depth without significantly changing the hip-flexion angle at which posterior tilt began.",
+          "Use a manageable version of the task while developing control, then revisit the movement that brought you here. Look for a smoother descent and more comfortable coordination rather than forcing the pelvis forward throughout the repetition.",
         ],
         evidence: ["squatTiltOnset"],
       },
-      {
-        heading: "Where forward lean and anterior tilt fit in",
-        paragraphs: [
-          "A forward lean describes the torso tipping toward the floor. A posterior tilt describes the pelvis rotating backward. The chest may lean forward well before the pelvis tucks, or the two changes may appear close together. The forward-trunk-lean recipe helps separate those parts of the descent.",
-          "Anterior pelvic tilt completes the comparison. A squat can start with the pelvis tipped forward and finish with it rotating backward. Read the two recipes as different parts of a movement, rather than opposite labels that must describe different people.",
-        ],
-      },
-      {
-        heading: "Research behind the movement connections",
-        paragraphs: [
-          "An imaging study of six healthy men tracked coordinated movement of the pelvis and thigh during activities including squatting and rising from a chair. It provides a useful starting point: the pelvis participates in the task alongside the hip joint.",
-          "A study of 28 participants compared standard squats, heel-raised squats and passive hip flexion. Hip flexion at the onset of posterior tilt was similar across conditions, even though the heel-raised squat went deeper. A separate hip-flexion experiment found that knee position and hamstring length influenced pelvic rotation. These findings make joint position and task setup important parts of the explanation.",
-          "Research comparing 15 people with symptomatic hip impingement and 14 controls found similar squat depths but differences in pelvic and hip strategy during a constrained squat. Reaching the same depth can involve different movements; the study does not identify hip impingement from a visible tuck.",
-        ],
-        evidence: ["hipPelvis", "squatTiltOnset", "hamstringPelvicRotation", "hipTask"],
-      },
     ],
-    interpretation:
-      "Start with the timing of the tuck, then connect it to hip depth, knee bend and trunk position. A standing posture and the last few centimetres of a squat deserve different explanations. The aim is to understand the movement you need—not to keep the pelvis frozen while everything around it moves.",
+    interpretation: "",
     connections: [
       {
         slug: "excessive-forward-trunk-leaning",
         reason:
-          "Distinguish torso inclination from the pelvis rolling backward, especially near the bottom of a squat.",
+          "Compare the torso leaning forward with the pelvis rolling backward; they describe different parts of the movement.",
       },
       {
         slug: "excessive-anterior-pelvic-tilt",
         reason:
-          "Compare forward and backward pelvic rotation rather than treating either resting angle as the whole movement.",
+          "Understand forward and backward pelvic rotation, including how the starting position may change during a squat.",
       },
     ],
   },
