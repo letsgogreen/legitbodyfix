@@ -18,6 +18,11 @@ export type PatternArticle = {
 };
 
 export const patternSources: Record<string, { title: string; url: string; scope: string }> = {
+  asymmetricShiftProgramExcerpt: {
+    title: "Uploaded textbook excerpt — Table 13-7: Sample corrective exercise program for asymmetric weight shift",
+    url: "https://app.notion.com/p/1fdeffb2921180f39d4fe30e644e3b3f",
+    scope: "User-supplied photograph of Table 13-7. Source of the sample four-stage progression and exercise examples, not a clinical outcome trial. Its direction-based side labels are not mapped to pelvic height here; side selection depends on the movement assessed. Dosage and detailed technique are omitted, and the photograph is not republished.",
+  },
   posteriorTiltProgramExcerpt: {
     title: "Uploaded textbook excerpt — Table 13-6: Sample corrective exercise program for excessive posterior pelvic tilt",
     url: "https://app.notion.com/p/1fdeffb292118040bf41d6c6963e8bef",

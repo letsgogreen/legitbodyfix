@@ -118,8 +118,8 @@ export const pelvisArticles: Record<string, PatternArticle> = {
   "asymmetric-weight-shift": {
     title: "Understanding asymmetric hip shift",
     intro: [
-      "You may first notice it in a photo taken from behind: one side of your pelvis sits higher than the other. Or you may notice it during a squat, when your hips drift to one side as you lower.",
-      "For some people, it is simply something they see. For others, it comes with an awkward squat, uneven weight transfer, or discomfort during everyday movement. To understand the pattern, follow more than the waistline: how the hips turn, where the knees travel, and how each foot meets the ground.",
+      "You may first notice it in a photo taken from behind: one side of your pelvis sits higher than the other. Or you may notice your hips drifting to one side as you lower into a squat.",
+      "For some people, it is simply something they see. For others, it comes with an awkward squat, uneven weight transfer or discomfort during everyday movement. Understanding the pattern means looking beyond the waistline—to the hips, knees and support beneath each foot.",
     ],
     sections: [
       {
@@ -132,34 +132,37 @@ export const pelvisArticles: Record<string, PatternArticle> = {
       {
         heading: "How the muscles around the pelvis contribute",
         paragraphs: [
-          "The muscle cards focus on the tensor fasciae latae (TFL), adductors and quadratus lumborum (QL) on the higher side of the pelvis, and the piriformis on the opposite side. Each contributes differently to the movement.",
-          "The QL helps explain why we look at the waist as well as the hips. It connects the pelvis to the lower back and lowest rib, and can help lift one side of the pelvis when the trunk stays steady. Watch whether the higher hip is accompanied by a sideways trunk bend, and how the two change as weight moves between the feet.",
-          "The adductors draw the thigh toward the midline. The TFL has a different role: it contributes to hip movement and tensions the iliotibial band, helping support the hip and knee. Rather than treating them as one inward pull, we look at how the thigh moves relative to the pelvis and how that leg accepts weight.",
-          "On the opposite side, the piriformis contributes to outward hip rotation and can assist abduction when the hip is flexed. Its role changes with hip position, so we compare how that hip turns and opens in standing and as the person lowers into a squat.",
-          "Together, these references give you a way to read the movement: the height of the pelvis, the direction each thigh turns, and the support available through each leg.",
+          "For the pattern described here, we examine the TFL, adductors and quadratus lumborum (QL) on the higher side of the pelvis, and the piriformis on the opposite side.",
+          "The QL connects the pelvis to the lower back and lowest rib. With the trunk held steady, it can help lift one side of the pelvis. This makes the relationship between the waist, ribs and higher hip worth examining together.",
+          "The adductors draw the thigh toward the midline. The TFL contributes to hip flexion, abduction and internal rotation while tensioning the iliotibial band. On the opposite side, the piriformis contributes to outward rotation and can assist abduction when the hip is flexed.",
+          "These muscles do different jobs. Addressing the pattern therefore involves more than releasing a tight area: the hips also need usable movement, and the trunk and legs need to coordinate how weight passes between them.",
         ],
+      },
+      {
+        heading: "How to approach the pattern",
+        paragraphs: [
+          "The progression connects targeted preparation with movement practice: inhibit, lengthen, activate and integrate.",
+          "Select the side and area according to the restriction or control difficulty you find. Then connect the preparation to a task that asks the legs and trunk to work together.",
+        ],
+        table: {
+          caption: "A sample progression from targeted preparation to coordinated weight transfer",
+          columns: ["Stage", "What you practice", "Key focus", "Examples"],
+          rows: [
+            ["1. Inhibit", "Targeted self-myofascial work around selected hip and thigh muscles.", "Prepare the areas that need attention rather than treating both sides identically.", "Selected adductors, TFL and piriformis; biceps femoris where relevant."],
+            ["2. Lengthen", "Stretching to develop the hip movement needed for the task.", "Address the restricted direction on the relevant side rather than automatically stretching both hips the same way.", "Selected adductors, piriformis and TFL."],
+            ["3. Activate", "Focused work for hip and trunk control.", "Develop support through each leg and control of the pelvis as weight transfers.", "Gluteus medius; adductors on the side needing focused work; core stabilizers."],
+            ["4. Integrate", "Combine stepping, weight transfer and an upper-body movement.", "Bring the available hip movement and trunk control into one coordinated task.", "Step-up to overhead cable press, using a suitable variation."],
+          ],
+        },
+        evidence: ["asymmetricShiftProgramExcerpt"],
       },
       {
         heading: "Follow the movement from hip to foot",
         paragraphs: [
-          "On the elevated side, the thigh may move inward and rotate internally, with the knee following inward and the foot arch lowering. In some people, the opposite thigh sits farther outward and is more externally rotated. These differences can be subtle in standing and easier to recognise during movement.",
-          "As the person lowers into a squat, we follow the sequence: does the pelvis begin to drift, does a knee move inward, or does one heel start to rise? The knee-valgus and heel-rise recipes below take a closer look at those accompanying movements.",
+          "On the elevated side, the thigh may move inward and rotate internally, with the knee following inward and the foot arch lowering. The opposite thigh may sit farther outward and turn more externally. These differences can be subtle in standing and clearer during a squat or step.",
+          "Include the ankles in that picture. A preliminary study of people performing an overhead squat found side-to-side differences in hip and ankle mobility among those displaying a lateral hip shift. This gives us a practical reason to compare the movement available through both legs.",
         ],
-      },
-      {
-        heading: "How much movement is available on each side?",
-        paragraphs: [
-          "A squat asks both hips to bend while the ankles allow the shins to travel forward. If those movements are easier on one side, the pelvis may travel sideways as the person lowers. Comparing hip rotation, how comfortably each thigh opens, and ankle movement gives us a clearer picture of where the two sides differ.",
-        ],
-      },
-      {
-        heading: "Research behind the movement connections",
-        paragraphs: [
-          "The research brings hip and ankle mobility, leg loading and natural side-to-side variation into the picture. These studies examine different groups and tasks, so each adds a different piece to the explanation.",
-          "A preliminary study of 40 people performing an overhead squat associated a lateral hip shift with differences in hip and ankle range, with possible differences in gluteus medius activation.",
-          "In 17 athletes after ACL reconstruction, sideways hip position was associated with differences in leg loading during squats. A separate study of 24 asymptomatic young adults documented side-to-side hip differences during movement. Together, these findings help explain why movement and weight transfer deserve attention alongside appearance.",
-        ],
-        evidence: ["lateralShiftThesis", "squatLoadAsymmetry", "healthyHipAsymmetry"],
+        evidence: ["lateralShiftThesis"],
       },
     ],
     interpretation:
@@ -168,7 +171,7 @@ export const pelvisArticles: Record<string, PatternArticle> = {
       {
         slug: "heel-rise",
         reason:
-          "Follow when each heel lifts as the pelvis moves sideways, and compare that timing with the changes at the hips and knees.",
+          "Follow when each heel lifts as the pelvis moves sideways, alongside the changes at the hips and knees.",
       },
       {
         slug: "valgus-knee-knee-collapsing-inward",
