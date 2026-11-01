@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowRight, ImageIcon, Search } from "lucide-react";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
@@ -54,6 +54,9 @@ function RecipeCard({ recipe, index }: { recipe: Recipe; index: number }) {
 }
 
 export const Route = createFileRoute("/recipes/")({
+  beforeLoad: () => {
+    throw redirect({ to: "/", replace: true });
+  },
   validateSearch: (search: Record<string, unknown>) => ({
     region:
       typeof search["region"] === "string" && findBodyRegion(search["region"])

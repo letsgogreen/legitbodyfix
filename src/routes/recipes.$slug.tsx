@@ -96,11 +96,10 @@ function RecipeDetail() {
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-5 pb-14 pt-10 lg:px-8 lg:pb-20 lg:pt-14">
             <Link
-              to="/recipes"
-              search={{ region: undefined }}
+              to="/movement-check"
               className="inline-flex min-h-11 items-center gap-2 text-sm font-bold"
             >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All corrective movement strategies
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Explore by body region
             </Link>
 
             <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14">
