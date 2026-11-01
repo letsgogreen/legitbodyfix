@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 const unlockKey = "lbf_recipe_library_lead";
 
-export const Route = createFileRoute("/notion-sample")({
+export const Route = createFileRoute("/library-access")({
   validateSearch: (search: Record<string, unknown>) => ({
     next: search["next"] === "/recipes" ? "/recipes" : "/recipes",
   }),
@@ -14,10 +14,10 @@ export const Route = createFileRoute("/notion-sample")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: NotionSample,
+  component: LibraryAccess,
 });
 
-function NotionSample() {
+function LibraryAccess() {
   const { next } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [accepted, setAccepted] = useState(false);
@@ -32,7 +32,7 @@ function NotionSample() {
       const response = await fetch("/api/recipe-library-leads", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, website, source_path: "/notion-sample" }),
+        body: JSON.stringify({ email, website, source_path: "/library-access" }),
       });
       if (!response.ok) throw new Error("Lead request failed");
       window.localStorage.setItem(unlockKey, "1");
@@ -76,10 +76,10 @@ function NotionSample() {
             <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.04em]">Open the full library.</h2>
             <p className="mt-4 text-sm leading-6 text-[#60635a]">Enter your email to access the complete corrective movement strategies library.</p>
             <form className="mt-7" onSubmit={submit}>
-              <label htmlFor="notion-sample-email" className="block text-xs font-bold">Where should we send your access?</label>
-              <input id="notion-sample-email" type="email" required autoComplete="email" autoCapitalize="none" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Your email address" className="mt-2 h-13 w-full border border-[#a1a595] bg-[#fffef9] px-4 text-sm outline-none focus:border-[#161812]" />
+              <label htmlFor="library-access-email" className="block text-xs font-bold">Where should we send your access?</label>
+              <input id="library-access-email" type="email" required autoComplete="email" autoCapitalize="none" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Your email address" className="mt-2 h-13 w-full border border-[#a1a595] bg-[#fffef9] px-4 text-sm outline-none focus:border-[#161812]" />
               <label className="mt-4 flex gap-3 text-xs leading-5 text-[#60635a]"><input type="checkbox" required checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#607b1d]" /><span>I agree that LegitBodyFix may store my email to provide this access, as described in the <Link to="/privacy" className="font-bold underline">Privacy Policy</Link>.</span></label>
-              <div className="absolute -left-[10000px]" aria-hidden="true"><label htmlFor="notion-sample-website">Website</label><input id="notion-sample-website" value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></div>
+              <div className="absolute -left-[10000px]" aria-hidden="true"><label htmlFor="library-access-website">Website</label><input id="library-access-website" value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></div>
               <button type="submit" disabled={!accepted || state === "sending"} className="mt-6 min-h-13 w-full border border-[#161812] bg-[#d5fb60] px-5 text-sm font-bold hover:bg-[#c4ed42] disabled:cursor-not-allowed disabled:opacity-60">{state === "sending" ? "Opening library…" : "Open the full library ↗"}</button>
               <p aria-live="polite" className="mt-3 text-sm text-red-700">{state === "error" ? "We couldn’t save that email. Please try again." : ""}</p>
             </form>

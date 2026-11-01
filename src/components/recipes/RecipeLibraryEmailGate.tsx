@@ -12,7 +12,7 @@ export function RecipeLibraryEmailGate({ children }: { children: React.ReactNode
   }, []);
 
   useEffect(() => {
-    if (ready && !unlocked) window.location.replace("/notion-sample?next=/recipes");
+    if (ready && !unlocked) window.location.replace("/library-access?next=/recipes");
   }, [ready, unlocked]);
 
   if (!ready) return null;

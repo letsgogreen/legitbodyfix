@@ -14,10 +14,10 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as LibraryAccessRouteImport } from './routes/library-access'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MovementCheckRouteImport } from './routes/movement-check'
 import { Route as MusclesRouteImport } from './routes/muscles'
-import { Route as NotionSampleRouteImport } from './routes/notion-sample'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -95,6 +95,11 @@ const LibraryRoute = LibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryAccessRoute = LibraryAccessRouteImport.update({
+  id: '/library-access',
+  path: '/library-access',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -108,11 +113,6 @@ const MovementCheckRoute = MovementCheckRouteImport.update({
 const MusclesRoute = MusclesRouteImport.update({
   id: '/muscles',
   path: '/muscles',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotionSampleRoute = NotionSampleRouteImport.update({
-  id: '/notion-sample',
-  path: '/notion-sample',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -381,10 +381,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/library': typeof LibraryRouteWithChildren
+  '/library-access': typeof LibraryAccessRoute
   '/login': typeof LoginRoute
   '/movement-check': typeof MovementCheckRoute
   '/muscles': typeof MusclesRouteWithChildren
-  '/notion-sample': typeof NotionSampleRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -441,9 +441,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/library-access': typeof LibraryAccessRoute
   '/login': typeof LoginRoute
   '/movement-check': typeof MovementCheckRoute
-  '/notion-sample': typeof NotionSampleRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -502,10 +502,10 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/library': typeof LibraryRouteWithChildren
+  '/library-access': typeof LibraryAccessRoute
   '/login': typeof LoginRoute
   '/movement-check': typeof MovementCheckRoute
   '/muscles': typeof MusclesRouteWithChildren
-  '/notion-sample': typeof NotionSampleRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -566,10 +566,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/forgot-password'
     | '/library'
+    | '/library-access'
     | '/login'
     | '/movement-check'
     | '/muscles'
-    | '/notion-sample'
     | '/privacy'
     | '/refund-policy'
     | '/reset-password'
@@ -626,9 +626,9 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/forgot-password'
+    | '/library-access'
     | '/login'
     | '/movement-check'
-    | '/notion-sample'
     | '/privacy'
     | '/refund-policy'
     | '/reset-password'
@@ -686,10 +686,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/forgot-password'
     | '/library'
+    | '/library-access'
     | '/login'
     | '/movement-check'
     | '/muscles'
-    | '/notion-sample'
     | '/privacy'
     | '/refund-policy'
     | '/reset-password'
@@ -749,10 +749,10 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LibraryRoute: typeof LibraryRouteWithChildren
+  LibraryAccessRoute: typeof LibraryAccessRoute
   LoginRoute: typeof LoginRoute
   MovementCheckRoute: typeof MovementCheckRoute
   MusclesRoute: typeof MusclesRouteWithChildren
-  NotionSampleRoute: typeof NotionSampleRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -817,6 +817,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/library-access': {
+      id: '/library-access'
+      path: '/library-access'
+      fullPath: '/library-access'
+      preLoaderRoute: typeof LibraryAccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -836,13 +843,6 @@ declare module '@tanstack/react-router' {
       path: '/muscles'
       fullPath: '/muscles'
       preLoaderRoute: typeof MusclesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notion-sample': {
-      id: '/notion-sample'
-      path: '/notion-sample'
-      fullPath: '/notion-sample'
-      preLoaderRoute: typeof NotionSampleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -1307,10 +1307,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LibraryRoute: LibraryRouteWithChildren,
+  LibraryAccessRoute: LibraryAccessRoute,
   LoginRoute: LoginRoute,
   MovementCheckRoute: MovementCheckRoute,
   MusclesRoute: MusclesRouteWithChildren,
-  NotionSampleRoute: NotionSampleRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
