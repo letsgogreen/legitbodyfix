@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ImageIcon, Search } from "lucide-react";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
@@ -7,6 +7,7 @@ import { LearnNav } from "@/components/site/LearnNav";
 import { LearnRegionFilter } from "@/components/site/LearnRegionFilter";
 import { findBodyRegion } from "@/data/body-regions";
 import { listPublishedRecipes } from "@/lib/recipes.functions";
+import { RecipeLibraryEmailGate } from "@/components/recipes/RecipeLibraryEmailGate";
 
 function resolveRecipeImageUrl(imageUrl: string) {
   if (/^(?:https?:)?\/\//i.test(imageUrl) || imageUrl.startsWith("/")) return imageUrl;
@@ -54,9 +55,6 @@ function RecipeCard({ recipe, index }: { recipe: Recipe; index: number }) {
 }
 
 export const Route = createFileRoute("/recipes/")({
-  beforeLoad: () => {
-    throw redirect({ to: "/", replace: true });
-  },
   validateSearch: (search: Record<string, unknown>) => ({
     region:
       typeof search["region"] === "string" && findBodyRegion(search["region"])
@@ -97,6 +95,7 @@ function PostureRecipes() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
+      <RecipeLibraryEmailGate>
       <main>
 <LearnNav active="posture" region={activeRegion?.slug} />
 
@@ -147,6 +146,7 @@ function PostureRecipes() {
           )}
         </section>
       </main>
+      </RecipeLibraryEmailGate>
       <SiteFooter />
     </div>
   );

@@ -80,6 +80,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipe_library_leads: {
+        Row: {
+          created_at: string;
+          email: string;
+          id: string;
+          source_path: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          email: string;
+          id?: string;
+          source_path?: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
+          id?: string;
+          source_path?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       page_views: {
         Row: {
           administrative_area: string | null;

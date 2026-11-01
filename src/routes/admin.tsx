@@ -9,6 +9,7 @@ import {
   ExternalLink,
   ChartNoAxesCombined,
   MessageSquareText,
+  MailOpen,
   type LucideIcon,
 } from "lucide-react";
 import { AdminAuthGate } from "@/components/admin/AdminAuthGate";
@@ -58,6 +59,7 @@ const nav: NavItem[] = [
   { to: "/admin/conditions", label: "Conditions", icon: NotebookPen },
   { to: "/admin/customers", label: "Customers & access", icon: Users },
   { to: "/admin/feedback", label: "Website feedback", icon: MessageSquareText },
+  { to: "/admin/recipe-library-leads", label: "Recipe library leads", icon: MailOpen },
   { to: "/admin/content", label: "Website content", icon: PanelsTopLeft },
 ];
 
@@ -84,7 +86,7 @@ function AdminShell() {
                 label: "Content",
                 paths: ["/admin/recipes", "/admin/conditions", "/admin/muscles", "/admin/content"],
               },
-              { label: "Operations", paths: ["/admin/customers", "/admin/feedback"] },
+              { label: "Operations", paths: ["/admin/customers", "/admin/feedback", "/admin/recipe-library-leads"] },
             ].map((group) => (
               <div key={group.label} className="mb-4">
                 <p className="px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">

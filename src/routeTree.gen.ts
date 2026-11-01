@@ -17,6 +17,7 @@ import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MovementCheckRouteImport } from './routes/movement-check'
 import { Route as MusclesRouteImport } from './routes/muscles'
+import { Route as NotionSampleRouteImport } from './routes/notion-sample'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -34,8 +35,10 @@ import { Route as AdminGuidesRouteImport } from './routes/admin.guides'
 import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
+import { Route as AdminRecipeLibraryLeadsRouteImport } from './routes/admin.recipe-library-leads'
 import { Route as ApiCloudflareStreamWebhookRouteImport } from './routes/api/cloudflare-stream-webhook'
 import { Route as ApiFeedbackRouteImport } from './routes/api.feedback'
+import { Route as ApiRecipeLibraryLeadsRouteImport } from './routes/api.recipe-library-leads'
 import { Route as CheckoutCompleteRouteImport } from './routes/checkout.complete'
 import { Route as ConditionsIndexRouteImport } from './routes/conditions.index'
 import { Route as ConditionsSlugRouteImport } from './routes/conditions.$slug'
@@ -105,6 +108,11 @@ const MovementCheckRoute = MovementCheckRouteImport.update({
 const MusclesRoute = MusclesRouteImport.update({
   id: '/muscles',
   path: '/muscles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotionSampleRoute = NotionSampleRouteImport.update({
+  id: '/notion-sample',
+  path: '/notion-sample',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -192,6 +200,11 @@ const AdminProgramsRoute = AdminProgramsRouteImport.update({
   path: '/programs',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminRecipeLibraryLeadsRoute = AdminRecipeLibraryLeadsRouteImport.update({
+  id: '/recipe-library-leads',
+  path: '/recipe-library-leads',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiCloudflareStreamWebhookRoute =
   ApiCloudflareStreamWebhookRouteImport.update({
     id: '/api/cloudflare-stream-webhook',
@@ -201,6 +214,11 @@ const ApiCloudflareStreamWebhookRoute =
 const ApiFeedbackRoute = ApiFeedbackRouteImport.update({
   id: '/api/feedback',
   path: '/api/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRecipeLibraryLeadsRoute = ApiRecipeLibraryLeadsRouteImport.update({
+  id: '/api/recipe-library-leads',
+  path: '/api/recipe-library-leads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutCompleteRoute = CheckoutCompleteRouteImport.update({
@@ -366,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/movement-check': typeof MovementCheckRoute
   '/muscles': typeof MusclesRouteWithChildren
+  '/notion-sample': typeof NotionSampleRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -382,8 +401,10 @@ export interface FileRoutesByFullPath {
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
+  '/admin/recipe-library-leads': typeof AdminRecipeLibraryLeadsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/recipe-library-leads': typeof ApiRecipeLibraryLeadsRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -422,6 +443,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/movement-check': typeof MovementCheckRoute
+  '/notion-sample': typeof NotionSampleRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -437,8 +459,10 @@ export interface FileRoutesByTo {
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
+  '/admin/recipe-library-leads': typeof AdminRecipeLibraryLeadsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/recipe-library-leads': typeof ApiRecipeLibraryLeadsRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -481,6 +505,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/movement-check': typeof MovementCheckRoute
   '/muscles': typeof MusclesRouteWithChildren
+  '/notion-sample': typeof NotionSampleRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -497,8 +522,10 @@ export interface FileRoutesById {
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/programs': typeof AdminProgramsRoute
+  '/admin/recipe-library-leads': typeof AdminRecipeLibraryLeadsRoute
   '/api/cloudflare-stream-webhook': typeof ApiCloudflareStreamWebhookRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/recipe-library-leads': typeof ApiRecipeLibraryLeadsRoute
   '/checkout/complete': typeof CheckoutCompleteRoute
   '/conditions/$slug': typeof ConditionsSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -542,6 +569,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/movement-check'
     | '/muscles'
+    | '/notion-sample'
     | '/privacy'
     | '/refund-policy'
     | '/reset-password'
@@ -558,8 +586,10 @@ export interface FileRouteTypes {
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
+    | '/admin/recipe-library-leads'
     | '/api/cloudflare-stream-webhook'
     | '/api/feedback'
+    | '/api/recipe-library-leads'
     | '/checkout/complete'
     | '/conditions/$slug'
     | '/guides/$slug'
@@ -598,6 +628,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/movement-check'
+    | '/notion-sample'
     | '/privacy'
     | '/refund-policy'
     | '/reset-password'
@@ -613,8 +644,10 @@ export interface FileRouteTypes {
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
+    | '/admin/recipe-library-leads'
     | '/api/cloudflare-stream-webhook'
     | '/api/feedback'
+    | '/api/recipe-library-leads'
     | '/checkout/complete'
     | '/conditions/$slug'
     | '/guides/$slug'
@@ -656,6 +689,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/movement-check'
     | '/muscles'
+    | '/notion-sample'
     | '/privacy'
     | '/refund-policy'
     | '/reset-password'
@@ -672,8 +706,10 @@ export interface FileRouteTypes {
     | '/admin/lessons'
     | '/admin/orders'
     | '/admin/programs'
+    | '/admin/recipe-library-leads'
     | '/api/cloudflare-stream-webhook'
     | '/api/feedback'
+    | '/api/recipe-library-leads'
     | '/checkout/complete'
     | '/conditions/$slug'
     | '/guides/$slug'
@@ -716,6 +752,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MovementCheckRoute: typeof MovementCheckRoute
   MusclesRoute: typeof MusclesRouteWithChildren
+  NotionSampleRoute: typeof NotionSampleRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -725,6 +762,7 @@ export interface RootRouteChildren {
   Ver1Route: typeof Ver1RouteWithChildren
   ApiCloudflareStreamWebhookRoute: typeof ApiCloudflareStreamWebhookRoute
   ApiFeedbackRoute: typeof ApiFeedbackRoute
+  ApiRecipeLibraryLeadsRoute: typeof ApiRecipeLibraryLeadsRoute
   CheckoutCompleteRoute: typeof CheckoutCompleteRoute
   ConditionsSlugRoute: typeof ConditionsSlugRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
@@ -798,6 +836,13 @@ declare module '@tanstack/react-router' {
       path: '/muscles'
       fullPath: '/muscles'
       preLoaderRoute: typeof MusclesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notion-sample': {
+      id: '/notion-sample'
+      path: '/notion-sample'
+      fullPath: '/notion-sample'
+      preLoaderRoute: typeof NotionSampleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -919,6 +964,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProgramsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/recipe-library-leads': {
+      id: '/admin/recipe-library-leads'
+      path: '/recipe-library-leads'
+      fullPath: '/admin/recipe-library-leads'
+      preLoaderRoute: typeof AdminRecipeLibraryLeadsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/cloudflare-stream-webhook': {
       id: '/api/cloudflare-stream-webhook'
       path: '/api/cloudflare-stream-webhook'
@@ -931,6 +983,13 @@ declare module '@tanstack/react-router' {
       path: '/api/feedback'
       fullPath: '/api/feedback'
       preLoaderRoute: typeof ApiFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/recipe-library-leads': {
+      id: '/api/recipe-library-leads'
+      path: '/api/recipe-library-leads'
+      fullPath: '/api/recipe-library-leads'
+      preLoaderRoute: typeof ApiRecipeLibraryLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout/complete': {
@@ -1156,6 +1215,7 @@ interface AdminRouteChildren {
   AdminLessonsRoute: typeof AdminLessonsRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProgramsRoute: typeof AdminProgramsRoute
+  AdminRecipeLibraryLeadsRoute: typeof AdminRecipeLibraryLeadsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminMusclesMuscleIdRoute: typeof AdminMusclesMuscleIdRoute
   AdminMusclesImportRoute: typeof AdminMusclesImportRoute
@@ -1176,6 +1236,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLessonsRoute: AdminLessonsRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProgramsRoute: AdminProgramsRoute,
+  AdminRecipeLibraryLeadsRoute: AdminRecipeLibraryLeadsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminMusclesMuscleIdRoute: AdminMusclesMuscleIdRoute,
   AdminMusclesImportRoute: AdminMusclesImportRoute,
@@ -1249,6 +1310,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MovementCheckRoute: MovementCheckRoute,
   MusclesRoute: MusclesRouteWithChildren,
+  NotionSampleRoute: NotionSampleRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -1258,6 +1320,7 @@ const rootRouteChildren: RootRouteChildren = {
   Ver1Route: Ver1RouteWithChildren,
   ApiCloudflareStreamWebhookRoute: ApiCloudflareStreamWebhookRoute,
   ApiFeedbackRoute: ApiFeedbackRoute,
+  ApiRecipeLibraryLeadsRoute: ApiRecipeLibraryLeadsRoute,
   CheckoutCompleteRoute: CheckoutCompleteRoute,
   ConditionsSlugRoute: ConditionsSlugRoute,
   GuidesSlugRoute: GuidesSlugRoute,
