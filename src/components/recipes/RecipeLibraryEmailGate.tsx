@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const unlockKey = "lbf_recipe_library_lead";
 
@@ -7,8 +8,28 @@ export function RecipeLibraryEmailGate({ children }: { children: React.ReactNode
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setUnlocked(window.localStorage.getItem(unlockKey) === "1");
-    setReady(true);
+    let active = true;
+
+    async function checkAccess() {
+      const emailGateUnlocked = window.localStorage.getItem(unlockKey) === "1";
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (active) setUnlocked(emailGateUnlocked || Boolean(data.user));
+      } catch {
+        if (active) setUnlocked(emailGateUnlocked);
+      } finally {
+        if (active) setReady(true);
+      }
+    }
+
+    void checkAccess();
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) setUnlocked(window.localStorage.getItem(unlockKey) === "1" || Boolean(session?.user));
+    });
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
