@@ -12,6 +12,8 @@ create index if not exists recipe_library_leads_updated_at_idx
 
 alter table public.recipe_library_leads enable row level security;
 
+drop policy if exists "Administrators can read recipe library leads" on public.recipe_library_leads;
+
 create policy "Administrators can read recipe library leads"
   on public.recipe_library_leads for select
   to authenticated
