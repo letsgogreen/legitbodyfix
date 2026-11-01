@@ -40,7 +40,7 @@ test("member navigation rejects external and backslash redirects", () => {
     assert.equal(safeMemberNext(value), "/library");
   assert.equal(safeMemberNext("/library?tab=owned"), "/library?tab=owned");
 });
-test("signup is passwordless, consent retained and existing login methods preserved", () => {
+test("member access uses only email links and Google while retaining consent", () => {
   const signup = read("src/routes/signup.tsx"),
     login = read("src/routes/login.tsx"),
     form = read("src/components/auth/EmailLinkForm.tsx");
@@ -54,7 +54,16 @@ test("signup is passwordless, consent retained and existing login methods preser
   assert.match(form, /Privacy Policy/);
   assert.match(form, /authError/);
   assert.match(form, /Resend verification link/);
-  assert.match(login, /signInWithPassword/);
+  assert.doesNotMatch(
+    login,
+    /signInWithPassword|type="password"|Forgot password|existing password/,
+  );
   assert.match(login, /GoogleAuthButton/);
   assert.match(login, /EmailVerificationReturn/);
+  assert.match(login, /Keep me signed in/);
+  for (const path of ["src/routes/forgot-password.tsx", "src/routes/reset-password.tsx"]) {
+    const legacy = read(path);
+    assert.match(legacy, /Continue to email sign-in/);
+    assert.doesNotMatch(legacy, /type="password"|resetPasswordForEmail|updateUser/);
+  }
 });
