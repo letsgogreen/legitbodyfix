@@ -1,14 +1,10 @@
-import { type FormEvent, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  AuthCard,
-  authButtonClass,
-  authInputClass,
-  authLabelClass,
-} from "@/components/auth/AuthCard";
+import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthDivider, GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
+import { EmailLinkForm } from "@/components/auth/EmailLinkForm";
 import { supabase } from "@/integrations/supabase/client";
-import { isAuthError } from "@supabase/supabase-js";
+import { setAuthPersistence } from "@/integrations/supabase/previewAuthStorage";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -19,247 +15,66 @@ export const Route = createFileRoute("/signup")({
   }),
   component: SignupPage,
 });
-
 function SignupPage() {
-  const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [accepted, setAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [complete, setComplete] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
-  const [resending, setResending] = useState(false);
-  const [resendMessage, setResendMessage] = useState("");
-
-  async function continueWithGoogle(credential: string, nonce: string) {
+  async function google(credential: string, nonce: string) {
     if (busy) return;
     setBusy(true);
     setMessage("");
-    const { error } = await supabase.auth.signInWithIdToken({
-      provider: "google",
-      token: credential,
-      nonce,
-    });
-    if (error) {
-      setMessage("Google sign-in could not be completed. Please try again or use email.");
-      setBusy(false);
-      return;
-    }
-    window.location.assign("/library");
-  }
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (busy) return;
-    if (password.length < 8) return setMessage("Use at least 8 characters for your password.");
-    if (password !== confirm) return setMessage("Passwords do not match.");
-    if (!accepted) return setMessage("Please agree to the Terms and Privacy Policy.");
-    setBusy(true);
-    setMessage("");
+    setAuthPersistence(false);
     try {
-      const normalizedEmail = email.trim().toLowerCase();
-      const { data, error } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/library`,
-          data: { display_name: displayName.trim() },
-        },
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token: credential,
+        nonce,
       });
       if (error) throw error;
-      if (data.user?.identities?.length === 0) {
-        setMessage("An account already exists for this email. Log in or reset your password.");
-        return;
-      }
-      if (data.session) window.location.assign("/library");
-      else {
-        setSubmittedEmail(normalizedEmail);
-        setComplete(true);
-      }
-    } catch (error) {
-      setMessage(signupErrorMessage(error));
-    } finally {
+      window.location.assign("/library");
+    } catch {
+      setMessage("Google sign-in could not be completed. Please try again or use email.");
       setBusy(false);
     }
   }
-
-  async function resendConfirmation() {
-    if (!submittedEmail || resending) return;
-    setResending(true);
-    setResendMessage("");
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email: submittedEmail,
-      options: { emailRedirectTo: `${window.location.origin}/library` },
-    });
-    setResendMessage(
-      error
-        ? signupErrorMessage(error)
-        : "Confirmation email sent again. Check spam or promotions if it does not appear shortly.",
-    );
-    setResending(false);
-  }
-
   return (
     <AuthCard
       eyebrow="New customer"
       title="Create account"
-      body="Use the same email you used at checkout so we can connect your purchased programs."
+      body="Verify your email to create an account. No password needed. Use your checkout email to connect purchased programs."
     >
-      {complete ? (
-        <div className="space-y-5">
-          <p className="text-sm leading-6">
-            We sent a confirmation link to <strong>{submittedEmail}</strong>. Confirm your account,
-            then return to log in.
-          </p>
-          <button
-            type="button"
-            className={`${authButtonClass} border border-border bg-card text-foreground`}
-            disabled={resending}
-            onClick={() => void resendConfirmation()}
-          >
-            {resending ? "Sending…" : "Resend confirmation email"}
-          </button>
-          {resendMessage && (
-            <p role="status" className="text-sm leading-6 text-muted-foreground">
-              {resendMessage}
-            </p>
-          )}
-          <Link
-            to="/login"
-            search={{ next: "/library" }}
-            className={authButtonClass + " inline-flex items-center justify-center"}
-          >
-            Go to log in
-          </Link>
-        </div>
-      ) : (
-        <>
-          <GoogleAuthButton
-            busy={busy}
-            onCredential={(credential, nonce) => void continueWithGoogle(credential, nonce)}
-            onUnavailable={() =>
-              setMessage("Google sign-in is unavailable in this browser. Open the page in Chrome or use email.")
-            }
-          />
-          <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
-            By continuing, you agree to the{" "}
-            <Link to="/terms" className="font-bold text-foreground underline">
-              Terms
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="font-bold text-foreground underline">
-              Privacy Policy
-            </Link>
-            .
-          </p>
-          <AuthDivider />
-          <form onSubmit={submit} className="grid gap-4">
-          <label className={authLabelClass}>
-            Nickname
-            <input
-              className={authInputClass}
-              type="text"
-              required
-              maxLength={50}
-              autoComplete="nickname"
-              value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
-            />
-          </label>
-          <label className={authLabelClass}>
-            Email
-            <input
-              className={authInputClass}
-              type="email"
-              required
-              autoComplete="email"
-              autoCapitalize="none"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </label>
-          <label className={authLabelClass}>
-            Password
-            <input
-              className={authInputClass}
-              type="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </label>
-          <label className={authLabelClass}>
-            Confirm password
-            <input
-              className={authInputClass}
-              type="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              value={confirm}
-              onChange={(event) => setConfirm(event.target.value)}
-            />
-          </label>
-          <label className="flex items-start gap-3 text-xs leading-5 text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={accepted}
-              onChange={(event) => setAccepted(event.target.checked)}
-              className="mt-1 h-4 w-4 accent-lime"
-            />
-            <span>
-              I agree to the{" "}
-              <Link to="/terms" className="font-bold text-foreground underline">
-                Terms & Conditions
-              </Link>{" "}
-              and{" "}
-              <Link to="/privacy" className="font-bold text-foreground underline">
-                Privacy Policy
-              </Link>
-              .
-            </span>
-          </label>
-          <button className={authButtonClass} disabled={busy}>
-            {busy ? "Creating account…" : "Create account"}
-          </button>
-          </form>
-        </>
-      )}
+      <GoogleAuthButton
+        busy={busy}
+        onCredential={(credential, nonce) => void google(credential, nonce)}
+        onUnavailable={() =>
+          setMessage(
+            "Google sign-in is unavailable in this browser. Open the page in Chrome or use email.",
+          )
+        }
+      />
+      <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
+        By continuing with Google, you agree to the{" "}
+        <Link to="/terms" className="font-bold underline">
+          Terms
+        </Link>{" "}
+        and{" "}
+        <Link to="/privacy" className="font-bold underline">
+          Privacy Policy
+        </Link>
+        .
+      </p>
+      <AuthDivider />
+      <EmailLinkForm signup />
       {message && (
         <p role="alert" className="mt-4 text-sm text-destructive">
           {message}
         </p>
       )}
-      {!complete && (
-        <p className="mt-7 border-t border-border pt-5 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            search={{ next: "/library" }}
-            className="font-bold text-foreground underline underline-offset-4"
-          >
-            Log in
-          </Link>
-        </p>
-      )}
+      <p className="mt-7 border-t border-border pt-5 text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <Link to="/login" search={{ next: "/library" }} className="font-bold underline">
+          Log in
+        </Link>
+      </p>
     </AuthCard>
   );
-}
-
-function signupErrorMessage(error: unknown): string {
-  if (isAuthError(error)) {
-    const details = [
-      error.code && /^[a-z0-9_]+$/i.test(error.code) ? error.code : null,
-      error.status ? `HTTP ${error.status}` : null,
-    ]
-      .filter(Boolean)
-      .join(" · ");
-    return `${error.message || "The authentication service could not create your account."}${details ? ` (${details})` : ""}`;
-  }
-  return "Unable to complete signup. Check your connection and try again. If this continues, contact support.";
 }

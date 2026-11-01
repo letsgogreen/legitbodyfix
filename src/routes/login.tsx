@@ -1,4 +1,6 @@
 import { type FormEvent, useState } from "react";
+import { EmailLinkForm, EmailVerificationReturn } from "@/components/auth/EmailLinkForm";
+import { safeMemberNext } from "@/lib/member-email-auth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -12,13 +14,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { setAuthPersistence } from "@/integrations/supabase/previewAuthStorage";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    next:
-      typeof search.next === "string" &&
-      search.next.startsWith("/") &&
-      !search.next.startsWith("//")
-        ? search.next
-        : "/library",
+  validateSearch: (search: Record<string, unknown>): { next: string; member_login?: string } => ({
+    next: safeMemberNext(search["next"]),
+    ...(typeof search["member_login"] === "string" ? { member_login: search["member_login"] } : {}),
   }),
   head: () => ({
     meta: [{ title: "Log in — LegitBodyFix" }, { name: "robots", content: "noindex, nofollow" }],
@@ -27,7 +25,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { next } = Route.useSearch();
+  const { next, member_login } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -64,6 +62,7 @@ function LoginPage() {
     else window.location.assign(next);
   }
 
+  if (member_login) return <EmailVerificationReturn />;
   return (
     <AuthCard
       eyebrow="Member access"
@@ -74,10 +73,16 @@ function LoginPage() {
         busy={busy}
         onCredential={(credential, nonce) => void continueWithGoogle(credential, nonce)}
         onUnavailable={() =>
-          setMessage("Google sign-in is unavailable in this browser. Open the page in Chrome or use email.")
+          setMessage(
+            "Google sign-in is unavailable in this browser. Open the page in Chrome or use email.",
+          )
         }
       />
       <AuthDivider />
+      <EmailLinkForm next={next} remember={remember} />
+      <h2 className="mb-5 mt-8 border-t border-border pt-6 text-base font-bold">
+        Or log in with your existing password
+      </h2>
       <form onSubmit={submit} className="grid gap-5">
         <label className={authLabelClass}>
           Email
