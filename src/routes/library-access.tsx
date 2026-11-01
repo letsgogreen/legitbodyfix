@@ -9,8 +9,8 @@ export const Route = createFileRoute("/library-access")({
   }),
   head: () => ({
     meta: [
-      { title: "Corrective Exercise Library — Free Sample | LegitBodyFix" },
-      { name: "description", content: "Open the complete Corrective Movement Strategies library with your email." },
+      { title: "Corrective Exercise Library Access | LegitBodyFix" },
+      { name: "description", content: "Open the complete Corrective Exercise Library with your email." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -46,14 +46,14 @@ function LibraryAccess() {
     <main className="min-h-screen bg-[#f5f3eb] px-5 py-8 text-[#161812] sm:px-8 lg:px-[5%]">
       <header className="mx-auto flex max-w-[1400px] items-center justify-between border-b border-[#d5d6ca] pb-7">
         <Link to="/" className="text-base font-black tracking-[-0.04em]">LEGITBODYFIX</Link>
-        <span className="font-mono text-[10px] tracking-[0.14em] text-[#60635a]">FREE LIBRARY ACCESS</span>
+        <span className="font-mono text-[10px] tracking-[0.14em] text-[#60635a]">LIBRARY ACCESS</span>
       </header>
       <section className="mx-auto max-w-[1140px] py-14 lg:py-20">
         <p className="flex items-center justify-center gap-2 text-center font-mono text-[10px] tracking-[0.15em] text-[#60635a]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#607b1d]" /> FOR TRAINERS &amp; MOVEMENT PROFESSIONALS
         </p>
         <h1 className="mt-6 text-center text-4xl font-extrabold leading-[0.98] tracking-[-0.055em] sm:text-6xl">
-          Your access to the<br /><span className="bg-[linear-gradient(transparent_56%,#d5fb60_56%,#d5fb60_93%,transparent_93%)]">Corrective Exercise Library.</span>
+          Explore the<br /><span className="bg-[linear-gradient(transparent_56%,#d5fb60_56%,#d5fb60_93%,transparent_93%)]">Corrective Exercise Library.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-7 text-[#60635a] sm:text-lg">
           Explore movement notes, muscle references and corrective movement strategies in one connected library.
@@ -74,13 +74,13 @@ function LibraryAccess() {
           <section className="border border-[#b8bbaa] bg-[#fffef9] p-7 sm:p-10">
             <p className="font-mono text-[10px] tracking-[0.14em] text-[#60635a]">A LOOK INSIDE THE LIBRARY</p>
             <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.04em]">Open the full library.</h2>
-            <p className="mt-4 text-sm leading-6 text-[#60635a]">Enter your email to access the complete corrective movement strategies library.</p>
+            <p className="mt-4 text-sm leading-6 text-[#60635a]">Enter your email to open the complete corrective exercise library.</p>
             <form className="mt-7" onSubmit={submit}>
-              <label htmlFor="library-access-email" className="block text-xs font-bold">Where should we send your access?</label>
+              <label htmlFor="library-access-email" className="block text-xs font-bold">Email address</label>
               <input id="library-access-email" type="email" required autoComplete="email" autoCapitalize="none" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Your email address" className="mt-2 h-13 w-full border border-[#a1a595] bg-[#fffef9] px-4 text-sm outline-none focus:border-[#161812]" />
               <label className="mt-4 flex gap-3 text-xs leading-5 text-[#60635a]"><input type="checkbox" required checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#607b1d]" /><span>I agree that LegitBodyFix may store my email to provide this access, as described in the <Link to="/privacy" className="font-bold underline">Privacy Policy</Link>.</span></label>
               <div className="absolute -left-[10000px]" aria-hidden="true"><label htmlFor="library-access-website">Website</label><input id="library-access-website" value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></div>
-              <button type="submit" disabled={!accepted || state === "sending"} className="mt-6 min-h-13 w-full border border-[#161812] bg-[#d5fb60] px-5 text-sm font-bold hover:bg-[#c4ed42] disabled:cursor-not-allowed disabled:opacity-60">{state === "sending" ? "Opening library…" : "Open the full library ↗"}</button>
+              <button type="submit" disabled={!accepted || state === "sending"} className="mt-6 min-h-13 w-full border border-[#161812] bg-[#d5fb60] px-5 text-sm font-bold hover:bg-[#c4ed42] disabled:cursor-not-allowed disabled:opacity-60">{state === "sending" ? "Opening library…" : "Access the library ↗"}</button>
               <p aria-live="polite" className="mt-3 text-sm text-red-700">{state === "error" ? "We couldn’t save that email. Please try again." : ""}</p>
             </form>
           </section>
