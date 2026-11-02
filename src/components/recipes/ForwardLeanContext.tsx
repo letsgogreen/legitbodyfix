@@ -37,6 +37,41 @@ export function RelatedPatternCard({ recipe }: { recipe: RelatedRecipe }) {
 }
 
 export function ForwardLeanContext({ relatedRecipes }: { relatedRecipes: RelatedRecipe[] }) {
+  return <ApprovedForwardLeanContext relatedRecipes={relatedRecipes} />;
+}
+
+function ApprovedForwardLeanContext({ relatedRecipes }: { relatedRecipes: RelatedRecipe[] }) {
+  const sections = [
+    { heading: "How the ankles influence the squat", paragraphs: ["As you descend, the shins move forward over the feet. This requires ankle dorsiflexion.", "When that movement is limited, you may send the hips farther back and lean forward to stay balanced. You may also lift the heels or stop before reaching the intended depth. Research comparing people with different amounts of ankle dorsiflexion has found greater forward trunk lean in the more restricted group.", "This is where the gastrocnemius and soleus cards become relevant. If calf restriction is contributing, improving available ankle motion gives the knees more room to travel forward rather than asking the trunk to make up the difference."] },
+    { heading: "How the hips influence the descent", paragraphs: ["The hips need to accommodate the thighs as the squat gets deeper. Stance width and foot angle change the combination of hip flexion, abduction and rotation involved.", "If the thighs stay drawn inward or the chosen stance feels restrictive, you may stop early, shift toward one leg, or redistribute movement through the pelvis and trunk.", "The rectus femoris and TFL cards help explain muscles that influence the hip and knee. If inward knee movement or a sideways shift also appears, the related recipes provide a closer look at those accompanying patterns."] },
+    { heading: "How the muscles fit together", paragraphs: ["The muscle cards organize possible targets—not a requirement to work on every muscle listed.", "Calf mobility matters when forward shin movement is restricted. Hip-focused work matters when the thighs cannot comfortably accommodate the descent. Tibialis anterior and gluteus maximus activation can then be connected to ankle control and hip extension, alongside trunk control during the squat.", "The next step is to bring those changes back into the movement. More available motion is useful when you can control it while lowering and standing up."] },
+  ];
+  const rows = [
+    ["Inhibit", "Address excessive tension where it limits the movement.", "Gastrocnemius and soleus; rectus femoris or TFL when relevant."],
+    ["Lengthen", "Improve the ankle or hip motion needed for the chosen squat.", "Calf mobility; hip-focused flexibility where a restriction has been identified."],
+    ["Activate", "Develop control of the available movement.", "Tibialis anterior, gluteus maximus and trunk stabilizers, according to the control needed."],
+    ["Integrate", "Coordinate forward shin movement, hip motion and trunk control.", "A squat variation with an appropriate stance, support and depth."],
+  ];
+  return <section className="border-b border-border" aria-labelledby="forward-lean-context">
+    <div className="mx-auto max-w-6xl px-5 py-14 lg:px-8 lg:py-16">
+      <article className="mx-auto max-w-[70ch] text-[18px] leading-[1.85] text-foreground/90 sm:text-[19px]">
+        <p className="text-sm font-semibold uppercase tracking-[0.12em]">Understanding the pattern</p>
+        <h2 id="forward-lean-context" className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl">Why does your chest drop as you squat?</h2>
+        <p className="mt-6">You start lowering into a squat. Your hips move back, your chest drops, and staying upright becomes harder as you go deeper.</p>
+        <p className="mt-5">“Keep your chest up” may change the appearance for a moment. But if the ankles cannot move forward comfortably, the hips struggle to accommodate the descent, or the trunk cannot control the position, the same pattern often returns.</p>
+        <p className="mt-5">The useful starting point is to follow how the ankles, hips and trunk share the movement.</p>
+        {sections.map(section => <section key={section.heading} className="mt-10"><h3 className="text-2xl font-bold leading-snug">{section.heading}</h3>{section.paragraphs.map(paragraph => <p key={paragraph} className="mt-5">{paragraph}</p>)}{section.heading === sections[0]!.heading && <a className="text-base font-semibold underline underline-offset-4" href="https://pubmed.ncbi.nlm.nih.gov/41196246/">Ankle dorsiflexion and squat kinematics</a>}</section>)}
+        <section className="mt-10"><h3 className="text-2xl font-bold">A practical sequence</h3><p className="mt-5">Choose the relevant targets, then connect the work back to your squat.</p>
+          <div className="mt-6 overflow-x-auto border border-border"><table className="w-full min-w-[620px] text-left text-base leading-7"><thead className="bg-muted/50"><tr>{["Phase", "Focus", "Examples"].map(label => <th key={label} scope="col" className="border-b border-border px-5 py-4">{label}</th>)}</tr></thead><tbody>{rows.map(row => <tr key={row[0]} className="border-b border-border last:border-0"><th scope="row" className="px-5 py-4 align-top">{row[0]}</th>{row.slice(1).map(cell => <td key={cell} className="px-5 py-4 align-top">{cell}</td>)}</tr>)}</tbody></table></div>
+        </section>
+        <section className="mt-10"><h3 className="text-2xl font-bold">Bring it back to the squat</h3><p className="mt-5">Return to the part of the descent where your chest starts to drop. Look for smoother knee travel, steadier foot contact and better control as the hips lower.</p><p className="mt-5">The goal is not to make every squat perfectly upright. Your proportions, stance and load position all influence trunk angle. What matters is whether you can control the position required by the exercise without losing balance or forcing more depth than you can comfortably manage.</p></section>
+      </article>
+      {relatedRecipes.length > 0 && <section className="mt-16 border-t border-border pt-10"><h2 className="text-2xl font-extrabold">Related movement patterns</h2><ul className="mt-6 grid gap-5 md:grid-cols-2">{relatedRecipes.map(recipe => <RelatedPatternCard key={recipe.slug} recipe={recipe} />)}</ul></section>}
+    </div>
+  </section>;
+}
+
+function PreviousForwardLeanContext({ relatedRecipes }: { relatedRecipes: RelatedRecipe[] }) {
   return (
     <section aria-labelledby="forward-lean-context" className="border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-14 lg:px-8 lg:py-16">
