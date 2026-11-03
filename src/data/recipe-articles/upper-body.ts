@@ -2,54 +2,62 @@ import type { PatternArticle } from "./types.ts";
 
 export const upperBodyArticles: Record<string, PatternArticle> = {
   "round-shoulder": {
-    title: "Rounded shoulders: a resting outline or a reaching strategy?",
+    title: "Rounded shoulders: look beyond pulling them back",
     intro: [
-      "From the side, the shoulders may sit forward of the trunk. During a reach, they may also travel forward deliberately. Those appearances are not interchangeable: the shoulder blade needs to move around the ribcage, while a resting photograph captures only one position.",
+      "Your shoulders sit forward. You pull them back, lift your chest—and soon find yourself in the same position again.",
+      "Holding the shoulders back is not the same as improving how they move. The shoulder blades sit on the ribcage, while the chest muscles and latissimus dorsi influence movement around them. Reaching, pushing and pulling require these parts to work together.",
+      "The starting point is to understand what limits the movement, then develop control rather than forcing a position.",
     ],
     sections: [
       {
-        heading: "The upper back changes the starting point",
+        heading: "How the chest muscles influence the shoulders",
         paragraphs: [
-          "The shoulder blades sit on the thorax, so a change in upper-back position changes their starting relationship to the arms. In an experiment comparing upright and slouched postures, thoracic position affected scapular motion and shoulder range. This provides a mechanical connection, not a verdict that a rounded upper back is harmful.",
-          "A separate adopted-posture study also found changes in arm mobility and neck–shoulder recruitment. These are task responses; they are not evidence that the same posture explains every person's discomfort.",
-        ],
-        evidence: ["thoraxShoulder", "slouchReach"],
-      },
-      {
-        heading: "Forward is not the same as tipped forward",
-        paragraphs: [
-          "Protraction describes a shoulder blade travelling around the ribcage. Anterior tilt describes its top tipping forward relative to its bottom. Either can contribute to a 'rounded' outline, and a photograph may not distinguish them well.",
-          "Pectoralis minor resting length has been associated with differences in scapular movement in pain-free volunteers. That makes its mechanics relevant to explore, but does not mean every forward shoulder has a shortened pectoralis minor.",
+          "The pectoralis minor connects the ribs to the shoulder blade. Its resting length has been associated with differences in scapular movement during arm elevation, including how the shoulder blade tilts and rotates.",
+          "The pectoralis major acts on the upper arm. Together, these muscles make the front of the shoulder relevant when chest flexibility restricts reaching or opening the arms.",
+          "This is why chest mobility appears in the sequence—not simply to make the shoulders look farther back, but to address restrictions that affect movement.",
         ],
         evidence: ["pecMinor"],
       },
       {
-        heading: "Why the head position is a related question",
+        heading: "Why the upper back matters",
         paragraphs: [
-          "A forward head and forward shoulders can be observed together. In that case, describe the head relative to the thorax separately from the shoulder blade relative to the ribs. Group research during overhead tasks considered head and shoulder posture together, so it cannot establish that one caused the other.",
-          "The related recipes below separate these overlapping observations. They help replace the broad instruction 'pull your shoulders back' with a clearer account of which movement is actually changing.",
+          "The shoulder blades move over the ribcage. Changing the position of the upper back also changes the surface beneath them.",
+          "Research comparing slouched and upright sitting found differences in clavicular and scapular positions during arm elevation. The connection is practical: shoulder movement can change when the trunk position changes.",
+          "Thoracic mobility therefore belongs alongside shoulder work. The aim is to allow movement through the upper back without replacing it with an exaggerated lower-back arch or lifted front ribs.",
         ],
-        evidence: ["headShoulder"],
+        evidence: ["thoraxShoulder"],
       },
+      {
+        heading: "Where the latissimus dorsi fits",
+        paragraphs: [
+          "The latissimus dorsi brings the upper arm toward the body and contributes to pulling movements. When its flexibility limits overhead movement, raising the arms may be accompanied by changes in the ribcage and trunk.",
+          "This is particularly relevant when the arms fall forward during an overhead squat. That observation is different from the shoulders resting forward, but both give a reason to examine how the upper arm, shoulder blade and trunk move together.",
+          "The sequence includes the latissimus dorsi alongside the pectorals rather than treating rounded shoulders as a chest-only issue.",
+        ],
+      },
+      { heading: "Develop control—not a permanent squeeze", paragraphs: ["The rhomboids and middle trapezius contribute to scapular retraction. The lower trapezius also contributes to the coordinated movement of the shoulder blade as the arm rises.", "The purpose of strengthening is not to hold the shoulder blades pinched together throughout the day. They need to move around the ribcage during a reach and return with control during a pull.", "Mobility work and strengthening serve complementary purposes: address relevant restrictions, then practice controlling the movement available."] },
+      { heading: "A practical sequence", paragraphs: ["This sequence follows the source program for Arms Fall Forward, connecting shoulder and thoracic preparation with scapular strengthening and a whole-body pulling movement."], table: { caption: "From targeted preparation to integrated movement", columns: ["Phase", "Approach", "Targets / Exercise"], rows: [["Inhibit", "Self-myofascial release", "Latissimus dorsi, pectorals, thoracic region"], ["Lengthen", "Static stretching", "Latissimus dorsi, pectorals"], ["Activate", "Isolated strengthening", "Rhomboids, middle and lower trapezius"], ["Integrate", "Integrated movement", "Squat to row — transverse plane"]] } },
+      { heading: "Connect mobility with activation", paragraphs: ["The accompanying progression also includes thoracic extension mobility and rotator-cuff work, with Ball Combo 2 as an activation exercise."] },
+      { heading: "Why the row needs attention", paragraphs: ["A row can train pulling without necessarily developing the scapular control you intended.", "The source program specifically highlights the latissimus dorsi’s contribution to rowing. The emphasis is therefore not simply on pulling harder or moving the elbows farther behind the body, but on coordinating the shoulder blades, upper arms and trunk.", "The squat-to-row progression connects that control with lower-body movement. It brings the preceding work into a coordinated task rather than leaving it as separate stretches and muscle exercises."] },
+      { heading: "Bring it back to reaching and pulling", paragraphs: ["Return to a comfortable reach or pull. Look for movement through the shoulder blades and upper arms without needing to lift the front ribs, arch the lower back or hold the shoulders rigidly behind you.", "The goal is not to keep the shoulders back all the time. It is to make their movement easier to control."] },
     ],
-    interpretation:
-      "A resting shoulder outline does not diagnose tissue shortening, weakness or pain. Interpret it alongside comfortable movement and the task, rather than trying to keep the shoulder blades retracted throughout every reach.",
     connections: [
       {
         slug: "scapula-anterior-tilt",
         reason:
-          "Distinguish a shoulder blade tipping forward from one moving forward around the ribcage.",
+          "Explore how the shoulder blade tips forward, particularly when chest mobility and overhead movement are involved.",
       },
       {
         slug: "forward-head-posture",
         reason:
-          "Describe the head–thorax relationship separately when forward shoulders and head position coexist.",
+          "Consider the head and neck alongside the shoulders when reaching or pulling is accompanied by the head moving forward.",
       },
       {
         slug: "shoulder-elevation",
         reason:
-          "Separate forward shoulder position from the upward movement that occurs during arm elevation.",
+          "Explore the upward movement of the shoulder girdle when reaching or pulling becomes dominated by shrugging.",
       },
+      { slug: "rib-flare", reason: "Consider the ribcage when lifting the arms is accompanied by the front ribs rising and the lower back arching." },
     ],
   },
   "forward-head-posture": {
