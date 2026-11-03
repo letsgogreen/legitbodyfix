@@ -15,6 +15,7 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
           "The pectoralis minor connects the ribs to the shoulder blade. Its resting length has been associated with differences in scapular movement during arm elevation, including how the shoulder blade tilts and rotates.",
           "The pectoralis major acts on the upper arm. Together, these muscles make the front of the shoulder relevant when chest flexibility restricts reaching or opening the arms.",
           "This is why chest mobility appears in the sequence—not simply to make the shoulders look farther back, but to address restrictions that affect movement.",
+          "Two smaller muscles act on different parts of this region. The coracobrachialis connects the coracoid process to the upper arm and assists shoulder flexion and adduction. The subclavius lies beneath the collarbone and helps stabilize and depress it. Their roles distinguish upper-arm movement from clavicular support; they should not be treated as interchangeable with the pectorals.",
         ],
         evidence: ["pecMinor"],
       },
