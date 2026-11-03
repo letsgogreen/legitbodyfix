@@ -2,6 +2,7 @@ export type PatternSection = {
   heading: string;
   paragraphs: string[];
   evidence?: string[];
+  video?: { youtubeId: string; title: string };
   table?: {
     caption: string;
     columns: string[];

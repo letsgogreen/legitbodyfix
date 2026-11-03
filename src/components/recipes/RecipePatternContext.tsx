@@ -45,6 +45,20 @@ export function RecipePatternContext({
                     {paragraph}
                   </p>
                 ))}
+                {section.video && /^[A-Za-z0-9_-]{11}$/.test(section.video.youtubeId) ? (
+                  <div className="mt-6">
+                    <iframe
+                      className="aspect-video w-full border border-border"
+                      src={`https://www.youtube-nocookie.com/embed/${section.video.youtubeId}`}
+                      title={section.video.title}
+                      loading="lazy"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                      allowFullScreen
+                    />
+                    <a className="mt-2 inline-block text-base underline underline-offset-4" href={`https://www.youtube.com/watch?v=${section.video.youtubeId}`} target="_blank" rel="noopener noreferrer">Watch {section.video.title} on YouTube</a>
+                  </div>
+                ) : null}
                 {section.table ? (
                   <div className="mt-6 overflow-x-auto rounded-sm border border-border" role="region" aria-label={section.table.caption} tabIndex={0}>
                     <table className="w-full min-w-[620px] border-collapse text-left text-base leading-7">
