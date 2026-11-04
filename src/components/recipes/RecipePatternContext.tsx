@@ -59,6 +59,15 @@ export function RecipePatternContext({
                     <a className="mt-2 inline-block text-base underline underline-offset-4" href={`https://www.youtube.com/watch?v=${section.video.youtubeId}`} target="_blank" rel="noopener noreferrer">Watch {section.video.title} on YouTube</a>
                   </div>
                 ) : null}
+                {section.figure && /^\/images\/[a-zA-Z0-9/_-]+\.(?:png|jpe?g|webp)$/.test(section.figure.src) ? (
+                  <figure className="mt-6 overflow-hidden rounded-sm border border-border bg-white">
+                    <img src={section.figure.src} alt={section.figure.alt} loading="lazy" className="mx-auto h-auto w-full object-contain" />
+                    <figcaption className="border-t border-border px-5 py-4 text-sm leading-6 text-muted-foreground">
+                      {section.figure.caption}
+                      {/^https:\/\//.test(section.figure.sourceUrl) ? <a href={section.figure.sourceUrl} target="_blank" rel="noopener noreferrer" className="ml-2 underline underline-offset-4">Source</a> : null}
+                    </figcaption>
+                  </figure>
+                ) : null}
                 {section.table ? (
                   <div className="mt-6 overflow-x-auto rounded-sm border border-border" role="region" aria-label={section.table.caption} tabIndex={0}>
                     <table className="w-full min-w-[620px] border-collapse text-left text-base leading-7">

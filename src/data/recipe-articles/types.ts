@@ -3,6 +3,7 @@ export type PatternSection = {
   paragraphs: string[];
   evidence?: string[];
   video?: { youtubeId: string; title: string };
+  figure?: { src: string; alt: string; caption: string; sourceUrl: string };
   table?: {
     caption: string;
     columns: string[];

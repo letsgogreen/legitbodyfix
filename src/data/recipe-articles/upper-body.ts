@@ -70,6 +70,36 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
     ],
     sections: [
       {
+        heading: "Moving forward is different from looking down",
+        paragraphs: ["As the head moves forward, the lower cervical spine can flex while the upper neck extends. Drawing the head backward reverses that combination. The two regions do not have to move in the same direction."],
+        figure: {
+          src: "/images/anatomy/neumann-head-protraction-retraction.jpg",
+          alt: "Bone-visible comparison of head protraction and retraction, showing opposite flexion and extension at the upper and lower cervical regions.",
+          caption: "Neumann DA. Kinesiology of the Musculoskeletal System, 2nd ed. (2010), Figure 9-47. Shown as Figure 8-27 in the linked chapter. Original diagram; unchanged. © Mosby / Elsevier.",
+          sourceUrl: "https://musculoskeletalkey.com/structure-and-function-of-the-vertebral-column/",
+        },
+      },
+      {
+        heading: "Looking down: cervical flexion",
+        paragraphs: ["Looking down combines movement between the skull and C1, between C1 and C2, and across C2–C7. The drawing separates these regions so you can follow the joint movements."],
+        figure: {
+          src: "/images/anatomy/neumann-cervical-flexion.jpg",
+          alt: "Craniocervical flexion diagram showing skull–C1 rolling and sliding, C1–C2 tilting, and movement across the C2–C7 facet joints.",
+          caption: "Neumann DA. Kinesiology of the Musculoskeletal System, 2nd ed. (2010), Figure 9-46. Shown as Figure 8-23 in the linked chapter. Original diagram; unchanged. © Mosby / Elsevier. Angles shown are textbook reference values, not individual targets.",
+          sourceUrl: "https://musculoskeletalkey.com/structure-and-function-of-the-vertebral-column/",
+        },
+      },
+      {
+        heading: "Looking up: cervical extension",
+        paragraphs: ["Looking up uses the same regions in the opposite direction. Compare the upper joints with the lower cervical joints: the bones move differently at each level rather than behaving as one rigid column."],
+        figure: {
+          src: "/images/anatomy/neumann-cervical-extension.jpg",
+          alt: "Craniocervical extension diagram showing skull–C1 rolling and sliding, C1–C2 tilting, and movement across the C2–C7 facet joints.",
+          caption: "Neumann DA. Kinesiology of the Musculoskeletal System, 2nd ed. (2010), Figure 9-45. Shown as Figure 8-21 in the linked chapter. Original diagram; unchanged. © Mosby / Elsevier. Angles shown are textbook reference values, not individual targets.",
+          sourceUrl: "https://musculoskeletalkey.com/structure-and-function-of-the-vertebral-column/",
+        },
+      },
+      {
         heading: "How the muscles influence head position",
         paragraphs: [
           "The cervical spine contains seven vertebrae and normally has a gentle inward curve. A forward head position can combine movement of the lower neck with extension higher up, allowing the eyes to stay level.",
