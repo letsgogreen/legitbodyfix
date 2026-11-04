@@ -90,6 +90,27 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
         ],
         evidence: ["headPain", "headPainComparison"],
       },
+      {
+        heading: "A practical sequence",
+        paragraphs: [
+          "Begin with preparation and mobility, then develop control of the neck and shoulder region before combining these movements in a coordinated exercise.",
+        ],
+        table: {
+          caption: "Preparation → mobility → control → integration",
+          columns: ["Phase", "Approach", "Muscles / Exercises"],
+          rows: [
+            ["Inhibit · Prepare", "Region-appropriate self-myofascial techniques.", "Cervical extensors (suboccipital muscles); levator scapulae; sternocleidomastoid; upper trapezius."],
+            ["Lengthen · Mobilize", "Static stretching.", "Levator scapulae; sternocleidomastoid; upper trapezius."],
+            ["Activate · Control", "Targeted strengthening.", "Incline dumbbell scaption; quadruped chin tucks with a stability ball."],
+            ["Integrate · Coordinate", "Coordinated dynamic movement.", "Ball Combo 1; squat to row."],
+          ],
+        },
+      },
+      {
+        heading: "Ball Combo 1",
+        paragraphs: ["Watch the Ball Combo I demonstration below."],
+        video: { youtubeId: "xb3-dysLHpE", title: "Ball Combo I" },
+      },
     ],
     interpretation:
       "The related cards describe neighbouring movements, not a chain that must be corrected from one end. Head position alone cannot establish weak deep-neck muscles or shortened superficial muscles.",
