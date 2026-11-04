@@ -62,38 +62,33 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
     ],
   },
   "forward-head-posture": {
-    title: "What does a forward head position tell you?",
+    title: "Forward Head Posture",
     intro: [
-      "During screen work or a reach, the head may sit farther forward relative to the upper trunk. That outline does not tell the whole story: the thorax may have moved, the head may have translated, or the neck may be using a different combination of angles to keep the eyes directed toward the task.",
+      "You notice your head sitting forward. You pull it back, straighten up—and before long, you are back in the same position.",
+      "There is plenty of advice about ideal neck posture. But knowing where the head “should” sit does not explain why keeping it there feels like work.",
+      "The useful starting point is how the neck, shoulders and upper back share that work.",
     ],
     sections: [
       {
-        heading: "Choose the reference before naming the change",
+        heading: "How the muscles influence head position",
         paragraphs: [
-          "The head's location in the room is different from its location relative to the chest. If the whole trunk leans forward, the head can move forward in space without the same change in the neck. Keeping those descriptions separate avoids interpreting every screen-facing position as one identical pattern.",
-          "The rounded-shoulder recipe is related because the upper trunk and shoulder girdle may share the same task. Their positions should still be described separately rather than combined into a guaranteed syndrome.",
+          "The cervical spine contains seven vertebrae and normally has a gentle inward curve. A forward head position can combine movement of the lower neck with extension higher up, allowing the eyes to stay level.",
+          "The suboccipital muscles help control movement near the base of the skull. The sternocleidomastoid, levator scapulae and upper trapezius also contribute to movement around the head, neck and shoulder girdle. The pectorals influence the shoulders and upper arms, connecting shoulder work with the position of the upper body.",
+          "Janda’s upper-crossed model brings these regions together as a muscle-imbalance pattern. It provides a framework for considering tension, mobility and control—not just the outline of the neck.",
         ],
       },
       {
-        heading: "The connection with overhead movement",
+        heading: "Training harder is not always the missing piece",
         paragraphs: [
-          "Research comparing groups with different head-and-shoulder postures found differences in scapular mechanics and muscle activity during overhead tasks. This supports considering the shoulder region when looking at a neck posture, but it does not identify which region initiated the difference.",
-          "If the shoulder also rises during a reach, the shoulder-elevation recipe helps distinguish that upward movement from the head moving forward. A single still image cannot reveal the sequence.",
+          "During a push-up, pull-up or sit-up, notice what happens as the movement gets difficult. Does the head reach forward? Does the neck tighten as you try to finish?",
+          "The exercise changes, but the same strategy can keep showing up.",
+          "The aim is not simply to strengthen more muscles. It is to develop control without repeatedly relying on unnecessary neck effort.",
         ],
-        evidence: ["headShoulder"],
-      },
-      {
-        heading: "Appearance and symptoms are different questions",
-        paragraphs: [
-          "A study of 43 volunteers found no significant difference in forward head posture between the neck-pain and asymptomatic groups, while movement range and speed differed. An earlier comparison did find a more forward head position in its pain group. These different results are a reason not to use a head angle as a substitute for assessing symptoms and movement.",
-          "A useful explanation therefore describes when the position appears, whether it changes during the task, and how the movement feels. It does not turn a photograph into a prediction of pain.",
-        ],
-        evidence: ["headPain", "headPainComparison"],
       },
       {
         heading: "A practical sequence",
         paragraphs: [
-          "Begin with preparation and mobility, then develop control of the neck and shoulder region before combining these movements in a coordinated exercise.",
+          "Preparation and mobility come first. Targeted strengthening then develops control, before a coordinated exercise brings the regions together.",
         ],
         table: {
           caption: "Preparation → mobility → control → integration",
@@ -107,13 +102,30 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
         },
       },
       {
+        heading: "Develop control through the neck and shoulders",
+        paragraphs: [
+          "The deep neck flexors—longus capitis and longus colli—contribute to control at the front of the cervical spine. Shoulder-blade control, including the contribution of the lower trapezius, belongs alongside that neck work.",
+          "The purpose is not to hold everything rigidly in a “correct” position. It is to make the movement easier to control.",
+        ],
+      },
+      {
         heading: "Ball Combo 1",
         paragraphs: ["Watch the Ball Combo I demonstration below."],
         video: { youtubeId: "xb3-dysLHpE", title: "Ball Combo I" },
       },
+      {
+        heading: "Simple on paper. More demanding in practice.",
+        paragraphs: [
+          "Reduce unnecessary tension. Develop control. Bring it into movement.",
+          "Easy, right?",
+          "I thought so too—until I started working through the details.",
+          "Knowing the muscle names is one thing. Choosing an appropriate target, finding the right setup and progressing without adding more neck effort is another.",
+          "Our guided program takes you through that process step by step.",
+        ],
+      },
     ],
     interpretation:
-      "The related cards describe neighbouring movements, not a chain that must be corrected from one end. Head position alone cannot establish weak deep-neck muscles or shortened superficial muscles.",
+      "",
     connections: [
       {
         slug: "round-shoulder",
