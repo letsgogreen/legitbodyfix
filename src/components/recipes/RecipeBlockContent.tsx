@@ -103,6 +103,7 @@ export function RecipeBlockContent({
           const dictionaryImages = (block.muscleIds ?? []).flatMap((id) => {const url = muscleDictionary.find((entry) => entry.id === id)?.image_url; return url ? [url] : [];});
           const storedImages = (toggleImages.byToggle.get(block.id) ?? []).map((image) => image.url);
           const thumbnailUrls = storedImages.length ? storedImages : dictionaryImages;
+          const hasGroupImage = (block.muscleIds?.length ?? 0) > 1 && storedImages.length > 0;
           const isMuscle = Boolean(block.muscleIds?.length || block.muscleRole || thumbnailUrls.length);
           return (
             <details key={block.id} data-muscle-card={isMuscle ? "true" : undefined} className="group min-w-0 rounded-sm border border-border bg-card">
@@ -118,8 +119,13 @@ export function RecipeBlockContent({
               </summary>
               <div className="border-t border-border px-5 py-4 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
                 {block.note?.trim() ? <p className="mb-4 whitespace-pre-wrap">{block.note}</p> : null}
-                {block.muscleIds?.length ? <div className="mb-5"><RecipeMuscleDetails ids={block.muscleIds} entries={muscleDictionary} /></div> : null}
-                {toggleImages.byToggle.has(block.id) && (
+                {hasGroupImage ? (
+                  <div className="mb-5 whitespace-normal">
+                    <RecipeBlockContent compact blocks={toggleImages.byToggle.get(block.id)} />
+                  </div>
+                ) : null}
+                {block.muscleIds?.length ? <div className="mb-5"><RecipeMuscleDetails ids={block.muscleIds} entries={muscleDictionary} showImages={!hasGroupImage} /></div> : null}
+                {!hasGroupImage && toggleImages.byToggle.has(block.id) && (
                   <div className="mb-5 whitespace-normal">
                     <RecipeBlockContent compact blocks={toggleImages.byToggle.get(block.id)} />
                   </div>
