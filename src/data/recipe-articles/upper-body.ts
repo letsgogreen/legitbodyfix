@@ -64,14 +64,19 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
   "forward-head-posture": {
     title: "Forward Head Posture",
     intro: [
-      "You notice your head sitting forward. You pull it back, straighten up—and before long, you are back in the same position.",
-      "There is plenty of advice about ideal neck posture. But knowing where the head “should” sit does not explain why keeping it there feels like work.",
-      "The useful starting point is how the neck, shoulders and upper back share that work.",
+      "You pull your head back, straighten up—and before long, it drifts forward again.",
+      "Why does keeping your head “in the right position” feel like work?",
+      "The answer involves more than where the head sits. It also involves how the neck moves, how the shoulders and upper back contribute, and which muscles you rely on during everyday tasks and exercise.",
     ],
     sections: [
       {
-        heading: "Moving forward is different from looking down",
-        paragraphs: ["As the head moves forward, the lower cervical spine can flex while the upper neck extends. Drawing the head backward reverses that combination. The two regions do not have to move in the same direction."],
+        heading: "What happens when the head moves forward?",
+        paragraphs: [
+          "Moving the head forward is different from simply looking down.",
+          "During protraction, the lower cervical spine bends forward while the upper neck extends. This combination allows the head to move forward while the eyes remain directed ahead.",
+          "During retraction, the combination reverses: the lower neck extends while the upper neck flexes.",
+          "This is why “pull your chin back” and “look down” are not interchangeable instructions. The direction of the head alone does not describe what every part of the neck is doing.",
+        ],
         figure: {
           src: "/images/anatomy/neumann-head-protraction-retraction.jpg",
           alt: "Bone-visible comparison of head protraction and retraction, showing opposite flexion and extension at the upper and lower cervical regions.",
@@ -80,8 +85,11 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
         },
       },
       {
-        heading: "Looking down: cervical flexion",
-        paragraphs: ["Looking down combines movement between the skull and C1, between C1 and C2, and across C2–C7. The drawing separates these regions so you can follow the joint movements."],
+        heading: "How the neck bends and straightens",
+        paragraphs: [
+          "The neck contains seven vertebrae. Movement is shared between the skull and C1, between C1 and C2, and across the remaining cervical joints.",
+          "When you look down, these regions contribute to flexion. When you look up, they contribute to extension. Their joint surfaces guide different combinations of rolling, sliding and tilting.",
+        ],
         figure: {
           src: "/images/anatomy/neumann-cervical-flexion.jpg",
           alt: "Craniocervical flexion diagram showing skull–C1 rolling and sliding, C1–C2 tilting, and movement across the C2–C7 facet joints.",
@@ -91,7 +99,7 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
       },
       {
         heading: "Looking up: cervical extension",
-        paragraphs: ["Looking up uses the same regions in the opposite direction. Compare the upper joints with the lower cervical joints: the bones move differently at each level rather than behaving as one rigid column."],
+        paragraphs: ["The important point is not to memorize every joint motion. It is to understand that the neck is not one rigid column: movement can be distributed differently across its regions."],
         figure: {
           src: "/images/anatomy/neumann-cervical-extension.jpg",
           alt: "Craniocervical extension diagram showing skull–C1 rolling and sliding, C1–C2 tilting, and movement across the C2–C7 facet joints.",
@@ -100,25 +108,27 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
         },
       },
       {
-        heading: "How the muscles influence head position",
+        heading: "How the muscles influence the pattern",
         paragraphs: [
-          "The cervical spine contains seven vertebrae and normally has a gentle inward curve. A forward head position can combine movement of the lower neck with extension higher up, allowing the eyes to stay level.",
-          "The suboccipital muscles help control movement near the base of the skull. The sternocleidomastoid, levator scapulae and upper trapezius also contribute to movement around the head, neck and shoulder girdle. The pectorals influence the shoulders and upper arms, connecting shoulder work with the position of the upper body.",
-          "Janda’s upper-crossed model brings these regions together as a muscle-imbalance pattern. It provides a framework for considering tension, mobility and control—not just the outline of the neck.",
+          "The suboccipital muscles act near the base of the skull and contribute to upper-neck movement and control. The sternocleidomastoid, levator scapulae and upper trapezius also influence movement around the head, neck and shoulder girdle.",
+          "The pectorals act around the shoulder region. They belong in the wider picture because the position and movement of the shoulders interact with the upper body supporting the neck.",
+          "At the front of the cervical spine, longus capitis and longus colli contribute to flexion and stabilization. The lower trapezius contributes to shoulder-blade control as the arms move.",
+          "Janda’s upper-crossed model connects these regions through a pattern of muscle imbalance. The practical value is in considering mobility and control together, rather than focusing only on pulling the head backward.",
         ],
       },
       {
-        heading: "Training harder is not always the missing piece",
+        heading: "When the same strategy follows you into training",
         paragraphs: [
-          "During a push-up, pull-up or sit-up, notice what happens as the movement gets difficult. Does the head reach forward? Does the neck tighten as you try to finish?",
-          "The exercise changes, but the same strategy can keep showing up.",
-          "The aim is not simply to strengthen more muscles. It is to develop control without repeatedly relying on unnecessary neck effort.",
+          "During a push-up, pull-up or sit-up, notice what happens as the exercise becomes difficult.",
+          "Does the head reach forward? Do the shoulders rise? Does the neck tense as you try to complete the movement?",
+          "Training harder does not automatically change that strategy. You can become better at finishing an exercise while continuing to rely on the same neck effort.",
+          "The next step is to develop control that carries into the movement—not just a position you can briefly hold.",
         ],
       },
       {
         heading: "A practical sequence",
         paragraphs: [
-          "Preparation and mobility come first. Targeted strengthening then develops control, before a coordinated exercise brings the regions together.",
+          "Start by addressing relevant tension and mobility restrictions. Follow that with targeted strengthening, then connect the work through coordinated movement.",
         ],
         table: {
           caption: "Preparation → mobility → control → integration",
@@ -132,24 +142,17 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
         },
       },
       {
-        heading: "Develop control through the neck and shoulders",
-        paragraphs: [
-          "The deep neck flexors—longus capitis and longus colli—contribute to control at the front of the cervical spine. Shoulder-blade control, including the contribution of the lower trapezius, belongs alongside that neck work.",
-          "The purpose is not to hold everything rigidly in a “correct” position. It is to make the movement easier to control.",
-        ],
-      },
-      {
         heading: "Ball Combo 1",
-        paragraphs: ["Watch the Ball Combo I demonstration below."],
+        paragraphs: ["The sequence moves from working on individual regions to coordinating the neck, shoulder blades, arms and trunk."],
         video: { youtubeId: "xb3-dysLHpE", title: "Ball Combo I" },
       },
       {
-        heading: "Simple on paper. More demanding in practice.",
+        heading: "Simple on paper. The details matter in practice.",
         paragraphs: [
           "Reduce unnecessary tension. Develop control. Bring it into movement.",
           "Easy, right?",
           "I thought so too—until I started working through the details.",
-          "Knowing the muscle names is one thing. Choosing an appropriate target, finding the right setup and progressing without adding more neck effort is another.",
+          "Knowing the muscle names is one thing. Choosing an appropriate target, finding a suitable setup and progressing without adding more neck effort is another.",
           "Our guided program takes you through that process step by step.",
         ],
       },
