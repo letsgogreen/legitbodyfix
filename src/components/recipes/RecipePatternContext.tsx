@@ -60,8 +60,10 @@ export function RecipePatternContext({
                   </div>
                 ) : null}
                 {section.figure && /^\/images\/[a-zA-Z0-9/_-]+\.(?:png|jpe?g|webp)$/.test(section.figure.src) ? (
-                  <figure className="mt-6 overflow-hidden rounded-sm border border-border bg-white">
-                    <img src={section.figure.src} alt={section.figure.alt} loading="lazy" className="mx-auto h-auto w-full object-contain" />
+                  <figure className="mx-auto mt-6 w-full max-w-[520px] overflow-hidden rounded-sm border border-border bg-white">
+                    <a href={section.figure.src} target="_blank" rel="noopener noreferrer" aria-label={`Open full-size image: ${section.figure.alt}`} className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                      <img src={section.figure.src} alt={section.figure.alt} loading="lazy" className="mx-auto h-auto max-h-[390px] w-full object-contain" />
+                    </a>
                     <figcaption className="border-t border-border px-5 py-4 text-sm leading-6 text-muted-foreground">
                       {section.figure.caption}
                       {/^https:\/\//.test(section.figure.sourceUrl) ? <a href={section.figure.sourceUrl} target="_blank" rel="noopener noreferrer" className="ml-2 underline underline-offset-4">Source</a> : null}
