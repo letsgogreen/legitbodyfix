@@ -1,7 +1,7 @@
 import { isAllowedHttpUrl } from "@/lib/recipe-blocks";
 import type { RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
 
-export function RecipeMuscleDetails({ ids, entries, showImages = true }: { ids: string[]; entries: RecipeMuscleEntry[]; showImages?: boolean }) {
+export function RecipeMuscleDetails({ ids, entries, staticImagesOnly = false }: { ids: string[]; entries: RecipeMuscleEntry[]; staticImagesOnly?: boolean }) {
   if (!ids.length) return null;
   const byId = new Map(entries.map((entry) => [entry.id, entry]));
   return (
@@ -16,7 +16,7 @@ export function RecipeMuscleDetails({ ids, entries, showImages = true }: { ids: 
               <h4 className="font-bold">{entry.name}</h4>
               <span className="text-[10px] text-muted-foreground">Muscle dictionary{entry.published ? "" : " · Draft / admin preview"}</span>
             </div>
-            {showImages && entry.image_url && isAllowedHttpUrl(entry.image_url) ? (
+            {entry.image_url && isAllowedHttpUrl(entry.image_url) && (!staticImagesOnly || !/\.gif(?:$|[?#])/i.test(entry.image_url)) ? (
               <figure>
                 <img src={entry.image_url} alt={entry.image_alt || entry.name} loading="lazy" className="mx-auto max-h-96 max-w-full object-contain" />
                 {entry.image_credit ? <figcaption className="mt-2 text-xs text-muted-foreground">{entry.image_credit}</figcaption> : null}

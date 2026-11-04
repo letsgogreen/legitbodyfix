@@ -124,7 +124,7 @@ export function RecipeBlockContent({
                     <RecipeBlockContent compact blocks={toggleImages.byToggle.get(block.id)} />
                   </div>
                 ) : null}
-                {block.muscleIds?.length ? <div className="mb-5"><RecipeMuscleDetails ids={block.muscleIds} entries={muscleDictionary} showImages={!hasGroupImage} /></div> : null}
+                {block.muscleIds?.length ? <div className="mb-5"><RecipeMuscleDetails ids={block.muscleIds} entries={muscleDictionary} staticImagesOnly={hasGroupImage} /></div> : null}
                 {!hasGroupImage && toggleImages.byToggle.has(block.id) && (
                   <div className="mb-5 whitespace-normal">
                     <RecipeBlockContent compact blocks={toggleImages.byToggle.get(block.id)} />
