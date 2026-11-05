@@ -26,6 +26,35 @@ function AboutPage() {
           <p className="mt-7 max-w-3xl text-lg leading-8 text-muted-foreground">{copy.about_intro}</p>
         </div>
       </section>
+      <section aria-labelledby="movement-maintenance" className="border-b border-border">
+        <article className="mx-auto max-w-5xl px-5 py-14 lg:px-8 lg:py-20">
+          <div className="max-w-[65ch]">
+            <h2 id="movement-maintenance" className="text-3xl font-extrabold leading-tight sm:text-4xl">
+              Why I think about movement like maintenance
+            </h2>
+            <div className="mt-6 space-y-5 text-lg leading-8 text-muted-foreground">
+              <p>
+                When I check a car’s suspension, I want to know when something feels off.
+                Is it over a bump, around a corner, or under braking? That detail tells me
+                more about where to look than a quick glance at the car in the driveway.
+              </p>
+              <p>
+                I bring that same curiosity to training. If my neck starts doing more work
+                than I want during a pull-up, I pay attention to when it happens. Is it as I
+                start pulling, near the top, or only on the last few reps? Once I have something
+                specific to work with, I can choose what to practice and come back to the same
+                pull-up to see what changed.
+              </p>
+              <p>
+                That’s what I mean by PMCS—Preventive Maintenance Checks and Services—for
+                movement. Your body isn’t a car, but the habit of paying attention carries
+                over. I built LegitBodyFix to help you know what to look for, what to try next,
+                and how to tell whether it made a difference.
+              </p>
+            </div>
+          </div>
+        </article>
+      </section>
       <section className="border-b border-border bg-secondary/35">
         <div className="mx-auto grid max-w-5xl gap-px bg-border px-5 py-14 md:grid-cols-2 lg:px-8 lg:py-20">
           <article className="bg-background p-7 sm:p-9"><h2 className="text-2xl font-extrabold">{copy.about_method_title}</h2><p className="mt-4 whitespace-pre-line leading-7 text-muted-foreground">{copy.about_method_body}</p></article>

@@ -211,9 +211,8 @@ function PhaseOneHomepage() {
             </div>
             <div className="max-w-lg">
               <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
-                When your car feels off, you notice when it happens. Bring that same curiosity
-                to a squat, a reach, or a pull-up. See what changes, choose what to practice,
-                and try the same movement again.
+                Pick the movement you want to work on. Explore what changes during a squat,
+                a reach, or a pull-up, then find something to practice and try the movement again.
               </p>
               <Link
                 to="/start"
