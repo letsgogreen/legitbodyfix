@@ -229,6 +229,20 @@ function PhaseOneHomepage() {
               <h2 className="mt-4 text-3xl font-extrabold uppercase leading-tight sm:text-5xl">
                 {copy.why_heading}
               </h2>
+              <div className="mt-6 max-w-2xl space-y-3 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <p>You check your car’s suspension. What about the way you move?</p>
+                <p>
+                  When something feels off in your car, you notice when it happens: over a bump,
+                  around a corner, or under braking. Bring that same curiosity to your training.
+                  When does your neck start doing more work than you’d like—during an overhead
+                  reach, at the top of a pull-up, or near the end of a set?
+                </p>
+                <p>
+                  Think of it as a PMCS (Preventive Maintenance Checks and Services) for the way
+                  you move: notice what changes, choose what to practice, and check again in the
+                  same movement.
+                </p>
+              </div>
             </div>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               {differentiators.map(({ icon: Icon, title, description }) => (
