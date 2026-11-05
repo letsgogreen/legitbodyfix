@@ -110,7 +110,9 @@ export const upperBodyArticles: Record<string, PatternArticle> = {
       {
         heading: "How the muscles influence the pattern",
         paragraphs: [
-          "The suboccipital muscles act near the base of the skull and contribute to upper-neck movement and control. The sternocleidomastoid, levator scapulae and upper trapezius also influence movement around the head, neck and shoulder girdle.",
+          "When you lift your gaze without moving your chest, several of the suboccipital muscles help tip the skull back on the upper neck. They don’t all do the same job: the obliquus capitis inferior connects C2 to C1 and helps turn C1 toward the working side.",
+          "The right sternocleidomastoid (SCM) helps turn your face to the left and tilt your head to the right. When both sides work together, they can help bend the lower neck forward while tipping the head back at the upper neck. You can see that combination in the forward-head illustration: the head moves forward while the eyes still look straight ahead.",
+          "The levator scapulae and upper trapezius both help lift the shoulder girdle, but they pull on different structures. The levator scapulae pulls up on the upper inner corner of the shoulder blade; the upper trapezius helps lift the outer end of the collarbone. During a difficult reach or pull, watch whether the shoulders rise as the head moves forward.",
           "The pectorals act around the shoulder region. They belong in the wider picture because the position and movement of the shoulders interact with the upper body supporting the neck.",
           "At the front of the cervical spine, longus capitis and longus colli contribute to flexion and stabilization. The lower trapezius contributes to shoulder-blade control as the arms move.",
           "Janda’s upper-crossed model connects these regions through a pattern of muscle imbalance. The practical value is in considering mobility and control together, rather than focusing only on pulling the head backward.",
