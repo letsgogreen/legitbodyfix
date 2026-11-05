@@ -14,12 +14,13 @@ export function RecipePatternContext({
   const article = recipePatternArticles[slug];
   if (!article) return null;
   const headingId = `pattern-context-${slug}`;
+  const sideBySideFigures = slug === "forward-head-posture";
   const evidenceIds = [...new Set(article.sections.flatMap((section) => section.evidence ?? []))];
 
   return (
     <section aria-labelledby={headingId} className="border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-14 lg:px-8 lg:py-16">
-        <article className="mx-auto max-w-[70ch] text-[18px] leading-[1.85] text-foreground/90 sm:text-[19px]">
+        <article className={`mx-auto max-w-[70ch] text-[18px] leading-[1.85] text-foreground/90 sm:text-[19px] ${sideBySideFigures ? "lg:max-w-none lg:[&>:not(div)]:mx-auto lg:[&>:not(div)]:max-w-[70ch]" : ""}`}>
           <p className="text-sm font-semibold uppercase tracking-[0.12em]">
             Understanding the pattern
           </p>
@@ -36,7 +37,8 @@ export function RecipePatternContext({
           ))}
           <div className="mt-10 space-y-10">
             {article.sections.map((section) => (
-              <section key={section.heading}>
+              <section key={section.heading} className={sideBySideFigures && section.figure ? "lg:grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-x-10" : "mx-auto max-w-[70ch]"}>
+                <div className="min-w-0">
                 <h3 className="text-2xl font-bold leading-snug text-foreground">
                   {section.heading}
                 </h3>
@@ -59,8 +61,9 @@ export function RecipePatternContext({
                     <a className="mt-2 inline-block text-base underline underline-offset-4" href={`https://www.youtube.com/watch?v=${section.video.youtubeId}`} target="_blank" rel="noopener noreferrer">Watch {section.video.title} on YouTube</a>
                   </div>
                 ) : null}
+                </div>
                 {section.figure && /^\/images\/[a-zA-Z0-9/_-]+\.(?:png|jpe?g|webp)$/.test(section.figure.src) ? (
-                  <figure className="mx-auto mt-6 w-full max-w-[520px] overflow-hidden rounded-sm border border-border bg-white">
+                  <figure className={`mx-auto mt-6 w-full max-w-[520px] overflow-hidden rounded-sm border border-border bg-white ${sideBySideFigures ? "lg:mt-0" : ""}`}>
                     <a href={section.figure.src} target="_blank" rel="noopener noreferrer" aria-label={`Open full-size image: ${section.figure.alt}`} className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
                       <img src={section.figure.src} alt={section.figure.alt} loading="lazy" className="mx-auto h-auto max-h-[390px] w-full object-contain" />
                     </a>
