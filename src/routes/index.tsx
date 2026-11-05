@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { HomepageFeedback } from "@/components/site/HomepageFeedback";
-import { ArrowRight, Route as RouteIcon, ScanSearch, Waypoints } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { BodyRegionGrid } from "@/components/site/BodyRegionGrid";
 import { FeaturedPrograms } from "@/components/site/FeaturedPrograms";
 import { HeroBodyMap } from "@/components/site/HeroBodyMap";
@@ -41,27 +41,6 @@ export const Route = createFileRoute("/")({
   }),
   component: PhaseOneHomepage,
 });
-
-const differentiators = [
-  {
-    icon: ScanSearch,
-    title: "Understand the pattern",
-    description:
-      "Connect what you notice in movement with relevant anatomy and context, without treating a posture label as a diagnosis.",
-  },
-  {
-    icon: Waypoints,
-    title: "Practice with intent",
-    description:
-      "Use a deliberate sequence to reduce unnecessary effort, build control, and connect the pieces together.",
-  },
-  {
-    icon: RouteIcon,
-    title: "Return to movement",
-    description:
-      "Carry the result back into training, daily activity, and the movement goal that brought you here.",
-  },
-];
 
 function PhaseOneHomepage() {
   const { regionData, programs, regionLoadFailed, programLoadFailed } = Route.useLoaderData();
@@ -220,43 +199,28 @@ function PhaseOneHomepage() {
           </div>
         </section>
 
-        <section id="method" className="scroll-mt-24 border-b border-border">
-          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-20 lg:px-8">
-            <div className="max-w-3xl">
+        <section id="method" aria-labelledby="method-heading" className="scroll-mt-24 border-b border-border bg-card">
+          <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-5 md:grid-cols-2 md:items-center md:gap-12 lg:px-8">
+            <div>
               <p className="font-mono text-xs font-bold tracking-[0.16em] text-muted-foreground">
-                {copy.why_eyebrow}
+                How it works
               </p>
-              <h2 className="mt-4 text-3xl font-extrabold uppercase leading-tight sm:text-5xl">
-                {copy.why_heading}
+              <h2 id="method-heading" className="mt-3 max-w-lg text-3xl font-extrabold leading-tight sm:text-4xl">
+                Find a starting point for the way you move.
               </h2>
-              <div className="mt-6 max-w-2xl space-y-3 text-base leading-relaxed text-muted-foreground sm:text-lg">
-                <p>You check your car’s suspension. What about the way you move?</p>
-                <p>
-                  When something feels off in your car, you notice when it happens: over a bump,
-                  around a corner, or under braking. Bring that same curiosity to your training.
-                  When does your neck start doing more work than you’d like—during an overhead
-                  reach, at the top of a pull-up, or near the end of a set?
-                </p>
-                <p>
-                  Think of it as a PMCS (Preventive Maintenance Checks and Services) for the way
-                  you move: notice what changes, choose what to practice, and check again in the
-                  same movement.
-                </p>
-              </div>
             </div>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              {differentiators.map(({ icon: Icon, title, description }) => (
-                <article
-                  key={title}
-                  className="min-w-0 rounded-sm border border-border bg-card p-5 sm:p-7"
-                >
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                  <h3 className="mt-6 text-xl font-bold">{title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    {description}
-                  </p>
-                </article>
-              ))}
+            <div className="max-w-lg">
+              <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
+                When your car feels off, you notice when it happens. Bring that same curiosity
+                to a squat, a reach, or a pull-up. See what changes, choose what to practice,
+                and try the same movement again.
+              </p>
+              <Link
+                to="/start"
+                className="mt-5 inline-flex min-h-11 items-center gap-2 bg-accent px-5 py-3 text-sm font-bold text-accent-foreground hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
+              >
+                Find your starting point <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </section>
