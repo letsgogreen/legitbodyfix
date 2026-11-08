@@ -164,18 +164,34 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
     };
   });
 
-/** Published recipe cards for the complete posture library. */
-export const listPublishedRecipes = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await publicClient()
+function publishedRecipeCards() {
+  return publicClient()
     .from("recipes")
     .select("slug,title,goal,summary,regions,progression_level,image_url,image_alt")
     .eq("published", true)
-    .order("featured_rank", { ascending: true, nullsFirst: false })
-    .limit(100);
+    .order("featured_rank", { ascending: true, nullsFirst: false });
+}
 
+/** Published recipe cards for the complete posture library. */
+export const listPublishedRecipes = createServerFn({ method: "GET" }).handler(async () => {
+  const { data, error } = await publishedRecipeCards().limit(100);
   if (error) {
     console.error("listPublishedRecipes failed:", error.message);
     return [];
   }
   return data ?? [];
+});
+
+export const getRecipeLibraryPreview = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const { data, error } = await publishedRecipeCards()
+      .not("image_url", "is", null)
+      .neq("image_url", "")
+      .limit(1)
+      .abortSignal(AbortSignal.timeout(5000))
+      .maybeSingle();
+    return error ? null : data;
+  } catch {
+    return null;
+  }
 });
