@@ -98,7 +98,7 @@ function LibraryAccess() {
               </p>
               {preview ? (
                 <ul>
-                  <RecipeCard recipe={preview} index={0} />
+                  <RecipeCard recipe={preview} index={0} preview />
                 </ul>
               ) : (
                 <p className="p-5 text-sm text-muted-foreground">

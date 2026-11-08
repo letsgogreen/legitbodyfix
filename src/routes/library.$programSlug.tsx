@@ -6,7 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { getStreamPlayback } from "@/lib/stream.functions";
 import { getCustomerAccess } from "@/lib/customer-access";
 import { RecipeBlockContent } from "@/components/recipes/RecipeBlockContent";
-import { getPublishedRecipe } from "@/lib/recipes.functions";
+import { getPublishedProgramRecipe } from "@/lib/recipes.functions";
 import { blocksFromLegacyInstructions, normalizeRecipeBlocks } from "@/lib/recipe-blocks";
 import { learningContentFor, type LearningContent } from "@/lib/learning-content";
 import { getAdminPrograms } from "@/lib/admin-programs.functions";
@@ -16,7 +16,7 @@ type Module = Database["public"]["Tables"]["program_modules"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 type RelatedRecipe = { slug: string; title: string; summary: string | null; goal: string | null; imageUrl: string | null; imageAlt: string | null };
 type RelatedGuide = { slug: string; title: string; summary: string | null };
-type EmbeddedRecipe = NonNullable<Awaited<ReturnType<typeof getPublishedRecipe>>>;
+type EmbeddedRecipe = NonNullable<Awaited<ReturnType<typeof getPublishedProgramRecipe>>>;
 
 export const Route = createFileRoute("/library/$programSlug")({
   validateSearch: (search: Record<string, unknown>): { preview?: "admin" } => ({
@@ -71,7 +71,7 @@ function ProgramLibrary() {
           return recipe?.published ? [{ slug:recipe.slug, title:recipe.title, summary:recipe.summary, goal:recipe.goal, imageUrl:recipe.image_url, imageAlt:recipe.image_alt }] : [];
         });
         setRecipes(linkedRecipes);
-        const recipeDetails = await Promise.all(linkedRecipes.map((recipe) => getPublishedRecipe({ data: { slug: recipe.slug } })));
+        const recipeDetails = await Promise.all(linkedRecipes.map((recipe) => getPublishedProgramRecipe({ data: { slug: recipe.slug } })));
         setEmbeddedRecipes(recipeDetails.filter((recipe): recipe is EmbeddedRecipe => recipe !== null));
         setGuides((guideResult.data ?? []).flatMap((row) => {
           const guide = row.guides as unknown as { slug:string; title:string; pattern_summary:string|null; published:boolean } | null;
