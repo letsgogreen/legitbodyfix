@@ -46,7 +46,14 @@ export const Route = createFileRoute("/api/recipe-library-leads")({
           console.error("Recipe library lead insert failed", { message: result.error.message });
           return new Response("Unable to save email", { status: 503 });
         }
-        return new Response(null, { status: 204 });
+        const { recipeLibraryCookie } = await import("@/lib/recipe-library-access.server");
+        return new Response(null, {
+          status: 204,
+          headers: {
+            "Set-Cookie": recipeLibraryCookie(),
+            "Cache-Control": "private, no-store",
+          },
+        });
       },
     },
   },

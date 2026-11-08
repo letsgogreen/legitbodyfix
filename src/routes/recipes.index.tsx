@@ -6,9 +6,8 @@ import { SiteNav } from "@/components/site/SiteNav";
 import { LearnNav } from "@/components/site/LearnNav";
 import { LearnRegionFilter } from "@/components/site/LearnRegionFilter";
 import { findBodyRegion } from "@/data/body-regions";
-import { listPublishedRecipes } from "@/lib/recipes.functions";
+import { getRecipeLibrary } from "@/lib/recipes.functions";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
-import { RecipeLibraryEmailGate } from "@/components/recipes/RecipeLibraryEmailGate";
 
 export const Route = createFileRoute("/recipes/")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -17,7 +16,7 @@ export const Route = createFileRoute("/recipes/")({
         ? search["region"]
         : undefined,
   }),
-  loader: () => listPublishedRecipes(),
+  loader: () => getRecipeLibrary(),
   head: () => ({
     meta: [
       { title: "Corrective Movement Strategies | LegitBodyFix" },
@@ -51,7 +50,6 @@ function PostureRecipes() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
-      <RecipeLibraryEmailGate>
       <main>
 <LearnNav active="posture" region={activeRegion?.slug} />
 
@@ -102,7 +100,6 @@ function PostureRecipes() {
           )}
         </section>
       </main>
-      </RecipeLibraryEmailGate>
       <SiteFooter />
     </div>
   );
