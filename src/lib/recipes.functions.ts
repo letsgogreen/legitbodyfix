@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { normalizeRecipeBlocks } from "@/lib/recipe-blocks";
 import { RECIPE_MUSCLE_COLUMNS, type RecipeMuscleEntry } from "@/lib/recipe-muscle-dictionary";
@@ -54,16 +55,32 @@ export const listRegionRecipes = createServerFn({ method: "GET" })
     }
   });
 
-/** Published recipes only — the anon RLS policy enforces this server-side as well. */
+/** Full guides are read only after the library access check. */
 export const getPublishedRecipe = createServerFn({ method: "GET" })
   .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
-    const supabase = publicClient();
+    const { requireRecipeLibraryAccess } = await import("./recipe-library-access.server");
+    requireRecipeLibraryAccess();
+    return readPublishedRecipe(input.slug);
+  });
 
-    const { data, error } = await supabase
+export const getPublishedProgramRecipe = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: auth } = await context.supabase.auth.getUser();
+    if (!auth.user?.email || !auth.user.email_confirmed_at) return null;
+    return readPublishedRecipe(data.slug);
+  });
+
+async function readPublishedRecipe(recipeSlug: string) {
+    const supabase = publicClient();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data, error } = await supabaseAdmin
       .from("recipes")
       .select(RECIPE_COLUMNS)
-      .eq("slug", input.slug)
+      .eq("slug", recipeSlug)
       .eq("published", true)
       .maybeSingle();
 
@@ -100,7 +117,7 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
       .filter((row): row is RecipeMuscleLink => row !== null)
       .sort((a, b) => a.name.localeCompare(b.name));
 
-    const canonical = CANONICAL_RECIPE_MUSCLES[input.slug] ?? [];
+    const canonical = CANONICAL_RECIPE_MUSCLES[recipeSlug] ?? [];
     if (canonical.length) {
       const canonicalNames = [...new Set(canonical.map((item) => item.name))];
       const { data: canonicalRows, error: canonicalError } = await supabase
@@ -144,7 +161,7 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
     }
 
     // Editorial links are resolved against published records only, never invented routes.
-    const connections = patternConnectionsFor(input.slug);
+    const connections = patternConnectionsFor(recipeSlug);
     const relatedResult = connections.length
       ? await supabase.from("recipes")
         .select("slug,title,image_url,image_alt")
@@ -157,12 +174,12 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
     return {
       ...rest,
       slug,
-      relatedRecipes: selectPatternConnections(input.slug, relatedResult.data ?? []),
+      relatedRecipes: selectPatternConnections(recipeSlug, relatedResult.data ?? []),
       muscleDictionary: (dictionaryResult.data ?? []) as unknown as RecipeMuscleEntry[],
       tight: muscles.filter((m) => m.role === "tight"),
       weak: muscles.filter((m) => m.role === "weak"),
     };
-  });
+}
 
 function publishedRecipeCards() {
   return publicClient()
@@ -173,13 +190,23 @@ function publishedRecipeCards() {
 }
 
 /** Published recipe cards for the complete posture library. */
-export const listPublishedRecipes = createServerFn({ method: "GET" }).handler(async () => {
+async function readPublishedRecipes() {
   const { data, error } = await publishedRecipeCards().limit(100);
   if (error) {
     console.error("listPublishedRecipes failed:", error.message);
     return [];
   }
   return data ?? [];
+}
+
+export const listPublishedRecipes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(() => readPublishedRecipes());
+
+export const getRecipeLibrary = createServerFn({ method: "GET" }).handler(async () => {
+  const { requireRecipeLibraryAccess } = await import("./recipe-library-access.server");
+  requireRecipeLibraryAccess();
+  return readPublishedRecipes();
 });
 
 export const getRecipeLibraryPreview = createServerFn({ method: "GET" }).handler(async () => {
