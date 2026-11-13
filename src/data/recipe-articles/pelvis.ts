@@ -125,8 +125,8 @@ export const pelvisArticles: Record<string, PatternArticle> = {
       {
         heading: "Different jobs, different movement histories",
         paragraphs: [
-          "Think about an ollie. The front foot guides the board while the rear leg delivers the pop. Across years of skating and the many tricks built around that movement, each side develops a different movement history.",
-          "In the skateboarders we work with, that history gives us something concrete to explore: how each hip turns, which leg feels more natural to stand on, and what happens to the pelvis as they squat.",
+          "A shift to one side during a squat is a pattern you may notice in sports like skateboarding, where the two legs often do different jobs. Take an ollie, a basic skateboard jump. The back foot snaps the tail against the ground while the front foot guides and levels the board in the air. Skaters who usually ride in the same stance spend years practicing those different roles.",
+          "That gives us a few things to check in a session: how each hip rotates, which leg feels more natural to stand on, and when the pelvis begins to shift during the squat.",
         ],
       },
       {
