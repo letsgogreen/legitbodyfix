@@ -16,9 +16,10 @@ export function recipeLibraryCookie() {
   return `${cookieName}=${expires}.${signature(expires)}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`;
 }
 
-export function requireRecipeLibraryAccess() {
+export async function requireRecipeLibraryAccess() {
   setResponseHeader("Cache-Control", "private, no-store");
-  const cookie = getRequest().headers.get("cookie") ?? "";
+  const { headers } = getRequest();
+  const cookie = headers.get("cookie") ?? "";
   const match = cookie.match(/(?:^|;\s*)lbf_recipe_access=(\d+)\.([a-f0-9]{64})(?:;|$)/);
   if (
     match &&
@@ -27,5 +28,13 @@ export function requireRecipeLibraryAccess() {
   ) {
     return;
   }
+
+  const token = headers.get("authorization")?.match(/^Bearer (\S+)$/i)?.[1];
+  if (token) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
+    if (!error && data.user?.email && data.user.email_confirmed_at) return;
+  }
+
   throw redirect({ to: "/library-access", search: {} });
 }

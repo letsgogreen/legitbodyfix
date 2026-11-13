@@ -60,7 +60,7 @@ export const getPublishedRecipe = createServerFn({ method: "GET" })
   .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data: input }) => {
     const { requireRecipeLibraryAccess } = await import("./recipe-library-access.server");
-    requireRecipeLibraryAccess();
+    await requireRecipeLibraryAccess();
     return readPublishedRecipe(input.slug);
   });
 
@@ -205,7 +205,7 @@ export const listPublishedRecipes = createServerFn({ method: "GET" })
 
 export const getRecipeLibrary = createServerFn({ method: "GET" }).handler(async () => {
   const { requireRecipeLibraryAccess } = await import("./recipe-library-access.server");
-  requireRecipeLibraryAccess();
+  await requireRecipeLibraryAccess();
   return readPublishedRecipes();
 });
 
