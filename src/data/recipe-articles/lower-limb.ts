@@ -237,6 +237,15 @@ export const lowerLimbArticles: Record<string, PatternArticle> = {
     ],
     sections: [
       {
+        heading: "Try one change, then repeat the squat",
+        paragraphs: [
+          "Watch a comfortable bodyweight squat. Note when the heel first lifts, whether it happens on one side or both, and whether the foot turns or the pelvis shifts first.",
+          "Start with a depth at which the whole foot feels supported. If you want to compare stance options, change only the stance width and repeat at the same depth and pace.",
+          "If the new stance gives you steadier foot contact at the same depth, use it for a few practice squats. If the heel still lifts at about the same point, use the more comfortable stance and practice just above that depth.",
+          "After practice, repeat the original squat at the same stance, depth and pace. Check whether the heel lifts at the same point and whether balance and comfort feel different.",
+        ],
+      },
+      {
         heading: "Ankle range and the rest of the squat are connected",
         paragraphs: [
           "Keeping the heel supported while the shin moves forward uses ankle dorsiflexion. When that movement is limited, the rest of the squat may change rather than following one fixed compensation.",
