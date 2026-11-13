@@ -10,6 +10,7 @@ import { getRecipeLibrary } from "@/lib/recipes.functions";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 
 export const Route = createFileRoute("/recipes/")({
+  ssr: false,
   validateSearch: (search: Record<string, unknown>) => ({
     region:
       typeof search["region"] === "string" && findBodyRegion(search["region"])

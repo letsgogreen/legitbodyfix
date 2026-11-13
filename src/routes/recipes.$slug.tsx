@@ -10,6 +10,7 @@ import { regionNameFor } from "@/lib/notion/regions";
 import { blocksFromLegacyInstructions, normalizeRecipeBlocks } from "@/lib/recipe-blocks";
 
 export const Route = createFileRoute("/recipes/$slug")({
+  ssr: false,
   loader: async ({ params }) => {
     const recipe = await getPublishedRecipe({ data: { slug: params.slug } });
     if (!recipe) throw notFound();
