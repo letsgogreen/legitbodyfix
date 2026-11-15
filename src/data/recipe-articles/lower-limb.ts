@@ -231,9 +231,9 @@ export const lowerLimbArticles: Record<string, PatternArticle> = {
     ],
   },
   "heel-rise": {
-    title: "What changes when the heel leaves the ground?",
+    title: "Heel Rise: When your heels lift in a squat",
     intro: [
-      "As a squat becomes deeper, a heel may lose contact with the floor. Record when that happens and whether it occurs on one or both sides. Heel rise describes a contact change; it does not, by itself, explain whether the ankle, stance or the overall movement strategy is responsible.",
+      "Your heels stay down at the start of the squat. Then, somewhere on the way down, one or both lift. That moment is more useful than a photo of the bottom position. Does it happen at the same depth every time? Does one heel lift first? Does your chest tip forward or your weight shift before you lose contact?",
     ],
     sections: [
       {
@@ -246,45 +246,32 @@ export const lowerLimbArticles: Record<string, PatternArticle> = {
         ],
       },
       {
-        heading: "Ankle range and the rest of the squat are connected",
+        heading: "Why the recipe goes beyond the calf",
         paragraphs: [
-          "Keeping the heel supported while the shin moves forward uses ankle dorsiflexion. When that movement is limited, the rest of the squat may change rather than following one fixed compensation.",
-          "A study comparing people with and without limited ankle dorsiflexion found differences in trunk, hip and lumbar movement. This supports linking heel contact to the wider squat strategy, but the study did not establish heel rise as a test of calf shortening.",
+          "The calf is an obvious place to look when the heel lifts, but the squat involves the knee and hip as well as the ankle. The sequence below reflects that: it starts with the calf and front of the thigh, moves to targeted work for the muscle at the front of the shin, and brings the work together in a single-leg squat.",
+          "The single-leg squat is where you practice controlling the descent on one side at a time. To see whether that practice carries over, return to the squat in which you first noticed the heel lift. Compare when the heel lifts, how deep you can go comfortably, and whether one side behaves differently.",
         ],
-        evidence: ["ankleLean"],
       },
       {
-        heading: "Lifting a heel is not the same as using a heel wedge",
-        paragraphs: [
-          "A heel wedge gives the heel an elevated support surface; an unsupported rising heel changes where the foot contacts the floor. These conditions should not be treated as equivalent.",
-          "In recreational lifters, one study found no significant change in measured trunk angles across heel-raised setups. A response to heel elevation is therefore a task-specific observation, not a guaranteed correction or a diagnosis of the original cause.",
-        ],
-        evidence: ["heelResponse"],
-      },
-      {
-        heading: "Follow the other changes at the same depth",
-        paragraphs: [
-          "Does the chest incline more before contact is lost? Does one foot turn farther outward? Does the pelvis shift toward the other leg? Those questions connect heel rise to the forward-lean, turnout and asymmetric-shift recipes without assuming that all three must be present.",
-          "The distinction is useful for describing the sequence: a heel that rises first and a heel that rises after a large shift are not necessarily parts of the same strategy.",
-        ],
+        heading: "A practical sequence",
+        paragraphs: [],
+        table: {
+          caption: "Preparation → mobility → strength → coordination",
+          columns: ["Phase", "What to work on", "Why it’s here"],
+          rows: [
+            ["Inhibit · Prepare", "Soft-tissue rolling for the gastrocnemius, soleus, and quadriceps.", "Prepare the calf and front of the thigh for the mobility work that follows."],
+            ["Lengthen · Mobilize", "Stretch the soleus and quadriceps.", "Explore available movement at the ankle and knee before returning to a squat."],
+            ["Activate · Strengthen", "Target the tibialis anterior, the muscle at the front of the shin.", "Train the muscle that helps lift the front of the foot toward the shin."],
+            ["Integrate · Coordinate", "Practice a single-leg squat variation you can control.", "Put ankle, knee, and hip control together while lowering on one leg."],
+          ],
+        },
       },
     ],
-    interpretation:
-      "The appearance of heel rise does not identify a particular calf muscle or justify forcing greater depth. The related cards help separate accompanying movements, not prescribe one solution.",
+    interpretation: "",
     connections: [
-      {
-        slug: "excessive-forward-trunk-leaning",
-        reason: "Compare trunk movement with the point at which heel contact changes.",
-      },
-      {
-        slug: "feet-turn-out",
-        reason: "Follow a changing foot angle independently from the heel losing support.",
-      },
-      {
-        slug: "asymmetric-weight-shift",
-        reason:
-          "Explore side-to-side differences when only one heel rises or the pelvis moves sideways.",
-      },
+      { slug: "excessive-forward-trunk-leaning", reason: "If your chest tips forward as your heels lift, compare which change happens first." },
+      { slug: "feet-turn-out", reason: "If your feet turn outward as you descend, notice whether that happens before or after the heels lift." },
+      { slug: "asymmetric-weight-shift", reason: "If one heel lifts first, watch whether your pelvis also shifts to one side." },
     ],
   },
 };
