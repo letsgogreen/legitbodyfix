@@ -259,7 +259,7 @@ export const lowerLimbArticles: Record<string, PatternArticle> = {
           caption: "Preparation → mobility → strength → coordination",
           columns: ["Phase", "What to work on", "Why it’s here"],
           rows: [
-            ["Inhibit · Prepare", "Soft-tissue rolling for the gastrocnemius, soleus, and quadriceps.", "Prepare the calf and front of the thigh for the mobility work that follows."],
+            ["Inhibit · Prepare", "Soft-tissue rolling for the gastrocnemius, soleus, and quadriceps. Optional lateral lower-leg targets: peroneus longus and peroneus brevis.", "Prepare for the mobility work that follows."],
             ["Lengthen · Mobilize", "Stretch the soleus and quadriceps.", "Explore available movement at the ankle and knee before returning to a squat."],
             ["Activate · Strengthen", "Target the tibialis anterior, the muscle at the front of the shin.", "Train the muscle that helps lift the front of the foot toward the shin."],
             ["Integrate · Coordinate", "Practice a single-leg squat variation you can control.", "Put ankle, knee, and hip control together while lowering on one leg."],
