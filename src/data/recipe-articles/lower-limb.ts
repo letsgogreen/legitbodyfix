@@ -237,17 +237,12 @@ export const lowerLimbArticles: Record<string, PatternArticle> = {
     ],
     sections: [
       {
-        heading: "Try one change, then repeat the squat",
-        paragraphs: [
-          "Watch a comfortable bodyweight squat. Note when the heel first lifts, whether it happens on one side or both, and whether the foot turns or the pelvis shifts first.",
-          "Start with a depth at which the whole foot feels supported. If you want to compare stance options, change only the stance width and repeat at the same depth and pace.",
-          "If the new stance gives you steadier foot contact at the same depth, use it for a few practice squats. If the heel still lifts at about the same point, use the more comfortable stance and practice just above that depth.",
-          "After practice, repeat the original squat at the same stance, depth and pace. Check whether the heel lifts at the same point and whether balance and comfort feel different.",
-        ],
-      },
-      {
         heading: "Why the recipe goes beyond the calf",
         paragraphs: [
+          "You may have to lift your heels so you can balance yourself from falling behind. Or you can’t help yourself but your heels being lifted. Either way, your calves are worth a closer look.",
+          "The cause can be vary. It could coming from previous ankle injury, or you could’ve had surgeries followed by adhension, or you might have an years of deadlifting experience.",
+          "All might have one thing in common; you never got to know how to massage it.",
+          "Massaging the calves is one of the most painful thing to work on if not the most. Maybe its because they are the muscles that’s supposed to lift, push our whole bodyweight all day long and everywhere we go.",
           "The calf is an obvious place to look when the heel lifts, but the squat involves the knee and hip as well as the ankle. The sequence below reflects that: it starts with the calf and front of the thigh, moves to targeted work for the muscle at the front of the shin, and brings the work together in a single-leg squat.",
           "The single-leg squat is where you practice controlling the descent on one side at a time. To see whether that practice carries over, return to the squat in which you first noticed the heel lift. Compare when the heel lifts, how deep you can go comfortably, and whether one side behaves differently.",
         ],
