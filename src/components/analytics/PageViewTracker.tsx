@@ -4,7 +4,6 @@ import { isInternalAnalyticsBrowser } from "@/lib/internal-analytics";
 import {
   getAnalyticsSessionId,
   getAnalyticsVisitorId,
-  isAnalyticsSessionExpired,
 } from "@/lib/analytics-client";
 
 const CAMPAIGN_KEY = "lbf_analytics_campaign";
@@ -89,18 +88,6 @@ export function PageViewTracker() {
 
   useEffect(() => {
     recordPageView();
-  }, [location.pathname, location.searchStr]);
-
-  useEffect(() => {
-    const recordResumedSession = () => {
-      if (document.visibilityState === "visible" && isAnalyticsSessionExpired()) recordPageView();
-    };
-    window.addEventListener("focus", recordResumedSession);
-    document.addEventListener("visibilitychange", recordResumedSession);
-    return () => {
-      window.removeEventListener("focus", recordResumedSession);
-      document.removeEventListener("visibilitychange", recordResumedSession);
-    };
   }, [location.pathname, location.searchStr]);
 
   return null;
